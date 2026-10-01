@@ -15,14 +15,14 @@ namespace Servio.Tests.Services;
 /// Reference test for services: EF Core InMemory database + FakeTimeProvider, Arrange/Act/Assert.
 /// InMemory does not support ExecuteUpdate/transactions; test those paths against SQL Server manually.
 /// </summary>
-public sealed class AuthServiceTests
+public sealed class AuthServiceTests : IDisposable
 {
     private const string FixedCode = "123456";
-    private readonly FakeTimeProvider _clock = new(new DateTimeOffset(2026, 10, 1, 8, 0, 0, TimeSpan.Zero));
-    private readonly ServioDbContext _db = new(new DbContextOptionsBuilder<ServioDbContext>()
-        .UseInMemoryDatabase(Guid.NewGuid().ToString())
-        .AddInterceptors(new InMemoryRowVersionInterceptor())
-        .Options);
+    private readonly TestContext _ctx = new();
+    private FakeTimeProvider _clock => _ctx.Clock;
+    private ServioDbContext _db => _ctx.Db;
+
+    public void Dispose() => _ctx.Dispose();
 
     private AuthService CreateService(string? fixedCode = FixedCode)
     {
@@ -31,7 +31,7 @@ public sealed class AuthServiceTests
         return new AuthService(
             _db,
             tokens,
-            new UserService(_db, _clock),
+            _ctx.Users(),
             Options.Create(new OtpOptions { FixedCode = fixedCode }),
             _clock,
             new FakeHostEnvironment(),
