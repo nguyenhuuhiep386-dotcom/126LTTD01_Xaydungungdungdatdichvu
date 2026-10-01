@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary action: yellow fill, dark text. One per screen. -->
+    <style name="Widget.Servio.Button" parent="Widget.Material3.Button">
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:textAppearance">@style/TextAppearance.Servio.Label</item>
+        <item name="backgroundTint">@color/servio_button_primary_bg</item>
+        <item name="android:textColor">@color/servio_button_primary_text</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Servio.Medium</item>
+    </style>
+    <!-- Secondary action: outlined. -->
+    <style name="Widget.Servio.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:textAppearance">@style/TextAppearance.Servio.Label</item>
+        <item name="android:textColor">@color/servio_text_primary</item>
+        <item name="strokeColor">@color/servio_outline</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Servio.Medium</item>
+    </style>
+    <!-- Tertiary action: text only, accent color. -->
+    <style name="Widget.Servio.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textAppearance">@style/TextAppearance.Servio.Label</item>
+        <item name="android:textColor">@color/servio_text_accent</item>
+    </style>
+
+    <style name="Widget.Servio.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/servio_text_primary</item>
+        <item name="boxBackgroundColor">@color/servio_surface</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Servio.Medium</item>
+        <item name="hintTextColor">@color/servio_text_accent</item>
+    </style>
+
+    <style name="Widget.Servio.Card" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardBackgroundColor">@color/servio_surface</item>
+        <item name="strokeColor">@color/servio_divider</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Servio.Large</item>
+        <item name="cardElevation">0dp</item>
+    </style>
+
+    <style name="Widget.Servio.BottomNavigation" parent="Widget.Material3.BottomNavigationView">
+        <item name="backgroundTint">@color/servio_surface</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.Servio.BottomNavigation.Indicator</item>
+        <item name="itemIconTint">@color/servio_text_primary</item>
+        <item name="itemTextColor">@color/servio_text_primary</item>
+        <item name="itemTextAppearanceActive">@style/TextAppearance.Servio.BottomNav.Active</item>
+        <item name="itemTextAppearanceInactive">@style/TextAppearance.Servio.BottomNav</item>
+    </style>
+    <style name="Widget.Servio.BottomNavigation.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/servio_primary</item>
+    </style>
+
+    <style name="Widget.Servio.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/servio_background</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Servio.SectionTitle</item>
+    </style>
+
+    <style name="ShapeAppearance.Servio.Medium" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/radius_m</item>
+    </style>
+    <style name="ShapeAppearance.Servio.Large" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/radius_l</item>
+    </style>
+</resources>

@@ -1,0 +1,10 @@
+@page "{code}"
+@{
+    var code = (string?)RouteData.Values["code"] ?? "";
+    ViewData["Title"] = code;
+}
+<div class="card empty">
+    <h2>@code đang được phát triển</h2>
+    <p class="muted">Trang này thuộc kế hoạch ở docs/ke-hoach-giai-doan.md, mục 5.3.<br />
+        Khi làm xong, đổi đường dẫn trong Pages/Shared/_AdminLayout.cshtml sang route thật.</p>
+</div>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Servio</string>
+
+    <string name="tab_home">Trang chủ</string>
+    <string name="tab_requests">Yêu cầu</string>
+    <string name="tab_orders">Đơn hàng</string>
+    <string name="tab_messages">Tin nhắn</string>
+    <string name="tab_account">Tài khoản</string>
+
+    <!-- CS-06 Home -->
+    <string name="home_greeting">Xin chào, %1$s</string>
+    <string name="home_question">Hôm nay nhà bạn cần giúp gì?</string>
+    <string name="home_post_request">Đăng yêu cầu</string>
+    <string name="home_post_request_hint">Mô tả việc cần làm, đối tác gần bạn sẽ gửi báo giá</string>
+    <string name="home_categories">Danh mục dịch vụ</string>
+    <string name="home_see_all">Xem tất cả</string>
+    <string name="home_services_count">%1$d dịch vụ</string>
+
+    <!-- CS-14 My requests -->
+    <string name="requests_title">Yêu cầu của tôi</string>
+    <string name="requests_fake_note">Dữ liệu mẫu (FakeServiceRequestRepository)</string>
+    <string name="requests_empty">Bạn chưa có yêu cầu nào</string>
+    <string name="requests_quotes">%1$d báo giá</string>
+</resources>

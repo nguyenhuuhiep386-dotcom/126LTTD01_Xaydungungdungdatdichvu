@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ServioPartner navigation. Bottom tabs: ps07, ps12, ps13, ps20, ps21.
+  Signup/KYC screens (PS-02..PS-06) sit outside main_graph; PartnerAuthRouter decides where to land.
+  Generated from the screen list in docs/ke-hoach-giai-doan.md (spec 7.2/7.4/7.6). Edit by hand from now on.
+  Placeholder screens use PlaceholderFragment; to build a screen, change android:name only (keep the id).
+-->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_root"
+    app:startDestination="@id/auth_graph">
+
+    <!-- CS-01, CS-03, CS-04, CS-05 from :core -->
+    <include app:graph="@navigation/auth_graph" />
+    <fragment
+        android:id="@+id/ps02"
+        android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+        android:label="PS-02 Đăng ký đối tác — B1 Thông tin">
+        <argument
+            android:name="code"
+            android:defaultValue="PS-02"
+            app:argType="string" />
+        <argument
+            android:name="title"
+            android:defaultValue="Đăng ký đối tác — B1 Thông tin"
+            app:argType="string" />
+        <argument
+            android:name="description"
+            android:defaultValue="Tên, ảnh, giới thiệu, năm kinh nghiệm (#10, #18)"
+            app:argType="string" />
+        <argument
+            android:name="links"
+            android:defaultValue="ps03|Bước 2: Kỹ năng"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/ps03"
+        android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+        android:label="PS-03 Đăng ký — B2 Kỹ năng">
+        <argument
+            android:name="code"
+            android:defaultValue="PS-03"
+            app:argType="string" />
+        <argument
+            android:name="title"
+            android:defaultValue="Đăng ký — B2 Kỹ năng"
+            app:argType="string" />
+        <argument
+            android:name="description"
+            android:defaultValue="Chọn danh mục cấp 2 + chứng chỉ (#22)"
+            app:argType="string" />
+        <argument
+            android:name="links"
+            android:defaultValue="ps04|Bước 3: Khu vực"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/ps04"
+        android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+        android:label="PS-04 Đăng ký — B3 Khu vực">
+        <argument
+            android:name="code"
+            android:defaultValue="PS-04"
+            app:argType="string" />
+        <argument
+            android:name="title"
+            android:defaultValue="Đăng ký — B3 Khu vực"
+            app:argType="string" />
+        <argument
+            android:name="description"
+            android:defaultValue="Điểm neo + bán kính 3/5/10/20 km (#18)"
+            app:argType="string" />
+        <argument
+            android:name="links"
+            android:defaultValue="ps05|Bước 4: KYC"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/ps05"
+        android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+        android:label="PS-05 Đăng ký — B4 KYC">
+        <argument
+            android:name="code"
+            android:defaultValue="PS-05"
+            app:argType="string" />
+        <argument
+            android:name="title"
+            android:defaultValue="Đăng ký — B4 KYC"
+            app:argType="string" />
+        <argument
+            android:name="description"
+            android:defaultValue="CCCD 2 mặt + selfie (POST /files KYC, #19, #20)"
+            app:argType="string" />
+        <argument
+            android:name="links"
+            android:defaultValue="ps06|Gửi hồ sơ"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/ps06"
+        android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+        android:label="PS-06 Chờ duyệt">
+        <argument
+            android:name="code"
+            android:defaultValue="PS-06"
+            app:argType="string" />
+        <argument
+            android:name="title"
+            android:defaultValue="Chờ duyệt"
+            app:argType="string" />
+        <argument
+            android:name="description"
+            android:defaultValue="Trạng thái, lý do từ chối, nút gửi lại"
+            app:argType="string" />
+        <argument
+            android:name="links"
+            android:defaultValue="ps02|Sửa hồ sơ;main_graph|Vào trang chính (khi đã được duyệt)"
+            app:argType="string" />
+        <argument
+            android:name="showLogout"
+            android:defaultValue="true"
+            app:argType="boolean" />
+    </fragment>
+
+    <navigation
+        android:id="@id/main_graph"
+        app:startDestination="@id/ps07">
+
+        <fragment
+            android:id="@+id/ps07"
+            android:name="vn.servio.partner.ui.feed.FeedFragment"
+            android:label="PS-07 Newsfeed">
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps08"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-08 Bộ lọc newsfeed">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-08"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Bộ lọc newsfeed"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Danh mục, khoảng cách, sắp xếp"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps10"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-10 Chi tiết bài đăng">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-10"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Chi tiết bài đăng"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="GET /service-requests/{id} (#38)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="ps11|Gửi báo giá;chat|Chat với khách"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps11"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-11 Gửi báo giá">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-11"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Gửi báo giá"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Bottom sheet: giá, thời gian, ghi chú (#50)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="ps12|Gửi → Báo giá của tôi"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps12"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-12 Báo giá của tôi">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-12"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Báo giá của tôi"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Tab: Chờ / Được chọn / Bị từ chối (#53)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="ps10|Mở bài đăng"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps13"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-13 Đơn hàng">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-13"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Đơn hàng"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Tab: Sắp tới / Đang làm / Hoàn thành (#62)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="ps14|Mở một đơn"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps14"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-14 Chi tiết đơn (đối tác)">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-14"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Chi tiết đơn (đối tác)"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Nút hành động theo trạng thái; đếm ngược xác nhận 10 phút"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="ps15|Bắt đầu di chuyển;ps17|Thêm phát sinh;ps19|Thu tiền mặt;ps27|Đánh giá khách;chat|Chat"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps15"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-15 Điều hướng tới khách">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-15"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Điều hướng tới khách"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Bản đồ + &quot;Đã đến&quot; (#68) + &quot;Nhờ khách xác nhận&quot; (#178); foreground service vị trí"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="ps16|Đã đến → Thực hiện"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps16"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-16 Thực hiện công việc">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-16"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Thực hiện công việc"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Ảnh trước (#69), thêm phát sinh"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="ps17|Thêm phát sinh;ps18|Hoàn thành công việc"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps17"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-17 Thêm chi phí phát sinh">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-17"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Thêm chi phí phát sinh"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Bottom sheet (#73)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps18"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-18 Hoàn thành công việc">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-18"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Hoàn thành công việc"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Ảnh sau + ghi chú (#70)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="ps19|Thu tiền mặt"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps19"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-19 Thu tiền mặt">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-19"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Thu tiền mặt"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Hiển thị số tiền cần thu; không có nút xác nhận đã thu"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="ps27|Đánh giá khách"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps20"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-20 Tin nhắn">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-20"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Tin nhắn"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Dùng giao diện chat chung CS-27"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="chat|Mở một hội thoại"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/chat"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-28 Phòng chat">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-28"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Phòng chat"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Giao diện chat chung, hub /hubs/chat"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps21"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-21 Thu nhập">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-21"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Thu nhập"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Thu nhập + công nợ hoa hồng (ngưỡng 200.000 đ), trả nợ (#87, #155, #156)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="ps23|Hồ sơ đối tác;ps24|Quản lý kỹ năng;ps28|Thông báo"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps23"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-23 Hồ sơ đối tác">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-23"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Hồ sơ đối tác"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Sửa hồ sơ, bán kính nhận việc (#17, #18)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="showLogout"
+                android:defaultValue="true"
+                app:argType="boolean" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps24"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-24 Quản lý kỹ năng">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-24"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Quản lý kỹ năng"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Danh sách kỹ năng + trạng thái duyệt (#21–#23)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps27"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-27 Đánh giá khách hàng">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-27"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Đánh giá khách hàng"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Sao + nhận xét (#95)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ps28"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="PS-28 Thông báo">
+            <argument
+                android:name="code"
+                android:defaultValue="PS-28"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Thông báo"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Danh sách thông báo (#101–#104)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+    </navigation>
+</navigation>

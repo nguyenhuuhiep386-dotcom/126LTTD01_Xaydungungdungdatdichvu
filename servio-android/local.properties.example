@@ -1,0 +1,5 @@
+# Copy to local.properties (not committed) and edit.
+# Android SDK location (Android Studio fills this in automatically). Escape ":" and "\" like below.
+sdk.dir=C\:\\Users\\<you>\\AppData\\Local\\Android\\Sdk
+# Backend URL (must end with "/"). Emulator: http://10.0.2.2:5080/  Real phone: http://<laptop LAN IP>:5080/
+servio.baseUrl=http://10.0.2.2:5080/

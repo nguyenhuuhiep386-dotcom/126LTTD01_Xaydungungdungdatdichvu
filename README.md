@@ -7,11 +7,12 @@
   - Backend ASP.NET Core (.NET 10) và CSDL SQL Server.
   - Trang quản trị web (Razor Pages).
   - Slide và bảng Trello cho từng buổi báo cáo.
+- **Bắt đầu:** cài đặt và chạy demo theo [`docs/huong-dan-phat-trien.md`](docs/huong-dan-phat-trien.md); kế hoạch dựng nền và phân công theo luồng ở [`docs/ke-hoach-giai-doan.md`](docs/ke-hoach-giai-doan.md).
 - **Thành viên & vai trò:**
   - Hà Cảnh Minh Hoàng (2415053122219) – backend ASP.NET Core, CSDL SQL Server, SignalR/FCM phía server, trang quản trị web.
   - Trần Đình Nguyên (2415053122225) – app Servio (khách hàng); phần Android dùng chung: network, lưu token, SignalR client, màn xác thực.
   - Nguyễn Hữu Hiệp (2415053122218) – app ServioPartner (đối tác); design system và giao diện chat dùng chung; báo cáo, slide, Trello.
-- **Tài liệu đặc tả:** `servio-ke-hoach-phat-trien-v1.4.md`. **Mục 0.2** là phạm vi đồ án: chức năng, API, bảng, màn hình và tiêu chí nghiệm thu. Mã `F-…`, `CS-…`, `PS-…`, `AW-…`, `#…` dưới đây tra theo tài liệu này.
+- **Tài liệu đặc tả:** [`docs/servio-ke-hoach-phat-trien-v1.4.md`](docs/servio-ke-hoach-phat-trien-v1.4.md). **Mục 0.2** là phạm vi đồ án: chức năng, API, bảng, màn hình và tiêu chí nghiệm thu. Mã `F-…`, `CS-…`, `PS-…`, `AW-…`, `#…` dưới đây tra theo tài liệu này.
 
 **Các mốc báo cáo của môn học** (đều vào thứ Ba):
 
@@ -26,7 +27,7 @@
 - Mỗi việc trong checklist là một thẻ Trello. Mỗi người tự cập nhật thẻ của mình. Hiệp rà bảng trước mỗi buổi báo cáo.
 - Git: nhánh `main` luôn chạy được, `develop` để tích hợp, mỗi việc một nhánh `feature/<tên-việc>`. Merge qua pull request, cần một thành viên khác xem qua.
 - Hợp đồng API chốt trên Swagger trước khi Android nối. Khi endpoint chưa có, Android dùng `FakeRepository` trả dữ liệu mẫu, sau đó thay bằng repository thật mà không sửa giao diện.
-- Tên biến, hàm, lớp và comment trong code bằng tiếng Anh. Kotlin theo convention MVVM trong Mau.md mục 3.1.
+- Tên biến, hàm, lớp và comment trong code bằng tiếng Anh. Kotlin theo MVVM; cấu trúc thư mục và các mẫu code ghi trong [`docs/huong-dan-phat-trien.md`](docs/huong-dan-phat-trien.md).
 - Đề xuất họp ngắn tối thứ Hai trước mỗi buổi báo cáo để rà Trello và chốt phần demo.
 
 ## Giai đoạn 1: Khởi động và chốt đề tài (hạn: 29/09 — BC1)
@@ -181,3 +182,9 @@
 **Rủi ro / ghi chú:**
 - Wi-Fi của trường có thể chặn kết nối giữa các thiết bị. Nên dùng hotspot riêng và thử trước tại phòng học nếu được.
 - Báo cáo cuối (.docx) chưa có hạn nộp. Khi giảng viên thông báo, Hiệp bổ sung giai đoạn viết báo cáo vào kế hoạch này, dựa trên v1.4 và ghi chú hàng tuần.
+
+## Nhật ký thay đổi
+| Ngày | Thay đổi |
+|---|---|
+| 25/09 | Tạo kế hoạch theo 4 mốc báo cáo của môn học; phạm vi và stack theo `servio-ke-hoach-phat-trien-v1.4.md` mục 0.2 |
+| 01/10 | Dựng nền móng (backend, 2 app, trang quản trị) và chia việc theo luồng tác nhân: xem `docs/ke-hoach-giai-doan.md`. Việc dựng khung ở Giai đoạn 2 đã xong |

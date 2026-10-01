@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/space_m"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/space_l">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+            tools:text="Máy lạnh phòng ngủ chảy nước" />
+
+        <TextView
+            android:id="@+id/meta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            tools:text="Vệ sinh máy lạnh · SR2610010001" />
+
+        <TextView
+            android:id="@+id/address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:drawablePadding="@dimen/space_xs"
+            android:gravity="center_vertical"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            app:drawableStartCompat="@drawable/ic_location"
+            app:drawableTint="@color/servio_text_secondary"
+            tools:text="12 Võ Văn Ngân, Thủ Đức" />
+
+        <TextView
+            android:id="@+id/quotes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:background="@drawable/bg_chip_code"
+            android:paddingHorizontal="@dimen/space_m"
+            android:paddingVertical="@dimen/space_xs"
+            android:textAppearance="@style/TextAppearance.Servio.Accent"
+            tools:text="3 báo giá" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

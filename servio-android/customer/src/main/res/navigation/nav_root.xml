@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Servio (customer) navigation. Bottom tabs: cs06, cs14, cs19, cs27, cs29.
+  Generated from the screen list in docs/ke-hoach-giai-doan.md (spec 7.2/7.4/7.6). Edit by hand from now on.
+  Placeholder screens use PlaceholderFragment; to build a screen, change android:name only (keep the id).
+-->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_root"
+    app:startDestination="@id/auth_graph">
+
+    <!-- CS-01, CS-03, CS-04, CS-05 from :core -->
+    <include app:graph="@navigation/auth_graph" />
+
+
+    <navigation
+        android:id="@id/main_graph"
+        app:startDestination="@id/cs06">
+
+        <fragment
+            android:id="@+id/cs06"
+            android:name="vn.servio.customer.ui.home.HomeFragment"
+            android:label="CS-06 Trang chủ">
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs07"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-07 Danh mục dịch vụ">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-07"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Danh mục dịch vụ"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Lưới danh mục cấp 1 → cấp 2"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="cs08|Chọn dịch vụ → Tạo yêu cầu"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs08"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-08 Tạo yêu cầu — B1 Mô tả">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-08"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Tạo yêu cầu — B1 Mô tả"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Tiêu đề, mô tả, ảnh (POST /files)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="cs09|Bước 2: Địa chỉ &amp; thời gian"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs09"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-09 Tạo yêu cầu — B2 Địa chỉ &amp; thời gian">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-09"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Tạo yêu cầu — B2 Địa chỉ &amp; thời gian"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Chọn địa chỉ từ sổ hoặc ghim bản đồ, lịch hẹn"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="cs10|Bước 3: Ngân sách &amp; yêu cầu;cs12|Chọn vị trí trên bản đồ;cs13|Sổ địa chỉ"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs10"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-10 Tạo yêu cầu — B3 Ngân sách &amp; yêu cầu">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-10"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Tạo yêu cầu — B3 Ngân sách &amp; yêu cầu"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Ngân sách, kinh nghiệm, đánh giá tối thiểu, bán kính"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="cs11|Xem lại &amp; đăng"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs11"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-11 Xem lại &amp; đăng">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-11"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Xem lại &amp; đăng"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Tóm tắt và POST /service-requests (#36)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="cs15|Đăng → Chi tiết yêu cầu"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs12"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-12 Chọn địa chỉ trên bản đồ">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-12"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Chọn địa chỉ trên bản đồ"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="osmdroid, ghim vị trí + nhập địa chỉ tay, ghi công © OpenStreetMap"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs13"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-13 Sổ địa chỉ">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-13"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Sổ địa chỉ"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Danh sách địa chỉ (#12–#15)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="cs12|Thêm địa chỉ trên bản đồ"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs14"
+            android:name="vn.servio.customer.ui.requests.MyRequestsFragment"
+            android:label="CS-14 Yêu cầu của tôi">
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs15"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-15 Chi tiết yêu cầu &amp; báo giá">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-15"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Chi tiết yêu cầu &amp; báo giá"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Trung tâm quyết định; báo giá realtime qua SignalR"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="cs16|Xem báo giá;cs28|Chat với đối tác;cs18|Chọn đối tác"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs16"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-16 Chi tiết báo giá">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-16"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Chi tiết báo giá"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Bottom sheet: hồ sơ đối tác + Chat / Chọn"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="cs17|Hồ sơ đối tác;cs28|Chat;cs18|Chọn báo giá này"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs17"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-17 Hồ sơ công khai đối tác">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-17"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Hồ sơ công khai đối tác"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="GET /partners/{id} (#27), đánh giá (#28)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs18"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-18 Xác nhận chọn đối tác">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-18"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Xác nhận chọn đối tác"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Tóm tắt giá, tiền mặt (CASH), POST accept-quotes (#43)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="cs20|Xác nhận → Chi tiết đơn"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs19"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-19 Đơn hàng">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-19"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Đơn hàng"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Tab: Đang xử lý / Hoàn thành / Đã huỷ (#62)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="cs20|Mở một đơn"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs20"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-20 Chi tiết đơn hàng">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-20"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Chi tiết đơn hàng"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Timeline + hành động theo trạng thái; hộp thoại &quot;Thợ đã đến?&quot; (#179)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="cs21|Theo dõi bản đồ;cs22|Duyệt phát sinh;cs23|Xác nhận hoàn thành;cs33|Khiếu nại;cs28|Chat"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs21"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-21 Theo dõi bản đồ">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-21"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Theo dõi bản đồ"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="osmdroid, marker cập nhật qua SignalR, nhãn &quot;Chưa cập nhật&quot;"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs22"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-22 Duyệt phát sinh chi phí">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-22"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Duyệt phát sinh chi phí"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Bottom sheet Duyệt / Từ chối (#74)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs23"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-23 Xác nhận hoàn thành">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-23"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Xác nhận hoàn thành"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Ảnh trước/sau, tổng tiền, &quot;Xác nhận và đã trả tiền mặt&quot; (#71)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="cs26|Đánh giá đối tác"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs26"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-26 Đánh giá đối tác">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-26"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Đánh giá đối tác"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Sao + nhận xét (#95)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs27"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-27 Tin nhắn">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-27"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Tin nhắn"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Danh sách hội thoại (#54); giao diện chat chung của Hiệp"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="cs28|Mở một hội thoại"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs28"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-28 Phòng chat">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-28"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Phòng chat"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Hub /hubs/chat; giao diện chat chung"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs29"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-29 Tài khoản">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-29"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Tài khoản"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Hồ sơ, địa chỉ, ví, thông báo, cài đặt, hỗ trợ"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue="cs13|Sổ địa chỉ;cs30|Ví &amp; phí huỷ;cs31|Thông báo;cs32|Cài đặt;cs34|Trung tâm hỗ trợ"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs30"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-30 Ví &amp; giao dịch">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-30"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Ví &amp; giao dịch"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Phí huỷ còn nợ + khai báo đã chuyển khoản (#155, #156)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs31"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-31 Thông báo">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-31"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Thông báo"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Danh sách thông báo (#101–#104)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs32"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-32 Cài đặt">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-32"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Cài đặt"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Đồ án: chỉ gồm Đăng xuất"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="showLogout"
+                android:defaultValue="true"
+                app:argType="boolean" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs33"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-33 Khiếu nại">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-33"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Khiếu nại"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Tạo khiếu nại cho đơn (#146)"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/cs34"
+            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:label="CS-34 Trung tâm hỗ trợ">
+            <argument
+                android:name="code"
+                android:defaultValue="CS-34"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue="Trung tâm hỗ trợ"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                android:defaultValue="Trang tĩnh: hotline"
+                app:argType="string" />
+            <argument
+                android:name="links"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+    </navigation>
+</navigation>

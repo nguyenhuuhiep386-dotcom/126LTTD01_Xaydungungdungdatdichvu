@@ -1,0 +1,42 @@
+@page
+@model Servio.Api.Pages.Admin.LoginModel
+@{
+    Layout = null;
+}
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Đăng nhập · Servio Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="~/admin/admin.css" asp-append-version="true" />
+</head>
+<body>
+<main class="login-page">
+    <form method="post" class="login-card" novalidate>
+        <span class="brand-mark">S</span>
+        <h1>Servio Admin</h1>
+        <p class="muted">Đăng nhập để quản lý đối tác, đơn hàng và công nợ.</p>
+
+        <div class="field">
+            <label asp-for="Email">Email</label>
+            <input asp-for="Email" type="email" autocomplete="username" autofocus />
+            <span asp-validation-for="Email" class="muted"></span>
+        </div>
+        <div class="field">
+            <label asp-for="Password">Mật khẩu</label>
+            <input asp-for="Password" autocomplete="current-password" />
+            <span asp-validation-for="Password" class="muted"></span>
+        </div>
+
+        @if (Model.Error is not null)
+        {
+            <p class="alert" role="alert">@Model.Error</p>
+        }
+        <button type="submit" class="btn btn-primary">Đăng nhập</button>
+    </form>
+</main>
+</body>
+</html>

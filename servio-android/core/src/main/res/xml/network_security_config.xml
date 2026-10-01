@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Demo backend runs over HTTP on a laptop in the LAN (spec 0.2.2 row 15).
+     Cleartext is allowed for the course demo only; switch to HTTPS before any real release. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

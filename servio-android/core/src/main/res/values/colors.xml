@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Servio design tokens (spec 7.1). Use these names in layouts; never hard-code hex values. -->
+<resources>
+    <color name="servio_primary">#FFD480</color>
+    <color name="servio_on_primary">#2D2924</color>
+    <color name="servio_background">#FAF7F2</color>
+    <color name="servio_surface">#FFFDF9</color>
+    <color name="servio_surface_variant">#F2ECE3</color>
+    <color name="servio_primary_container">#FFF0D1</color>
+    <color name="servio_text_primary">#2D2924</color>
+    <color name="servio_text_secondary">#756D62</color>
+    <color name="servio_text_accent">#8A5700</color>
+    <color name="servio_divider">#E8E0D5</color>
+    <color name="servio_outline">#8C8173</color>
+    <color name="servio_success">#2F6B45</color>
+    <color name="servio_success_container">#E4EFE7</color>
+    <color name="servio_error">#B42318</color>
+    <color name="servio_error_container">#FBE9E7</color>
+</resources>

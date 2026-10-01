@@ -1,0 +1,62 @@
+@using System.Security.Claims
+@{
+    var path = Context.Request.Path.Value?.ToLowerInvariant() ?? "";
+    bool IsActive(string href) => href == "/admin" ? path is "/admin" or "/admin/" or "/admin/index" : path.StartsWith(href.ToLowerInvariant());
+
+    // AW pages in scope (spec 0.2.6). Change the href from /admin/soon/... to the real route when a page is built.
+    var menu = new (string Group, string Code, string Title, string Href)[]
+    {
+        ("Tổng quan", "AW-02", "Dashboard", "/admin"),
+        ("Người dùng", "AW-03", "Người dùng", "/admin/soon/AW-03"),
+        ("Người dùng", "AW-04", "Duyệt đối tác (KYC)", "/admin/soon/AW-04"),
+        ("Vận hành", "AW-06", "Bài đăng", "/admin/soon/AW-06"),
+        ("Vận hành", "AW-07", "Đơn hàng", "/admin/soon/AW-07"),
+        ("Vận hành", "AW-08", "Khiếu nại", "/admin/soon/AW-08"),
+        ("Tài chính", "AW-18", "Công nợ & trả nợ", "/admin/soon/AW-18"),
+        ("Cấu hình", "AW-11", "Danh mục dịch vụ", "/admin/catalog/categories"),
+    };
+}
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · Servio Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="~/admin/admin.css" asp-append-version="true" />
+</head>
+<body>
+<div class="shell">
+    <aside class="sidebar">
+        <a class="brand" href="/admin"><span class="brand-mark">S</span> Servio <small>Admin</small></a>
+        <nav aria-label="Menu quản trị">
+            @foreach (var group in menu.GroupBy(m => m.Group))
+            {
+                <p class="nav-group">@group.Key</p>
+                @foreach (var item in group)
+                {
+                    <a class="nav-link @(IsActive(item.Href) ? "active" : "")" href="@item.Href">
+                        <span class="nav-code">@item.Code</span>@item.Title
+                    </a>
+                }
+            }
+        </nav>
+    </aside>
+    <div class="main">
+        <header class="topbar">
+            <h1>@ViewData["Title"]</h1>
+            <div class="account">
+                <span>@User.FindFirstValue(ClaimTypes.Name)</span>
+                <form method="post" action="/admin/logout">
+                    <button type="submit" class="btn btn-ghost">Đăng xuất</button>
+                </form>
+            </div>
+        </header>
+        <main class="content">
+            @RenderBody()
+        </main>
+    </div>
+</div>
+</body>
+</html>

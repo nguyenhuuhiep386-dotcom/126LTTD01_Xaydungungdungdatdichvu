@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Item ids must equal the destination ids in nav_root.xml. -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/ps07"
+        android:icon="@drawable/ic_nav_feed"
+        android:title="@string/tab_feed" />
+    <item
+        android:id="@+id/ps12"
+        android:icon="@drawable/ic_nav_quotes"
+        android:title="@string/tab_quotes" />
+    <item
+        android:id="@+id/ps13"
+        android:icon="@drawable/ic_nav_jobs"
+        android:title="@string/tab_orders" />
+    <item
+        android:id="@+id/ps20"
+        android:icon="@drawable/ic_nav_chat"
+        android:title="@string/tab_messages" />
+    <item
+        android:id="@+id/ps21"
+        android:icon="@drawable/ic_nav_earnings"
+        android:title="@string/tab_earnings" />
+</menu>

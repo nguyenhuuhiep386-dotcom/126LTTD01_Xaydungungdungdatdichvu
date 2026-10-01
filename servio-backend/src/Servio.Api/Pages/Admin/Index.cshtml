@@ -1,0 +1,28 @@
+@page
+@model Servio.Api.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+<section class="kpis" aria-label="Số liệu tổng quan">
+    <a class="card kpi highlight" href="/admin/soon/AW-04">
+        <div class="label">Đối tác chờ duyệt KYC</div>
+        <div class="value">@Model.PendingKyc</div>
+    </a>
+    <div class="card kpi">
+        <div class="label">Bài đăng đang mở</div>
+        <div class="value">@Model.OpenRequests</div>
+    </div>
+    <div class="card kpi">
+        <div class="label">Đơn đang xử lý</div>
+        <div class="value">@Model.ActiveOrders</div>
+    </div>
+    <div class="card kpi">
+        <div class="label">Khách hàng</div>
+        <div class="value">@Model.Customers</div>
+    </div>
+    <div class="card kpi">
+        <div class="label">Đối tác</div>
+        <div class="value">@Model.Partners</div>
+    </div>
+</section>
+<p class="muted">Biểu đồ và số liệu theo ngày sẽ được bổ sung ở luồng QT-2.</p>

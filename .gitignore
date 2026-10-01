@@ -1,0 +1,40 @@
+# ---------- Local files that stay out of the repo ----------
+# Old spec versions, reports and the large prototype PDF (agreed in docs/ke-hoach-giai-doan.md)
+/servio-ke-hoach-phat-trien-v1.1.md
+/servio-ke-hoach-phat-trien-v1.2.md
+/servio-ke-hoach-phat-trien-v1.3.md
+*.docx
+*.pdf
+~$*
+
+# ---------- OS / IDE ----------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# ---------- .NET ----------
+bin/
+obj/
+.vs/
+*.user
+*.suo
+TestResults/
+servio-backend/src/Servio.Api/wwwroot/uploads/*
+!servio-backend/src/Servio.Api/wwwroot/uploads/.gitkeep
+servio-backend/src/Servio.Api/App_Data/
+
+# ---------- Android ----------
+.gradle/
+.kotlin/
+build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.keystore
+*.jks
+google-services.json

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ServioPartner</string>
+
+    <string name="tab_feed">Việc mới</string>
+    <string name="tab_quotes">Báo giá</string>
+    <string name="tab_orders">Đơn hàng</string>
+    <string name="tab_messages">Tin nhắn</string>
+    <string name="tab_earnings">Thu nhập</string>
+
+    <!-- PS-07 Feed -->
+    <string name="feed_title">Việc gần bạn</string>
+    <string name="feed_fake_note">Dữ liệu mẫu (FakeFeedRepository)</string>
+    <string name="feed_filter">Bộ lọc</string>
+    <string name="feed_empty">Chưa có bài đăng phù hợp quanh bạn</string>
+    <string name="feed_distance">%1$.1f km</string>
+    <string name="feed_budget">Ngân sách %1$s</string>
+    <string name="feed_quotes">%1$d báo giá</string>
+</resources>

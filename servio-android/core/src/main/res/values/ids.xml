@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Id of each app's main navigation graph: nav_root.xml declares <navigation android:id="@id/main_graph">. -->
+    <item name="main_graph" type="id" />
+</resources>

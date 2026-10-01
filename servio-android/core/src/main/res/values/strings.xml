@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shared auth screens (CS-01, CS-03, CS-04, CS-05 / PS-01) -->
+    <string name="brand_name">Servio</string>
+    <string name="splash_tagline">Sửa chữa và chăm sóc nhà, đúng người, đúng giá</string>
+    <string name="action_retry">Thử lại</string>
+    <string name="action_continue">Tiếp tục</string>
+    <string name="action_logout">Đăng xuất</string>
+
+    <string name="phone_title">Nhập số điện thoại</string>
+    <string name="phone_subtitle">Chúng tôi sẽ gửi mã OTP gồm 6 chữ số để xác thực.</string>
+    <string name="phone_hint">Số điện thoại</string>
+    <string name="phone_invalid">Số điện thoại gồm 10 chữ số, bắt đầu bằng 0</string>
+    <string name="phone_terms">Bằng việc tiếp tục, bạn đồng ý với Điều khoản sử dụng và Chính sách bảo mật của Servio.</string>
+
+    <string name="otp_title">Nhập mã OTP</string>
+    <string name="otp_subtitle">Mã xác thực đã được gửi tới %1$s</string>
+    <string name="otp_hint">Mã OTP</string>
+    <string name="otp_invalid">Mã OTP gồm 6 chữ số</string>
+    <string name="otp_verify">Xác nhận</string>
+    <string name="otp_resend">Gửi lại mã</string>
+    <string name="otp_resend_in">Gửi lại mã sau %1$ds</string>
+    <string name="otp_demo_hint">Môi trường demo: mã OTP luôn là 123456</string>
+
+    <string name="profile_title">Hoàn tất hồ sơ</string>
+    <string name="profile_subtitle">Cho chúng tôi biết tên của bạn để đối tác dễ liên hệ.</string>
+    <string name="profile_name_hint">Họ và tên</string>
+    <string name="profile_name_invalid">Họ tên dài 2–100 ký tự</string>
+    <string name="profile_save">Lưu và bắt đầu</string>
+
+    <!-- Placeholder screens -->
+    <string name="placeholder_note">Màn hình đang phát triển. Thay Fragment giữ chỗ này bằng giao diện thật theo Figma.</string>
+    <string name="placeholder_links">Đi tới</string>
+</resources>
