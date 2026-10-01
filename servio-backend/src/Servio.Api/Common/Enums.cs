@@ -39,6 +39,10 @@ public enum AdminRole : byte { SuperAdmin = 1, Operator = 2, Finance = 3, Suppor
 
 public enum ServiceRequestStatus : byte { Draft = 1, Open = 2, Matched = 3, Expired = 4, Cancelled = 5, RejectedByModeration = 6 }
 
+public enum ScheduleType : byte { Now = 1, Scheduled = 2 }
+
+public enum ConversationStatus : byte { Active = 1, Archived = 2, ReadOnly = 3, Blocked = 4 }
+
 public enum QuoteStatus : byte { Pending = 1, Accepted = 2, Rejected = 3, Withdrawn = 4, Expired = 5 }
 
 public enum OrderStatus : byte

@@ -23,13 +23,13 @@ class FakeFeedRepository @Inject constructor() : FeedRepository {
     private companion object {
         val SAMPLE = listOf(
             FeedItem("1", "Máy lạnh phòng ngủ chảy nước", "Vệ sinh máy lạnh", "Linh Chiểu, Thủ Đức", 1.2,
-                200_000, 400_000, 3, "2026-10-01T08:30:00+07:00", hasImages = true),
+                200_000, 400_000, 3, publishedAt = "2026-10-01T08:30:00+07:00", imageCount = 2),
             FeedItem("2", "Thay vòi sen nhà tắm", "Sửa ống nước", "Linh Chiểu, Thủ Đức", 1.2,
-                null, 300_000, 0, "2026-10-01T09:10:00+07:00"),
+                null, 300_000, 0, publishedAt = "2026-10-01T09:10:00+07:00"),
             FeedItem("3", "Sửa ổ cắm bị chập", "Sửa điện dân dụng", "Hiệp Phú, Thủ Đức", 3.8,
-                150_000, 250_000, 1, "2026-10-01T07:15:00+07:00"),
+                150_000, 250_000, 1, publishedAt = "2026-10-01T07:15:00+07:00"),
             FeedItem("4", "Lắp đèn trần phòng khách", "Sửa điện dân dụng", "Bình Thọ, Thủ Đức", 6.5,
-                null, null, 2, "2026-09-30T19:40:00+07:00", hasImages = true),
+                null, null, 2, publishedAt = "2026-09-30T19:40:00+07:00", imageCount = 1),
         )
     }
 }

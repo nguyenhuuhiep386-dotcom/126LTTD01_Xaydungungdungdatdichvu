@@ -44,7 +44,7 @@ public sealed class TestContext : IDisposable
     public async Task<User> AddUserAsync(UserRoleType role, string fullName = "Nguyễn Văn An", string phone = "+84901234567")
     {
         var now = Clock.GetUtcNow();
-        var user = new User { Id = Guid.NewGuid(), PhoneNumber = phone, FullName = fullName, CreatedAt = now, UpdatedAt = now };
+        var user = new User { Id = Guid.NewGuid(), PhoneNumber = phone, FullName = fullName, Status = (byte)UserStatus.Active, CreatedAt = now, UpdatedAt = now };
         user.UserRoles.Add(new UserRole { Id = Guid.NewGuid(), Role = (byte)role, CreatedAt = now });
         if (role == UserRoleType.Customer)
         {

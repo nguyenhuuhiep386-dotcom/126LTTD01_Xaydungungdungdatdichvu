@@ -31,6 +31,13 @@ public static class ErrorCodes
     public const string CertificateRequired = "CERTIFICATE_REQUIRED";
     public const string AddressLimitReached = "ADDRESS_LIMIT_REACHED";
 
+    // M2 / M3 (BE-2)
+    public const string ContactInfoNotAllowed = "CONTACT_INFO_NOT_ALLOWED";
+    public const string PostingRestricted = "POSTING_RESTRICTED";
+    public const string RequestNotOpen = "REQUEST_NOT_OPEN";
+    public const string ResourceVersionConflict = "RESOURCE_VERSION_CONFLICT";
+    public const string PartnerNotEligible = "PARTNER_NOT_ELIGIBLE";
+
     // Files (POST /files)
     public const string FileNotReady = "FILE_NOT_READY";
     public const string FileTooLarge = "FILE_TOO_LARGE";
