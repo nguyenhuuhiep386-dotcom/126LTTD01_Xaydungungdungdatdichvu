@@ -1,0 +1,149 @@
+@page "{id:guid}"
+@model Servio.Api.Pages.Admin.Partners.VerificationModel
+@{
+    var p = Model.Partner;
+    ViewData["Title"] = string.IsNullOrWhiteSpace(p.FullName) ? "Hồ sơ đối tác" : p.FullName;
+    var isPending = p.Status == PartnerVerificationStatus.Pending;
+    static string DocLabel(DocumentType t) => t switch
+    {
+        DocumentType.IdFront => "CCCD mặt trước",
+        DocumentType.IdBack => "CCCD mặt sau",
+        DocumentType.SelfieWithId => "Chân dung cầm CCCD",
+        DocumentType.Certificate => "Chứng chỉ",
+        _ => "Lý lịch tư pháp",
+    };
+}
+<p><a asp-page="Verifications">← Hàng đợi duyệt</a></p>
+
+@if (Model.Flash is not null)
+{
+    <p class="flash" role="status">@Model.Flash</p>
+}
+@if (Model.Error is not null)
+{
+    <p class="alert" role="alert">@Model.Error</p>
+}
+
+<section class="card profile-head">
+    @if (p.AvatarUrl is not null)
+    {
+        <img class="avatar" src="@p.AvatarUrl" alt="Ảnh đại diện" width="72" height="72" />
+    }
+    <div>
+        <div class="profile-status"><partial name="_StatusBadge" model="p.Status.ToString()" /></div>
+        <dl class="facts">
+            <dt>Số điện thoại</dt><dd>@p.PhoneNumber</dd>
+            <dt>Kinh nghiệm</dt><dd>@p.YearsOfExperience năm</dd>
+            <dt>Bán kính nhận việc</dt><dd>@p.ServiceRadiusKm km</dd>
+            <dt>Vị trí hoạt động</dt>
+            <dd>
+                @if (p.AnchorLatitude is not null)
+                {
+                    <a href="https://www.openstreetmap.org/?mlat=@p.AnchorLatitude&mlon=@p.AnchorLongitude#map=15/@p.AnchorLatitude/@p.AnchorLongitude" target="_blank" rel="noopener">@p.AnchorLatitude, @p.AnchorLongitude</a>
+                }
+                else
+                {
+                    <span class="muted">Chưa chọn</span>
+                }
+            </dd>
+        </dl>
+        @if (!string.IsNullOrWhiteSpace(p.Bio))
+        {
+            <p>@p.Bio</p>
+        }
+        @if (p.VerificationNote is not null)
+        {
+            <p class="muted">Lý do từ chối lần trước: @p.VerificationNote</p>
+        }
+    </div>
+</section>
+
+<h2 class="section-title">Giấy tờ KYC</h2>
+@if (p.Documents.Count == 0)
+{
+    <p class="muted">Đối tác chưa tải giấy tờ nào.</p>
+}
+<div class="doc-grid">
+    @foreach (var doc in p.Documents)
+    {
+        <figure class="card doc">
+            @if (doc.FileId is { } fileId)
+            {
+                <a href="/admin/files/@fileId" target="_blank" rel="noopener">
+                    <img src="/admin/files/@fileId" alt="@DocLabel(doc.Type)" loading="lazy" />
+                </a>
+            }
+            <figcaption>
+                <strong>@DocLabel(doc.Type)</strong>
+                <partial name="_StatusBadge" model="doc.Status.ToString()" />
+                @if (doc.RejectReason is not null)
+                {
+                    <span class="muted">@doc.RejectReason</span>
+                }
+            </figcaption>
+        </figure>
+    }
+</div>
+
+<h2 class="section-title">Kỹ năng</h2>
+<table class="table">
+    <thead>
+    <tr><th>Dịch vụ</th><th>Kinh nghiệm</th><th>Chứng chỉ</th><th>Trạng thái</th><th></th></tr>
+    </thead>
+    <tbody>
+    @foreach (var skill in p.Skills)
+    {
+        <tr>
+            <td>@skill.CategoryName <span class="muted">· @skill.GroupName</span></td>
+            <td>@skill.YearsOfExperience năm</td>
+            <td>
+                @if (skill.CertificateFileId is { } certId)
+                {
+                    <a href="/admin/files/@certId" target="_blank" rel="noopener">Xem ảnh</a>
+                }
+                else
+                {
+                    <span class="muted">Không có</span>
+                }
+            </td>
+            <td><partial name="_StatusBadge" model="skill.Status.ToString()" /></td>
+            <td class="actions">
+                @if (skill.Status == ApprovalStatus.Pending)
+                {
+                    <form method="post" asp-page-handler="Skill" asp-route-id="@p.PartnerId">
+                        <input type="hidden" name="skillId" value="@skill.Id" />
+                        <button class="btn btn-ghost" name="approve" value="true">Duyệt</button>
+                        <button class="btn btn-ghost btn-danger" name="approve" value="false">Từ chối</button>
+                    </form>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@if (isPending)
+{
+    <h2 class="section-title">Quyết định hồ sơ</h2>
+    <div class="decision">
+        <form method="post" asp-page-handler="Approve" asp-route-id="@p.PartnerId" class="card">
+            <h3>Duyệt hồ sơ</h3>
+            <p class="muted">Đối tác sẽ bật Online được ngay. Chỉ kỹ năng đã duyệt mới nhận được bài đăng.</p>
+            <label class="check"><input type="checkbox" name="approveSkills" value="true" checked /> Duyệt luôn các kỹ năng đang chờ</label>
+            <button type="submit" class="btn btn-primary">Duyệt hồ sơ</button>
+        </form>
+        <form method="post" asp-page-handler="Reject" asp-route-id="@p.PartnerId" class="card">
+            <h3>Từ chối hồ sơ</h3>
+            <div class="field">
+                <label for="reason">Lý do (gửi cho đối tác)</label>
+                <textarea id="reason" name="reason" rows="3" maxlength="500" required placeholder="Ví dụ: Ảnh CCCD mặt sau bị mờ, vui lòng chụp lại."></textarea>
+            </div>
+            <p class="muted">Giấy tờ cần chụp lại:</p>
+            @foreach (var doc in p.Documents)
+            {
+                <label class="check"><input type="checkbox" name="rejectedDocumentIds" value="@doc.Id" checked /> @DocLabel(doc.Type)</label>
+            }
+            <button type="submit" class="btn btn-danger-solid">Từ chối</button>
+        </form>
+    </div>
+}
