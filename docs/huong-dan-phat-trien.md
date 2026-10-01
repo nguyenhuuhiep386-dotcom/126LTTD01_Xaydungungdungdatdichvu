@@ -97,13 +97,14 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 |---|---|
 | CSDL 33 bảng + seed | Xong |
 | API #1, #2, #5, #6, #9, #10, #29, #30 | Xong, có trên Swagger |
+| BE-1: `POST /files`, `GET /files/{id}`, #12–#16 (địa chỉ, thiết bị), #17–#23, #25–#28 (hồ sơ, KYC, kỹ năng, online, hồ sơ công khai) | Xong, có trên Swagger |
 | Envelope, mã lỗi, validation, rate limit OTP | Xong |
 | Admin: AW-01 đăng nhập, layout, AW-02 số liệu cơ bản, AW-11 xem danh mục | Xong |
 | Android `:core`: design system, Retrofit, token + tự refresh, xử lý mất mạng | Xong |
 | Màn CS-01, CS-03, CS-04, CS-05 (dùng chung, gọi API thật) | Xong |
 | CS-06 Trang chủ (API thật), CS-14 Yêu cầu của tôi (dữ liệu giả), PS-07 Newsfeed (dữ liệu giả) | Xong, làm mẫu |
 | Các màn còn lại của 2 app | Fragment giữ chỗ, đã nối đủ điều hướng |
-| SignalR, FCM, osmdroid, upload file | Chưa có, thuộc các luồng ở mục 5 của kế hoạch |
+| SignalR, FCM, osmdroid | Chưa có, thuộc các luồng ở mục 5 của kế hoạch |
 
 ## 6. Quy ước
 

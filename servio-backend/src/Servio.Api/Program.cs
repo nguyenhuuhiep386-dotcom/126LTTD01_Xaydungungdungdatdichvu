@@ -9,9 +9,12 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Servio.Api.Common;
 using Servio.Api.Data;
+using Servio.Api.Services;
 using Servio.Api.Services.Admin;
 using Servio.Api.Services.Auth;
 using Servio.Api.Services.Catalog;
+using Servio.Api.Services.Files;
+using Servio.Api.Services.Partners;
 using Servio.Api.Services.Users;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +33,7 @@ if (!string.IsNullOrEmpty(config["Otp:FixedCode"]) && !isDemoEnvironment)
 }
 builder.Services.Configure<JwtOptions>(config.GetSection(JwtOptions.Section));
 builder.Services.Configure<OtpOptions>(config.GetSection(OtpOptions.Section));
+builder.Services.Configure<FileStorageOptions>(config.GetSection(FileStorageOptions.Section));
 builder.Services.AddSingleton(TimeProvider.System);
 
 // ---------- Database ----------
@@ -42,6 +46,13 @@ builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<SystemConfigService>();
+builder.Services.AddScoped<FileService>();
+builder.Services.AddScoped<AddressService>();
+builder.Services.AddScoped<PartnerProfileService>();
+builder.Services.AddScoped<PartnerSkillService>();
+builder.Services.AddScoped<PartnerPublicService>();
+builder.Services.AddMemoryCache();
 
 // ---------- Authentication: JWT for the apps, cookie for admin pages ----------
 builder.Services

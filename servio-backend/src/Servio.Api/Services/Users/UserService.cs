@@ -2,6 +2,8 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Servio.Api.Common;
 using Servio.Api.Data;
+using Servio.Api.Data.Entities;
+using Servio.Api.Services.Files;
 
 namespace Servio.Api.Services.Users;
 
@@ -37,7 +39,15 @@ public sealed record UpdateMeRequest(
     Gender? Gender,
     [EmailAddress(ErrorMessage = "Email không hợp lệ"), StringLength(256)] string? Email);
 
-public sealed class UserService(ServioDbContext db, TimeProvider clock)
+// #16 POST /users/me/devices — FCM token of this installation
+public sealed record RegisterDeviceRequest(
+    [Required, StringLength(200)] string DeviceId,
+    [Required, StringLength(500)] string FcmToken,
+    DevicePlatform Platform,
+    [StringLength(20)] string? AppVersion,
+    AppFlavor AppFlavor);
+
+public sealed class UserService(ServioDbContext db, FileService files, TimeProvider clock)
 {
     public const int MinFullNameLength = 2;
 
@@ -88,10 +98,10 @@ public sealed class UserService(ServioDbContext db, TimeProvider clock)
             throw new ApiException(StatusCodes.Status400BadRequest, ErrorCodes.ValidationError, "Giá trị không hợp lệ", "gender");
         }
 
-        // Avatar must be a file served by this API (POST /files returns /uploads/...). Never trust arbitrary URLs.
-        if (request.AvatarUrl is not null && !request.AvatarUrl.StartsWith("/uploads/", StringComparison.Ordinal))
+        // Avatar must be an AVATAR file this user uploaded through POST /files. Never trust arbitrary URLs.
+        if (request.AvatarUrl is not null)
         {
-            throw new ApiException(StatusCodes.Status400BadRequest, ErrorCodes.ValidationError, "Ảnh đại diện không hợp lệ", "avatarUrl");
+            await files.ResolveOwnedAsync(userId, request.AvatarUrl, "avatarUrl", ct, FilePurpose.Avatar);
         }
 
         if (request.Email is not null &&
@@ -109,6 +119,29 @@ public sealed class UserService(ServioDbContext db, TimeProvider clock)
         await db.SaveChangesAsync(ct);
 
         return await GetMeAsync(userId, ct);
+    }
+
+    /// <summary>#16: upsert the push token of this device for the app the token was issued to.</summary>
+    public async Task RegisterDeviceAsync(Guid userId, AppFlavor tokenFlavor, RegisterDeviceRequest request, CancellationToken ct)
+    {
+        if (request.AppFlavor != tokenFlavor || !Enum.IsDefined(request.Platform))
+        {
+            throw new ApiException(StatusCodes.Status400BadRequest, ErrorCodes.ValidationError, "Thông tin thiết bị không hợp lệ", "appFlavor");
+        }
+
+        var device = await db.UserDevices.FirstOrDefaultAsync(
+            d => d.UserId == userId && d.DeviceId == request.DeviceId && d.AppFlavor == (byte)request.AppFlavor, ct);
+        if (device is null)
+        {
+            device = new UserDevice { Id = Guid.CreateVersion7(), UserId = userId, DeviceId = request.DeviceId, AppFlavor = (byte)request.AppFlavor };
+            db.UserDevices.Add(device);
+        }
+        device.FcmToken = request.FcmToken;
+        device.Platform = (byte)request.Platform;
+        device.AppVersion = request.AppVersion;
+        device.IsActive = true;
+        device.LastActiveAt = clock.GetUtcNow();
+        await db.SaveChangesAsync(ct);
     }
 
     public static bool NeedsProfileCompletion(string fullName) => fullName.Trim().Length < MinFullNameLength;

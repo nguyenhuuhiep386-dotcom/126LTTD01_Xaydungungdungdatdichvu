@@ -24,6 +24,17 @@ public static class ErrorCodes
     public const string PhoneAlreadyExists = "PHONE_ALREADY_EXISTS";
     public const string PartnerNotVerified = "PARTNER_NOT_VERIFIED";
     public const string PartnerOffline = "PARTNER_OFFLINE";
+    public const string ProfileIncomplete = "PROFILE_INCOMPLETE";
+    public const string VerificationLocked = "VERIFICATION_LOCKED";
+    public const string SkillAlreadyExists = "SKILL_ALREADY_EXISTS";
+    public const string SkillLimitReached = "SKILL_LIMIT_REACHED";
+    public const string CertificateRequired = "CERTIFICATE_REQUIRED";
+    public const string AddressLimitReached = "ADDRESS_LIMIT_REACHED";
+
+    // Files (POST /files)
+    public const string FileNotReady = "FILE_NOT_READY";
+    public const string FileTooLarge = "FILE_TOO_LARGE";
+    public const string UnsupportedFileType = "UNSUPPORTED_FILE_TYPE";
 
     // M2–M5 (used by the next work packages)
     public const string QuoteLimitExceeded = "QUOTE_LIMIT_EXCEEDED";
