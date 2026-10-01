@@ -81,7 +81,7 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 
 5. Đăng nhập bằng số điện thoại bất kỳ dạng `09xxxxxxxx` và mã `123456`.
    - **App khách:** tài khoản mới → CS-05 nhập tên → Trang chủ (danh mục lấy từ API).
-   - **App đối tác:** tài khoản mới → PS-02. Để vào Newsfeed khi AW-04 chưa làm, duyệt tay trong SSMS:
+   - **App đối tác:** tài khoản mới → PS-02. Hoàn tất hồ sơ qua API (#10, #18, `POST /files` + #19, #22, #20), rồi duyệt ở trang admin **AW-04** <http://localhost:5080/admin/partners/verifications>. Khi màn đăng ký PS-02..PS-05 chưa làm xong, có thể duyệt tay trong SSMS để vào Newsfeed:
 
      ```sql
      UPDATE p SET VerificationStatus = 2
@@ -99,7 +99,8 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 | API #1, #2, #5, #6, #9, #10, #29, #30 | Xong, có trên Swagger |
 | BE-1: `POST /files`, `GET /files/{id}`, #12–#16 (địa chỉ, thiết bị), #17–#23, #25–#28 (hồ sơ, KYC, kỹ năng, online, hồ sơ công khai) | Xong, có trên Swagger |
 | Envelope, mã lỗi, validation, rate limit OTP | Xong |
-| Admin: AW-01 đăng nhập, layout, AW-02 số liệu cơ bản, AW-11 xem danh mục | Xong |
+| Admin: AW-01 đăng nhập, layout, AW-02 số liệu cơ bản | Xong |
+| QT-1: AW-04 duyệt KYC + kỹ năng (xem ảnh riêng tư, AuditLog, thông báo), AW-11 thêm/sửa/ẩn danh mục | Xong; chỉ SUPER_ADMIN và OPERATOR |
 | Android `:core`: design system, Retrofit, token + tự refresh, xử lý mất mạng | Xong |
 | Màn CS-01, CS-03, CS-04, CS-05 (dùng chung, gọi API thật) | Xong |
 | CS-06 Trang chủ (API thật), CS-14 Yêu cầu của tôi (dữ liệu giả), PS-07 Newsfeed (dữ liệu giả) | Xong, làm mẫu |
