@@ -66,6 +66,22 @@
     <string name="address_book_delete_confirm">Xoá địa chỉ “%1$s”?</string>
     <string name="address_book_delete_default_blocked">Hãy đặt địa chỉ khác làm mặc định trước khi xoá địa chỉ này</string>
 
+    <!-- CS-12 Pick location -->
+    <string name="pick_location_title">Chọn vị trí</string>
+    <string name="map_attribution">© OpenStreetMap contributors</string>
+    <string name="pick_location_locate">Về vị trí hiện tại</string>
+    <string name="pick_location_hint">Kéo bản đồ để ghim đúng vị trí nhà bạn.</string>
+    <string name="pick_location_address">Địa chỉ</string>
+    <string name="pick_location_address_required">Nhập địa chỉ</string>
+    <string name="pick_location_note">Ghi chú cho người làm</string>
+    <string name="pick_location_label">Nhãn</string>
+    <string name="pick_location_custom_label">Tên nhãn</string>
+    <string name="pick_location_label_required">Nhập tên nhãn</string>
+    <string name="pick_location_set_default">Đặt làm địa chỉ mặc định</string>
+    <string name="pick_location_save">Lưu địa chỉ</string>
+    <string name="pick_location_permission_denied">Chưa được cấp quyền vị trí. Bạn vẫn có thể kéo bản đồ để ghim vị trí.</string>
+    <string name="pick_location_unavailable">Không lấy được vị trí hiện tại. Hãy bật định vị hoặc kéo bản đồ để ghim vị trí.</string>
+
     <!-- CS-32 Settings -->
     <string name="settings_title">Cài đặt</string>
     <string name="settings_version_label">Phiên bản ứng dụng</string>

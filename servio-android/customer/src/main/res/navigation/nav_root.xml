@@ -135,24 +135,8 @@
 
         <fragment
             android:id="@+id/cs12"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.address.PickLocationFragment"
             android:label="CS-12 Chọn địa chỉ trên bản đồ">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-12"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Chọn địa chỉ trên bản đồ"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="osmdroid, ghim vị trí + nhập địa chỉ tay, ghi công © OpenStreetMap"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
             <argument
                 android:name="addressId"
                 android:defaultValue="@null"
