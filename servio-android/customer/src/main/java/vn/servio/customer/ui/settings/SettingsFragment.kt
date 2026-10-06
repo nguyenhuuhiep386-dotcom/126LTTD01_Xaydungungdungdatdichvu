@@ -29,7 +29,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         binding.logoutRow.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Servio_AlertDialog_Destructive)
                 .setMessage(R.string.settings_logout_confirm)
-                .setNegativeButton(R.string.settings_logout_cancel, null)
+                .setNegativeButton(R.string.action_cancel, null)
                 .setPositiveButton(vn.servio.core.R.string.action_logout) { _, _ -> viewModel.logout() }
                 .show()
         }

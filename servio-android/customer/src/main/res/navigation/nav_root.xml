@@ -153,28 +153,21 @@
                 android:name="links"
                 android:defaultValue=""
                 app:argType="string" />
+            <argument
+                android:name="addressId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
         </fragment>
 
         <fragment
             android:id="@+id/cs13"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.address.AddressBookFragment"
             android:label="CS-13 Sổ địa chỉ">
             <argument
-                android:name="code"
-                android:defaultValue="CS-13"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Sổ địa chỉ"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Danh sách địa chỉ (#12–#15)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs12|Thêm địa chỉ trên bản đồ"
-                app:argType="string" />
+                android:name="selectMode"
+                android:defaultValue="false"
+                app:argType="boolean" />
         </fragment>
 
         <fragment

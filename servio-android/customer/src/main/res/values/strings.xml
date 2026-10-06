@@ -8,6 +8,10 @@
     <string name="tab_messages">Tin nhắn</string>
     <string name="tab_account">Tài khoản</string>
 
+    <string name="action_back">Quay lại</string>
+    <string name="action_cancel">Huỷ</string>
+    <string name="action_delete">Xoá</string>
+
     <!-- CS-06 Home -->
     <string name="home_greeting">Xin chào, %1$s</string>
     <string name="home_question">Hôm nay nhà bạn cần giúp gì?</string>
@@ -46,13 +50,27 @@
     <string name="account_settings_subtitle">Phiên bản, đăng xuất</string>
     <string name="account_version">Servio %1$s · bản demo đồ án</string>
 
+    <!-- CS-13 Address book -->
+    <string name="address_book_title">Sổ địa chỉ</string>
+    <string name="address_label_home">Nhà</string>
+    <string name="address_label_work">Cơ quan</string>
+    <string name="address_label_other">Khác</string>
+    <string name="address_book_default">Mặc định</string>
+    <string name="address_book_edit">Sửa địa chỉ</string>
+    <string name="address_book_add">Thêm địa chỉ mới</string>
+    <string name="address_book_limit_note">Lưu tối đa %1$d địa chỉ.</string>
+    <string name="address_book_limit_reached">Đã đạt tối đa %1$d địa chỉ</string>
+    <string name="address_book_empty">Bạn chưa lưu địa chỉ nào</string>
+    <string name="address_book_use_selected">Dùng địa chỉ đã chọn</string>
+    <string name="address_book_set_default">Đặt làm mặc định</string>
+    <string name="address_book_delete_confirm">Xoá địa chỉ “%1$s”?</string>
+    <string name="address_book_delete_default_blocked">Hãy đặt địa chỉ khác làm mặc định trước khi xoá địa chỉ này</string>
+
     <!-- CS-32 Settings -->
     <string name="settings_title">Cài đặt</string>
-    <string name="settings_back">Quay lại</string>
     <string name="settings_version_label">Phiên bản ứng dụng</string>
     <string name="settings_version_value">%1$s (demo)</string>
     <string name="settings_logout_confirm">Đăng xuất khỏi Servio?</string>
-    <string name="settings_logout_cancel">Huỷ</string>
     <string name="settings_logout_all_title">Đăng xuất khỏi mọi thiết bị</string>
     <string name="settings_logout_all_subtitle">Thu hồi phiên đăng nhập ở các máy khác</string>
     <string name="settings_coming_soon">Đang phát triển</string>
