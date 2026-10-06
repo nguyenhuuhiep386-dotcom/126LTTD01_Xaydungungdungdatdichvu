@@ -22,4 +22,27 @@
     <string name="requests_fake_note">Dữ liệu mẫu (FakeServiceRequestRepository)</string>
     <string name="requests_empty">Bạn chưa có yêu cầu nào</string>
     <string name="requests_quotes">%1$d báo giá</string>
+
+    <!-- CS-29 Account -->
+    <string name="account_title">Tài khoản</string>
+    <string name="account_edit">Sửa</string>
+    <string name="account_edit_coming_soon">Đang phát triển</string>
+    <string name="account_fee_title">Phí huỷ và giao dịch</string>
+    <string name="account_fee_outstanding">Còn %1$s cần thanh toán</string>
+    <string name="account_fee_none">Không có khoản cần thanh toán</string>
+    <string name="account_address_title">Sổ địa chỉ</string>
+    <string name="account_address_none">Chưa có địa chỉ</string>
+    <plurals name="account_address_count">
+        <item quantity="other">%1$d địa chỉ</item>
+    </plurals>
+    <string name="account_notification_title">Thông báo</string>
+    <string name="account_notification_none">Không có thông báo mới</string>
+    <plurals name="account_notification_unread">
+        <item quantity="other">%1$d chưa đọc</item>
+    </plurals>
+    <string name="account_support_title">Trung tâm hỗ trợ</string>
+    <string name="account_support_subtitle">Hotline và câu hỏi thường gặp</string>
+    <string name="account_settings_title">Cài đặt</string>
+    <string name="account_settings_subtitle">Phiên bản, đăng xuất</string>
+    <string name="account_version">Servio %1$s · bản demo đồ án</string>
 </resources>

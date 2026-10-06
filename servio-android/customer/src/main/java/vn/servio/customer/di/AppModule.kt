@@ -9,7 +9,9 @@ import vn.servio.core.data.model.AppFlavor
 import vn.servio.core.utils.AppConfig
 import vn.servio.core.utils.AuthRouter
 import vn.servio.customer.BuildConfig
+import vn.servio.customer.data.repository.FakeProfileRepository
 import vn.servio.customer.data.repository.FakeServiceRequestRepository
+import vn.servio.customer.data.repository.ProfileRepository
 import vn.servio.customer.data.repository.ServiceRequestRepository
 import javax.inject.Singleton
 
@@ -35,4 +37,7 @@ abstract class RepositoryBindings {
 
     @Binds
     abstract fun bindServiceRequestRepository(impl: FakeServiceRequestRepository): ServiceRequestRepository
+
+    @Binds
+    abstract fun bindProfileRepository(impl: FakeProfileRepository): ProfileRepository
 }

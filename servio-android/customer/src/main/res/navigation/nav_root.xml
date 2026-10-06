@@ -449,24 +449,8 @@
 
         <fragment
             android:id="@+id/cs29"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.profile.ProfileFragment"
             android:label="CS-29 Tài khoản">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-29"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Tài khoản"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Hồ sơ, địa chỉ, ví, thông báo, cài đặt, hỗ trợ"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs13|Sổ địa chỉ;cs30|Ví &amp; phí huỷ;cs31|Thông báo;cs32|Cài đặt;cs34|Trung tâm hỗ trợ"
-                app:argType="string" />
         </fragment>
 
         <fragment
