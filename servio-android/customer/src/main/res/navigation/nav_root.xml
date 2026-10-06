@@ -499,28 +499,8 @@
 
         <fragment
             android:id="@+id/cs32"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.settings.SettingsFragment"
             android:label="CS-32 Cài đặt">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-32"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Cài đặt"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Đồ án: chỉ gồm Đăng xuất"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
-            <argument
-                android:name="showLogout"
-                android:defaultValue="true"
-                app:argType="boolean" />
         </fragment>
 
         <fragment
