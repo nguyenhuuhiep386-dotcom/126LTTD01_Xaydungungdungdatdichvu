@@ -38,6 +38,9 @@ public static class ErrorCodes
     public const string ResourceVersionConflict = "RESOURCE_VERSION_CONFLICT";
     public const string PartnerNotEligible = "PARTNER_NOT_ELIGIBLE";
 
+    // M4 chat (BE-3)
+    public const string ConversationReadOnly = "CONVERSATION_READ_ONLY";
+
     // Files (POST /files)
     public const string FileNotReady = "FILE_NOT_READY";
     public const string FileTooLarge = "FILE_TOO_LARGE";

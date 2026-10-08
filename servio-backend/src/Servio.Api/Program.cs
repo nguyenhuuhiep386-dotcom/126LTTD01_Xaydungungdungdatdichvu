@@ -16,6 +16,7 @@ using Servio.Api.Jobs;
 using Servio.Api.Services;
 using Servio.Api.Services.Admin;
 using Servio.Api.Services.Auth;
+using Servio.Api.Services.Chat;
 using Servio.Api.Services.Catalog;
 using Servio.Api.Services.Feed;
 using Servio.Api.Services.Files;
@@ -65,6 +66,7 @@ builder.Services.AddScoped<CodeGenerator>();
 builder.Services.AddScoped<FeedService>();
 builder.Services.AddScoped<ServiceRequestService>();
 builder.Services.AddScoped<QuoteService>();
+builder.Services.AddScoped<ChatService>();
 builder.Services.AddSingleton<IRealtimeNotifier, SignalRNotifier>();
 builder.Services.AddHostedService<RequestExpiryJob>();
 builder.Services.AddSignalR().AddJsonProtocol(options =>
@@ -86,7 +88,7 @@ builder.Services
             RoleClaimType = TokenService.RoleClaim,
             ClockSkew = TimeSpan.FromSeconds(30),
         };
-        // SignalR hubs (/hubs/feed, /hubs/orders) send the token as ?access_token=...
+        // SignalR hubs (/hubs/feed, /hubs/orders, /hubs/chat) send the token as ?access_token=...
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
@@ -222,6 +224,7 @@ app.MapHealthChecks("/health/live");
 app.MapControllers();
 app.MapHub<FeedHub>("/hubs/feed");
 app.MapHub<OrdersHub>("/hubs/orders");
+app.MapHub<ChatHub>("/hubs/chat");
 app.MapRazorPages();
 app.MapGet("/", () => Results.Redirect(isDemoEnvironment ? "/swagger" : "/admin")).ExcludeFromDescription();
 

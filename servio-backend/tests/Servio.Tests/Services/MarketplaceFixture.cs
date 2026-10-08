@@ -2,6 +2,7 @@ using Servio.Api.Common;
 using Servio.Api.Data.Entities;
 using Servio.Api.Hubs;
 using Servio.Api.Services;
+using Servio.Api.Services.Chat;
 using Servio.Api.Services.Feed;
 using Servio.Api.Services.Quotes;
 using Servio.Api.Services.Requests;
@@ -14,6 +15,8 @@ public sealed class RecordingNotifier : IRealtimeNotifier
     public List<(Guid PartnerUserId, FeedItemDto Item)> NewPosts { get; } = [];
     public List<(Guid CustomerUserId, CustomerQuoteDto Quote)> NewQuotes { get; } = [];
     public List<(Guid CustomerUserId, Guid QuoteId)> Withdrawn { get; } = [];
+    public List<MessageDto> Messages { get; } = [];
+    public List<MessageRead> Reads { get; } = [];
 
     public Task NewPostAsync(IReadOnlyList<(Guid PartnerUserId, FeedItemDto Item)> recipients, CancellationToken ct)
     {
@@ -30,6 +33,18 @@ public sealed class RecordingNotifier : IRealtimeNotifier
     public Task QuoteWithdrawnAsync(Guid customerUserId, Guid serviceRequestId, Guid quoteId, CancellationToken ct)
     {
         Withdrawn.Add((customerUserId, quoteId));
+        return Task.CompletedTask;
+    }
+
+    public Task MessageReceivedAsync(Guid customerUserId, Guid partnerUserId, MessageDto message, CancellationToken ct)
+    {
+        Messages.Add(message);
+        return Task.CompletedTask;
+    }
+
+    public Task MessageReadAsync(Guid customerUserId, Guid partnerUserId, MessageRead read, CancellationToken ct)
+    {
+        Reads.Add(read);
         return Task.CompletedTask;
     }
 }
@@ -104,6 +119,8 @@ public sealed class MarketplaceFixture : IDisposable
         new(Ctx.Db, Ctx.Files(), Feed(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Notifier, Ctx.Clock);
 
     public QuoteService Quotes() => new(Ctx.Db, Feed(), Configs(), Notifier, Ctx.Clock);
+
+    public ChatService Chat() => new(Ctx.Db, Feed(), Ctx.Files(), Notifier, Ctx.Clock);
 
     public CreateServiceRequestRequest Post(string title = "Máy lạnh phòng ngủ chảy nước",
         ScheduleType schedule = ScheduleType.Now, DateTimeOffset? start = null, int? requireYears = null, decimal? minRating = null) =>

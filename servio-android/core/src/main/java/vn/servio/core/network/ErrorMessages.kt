@@ -25,6 +25,7 @@ object ErrorMessages {
         "REQUEST_NOT_OPEN" to "Bài đăng không còn nhận báo giá.",
         "RESOURCE_VERSION_CONFLICT" to "Bài đăng đã thay đổi, vui lòng tải lại.",
         "PARTNER_NOT_ELIGIBLE" to "Bạn không đủ điều kiện báo giá bài này.",
+        "CONVERSATION_READ_ONLY" to "Hội thoại đã đóng, bạn chỉ xem được tin nhắn cũ.",
         // PROFILE_INCOMPLETE is not mapped: the server message lists exactly what is missing.
         "VERIFICATION_LOCKED" to "Hồ sơ đang chờ duyệt hoặc đã được duyệt, không thể thay đổi giấy tờ.",
         "SKILL_ALREADY_EXISTS" to "Bạn đã đăng ký kỹ năng này.",
