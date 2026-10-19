@@ -20,7 +20,7 @@ import vn.servio.customer.data.model.ProfileSummary
 import vn.servio.customer.databinding.FragmentProfileBinding
 import vn.servio.customer.databinding.ItemProfileMenuBinding
 
-/** CS-29 Tài khoản — sample data from FakeProfileRepository until the KH-1 endpoints are wired. */
+/** CS-29 Tài khoản — real API (#9, #12); fee and notification counters show "—" until their endpoints exist. */
 @AndroidEntryPoint
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
@@ -61,22 +61,22 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         avatar.text = initialsOf(profile.fullName)
         fullName.text = profile.fullName
         phoneNumber.text = formatPhoneNumber(profile.phoneNumber)
-        feeRow.subtitle.text = if (profile.outstandingFeeVnd > 0) {
-            getString(R.string.account_fee_outstanding, Money.format(profile.outstandingFeeVnd))
-        } else {
-            getString(R.string.account_fee_none)
+        val fee = profile.outstandingFeeVnd
+        feeRow.subtitle.text = when {
+            fee == null -> getString(R.string.account_value_unavailable)
+            fee > 0 -> getString(R.string.account_fee_outstanding, Money.format(fee))
+            else -> getString(R.string.account_fee_none)
         }
         addressRow.subtitle.text = if (profile.addressCount > 0) {
             resources.getQuantityString(R.plurals.account_address_count, profile.addressCount, profile.addressCount)
         } else {
             getString(R.string.account_address_none)
         }
-        notificationRow.subtitle.text = if (profile.unreadNotificationCount > 0) {
-            resources.getQuantityString(
-                R.plurals.account_notification_unread, profile.unreadNotificationCount, profile.unreadNotificationCount,
-            )
-        } else {
-            getString(R.string.account_notification_none)
+        val unread = profile.unreadNotificationCount
+        notificationRow.subtitle.text = when {
+            unread == null -> getString(R.string.account_value_unavailable)
+            unread > 0 -> resources.getQuantityString(R.plurals.account_notification_unread, unread, unread)
+            else -> getString(R.string.account_notification_none)
         }
     }
 

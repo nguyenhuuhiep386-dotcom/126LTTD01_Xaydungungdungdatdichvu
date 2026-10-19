@@ -34,6 +34,8 @@
     <string name="account_fee_title">Phí huỷ và giao dịch</string>
     <string name="account_fee_outstanding">Còn %1$s cần thanh toán</string>
     <string name="account_fee_none">Không có khoản cần thanh toán</string>
+    <!-- Shown while the counter has no API yet (fee #156, unread notifications #104). -->
+    <string name="account_value_unavailable">—</string>
     <string name="account_address_title">Sổ địa chỉ</string>
     <string name="account_address_none">Chưa có địa chỉ</string>
     <plurals name="account_address_count">

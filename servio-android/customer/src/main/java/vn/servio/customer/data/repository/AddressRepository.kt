@@ -5,12 +5,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import vn.servio.core.network.ApiResult
 import vn.servio.core.network.ErrorMessages
+import vn.servio.core.network.apiCall
+import vn.servio.core.network.apiCallNoContent
+import vn.servio.core.network.map
 import vn.servio.customer.data.model.Address
+import vn.servio.customer.data.model.toSaveRequest
+import vn.servio.customer.data.remote.AddressApi
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** Address book (CS-13, CS-12, CS-29). Work package KH-1 adds RemoteAddressRepository (#12–#15) and switches the binding. */
+/** Address book (CS-13, CS-12, CS-29). Bound to RemoteAddressRepository (#12–#15) in AppModule. */
 interface AddressRepository {
     suspend fun getAddresses(): ApiResult<List<Address>>
     suspend fun getAddress(id: String): ApiResult<Address>
@@ -22,6 +27,44 @@ interface AddressRepository {
 
     companion object {
         const val MAX_ADDRESSES = 10
+    }
+}
+
+/**
+ * Real API (#12–#15). The backend has no "get one" or "set default" endpoint: [getAddress] searches the list,
+ * [setDefault] sends PUT #14 with isDefault = true and the server clears the other defaults itself.
+ */
+@Singleton
+class RemoteAddressRepository @Inject constructor(
+    private val api: AddressApi,
+) : AddressRepository {
+
+    override suspend fun getAddresses() = apiCall { api.getAddresses() }
+
+    override suspend fun getAddress(id: String): ApiResult<Address> = when (val result = getAddresses()) {
+        is ApiResult.Failure -> result
+        is ApiResult.Success -> result.data.firstOrNull { it.id == id }?.let { ApiResult.Success(it) } ?: notFound()
+    }
+
+    override suspend fun saveAddress(address: Address) = apiCall {
+        if (address.id.isBlank()) {
+            api.createAddress(address.toSaveRequest())
+        } else {
+            api.updateAddress(address.id, address.toSaveRequest())
+        }
+    }
+
+    override suspend fun deleteAddress(id: String) = apiCallNoContent { api.deleteAddress(id) }
+
+    override suspend fun setDefault(id: String): ApiResult<Unit> = when (val result = getAddress(id)) {
+        is ApiResult.Failure -> result
+        is ApiResult.Success -> apiCall { api.updateAddress(id, result.data.copy(isDefault = true).toSaveRequest()) }.map { }
+    }
+
+    private fun notFound() = ApiResult.Failure(NOT_FOUND, ErrorMessages.forCode(NOT_FOUND, fallback = "Không tìm thấy địa chỉ"))
+
+    private companion object {
+        const val NOT_FOUND = "NOT_FOUND"
     }
 }
 
