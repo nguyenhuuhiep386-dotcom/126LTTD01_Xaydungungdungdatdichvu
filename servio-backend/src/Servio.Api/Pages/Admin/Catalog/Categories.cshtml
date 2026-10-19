@@ -4,15 +4,25 @@
     ViewData["Title"] = "Danh mục dịch vụ";
     static string Price(long? value) => value is null ? "—" : value.Value.ToString("N0", new System.Globalization.CultureInfo("vi-VN")) + " đ";
 }
-<p class="muted">@Model.Groups.Count nhóm, @Model.Groups.Sum(g => g.Children.Count) dịch vụ. Thêm/sửa danh mục thuộc luồng QT-1.</p>
+<div class="toolbar">
+    <p class="muted">@Model.Groups.Count nhóm, @Model.Children.Sum(g => g.Count()) dịch vụ. Danh mục không xoá được, chỉ ẩn, vì bài đăng và kỹ năng đang tham chiếu.</p>
+    <a class="btn btn-primary" asp-page="CategoryEdit">Thêm danh mục</a>
+</div>
+@if (Model.Flash is not null)
+{
+    <p class="flash" role="status">@Model.Flash</p>
+}
 <table class="table">
     <thead>
     <tr>
         <th>Tên</th>
         <th>Slug</th>
         <th>Giá tham chiếu</th>
+        <th>Hoa hồng</th>
+        <th>Đối tác đăng ký</th>
         <th>Thứ tự</th>
         <th>Trạng thái</th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
@@ -22,17 +32,23 @@
             <td>@group.Name</td>
             <td class="muted">@group.Slug</td>
             <td></td>
+            <td>@(group.CommissionRate is null ? "" : $"{group.CommissionRate:0.##}%")</td>
+            <td></td>
             <td>@group.DisplayOrder</td>
-            <td><span class="badge badge-success">Đang dùng</span></td>
+            <td><span class="badge @(group.IsActive ? "badge-success" : "badge-muted")">@(group.IsActive ? "Đang dùng" : "Đã ẩn")</span></td>
+            <td><a asp-page="CategoryEdit" asp-route-id="@group.Id">Sửa</a></td>
         </tr>
-        @foreach (var child in group.Children)
+        @foreach (var child in Model.Children[group.Id])
         {
             <tr>
-                <td class="child">@child.Name</td>
+                <td class="child">@child.Name @(child.RequiresCertificate ? "· cần chứng chỉ" : "")</td>
                 <td class="muted">@child.Slug</td>
                 <td>@Price(child.ReferencePriceMin) – @Price(child.ReferencePriceMax)</td>
+                <td>@(child.CommissionRate is null ? "mặc định" : $"{child.CommissionRate:0.##}%")</td>
+                <td>@child.PartnerSkillCount</td>
                 <td>@child.DisplayOrder</td>
-                <td><span class="badge badge-success">Đang dùng</span></td>
+                <td><span class="badge @(child.IsActive ? "badge-success" : "badge-muted")">@(child.IsActive ? "Đang dùng" : "Đã ẩn")</span></td>
+                <td><a asp-page="CategoryEdit" asp-route-id="@child.Id">Sửa</a></td>
             </tr>
         }
     }

@@ -1,6 +1,8 @@
+using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -52,6 +54,8 @@ builder.Services.AddScoped<AddressService>();
 builder.Services.AddScoped<PartnerProfileService>();
 builder.Services.AddScoped<PartnerSkillService>();
 builder.Services.AddScoped<PartnerPublicService>();
+builder.Services.AddScoped<PartnerVerificationService>();
+builder.Services.AddScoped<AdminCategoryService>();
 builder.Services.AddMemoryCache();
 
 // ---------- Authentication: JWT for the apps, cookie for admin pages ----------
@@ -100,18 +104,33 @@ builder.Services
     {
         options.LoginPath = "/admin/login";
         options.LogoutPath = "/admin/logout";
-        options.AccessDeniedPath = "/admin/login";
+        options.AccessDeniedPath = "/admin/denied";
         options.Cookie.Name = "servio.admin";
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Strict;
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
+        // A cookie of a deactivated or deleted admin (e.g. after re-running 01_schema.sql) must stop working at once.
+        options.Events.OnValidatePrincipal = async context =>
+        {
+            var id = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+            var db = context.HttpContext.RequestServices.GetRequiredService<ServioDbContext>();
+            var active = Guid.TryParse(id, out var adminId) &&
+                         await db.AdminUsers.AnyAsync(a => a.Id == adminId && a.IsActive, context.HttpContext.RequestAborted);
+            if (!active)
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync(AuthPolicies.AdminScheme);
+            }
+        };
     });
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(AuthPolicies.Customer, p => p.RequireRole(nameof(UserRoleType.Customer)))
     .AddPolicy(AuthPolicies.Partner, p => p.RequireRole(nameof(UserRoleType.Partner)))
-    .AddPolicy(AuthPolicies.Admin, p => p.AddAuthenticationSchemes(AuthPolicies.AdminScheme).RequireAuthenticatedUser());
+    .AddPolicy(AuthPolicies.Admin, p => p.AddAuthenticationSchemes(AuthPolicies.AdminScheme).RequireAuthenticatedUser())
+    .AddPolicy(AuthPolicies.AdminOperator, p => p.AddAuthenticationSchemes(AuthPolicies.AdminScheme)
+        .RequireRole(nameof(AdminRole.SuperAdmin), nameof(AdminRole.Operator)));
 
 // ---------- Rate limiting ----------
 builder.Services.AddRateLimiter(options =>
@@ -138,6 +157,7 @@ builder.Services
     })
     .ConfigureApiBehaviorOptions(options => options.InvalidModelStateResponseFactory = ApiExceptionHandler.InvalidModelState);
 
+builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizeFolder("/Admin", AuthPolicies.Admin);

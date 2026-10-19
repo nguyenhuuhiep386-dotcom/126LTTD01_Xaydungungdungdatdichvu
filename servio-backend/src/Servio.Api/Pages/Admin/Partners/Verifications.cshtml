@@ -1,0 +1,48 @@
+@page
+@model Servio.Api.Pages.Admin.Partners.VerificationsModel
+@{
+    ViewData["Title"] = "Duyệt đối tác (KYC)";
+    var vi = new System.Globalization.CultureInfo("vi-VN");
+}
+<nav class="tabs" aria-label="Hàng đợi">
+    @foreach (var tab in Servio.Api.Pages.Admin.Partners.VerificationsModel.Tabs)
+    {
+        <a class="tab @(tab.Queue == Model.Queue ? "active" : "")" asp-route-queue="@tab.Queue">@tab.Label</a>
+    }
+</nav>
+
+@if (Model.Rows.Count == 0)
+{
+    <div class="card empty">
+        <h2>Không có hồ sơ nào</h2>
+        <p class="muted">Hàng đợi này đang trống.</p>
+    </div>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Đối tác</th>
+            <th>Số điện thoại</th>
+            <th>Trạng thái</th>
+            <th>Kỹ năng chờ duyệt</th>
+            <th>Cập nhật</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var row in Model.Rows)
+        {
+            <tr>
+                <td>@(string.IsNullOrWhiteSpace(row.FullName) ? "(chưa có tên)" : row.FullName)</td>
+                <td class="muted">@row.PhoneNumber</td>
+                <td><partial name="_StatusBadge" model="row.Status.ToString()" /></td>
+                <td>@row.PendingSkills</td>
+                <td class="muted">@row.UpdatedAt.ToOffset(TimeSpan.FromHours(7)).ToString("dd/MM/yyyy HH:mm", vi)</td>
+                <td><a class="btn btn-ghost" asp-page="Verification" asp-route-id="@row.PartnerId">Xem hồ sơ</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

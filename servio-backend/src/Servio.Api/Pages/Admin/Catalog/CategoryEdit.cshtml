@@ -1,0 +1,56 @@
+@page "{id:guid?}"
+@model Servio.Api.Pages.Admin.Catalog.CategoryEditModel
+@{
+    ViewData["Title"] = Model.IsNew ? "Thêm danh mục" : "Sửa danh mục";
+}
+<p><a asp-page="Categories">← Danh mục dịch vụ</a></p>
+
+<form method="post" class="card form-card">
+    <div asp-validation-summary="All" class="alert" role="alert"></div>
+
+    <div class="field">
+        <label asp-for="Form.Name">Tên</label>
+        <input asp-for="Form.Name" required maxlength="150" />
+    </div>
+    <div class="field">
+        <label asp-for="Form.ParentId">Thuộc nhóm</label>
+        <select asp-for="Form.ParentId">
+            <option value="">— Không (đây là nhóm cấp 1) —</option>
+            @foreach (var group in Model.Groups)
+            {
+                <option value="@group.Id">@group.Name</option>
+            }
+        </select>
+        <span class="muted">Khách đăng bài và đối tác đăng ký kỹ năng theo dịch vụ cấp 2.</span>
+    </div>
+    <div class="field">
+        <label asp-for="Form.Slug">Slug</label>
+        <input asp-for="Form.Slug" maxlength="150" placeholder="Để trống để tạo tự động từ tên" />
+    </div>
+    <div class="field">
+        <label asp-for="Form.Description">Mô tả</label>
+        <textarea asp-for="Form.Description" rows="2" maxlength="1000"></textarea>
+    </div>
+    <div class="field-row">
+        <div class="field">
+            <label asp-for="Form.ReferencePriceMin">Giá tham chiếu từ (đ)</label>
+            <input asp-for="Form.ReferencePriceMin" type="number" min="0" step="1000" />
+        </div>
+        <div class="field">
+            <label asp-for="Form.ReferencePriceMax">đến (đ)</label>
+            <input asp-for="Form.ReferencePriceMax" type="number" min="0" step="1000" />
+        </div>
+        <div class="field">
+            <label asp-for="Form.CommissionRate">Hoa hồng riêng (%)</label>
+            <input asp-for="Form.CommissionRate" type="number" min="0" max="100" step="0.5" placeholder="Mặc định 15" />
+        </div>
+        <div class="field">
+            <label asp-for="Form.DisplayOrder">Thứ tự</label>
+            <input asp-for="Form.DisplayOrder" type="number" min="0" />
+        </div>
+    </div>
+    <label class="check"><input asp-for="Form.RequiresCertificate" /> Đối tác phải có chứng chỉ nghề</label>
+    <label class="check"><input asp-for="Form.IsActive" /> Đang dùng (bỏ chọn để ẩn khỏi app)</label>
+
+    <button type="submit" class="btn btn-primary">@(Model.IsNew ? "Thêm danh mục" : "Lưu thay đổi")</button>
+</form>
