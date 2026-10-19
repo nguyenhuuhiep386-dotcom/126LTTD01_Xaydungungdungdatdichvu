@@ -92,4 +92,7 @@
     <string name="settings_logout_all_title">Đăng xuất khỏi mọi thiết bị</string>
     <string name="settings_logout_all_subtitle">Thu hồi phiên đăng nhập ở các máy khác</string>
     <string name="settings_coming_soon">Đang phát triển</string>
+
+    <!-- KH-2 Tạo yêu cầu (CS-07 → CS-11) -->
+    <string name="create_request_image_unreadable">Không đọc được ảnh này, vui lòng chọn ảnh khác.</string>
 </resources>

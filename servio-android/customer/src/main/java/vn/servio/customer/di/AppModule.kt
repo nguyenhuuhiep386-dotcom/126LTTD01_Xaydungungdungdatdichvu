@@ -11,10 +11,16 @@ import vn.servio.core.utils.AppConfig
 import vn.servio.core.utils.AuthRouter
 import vn.servio.customer.BuildConfig
 import vn.servio.customer.data.remote.AddressApi
+import vn.servio.customer.data.remote.FileApi
+import vn.servio.customer.data.remote.ServiceRequestApi
 import vn.servio.customer.data.repository.AddressRepository
+import vn.servio.customer.data.repository.CreateRequestRepository
 import vn.servio.customer.data.repository.FakeServiceRequestRepository
+import vn.servio.customer.data.repository.FileRepository
 import vn.servio.customer.data.repository.ProfileRepository
 import vn.servio.customer.data.repository.RemoteAddressRepository
+import vn.servio.customer.data.repository.RemoteCreateRequestRepository
+import vn.servio.customer.data.repository.RemoteFileRepository
 import vn.servio.customer.data.repository.RemoteProfileRepository
 import vn.servio.customer.data.repository.ServiceRequestRepository
 import javax.inject.Singleton
@@ -36,6 +42,14 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAddressApi(retrofit: Retrofit): AddressApi = retrofit.create(AddressApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideFileApi(retrofit: Retrofit): FileApi = retrofit.create(FileApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideServiceRequestApi(retrofit: Retrofit): ServiceRequestApi = retrofit.create(ServiceRequestApi::class.java)
 }
 
 /** Customer repositories. Swap Fake → Remote here once the endpoint is ready on Swagger. */
@@ -51,4 +65,10 @@ abstract class RepositoryBindings {
 
     @Binds
     abstract fun bindAddressRepository(impl: RemoteAddressRepository): AddressRepository
+
+    @Binds
+    abstract fun bindFileRepository(impl: RemoteFileRepository): FileRepository
+
+    @Binds
+    abstract fun bindCreateRequestRepository(impl: RemoteCreateRequestRepository): CreateRequestRepository
 }
