@@ -135,46 +135,23 @@
 
         <fragment
             android:id="@+id/cs12"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.address.PickLocationFragment"
             android:label="CS-12 Chọn địa chỉ trên bản đồ">
             <argument
-                android:name="code"
-                android:defaultValue="CS-12"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Chọn địa chỉ trên bản đồ"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="osmdroid, ghim vị trí + nhập địa chỉ tay, ghi công © OpenStreetMap"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
+                android:name="addressId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
         </fragment>
 
         <fragment
             android:id="@+id/cs13"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.address.AddressBookFragment"
             android:label="CS-13 Sổ địa chỉ">
             <argument
-                android:name="code"
-                android:defaultValue="CS-13"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Sổ địa chỉ"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Danh sách địa chỉ (#12–#15)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs12|Thêm địa chỉ trên bản đồ"
-                app:argType="string" />
+                android:name="selectMode"
+                android:defaultValue="false"
+                app:argType="boolean" />
         </fragment>
 
         <fragment
@@ -449,24 +426,8 @@
 
         <fragment
             android:id="@+id/cs29"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.profile.ProfileFragment"
             android:label="CS-29 Tài khoản">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-29"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Tài khoản"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Hồ sơ, địa chỉ, ví, thông báo, cài đặt, hỗ trợ"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs13|Sổ địa chỉ;cs30|Ví &amp; phí huỷ;cs31|Thông báo;cs32|Cài đặt;cs34|Trung tâm hỗ trợ"
-                app:argType="string" />
         </fragment>
 
         <fragment
@@ -515,28 +476,8 @@
 
         <fragment
             android:id="@+id/cs32"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.settings.SettingsFragment"
             android:label="CS-32 Cài đặt">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-32"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Cài đặt"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Đồ án: chỉ gồm Đăng xuất"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
-            <argument
-                android:name="showLogout"
-                android:defaultValue="true"
-                app:argType="boolean" />
         </fragment>
 
         <fragment
