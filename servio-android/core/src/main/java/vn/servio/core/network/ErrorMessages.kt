@@ -20,6 +20,11 @@ object ErrorMessages {
         "ACCOUNT_LOCKED" to "Tài khoản đã bị khoá, vui lòng liên hệ hỗ trợ.",
         "PARTNER_NOT_VERIFIED" to "Hồ sơ đối tác chưa được duyệt.",
         "PARTNER_OFFLINE" to "Bạn cần bật trạng thái Online để báo giá.",
+        // BE-2. POSTING_RESTRICTED is not mapped: the server message says until when.
+        "CONTACT_INFO_NOT_ALLOWED" to "Không ghi số điện thoại hoặc đường link. Hai bên trao đổi qua chat trong ứng dụng.",
+        "REQUEST_NOT_OPEN" to "Bài đăng không còn nhận báo giá.",
+        "RESOURCE_VERSION_CONFLICT" to "Bài đăng đã thay đổi, vui lòng tải lại.",
+        "PARTNER_NOT_ELIGIBLE" to "Bạn không đủ điều kiện báo giá bài này.",
         // PROFILE_INCOMPLETE is not mapped: the server message lists exactly what is missing.
         "VERIFICATION_LOCKED" to "Hồ sơ đang chờ duyệt hoặc đã được duyệt, không thể thay đổi giấy tờ.",
         "SKILL_ALREADY_EXISTS" to "Bạn đã đăng ký kỹ năng này.",

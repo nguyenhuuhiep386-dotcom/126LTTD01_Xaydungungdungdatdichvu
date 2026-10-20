@@ -92,3 +92,44 @@ a:hover { text-decoration: underline; }
     .sidebar { position: static; height: auto; }
     .content, .topbar { padding-left: 16px; padding-right: 16px; }
 }
+
+/* ---------- Added with QT-1 (AW-04, AW-11) ---------- */
+.badge-warning { background: var(--primary-container); color: var(--text-accent); }
+.badge-error { background: var(--error-container); color: var(--error); }
+.flash { padding: 10px 14px; border-radius: 10px; background: var(--success-container); color: var(--success); font-weight: 500; }
+.section-title { font-size: 18px; font-weight: 600; margin: 28px 0 12px; }
+.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+.toolbar p { margin: 0; }
+
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--divider); margin-bottom: 20px; overflow-x: auto; }
+.tab { padding: 10px 14px; color: var(--text-secondary); font-weight: 500; border-bottom: 2px solid transparent; white-space: nowrap; }
+.tab:hover { color: var(--text); text-decoration: none; }
+.tab.active { color: var(--text); border-bottom-color: var(--text-accent); }
+
+.profile-head { display: flex; gap: 20px; align-items: flex-start; }
+.profile-head .avatar { border-radius: 50%; object-fit: cover; }
+.profile-status { margin-bottom: 8px; }
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0 0 8px; }
+.facts dt { color: var(--text-secondary); }
+.facts dd { margin: 0; }
+
+.doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.doc { margin: 0; padding: 12px; }
+.doc img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; background: var(--surface-variant); }
+.doc figcaption { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; margin-top: 10px; }
+
+.decision { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.decision h3 { margin: 0 0 6px; font-size: 16px; }
+.decision .btn { margin-top: 14px; }
+.actions form { display: flex; gap: 6px; margin: 0; }
+.btn-danger { color: var(--error); }
+.btn-danger-solid { background: var(--error); color: #fff; }
+.btn-danger-solid:hover { box-shadow: 0 4px 12px rgba(180, 35, 24, 0.25); }
+
+.form-card { max-width: 760px; display: grid; gap: 4px; }
+.form-card .btn { justify-self: start; margin-top: 16px; }
+.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.field select, .field textarea { font: inherit; padding: 11px 12px; border: 1px solid var(--outline); border-radius: var(--radius); background: var(--surface); }
+.field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { outline: 3px solid var(--primary); outline-offset: 1px; }
+.check { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+.validation-summary-valid { display: none; }

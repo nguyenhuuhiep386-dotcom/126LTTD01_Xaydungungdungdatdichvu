@@ -20,4 +20,8 @@ public abstract class ApiControllerBase : ControllerBase
 
     protected ActionResult<ApiResponse<T>> OkEnvelope<T>(T data, string? message = null) =>
         Ok(ApiResponse.Ok(HttpContext, data, message));
+
+    /// <summary>201 Created with the envelope, for endpoints that create a resource (#36, #50).</summary>
+    protected ActionResult<ApiResponse<T>> CreatedEnvelope<T>(T data) =>
+        StatusCode(StatusCodes.Status201Created, ApiResponse.Ok(HttpContext, data));
 }

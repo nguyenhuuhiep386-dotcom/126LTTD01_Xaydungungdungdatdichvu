@@ -1,0 +1,13 @@
+@model string
+@{
+    // Shared status chip for admin tables. Model = enum name (PartnerVerificationStatus, ApprovalStatus...).
+    var (label, css) = Model switch
+    {
+        "Approved" => ("Đã duyệt", "badge-success"),
+        "Pending" => ("Chờ duyệt", "badge-warning"),
+        "Rejected" => ("Từ chối", "badge-error"),
+        "NotSubmitted" => ("Chưa gửi", "badge-muted"),
+        _ => (Model, "badge-muted"),
+    };
+}
+<span class="badge @css">@label</span>
