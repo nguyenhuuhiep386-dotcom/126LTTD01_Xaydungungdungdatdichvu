@@ -11,12 +11,17 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Servio.Api.Common;
 using Servio.Api.Data;
+using Servio.Api.Hubs;
+using Servio.Api.Jobs;
 using Servio.Api.Services;
 using Servio.Api.Services.Admin;
 using Servio.Api.Services.Auth;
 using Servio.Api.Services.Catalog;
+using Servio.Api.Services.Feed;
 using Servio.Api.Services.Files;
 using Servio.Api.Services.Partners;
+using Servio.Api.Services.Quotes;
+using Servio.Api.Services.Requests;
 using Servio.Api.Services.Users;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,6 +61,14 @@ builder.Services.AddScoped<PartnerSkillService>();
 builder.Services.AddScoped<PartnerPublicService>();
 builder.Services.AddScoped<PartnerVerificationService>();
 builder.Services.AddScoped<AdminCategoryService>();
+builder.Services.AddScoped<CodeGenerator>();
+builder.Services.AddScoped<FeedService>();
+builder.Services.AddScoped<ServiceRequestService>();
+builder.Services.AddScoped<QuoteService>();
+builder.Services.AddSingleton<IRealtimeNotifier, SignalRNotifier>();
+builder.Services.AddHostedService<RequestExpiryJob>();
+builder.Services.AddSignalR().AddJsonProtocol(options =>
+    options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper)));
 builder.Services.AddMemoryCache();
 
 // ---------- Authentication: JWT for the apps, cookie for admin pages ----------
@@ -73,7 +86,7 @@ builder.Services
             RoleClaimType = TokenService.RoleClaim,
             ClockSkew = TimeSpan.FromSeconds(30),
         };
-        // SignalR hubs (added in later work packages) send the token as ?access_token=...
+        // SignalR hubs (/hubs/feed, /hubs/orders) send the token as ?access_token=...
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
@@ -207,6 +220,8 @@ app.UseAuthorization();
 
 app.MapHealthChecks("/health/live");
 app.MapControllers();
+app.MapHub<FeedHub>("/hubs/feed");
+app.MapHub<OrdersHub>("/hubs/orders");
 app.MapRazorPages();
 app.MapGet("/", () => Results.Redirect(isDemoEnvironment ? "/swagger" : "/admin")).ExcludeFromDescription();
 
