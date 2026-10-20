@@ -13,6 +13,7 @@ import vn.servio.core.utils.UiState
 import vn.servio.core.utils.collectWhenStarted
 import vn.servio.customer.R
 import vn.servio.customer.databinding.FragmentHomeBinding
+import vn.servio.customer.ui.category.CategoryListViewModel
 
 /** CS-06 Trang chủ (demo version): greeting, "Đăng yêu cầu" and categories from GET /service-categories (#29). */
 @AndroidEntryPoint
@@ -23,7 +24,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentHomeBinding.bind(view)
         val adapter = CategoryAdapter { category ->
-            findNavController().navigate(R.id.cs07, bundleOf("categoryId" to category.id))
+            findNavController().navigate(R.id.cs07, bundleOf(CategoryListViewModel.ARG_CATEGORY_ID to category.id))
         }
         binding.categoryList.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.categoryList.adapter = adapter

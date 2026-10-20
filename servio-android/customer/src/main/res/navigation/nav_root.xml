@@ -25,113 +25,123 @@
 
         <fragment
             android:id="@+id/cs07"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.category.CategoryListFragment"
             android:label="CS-07 Danh mục dịch vụ">
+            <!-- Level-1 group to preselect; null or unknown selects the first group. -->
             <argument
-                android:name="code"
-                android:defaultValue="CS-07"
-                app:argType="string" />
+                android:name="categoryId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
+            <!-- Prefills the search box (CS-06 "Tìm loại dịch vụ"). -->
             <argument
-                android:name="title"
-                android:defaultValue="Danh mục dịch vụ"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Lưới danh mục cấp 1 → cấp 2"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs08|Chọn dịch vụ → Tạo yêu cầu"
-                app:argType="string" />
+                android:name="keyword"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
         </fragment>
 
-        <fragment
-            android:id="@+id/cs08"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-08 Tạo yêu cầu — B1 Mô tả">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-08"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Tạo yêu cầu — B1 Mô tả"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Tiêu đề, mô tả, ảnh (POST /files)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs09|Bước 2: Địa chỉ &amp; thời gian"
-                app:argType="string" />
-        </fragment>
+        <!--
+          CS-08 → CS-11 share one CreateRequestViewModel, scoped to this graph:
+          navGraphViewModels(R.id.create_request_graph) { defaultViewModelProviderFactory } (Hilt factory).
+          categoryId = the level-2 service picked on CS-07; the ViewModel reads it from SavedStateHandle.
+        -->
+        <navigation
+            android:id="@+id/create_request_graph"
+            app:startDestination="@id/cs08">
 
-        <fragment
-            android:id="@+id/cs09"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-09 Tạo yêu cầu — B2 Địa chỉ &amp; thời gian">
             <argument
-                android:name="code"
-                android:defaultValue="CS-09"
+                android:name="categoryId"
                 app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Tạo yêu cầu — B2 Địa chỉ &amp; thời gian"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Chọn địa chỉ từ sổ hoặc ghim bản đồ, lịch hẹn"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs10|Bước 3: Ngân sách &amp; yêu cầu;cs12|Chọn vị trí trên bản đồ;cs13|Sổ địa chỉ"
-                app:argType="string" />
-        </fragment>
 
-        <fragment
-            android:id="@+id/cs10"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-10 Tạo yêu cầu — B3 Ngân sách &amp; yêu cầu">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-10"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Tạo yêu cầu — B3 Ngân sách &amp; yêu cầu"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Ngân sách, kinh nghiệm, đánh giá tối thiểu, bán kính"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs11|Xem lại &amp; đăng"
-                app:argType="string" />
-        </fragment>
+            <fragment
+                android:id="@+id/cs08"
+                android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+                android:label="CS-08 Tạo yêu cầu — B1 Mô tả">
+                <argument
+                    android:name="code"
+                    android:defaultValue="CS-08"
+                    app:argType="string" />
+                <argument
+                    android:name="title"
+                    android:defaultValue="Tạo yêu cầu — B1 Mô tả"
+                    app:argType="string" />
+                <argument
+                    android:name="description"
+                    android:defaultValue="Tiêu đề, mô tả, ảnh (POST /files)"
+                    app:argType="string" />
+                <argument
+                    android:name="links"
+                    android:defaultValue="cs09|Bước 2: Địa chỉ &amp; thời gian"
+                    app:argType="string" />
+            </fragment>
 
-        <fragment
-            android:id="@+id/cs11"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-11 Xem lại &amp; đăng">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-11"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Xem lại &amp; đăng"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Tóm tắt và POST /service-requests (#36)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs15|Đăng → Chi tiết yêu cầu"
-                app:argType="string" />
-        </fragment>
+            <fragment
+                android:id="@+id/cs09"
+                android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+                android:label="CS-09 Tạo yêu cầu — B2 Địa chỉ &amp; thời gian">
+                <argument
+                    android:name="code"
+                    android:defaultValue="CS-09"
+                    app:argType="string" />
+                <argument
+                    android:name="title"
+                    android:defaultValue="Tạo yêu cầu — B2 Địa chỉ &amp; thời gian"
+                    app:argType="string" />
+                <argument
+                    android:name="description"
+                    android:defaultValue="Chọn địa chỉ từ sổ hoặc ghim bản đồ, lịch hẹn"
+                    app:argType="string" />
+                <argument
+                    android:name="links"
+                    android:defaultValue="cs10|Bước 3: Ngân sách &amp; yêu cầu;cs12|Chọn vị trí trên bản đồ;cs13|Sổ địa chỉ"
+                    app:argType="string" />
+            </fragment>
+
+            <fragment
+                android:id="@+id/cs10"
+                android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+                android:label="CS-10 Tạo yêu cầu — B3 Ngân sách &amp; yêu cầu">
+                <argument
+                    android:name="code"
+                    android:defaultValue="CS-10"
+                    app:argType="string" />
+                <argument
+                    android:name="title"
+                    android:defaultValue="Tạo yêu cầu — B3 Ngân sách &amp; yêu cầu"
+                    app:argType="string" />
+                <argument
+                    android:name="description"
+                    android:defaultValue="Ngân sách, kinh nghiệm, đánh giá tối thiểu, bán kính"
+                    app:argType="string" />
+                <argument
+                    android:name="links"
+                    android:defaultValue="cs11|Xem lại &amp; đăng"
+                    app:argType="string" />
+            </fragment>
+
+            <fragment
+                android:id="@+id/cs11"
+                android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+                android:label="CS-11 Xem lại &amp; đăng">
+                <argument
+                    android:name="code"
+                    android:defaultValue="CS-11"
+                    app:argType="string" />
+                <argument
+                    android:name="title"
+                    android:defaultValue="Xem lại &amp; đăng"
+                    app:argType="string" />
+                <argument
+                    android:name="description"
+                    android:defaultValue="Tóm tắt và POST /service-requests (#36)"
+                    app:argType="string" />
+                <argument
+                    android:name="links"
+                    android:defaultValue="cs15|Đăng → Chi tiết yêu cầu"
+                    app:argType="string" />
+            </fragment>
+        </navigation>
 
         <fragment
             android:id="@+id/cs12"

@@ -21,6 +21,18 @@
     <string name="home_see_all">Xem tất cả</string>
     <string name="home_services_count">%1$d dịch vụ</string>
 
+    <!-- CS-07 Categories -->
+    <string name="category_title">Chọn dịch vụ</string>
+    <string name="category_search_hint">Tìm loại dịch vụ</string>
+    <string name="category_search_clear">Xoá từ khoá</string>
+    <string name="category_group_hint">Chọn đúng loại việc để người làm phù hợp nhận được yêu cầu.</string>
+    <string name="category_group_empty">Nhóm này chưa có dịch vụ nào.</string>
+    <string name="category_search_results">Kết quả tìm kiếm</string>
+    <plurals name="category_search_count">
+        <item quantity="other">%1$d dịch vụ phù hợp</item>
+    </plurals>
+    <string name="category_search_empty">Không tìm thấy dịch vụ nào cho “%1$s”. Thử từ khoá khác hoặc chọn một nhóm bên trái.</string>
+
     <!-- CS-14 My requests -->
     <string name="requests_title">Yêu cầu của tôi</string>
     <string name="requests_fake_note">Dữ liệu mẫu (FakeServiceRequestRepository)</string>
