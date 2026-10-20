@@ -20,6 +20,21 @@ public static class RealtimeEvents
 
     /// <summary>/hubs/orders → customer: a quote was withdrawn. Payload: { serviceRequestId, quoteId }.</summary>
     public const string QuoteWithdrawn = "QuoteWithdrawn";
+
+    /// <summary>/hubs/orders → partner: the customer chose your quote and an order waits for you (#65). Payload: { quoteId, orderId }.</summary>
+    public const string QuoteAccepted = "QuoteAccepted";
+
+    /// <summary>/hubs/orders → partner: the customer chose someone else. Payload: { quoteId, orderId: null }.</summary>
+    public const string QuoteRejected = "QuoteRejected";
+
+    /// <summary>/hubs/orders → customer and partner of the order: a status changed. Payload: OrderStatusChangedDto.</summary>
+    public const string OrderStatusChanged = "OrderStatusChanged";
+
+    /// <summary>/hubs/orders → customer: the partner asks for an extra charge (CS-22). Payload: { orderId, extraChargeId, amount, description }.</summary>
+    public const string ExtraChargeRequested = "ExtraChargeRequested";
+
+    /// <summary>/hubs/orders → partner: the customer approved or rejected an extra charge. Payload: ExtraChargeDto.</summary>
+    public const string ExtraChargeResponded = "ExtraChargeResponded";
 }
 
 /// <summary>Groups are per user and per app, so a user who has both apps only gets the events of each app in that app.</summary>
@@ -44,7 +59,7 @@ public sealed class FeedHub : Hub
 
 /// <summary>
 /// /hubs/orders — both apps. Joins <c>customer:{userId}</c> or <c>partner:{userId}</c> by the token's app.
-/// BE-2 sends quote events here; order status and tracking (BE-4/BE-5) will use the same hub.
+/// Quote events (BE-2) and order events (BE-4) are sent here; tracking (BE-5) will use the same hub.
 /// </summary>
 [Authorize]
 public sealed class OrdersHub : Hub

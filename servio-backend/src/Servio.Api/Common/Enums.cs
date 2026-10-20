@@ -59,6 +59,19 @@ public enum OrderStatus : byte
     Disputed = 10,
 }
 
+/// <summary>OrderExtraCharges.Status</summary>
+public enum ExtraChargeStatus : byte { Pending = 1, Approved = 2, Rejected = 3 }
+
+public enum OrderImageType : byte { Before = 1, After = 2, Issue = 3 }
+
+public enum PaymentMethod : byte { Cash = 1 }
+
+public enum PaymentStatus : byte { Unpaid = 1, Processing = 2, Paid = 3 }
+
+public enum DisputeStatus : byte { Open = 1, InReview = 2, Resolved = 3, Rejected = 4 }
+
+public enum DisputeReason : byte { WorkQuality = 1, NoShow = 2, Overcharge = 3, Damage = 4, Behavior = 5, Payment = 6, UnpaidCash = 7, Other = 99 }
+
 public enum ActorType : byte { Customer = 1, Partner = 2, System = 3, Admin = 4 }
 
 /// <summary>Parses UPPER_SNAKE_CASE values from query strings and multipart forms (JSON bodies use the converter in Program.cs).</summary>

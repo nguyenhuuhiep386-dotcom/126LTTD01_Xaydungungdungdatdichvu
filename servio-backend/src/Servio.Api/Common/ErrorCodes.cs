@@ -41,6 +41,12 @@ public static class ErrorCodes
     // M4 chat (BE-3)
     public const string ConversationReadOnly = "CONVERSATION_READ_ONLY";
 
+    // M5 orders (BE-4)
+    public const string PartnerCapacityExceeded = "PARTNER_CAPACITY_EXCEEDED";
+    public const string ScheduleConflict = "SCHEDULE_CONFLICT";
+    public const string ExtraChargePending = "EXTRA_CHARGE_PENDING";
+    public const string OrderDisputed = "ORDER_DISPUTED";
+
     // Files (POST /files)
     public const string FileNotReady = "FILE_NOT_READY";
     public const string FileTooLarge = "FILE_TOO_LARGE";

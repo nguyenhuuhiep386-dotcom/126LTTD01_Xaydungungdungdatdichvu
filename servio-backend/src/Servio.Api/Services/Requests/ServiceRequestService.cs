@@ -184,7 +184,7 @@ public sealed class ServiceRequestService(
     }
 
     /// <summary>
-    /// Called by RequestExpiryJob every 30 s: OPEN posts past ExpiresAt → EXPIRED and their pending quotes → EXPIRED.
+    /// Called by ExpiryJob every 30 s: OPEN posts past ExpiresAt → EXPIRED and their pending quotes → EXPIRED.
     /// Returns how many posts expired.
     /// </summary>
     public async Task<int> ExpireDueAsync(CancellationToken ct)
@@ -225,7 +225,7 @@ public sealed class ServiceRequestService(
         if (due > maxDebt)
         {
             throw new ApiException(StatusCodes.Status422UnprocessableEntity, ErrorCodes.OutstandingDebt,
-                $"Bạn còn {due:N0} đ phí huỷ chưa thanh toán, hãy thanh toán để đăng yêu cầu mới");
+                $"Bạn còn {Money.Vnd(due)} phí huỷ chưa thanh toán, hãy thanh toán để đăng yêu cầu mới");
         }
     }
 

@@ -23,8 +23,11 @@ object ErrorMessages {
         // BE-2. POSTING_RESTRICTED is not mapped: the server message says until when.
         "CONTACT_INFO_NOT_ALLOWED" to "Không ghi số điện thoại hoặc đường link. Hai bên trao đổi qua chat trong ứng dụng.",
         "REQUEST_NOT_OPEN" to "Bài đăng không còn nhận báo giá.",
-        "RESOURCE_VERSION_CONFLICT" to "Bài đăng đã thay đổi, vui lòng tải lại.",
-        "PARTNER_NOT_ELIGIBLE" to "Bạn không đủ điều kiện báo giá bài này.",
+        // Not mapped because the same code means different things on each side, so the server message is more precise:
+        // RESOURCE_VERSION_CONFLICT (post vs quote changed), PARTNER_NOT_ELIGIBLE (quoting vs choosing a partner),
+        // QUOTE_ALREADY_ACCEPTED, INVALID_STATUS_TRANSITION (says which step), OUTSTANDING_DEBT (says how much).
+        // BE-4 order codes also use the server message: PARTNER_CAPACITY_EXCEEDED, SCHEDULE_CONFLICT,
+        // EXTRA_CHARGE_PENDING, ORDER_DISPUTED.
         "CONVERSATION_READ_ONLY" to "Hội thoại đã đóng, bạn chỉ xem được tin nhắn cũ.",
         // PROFILE_INCOMPLETE is not mapped: the server message lists exactly what is missing.
         "VERIFICATION_LOCKED" to "Hồ sơ đang chờ duyệt hoặc đã được duyệt, không thể thay đổi giấy tờ.",
@@ -37,14 +40,11 @@ object ErrorMessages {
         "UNSUPPORTED_FILE_TYPE" to "Chỉ nhận ảnh JPEG, PNG hoặc WebP.",
         "QUOTE_LIMIT_EXCEEDED" to "Bạn đã đạt số báo giá đang chờ tối đa.",
         "QUOTE_ALREADY_EXISTS" to "Bạn đã báo giá cho bài này.",
-        "QUOTE_ALREADY_ACCEPTED" to "Yêu cầu đã chọn đối tác khác.",
         "REQUEST_EXPIRED" to "Bài đăng đã hết hạn.",
-        "INVALID_STATUS_TRANSITION" to "Trạng thái đơn đã thay đổi, vui lòng tải lại.",
         "TOO_FAR_FROM_ADDRESS" to "Bạn đang cách địa chỉ quá 200 m.",
         "MOCK_LOCATION_DETECTED" to "Phát hiện vị trí giả, không thể check-in.",
         "ORDER_NOT_CANCELLABLE" to "Không thể huỷ đơn ở trạng thái này.",
         "REVIEW_ALREADY_SUBMITTED" to "Bạn đã đánh giá đơn này.",
-        "OUTSTANDING_DEBT" to "Bạn còn khoản phí chưa thanh toán.",
     )
 
     fun forCode(code: String, fallback: String? = null): String =
