@@ -2,10 +2,7 @@ package vn.servio.customer.data.repository
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,14 +13,12 @@ import vn.servio.core.network.ApiResult
 import vn.servio.core.network.ErrorMessages
 import vn.servio.core.network.apiCall
 import vn.servio.customer.R
+import vn.servio.customer.data.image.ScaledImageDecoder
 import vn.servio.customer.data.model.UploadedFile
 import vn.servio.customer.data.remote.FileApi
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.max
-import kotlin.math.roundToInt
 
 /** Image upload through POST /files. Used by CS-08 (purpose POST_IMAGE). */
 interface FileRepository {
@@ -47,9 +42,12 @@ class RemoteFileRepository @Inject constructor(
         return apiCall { api.upload(file, PURPOSE_POST_IMAGE.toRequestBody(TEXT)) }
     }
 
-    /** Decodes at most [MAX_EDGE] px on the long edge, then lowers JPEG quality until the file fits [MAX_BYTES]. */
+    /**
+     * Decodes upright at most [MAX_EDGE] px on the long edge, then lowers JPEG quality until the file fits [MAX_BYTES].
+     * Every image is re-encoded, small ones too: the new JPEG has no EXIF, so no GPS position reaches the server.
+     */
     private fun compress(uri: Uri): ByteArray {
-        val bitmap = decode(uri)
+        val bitmap = ScaledImageDecoder.decode(context.contentResolver, uri, MAX_EDGE)
         try {
             var quality = START_QUALITY
             while (true) {
@@ -61,37 +59,6 @@ class RemoteFileRepository @Inject constructor(
         } finally {
             bitmap.recycle()
         }
-    }
-
-    private fun decode(uri: Uri): Bitmap {
-        val resolver = context.contentResolver
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            // ImageDecoder also applies the EXIF rotation of camera photos.
-            return ImageDecoder.decodeBitmap(ImageDecoder.createSource(resolver, uri)) { decoder, info, _ ->
-                val (width, height) = scaledSize(info.size.width, info.size.height)
-                decoder.setTargetSize(width, height)
-                decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-            }
-        }
-        // API 26–27: no EXIF rotation; sample down on decode, then scale to the exact size.
-        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
-        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) throw IOException("Cannot read image bounds")
-        var sample = 1
-        while (max(bounds.outWidth, bounds.outHeight) / (sample * 2) >= MAX_EDGE) sample *= 2
-        val sampled = resolver.openInputStream(uri)?.use {
-            BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sample })
-        } ?: throw IOException("Cannot decode image")
-        val (width, height) = scaledSize(sampled.width, sampled.height)
-        if (width == sampled.width && height == sampled.height) return sampled
-        return Bitmap.createScaledBitmap(sampled, width, height, true).also { sampled.recycle() }
-    }
-
-    private fun scaledSize(width: Int, height: Int): Pair<Int, Int> {
-        val longEdge = max(width, height)
-        if (longEdge <= MAX_EDGE) return width to height
-        val ratio = MAX_EDGE.toFloat() / longEdge
-        return (width * ratio).roundToInt() to (height * ratio).roundToInt()
     }
 
     private companion object {

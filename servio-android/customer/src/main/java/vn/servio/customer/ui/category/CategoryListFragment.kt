@@ -18,6 +18,8 @@ import vn.servio.customer.ui.request.CreateRequestViewModel
 /**
  * CS-07 Danh mục dịch vụ. Nav arguments: `categoryId` (level-1 group to preselect) and `keyword` (prefills search),
  * both optional. Picking a level-2 service opens create_request_graph (CS-08 → CS-11) with that service id.
+ * With `pickResult` = true (CS-08 "Đổi") the picked id goes back to the previous destination through
+ * savedStateHandle[RESULT_SERVICE_ID] instead, and no new flow is opened.
  */
 @AndroidEntryPoint
 class CategoryListFragment : Fragment(R.layout.fragment_category_list) {
@@ -26,12 +28,19 @@ class CategoryListFragment : Fragment(R.layout.fragment_category_list) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentCategoryListBinding.bind(view)
+        val pickResult = arguments?.getBoolean(ARG_PICK_RESULT) ?: false
         val groupAdapter = CategoryGroupAdapter { viewModel.selectGroup(it.id) }
         val serviceAdapter = ServiceAdapter { service ->
-            findNavController().navigate(
-                R.id.create_request_graph,
-                bundleOf(CreateRequestViewModel.ARG_CATEGORY_ID to service.id),
-            )
+            val navController = findNavController()
+            if (pickResult) {
+                navController.previousBackStackEntry?.savedStateHandle?.set(RESULT_SERVICE_ID, service.id)
+                navController.popBackStack()
+            } else {
+                navController.navigate(
+                    R.id.create_request_graph,
+                    bundleOf(CreateRequestViewModel.ARG_CATEGORY_ID to service.id),
+                )
+            }
         }
         binding.groupList.adapter = groupAdapter
         binding.serviceList.adapter = serviceAdapter
@@ -87,5 +96,10 @@ class CategoryListFragment : Fragment(R.layout.fragment_category_list) {
             binding.serviceSubtitle.text = getString(R.string.category_group_hint)
             binding.serviceEmpty.text = getString(R.string.category_group_empty)
         }
+    }
+
+    companion object {
+        const val ARG_PICK_RESULT = "pickResult"
+        const val RESULT_SERVICE_ID = "picked_service_id"
     }
 }

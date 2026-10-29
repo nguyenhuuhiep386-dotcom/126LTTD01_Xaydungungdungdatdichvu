@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,7 @@ import vn.servio.core.data.repository.CategoryRepository
 import vn.servio.core.network.ApiResult
 import vn.servio.core.network.ErrorMessages
 import vn.servio.core.utils.UiState
+import vn.servio.customer.data.image.CameraCaptureFiles
 import vn.servio.customer.data.model.Address
 import vn.servio.customer.data.model.CreateServiceRequestRequest
 import vn.servio.customer.data.model.RequestImageInput
@@ -34,20 +36,24 @@ import javax.inject.Inject
  * Shared by CS-08 → CS-11 through `navGraphViewModels(R.id.create_request_graph)`: the draft lives as long as the
  * nested graph is on the back stack and is dropped when the customer leaves the flow or posts.
  * The graph argument `categoryId` is the level-2 service picked on CS-07.
+ *
+ * The service, title and description live in [SavedStateHandle] so they survive process death; the picked images do
+ * not (the photo picker's read grant ends with the process), except a camera capture still waiting for its result.
  */
 @HiltViewModel
 class CreateRequestViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val categoryRepository: CategoryRepository,
     private val addressRepository: AddressRepository,
     private val fileRepository: FileRepository,
     private val createRequestRepository: CreateRequestRepository,
+    private val cameraFiles: CameraCaptureFiles,
 ) : ViewModel() {
 
     enum class Step { DESCRIBE, ADDRESS_TIME, BUDGET }
 
     enum class FieldError {
-        TITLE_LENGTH, TITLE_CONTACT_INFO, DESCRIPTION_LENGTH, DESCRIPTION_CONTACT_INFO, IMAGES_PENDING,
+        TITLE_LENGTH, TITLE_CONTACT_INFO, DESCRIPTION_LENGTH, DESCRIPTION_CONTACT_INFO, IMAGES_UPLOADING, IMAGES_FAILED,
         ADDRESS_REQUIRED, SLOT_REQUIRED,
         BUDGET_INCOMPLETE, BUDGET_RANGE,
     }
@@ -62,12 +68,22 @@ class CreateRequestViewModel @Inject constructor(
         data class Incomplete(val step: Step) : Event
     }
 
-    private var categoryId: String? = savedStateHandle[ARG_CATEGORY_ID]
+    /** Starts as the graph argument; "Đổi" overwrites it in place so the new service survives process death. */
+    private var categoryId: String?
+        get() = savedStateHandle[ARG_CATEGORY_ID]
+        set(value) {
+            savedStateHandle[ARG_CATEGORY_ID] = value
+        }
 
     private val _category = MutableStateFlow<UiState<CategoryChoice>>(UiState.Loading)
     val category: StateFlow<UiState<CategoryChoice>> = _category.asStateFlow()
 
-    private val _draft = MutableStateFlow(RequestDraft())
+    private val _draft = MutableStateFlow(
+        RequestDraft(
+            title = savedStateHandle.get<String>(KEY_TITLE).orEmpty(),
+            description = savedStateHandle.get<String>(KEY_DESCRIPTION).orEmpty(),
+        ),
+    )
     val draft: StateFlow<RequestDraft> = _draft.asStateFlow()
 
     /** CS-09 address card: Content(null) means the address book is empty. */
@@ -84,9 +100,18 @@ class CreateRequestViewModel @Inject constructor(
     val events: Flow<Event> = _events.receiveAsFlow()
 
     private val nextImageId = AtomicLong()
+    private val uploadJobs = mutableMapOf<Long, Job>()
+
+    /** Images taken with the camera: their temporary file goes away with them. */
+    private val capturedUris = mutableSetOf<Uri>()
+
+    /** Set by the first "Tiếp tục" on CS-08; from then on every edit re-checks the step. */
+    private var describeChecked = false
     private var addressLoaded = false
 
     init {
+        // Files of a draft lost with the process are of no use now, except a capture whose result is still coming.
+        cameraFiles.deleteAllExcept(savedStateHandle.get<Uri>(KEY_PENDING_CAPTURE))
         loadCategory()
     }
 
@@ -120,17 +145,48 @@ class CreateRequestViewModel @Inject constructor(
 
     // region CS-08 Mô tả
 
-    fun setTitle(title: String) = _draft.update { it.copy(title = title) }
+    /** Whether leaving CS-08 would throw something away ("Bỏ yêu cầu đang soạn?"). */
+    val hasDescribeContent: Boolean
+        get() = _draft.value.let { it.title.isNotBlank() || it.description.isNotBlank() || it.images.isNotEmpty() }
 
-    fun setDescription(description: String) = _draft.update { it.copy(description = description) }
+    fun setTitle(title: String) {
+        if (title == _draft.value.title) return
+        savedStateHandle[KEY_TITLE] = title
+        _draft.update { it.copy(title = title) }
+        recheckDescribe()
+    }
+
+    fun setDescription(description: String) {
+        if (description == _draft.value.description) return
+        savedStateHandle[KEY_DESCRIPTION] = description
+        _draft.update { it.copy(description = description) }
+        recheckDescribe()
+    }
+
+    /** Free slots; a failed image keeps its slot until it is removed. */
+    val freeImageSlots: Int get() = RequestDraft.MAX_IMAGES - _draft.value.images.size
 
     /** Adds up to the remaining slots and starts uploading each one right away. */
     fun addImages(uris: List<Uri>) {
-        val free = RequestDraft.MAX_IMAGES - _draft.value.images.size
-        val added = uris.take(free).map { DraftImage(nextImageId.incrementAndGet(), it, DraftImage.Status.UPLOADING) }
+        val added = uris.take(freeImageSlots).map { DraftImage(nextImageId.incrementAndGet(), it, DraftImage.Status.UPLOADING) }
         if (added.isEmpty()) return
         _draft.update { it.copy(images = it.images + added) }
         added.forEach { upload(it) }
+        recheckDescribe()
+    }
+
+    /** A new temporary file for the camera. Kept in SavedStateHandle: the app may be killed while the camera is open. */
+    fun startCapture(): Uri = cameraFiles.create().also { savedStateHandle[KEY_PENDING_CAPTURE] = it }
+
+    /** Result of TakePicture for the uri given by [startCapture]; a cancelled or empty capture is deleted. */
+    fun onCaptureResult(success: Boolean) {
+        val uri = savedStateHandle.remove<Uri>(KEY_PENDING_CAPTURE) ?: return
+        if (!success || !cameraFiles.hasContent(uri) || freeImageSlots <= 0) {
+            cameraFiles.delete(uri)
+            return
+        }
+        capturedUris += uri
+        addImages(listOf(uri))
     }
 
     fun retryImage(localId: Long) {
@@ -139,17 +195,27 @@ class CreateRequestViewModel @Inject constructor(
         val retrying = image.copy(status = DraftImage.Status.UPLOADING, errorMessage = null)
         replaceImage(retrying)
         upload(retrying)
+        recheckDescribe()
     }
 
-    fun removeImage(localId: Long) = _draft.update { draft -> draft.copy(images = draft.images.filter { it.localId != localId }) }
+    /** Cancels its upload if still running and deletes its file if it was taken with the camera. */
+    fun removeImage(localId: Long) {
+        val image = _draft.value.images.firstOrNull { it.localId == localId } ?: return
+        uploadJobs.remove(localId)?.cancel()
+        _draft.update { draft -> draft.copy(images = draft.images.filter { it.localId != localId }) }
+        if (capturedUris.remove(image.uri)) cameraFiles.delete(image.uri)
+        recheckDescribe()
+    }
 
     private fun upload(image: DraftImage) {
-        viewModelScope.launch {
+        uploadJobs[image.localId] = viewModelScope.launch {
             val updated = when (val result = fileRepository.uploadPostImage(image.uri)) {
                 is ApiResult.Success -> image.copy(status = DraftImage.Status.UPLOADED, url = result.data.url)
                 is ApiResult.Failure -> image.copy(status = DraftImage.Status.FAILED, errorMessage = result.message)
             }
+            uploadJobs.remove(image.localId)
             replaceImage(updated)
+            recheckDescribe()
         }
     }
 
@@ -158,8 +224,15 @@ class CreateRequestViewModel @Inject constructor(
         draft.copy(images = draft.images.map { if (it.localId == image.localId) image else it })
     }
 
-    /** "Tiếp tục" on CS-08. */
-    fun validateDescribe(): Boolean = setErrors(describeErrors(_draft.value))
+    /** "Tiếp tục" on CS-08. Errors are shown from this first tap on, and then follow every edit. */
+    fun validateDescribe(): Boolean {
+        describeChecked = true
+        return setErrors(describeErrors(_draft.value))
+    }
+
+    private fun recheckDescribe() {
+        if (describeChecked) setErrors(describeErrors(_draft.value))
+    }
 
     private fun describeErrors(draft: RequestDraft) = buildSet {
         val title = draft.title.trim()
@@ -174,7 +247,8 @@ class CreateRequestViewModel @Inject constructor(
         } else if (ContactInfoGuard.containsContactInfo(description)) {
             add(FieldError.DESCRIPTION_CONTACT_INFO)
         }
-        if (draft.images.any { it.status != DraftImage.Status.UPLOADED }) add(FieldError.IMAGES_PENDING)
+        if (draft.images.any { it.status == DraftImage.Status.UPLOADING }) add(FieldError.IMAGES_UPLOADING)
+        if (draft.images.any { it.status == DraftImage.Status.FAILED }) add(FieldError.IMAGES_FAILED)
     }
 
     // endregion
@@ -351,7 +425,15 @@ class CreateRequestViewModel @Inject constructor(
         return errors.isEmpty()
     }
 
+    /** The customer left the flow or posted: drop every camera file, including one still waiting for its result. */
+    override fun onCleared() {
+        cameraFiles.deleteAllExcept(keep = null)
+    }
+
     companion object {
         const val ARG_CATEGORY_ID = "categoryId"
+        private const val KEY_TITLE = "draftTitle"
+        private const val KEY_DESCRIPTION = "draftDescription"
+        private const val KEY_PENDING_CAPTURE = "pendingCaptureUri"
     }
 }

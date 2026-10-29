@@ -39,6 +39,11 @@
                 android:defaultValue="@null"
                 app:argType="string"
                 app:nullable="true" />
+            <!-- CS-08 "Đổi": return the picked service to the previous screen instead of opening a new flow. -->
+            <argument
+                android:name="pickResult"
+                android:defaultValue="false"
+                app:argType="boolean" />
         </fragment>
 
         <!--
@@ -56,24 +61,8 @@
 
             <fragment
                 android:id="@+id/cs08"
-                android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+                android:name="vn.servio.customer.ui.request.CreateRequestStep1Fragment"
                 android:label="CS-08 Tạo yêu cầu — B1 Mô tả">
-                <argument
-                    android:name="code"
-                    android:defaultValue="CS-08"
-                    app:argType="string" />
-                <argument
-                    android:name="title"
-                    android:defaultValue="Tạo yêu cầu — B1 Mô tả"
-                    app:argType="string" />
-                <argument
-                    android:name="description"
-                    android:defaultValue="Tiêu đề, mô tả, ảnh (POST /files)"
-                    app:argType="string" />
-                <argument
-                    android:name="links"
-                    android:defaultValue="cs09|Bước 2: Địa chỉ &amp; thời gian"
-                    app:argType="string" />
             </fragment>
 
             <fragment

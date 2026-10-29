@@ -5,4 +5,9 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
+
+    <!-- Bottom sheets (CS-08 "Thêm ảnh"): cream surface instead of the Material default container colour. -->
+    <style name="ThemeOverlay.Servio.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="colorSurfaceContainerLow">@color/servio_surface</item>
+    </style>
 </resources>

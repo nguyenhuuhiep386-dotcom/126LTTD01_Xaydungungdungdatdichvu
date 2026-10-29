@@ -107,4 +107,36 @@
 
     <!-- KH-2 Tạo yêu cầu (CS-07 → CS-11) -->
     <string name="create_request_image_unreadable">Không đọc được ảnh này, vui lòng chọn ảnh khác.</string>
+    <string name="create_request_title">Tạo yêu cầu</string>
+    <string name="create_request_step">Bước %1$d/%2$d · %3$s</string>
+    <string name="create_request_step_describe">Mô tả công việc</string>
+    <string name="create_request_change_service">Đổi</string>
+    <string name="create_request_service_loading">Đang tải dịch vụ…</string>
+    <string name="create_request_service_missing">Chưa tải được dịch vụ. Bấm “Thử lại” trên thẻ dịch vụ.</string>
+
+    <!-- CS-08 Bước 1 Mô tả -->
+    <string name="create_request_title_label">Tiêu đề</string>
+    <string name="create_request_title_helper">Từ 5 đến 150 ký tự</string>
+    <string name="create_request_title_length">Tiêu đề dài từ 5 đến 150 ký tự</string>
+    <string name="create_request_description_label">Mô tả chi tiết</string>
+    <string name="create_request_description_helper">Không ghi số điện thoại hoặc đường link.</string>
+    <string name="create_request_description_length">Mô tả dài từ 20 đến 2000 ký tự</string>
+    <string name="create_request_contact_info">Không ghi số điện thoại hoặc đường link. Hai bên trao đổi qua chat trong ứng dụng.</string>
+    <string name="create_request_images_label">Ảnh (%1$d/%2$d)</string>
+    <string name="create_request_images_helper">Tối đa 6 ảnh, mỗi ảnh không quá 5 MB.</string>
+    <string name="create_request_images_uploading">Ảnh đang được tải lên. Đợi tải xong rồi bấm Tiếp tục.</string>
+    <string name="create_request_images_failed">Có ảnh tải lên không thành công. Bấm vào ảnh để thử lại hoặc xoá ảnh đó.</string>
+    <string name="create_request_add_image">Thêm ảnh</string>
+    <string name="create_request_take_photo">Chụp ảnh</string>
+    <string name="create_request_pick_gallery">Chọn từ thư viện</string>
+    <string name="create_request_image_remove">Xoá ảnh</string>
+    <string name="create_request_image_desc">Ảnh đã tải lên</string>
+    <string name="create_request_image_uploading_desc">Ảnh đang tải lên</string>
+    <string name="create_request_image_failed_desc">Ảnh tải lên không thành công. Bấm để thử lại</string>
+    <string name="create_request_camera_denied">Chưa được cấp quyền camera. Bạn vẫn có thể chọn ảnh từ thư viện.</string>
+    <string name="create_request_camera_unavailable">Không mở được camera. Bạn vẫn có thể chọn ảnh từ thư viện.</string>
+    <string name="create_request_discard_title">Bỏ yêu cầu đang soạn?</string>
+    <string name="create_request_discard_message">Nội dung bạn đã nhập sẽ không được lưu.</string>
+    <string name="create_request_discard_confirm">Bỏ</string>
+    <string name="create_request_discard_keep">Tiếp tục soạn</string>
 </resources>
