@@ -21,7 +21,7 @@ import vn.servio.customer.databinding.FragmentAddressBookBinding
 /**
  * CS-13 Sổ địa chỉ — sample data from FakeAddressRepository until #12–#15 are wired.
  * With the nav argument `selectMode` = true the screen picks an address and returns its id to the previous
- * destination through savedStateHandle[RESULT_SELECTED_ADDRESS_ID].
+ * destination through savedStateHandle[RESULT_SELECTED_ADDRESS_ID]; `selectedAddressId` is the address ticked first.
  */
 @AndroidEntryPoint
 class AddressBookFragment : Fragment(R.layout.fragment_address_book) {
@@ -118,6 +118,10 @@ class AddressBookFragment : Fragment(R.layout.fragment_address_book) {
     companion object {
         const val ARG_SELECT_MODE = "selectMode"
         const val ARG_ADDRESS_ID = "addressId"
+        const val ARG_SELECTED_ADDRESS_ID = "selectedAddressId"
         const val RESULT_SELECTED_ADDRESS_ID = "selected_address_id"
+
+        /** Set by CS-12 on the previous destination after a save: the id of the address just created or edited. */
+        const val RESULT_SAVED_ADDRESS_ID = "saved_address_id"
     }
 }

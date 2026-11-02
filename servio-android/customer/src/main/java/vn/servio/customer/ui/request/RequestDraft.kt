@@ -83,4 +83,7 @@ object ScheduleSlots {
     }
 
     fun hasAvailableSlot(date: LocalDate, now: ZonedDateTime): Boolean = START_HOURS.any { isAvailable(date, it, now) }
+
+    /** Today, or tomorrow once today's last slot is too close. */
+    fun firstAvailableDay(now: ZonedDateTime): LocalDate? = days(now).firstOrNull { hasAvailableSlot(it, now) }
 }

@@ -67,24 +67,8 @@
 
             <fragment
                 android:id="@+id/cs09"
-                android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+                android:name="vn.servio.customer.ui.request.CreateRequestStep2Fragment"
                 android:label="CS-09 Tạo yêu cầu — B2 Địa chỉ &amp; thời gian">
-                <argument
-                    android:name="code"
-                    android:defaultValue="CS-09"
-                    app:argType="string" />
-                <argument
-                    android:name="title"
-                    android:defaultValue="Tạo yêu cầu — B2 Địa chỉ &amp; thời gian"
-                    app:argType="string" />
-                <argument
-                    android:name="description"
-                    android:defaultValue="Chọn địa chỉ từ sổ hoặc ghim bản đồ, lịch hẹn"
-                    app:argType="string" />
-                <argument
-                    android:name="links"
-                    android:defaultValue="cs10|Bước 3: Ngân sách &amp; yêu cầu;cs12|Chọn vị trí trên bản đồ;cs13|Sổ địa chỉ"
-                    app:argType="string" />
             </fragment>
 
             <fragment
@@ -151,6 +135,12 @@
                 android:name="selectMode"
                 android:defaultValue="false"
                 app:argType="boolean" />
+            <!-- Select mode: the address ticked first (CS-09 passes the one in use). Null = the default address. -->
+            <argument
+                android:name="selectedAddressId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
         </fragment>
 
         <fragment

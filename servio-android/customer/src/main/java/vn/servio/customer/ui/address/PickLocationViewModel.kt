@@ -35,7 +35,7 @@ class PickLocationViewModel @Inject constructor(
     enum class FieldError { ADDRESS_REQUIRED, LABEL_REQUIRED }
 
     sealed interface Event {
-        data object Saved : Event
+        data class Saved(val address: Address) : Event
         data class Error(val message: String) : Event
     }
 
@@ -114,7 +114,7 @@ class PickLocationViewModel @Inject constructor(
             _saving.value = false
             _events.send(
                 when (result) {
-                    is ApiResult.Success -> Event.Saved
+                    is ApiResult.Success -> Event.Saved(result.data)
                     is ApiResult.Failure -> Event.Error(result.message)
                 },
             )

@@ -10,4 +10,21 @@
     <style name="ThemeOverlay.Servio.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
         <item name="colorSurfaceContainerLow">@color/servio_surface</item>
     </style>
+
+    <!--
+      CS-09 time cards, day chips and slots: accent outline on pale yellow when checked. The ✓ is an ImageView in
+      front of the text (as in Figma), so the card's own corner icon is off. Shown checked through setChecked only.
+    -->
+    <style name="Widget.Servio.Card.Choice" parent="Widget.Servio.Card">
+        <item name="android:checkable">true</item>
+        <item name="checkedIcon">@null</item>
+        <item name="cardBackgroundColor">@color/schedule_choice_bg</item>
+        <item name="strokeColor">@color/schedule_choice_stroke</item>
+        <item name="cardForegroundColor">@android:color/transparent</item>
+    </style>
+
+    <!-- Day chips and slots are pills. -->
+    <style name="Widget.Servio.Card.Choice.Pill">
+        <item name="shapeAppearance">@style/ShapeAppearance.Servio.Circle</item>
+    </style>
 </resources>

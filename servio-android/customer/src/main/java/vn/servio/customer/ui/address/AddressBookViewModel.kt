@@ -1,5 +1,6 @@
 package vn.servio.customer.ui.address
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,10 +20,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddressBookViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val repository: AddressRepository,
 ) : ViewModel() {
 
-    /** [selectedId] is only used in select mode; it starts on the default address. */
+    /**
+     * [selectedId] is only used in select mode. It starts on the nav argument `selectedAddressId` (the address the
+     * caller is using), or on the default address when there is none or it is no longer in the book.
+     */
     data class AddressBookContent(val addresses: List<Address>, val selectedId: String?) {
         val canAdd: Boolean get() = addresses.size < AddressRepository.MAX_ADDRESSES
     }
@@ -34,7 +39,12 @@ class AddressBookViewModel @Inject constructor(
     private val _messages = Channel<String>(Channel.BUFFERED)
     val messages: Flow<String> = _messages.receiveAsFlow()
 
-    private var selectedId: String? = null
+    /** Kept under the argument key, so the choice also survives process death. */
+    private var selectedId: String?
+        get() = savedStateHandle[AddressBookFragment.ARG_SELECTED_ADDRESS_ID]
+        set(value) {
+            savedStateHandle[AddressBookFragment.ARG_SELECTED_ADDRESS_ID] = value
+        }
     private var loadJob: Job? = null
 
     /** Called every time the screen is shown, so changes made on CS-12 appear when coming back. */

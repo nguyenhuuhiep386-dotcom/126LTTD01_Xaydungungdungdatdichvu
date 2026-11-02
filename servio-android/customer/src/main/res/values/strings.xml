@@ -139,4 +139,27 @@
     <string name="create_request_discard_message">Nội dung bạn đã nhập sẽ không được lưu.</string>
     <string name="create_request_discard_confirm">Bỏ</string>
     <string name="create_request_discard_keep">Tiếp tục soạn</string>
+
+    <!-- CS-09 Tạo yêu cầu – Bước 2 Địa chỉ & thời gian -->
+    <string name="create_request_step_address_time">Địa chỉ và thời gian</string>
+    <string name="create_request_address_section">Địa chỉ</string>
+    <string name="create_request_address_loading">Đang tải địa chỉ…</string>
+    <string name="create_request_address_empty">Chưa có địa chỉ</string>
+    <string name="create_request_address_default">%1$s · Mặc định</string>
+    <string name="create_request_change_address">Đổi</string>
+    <string name="create_request_pick_on_map">Chọn vị trí trên bản đồ</string>
+    <string name="create_request_address_required">Chọn địa chỉ làm việc. Bạn có thể ghim vị trí trên bản đồ.</string>
+    <string name="create_request_address_not_ready">Chưa tải được địa chỉ. Bấm Thử lại để tải lại.</string>
+    <string name="create_request_time_section">Thời gian</string>
+    <string name="create_request_time_now">Càng sớm càng tốt</string>
+    <string name="create_request_time_now_hint">Trong vòng 2 giờ</string>
+    <string name="create_request_time_scheduled">Hẹn lịch</string>
+    <string name="create_request_time_scheduled_hint">Chọn ngày và khung giờ</string>
+    <string name="create_request_slot_helper">Khung 2 giờ. Đặt trước tối đa 30 ngày.</string>
+    <string name="create_request_slot_required">Chọn ngày và khung giờ còn đặt được.</string>
+    <string name="create_request_slot_expired">Khung giờ bạn chọn đã qua, vui lòng chọn khung khác.</string>
+    <!-- Day chip: "T5 30/10" (Monday = T2 … Saturday = T7), Sunday "CN 01/11". -->
+    <string name="create_request_day_weekday">T%1$d %2$s</string>
+    <string name="create_request_day_sunday">CN %1$s</string>
+    <string name="create_request_slot_label">%1$02d:00 – %2$02d:00</string>
 </resources>

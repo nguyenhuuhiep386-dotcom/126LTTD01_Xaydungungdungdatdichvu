@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-09 time cards, day chips and slots: accent outline when checked. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/servio_text_accent" android:state_checked="true" />
+    <item android:color="@color/servio_divider" />
+</selector>
