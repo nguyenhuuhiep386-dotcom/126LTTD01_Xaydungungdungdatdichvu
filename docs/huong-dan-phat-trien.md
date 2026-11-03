@@ -102,7 +102,8 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 | Admin: AW-01 đăng nhập, layout, AW-02 số liệu cơ bản | Xong |
 | QT-1: AW-04 duyệt KYC + kỹ năng (xem ảnh riêng tư, AuditLog, thông báo), AW-11 thêm/sửa/ẩn danh mục | Xong; chỉ SUPER_ADMIN và OPERATOR |
 | BE-2: #36–#38, #40 bài đăng; #46 newsfeed; #42, #50, #52, #53 báo giá; job tự hết hạn bài 30 giây/lần | Xong, có trên Swagger |
-| SignalR server: `/hubs/feed` (NewPost), `/hubs/orders` (NewQuote, QuoteWithdrawn) | Xong; client Android chưa có (mục 5.1, hạ tầng của Nguyên) |
+| SignalR server: `/hubs/feed` (NewPost), `/hubs/orders` (NewQuote, QuoteWithdrawn), `/hubs/chat` | Xong; client Android chưa có (mục 5.1, hạ tầng của Nguyên) |
+| BE-3: chat #54–#59, #61; hội thoại chỉ đọc khi bài bị huỷ/hết hạn | Xong, có trên Swagger |
 | Android `:core`: design system, Retrofit, token + tự refresh, xử lý mất mạng | Xong |
 | Màn CS-01, CS-03, CS-04, CS-05 (dùng chung, gọi API thật) | Xong |
 | CS-06 Trang chủ (API thật), CS-14 Yêu cầu của tôi (dữ liệu giả), PS-07 Newsfeed (dữ liệu giả) | Xong, làm mẫu |
@@ -116,10 +117,15 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 | `/hubs/feed` | Đối tác | `NewPost` | `FeedItemDto`, giống một phần tử của `GET /feed` |
 | `/hubs/orders` | Khách | `NewQuote` | `CustomerQuoteDto`, giống một phần tử của `GET /service-requests/{id}/quotes` |
 | `/hubs/orders` | Khách | `QuoteWithdrawn` | `{ serviceRequestId, quoteId }` |
+| `/hubs/chat` | Cả hai | `ReceiveMessage` | `MessageDto`, tới cả hai bên (gồm các máy khác của người gửi) |
+| `/hubs/chat` | Cả hai | `MessageAck` | `{ clientMessageId, messageId, sentAt }`, chỉ gửi cho kết nối vừa gửi tin: tin chuyển từ SENDING sang SENT |
+| `/hubs/chat` | Cả hai | `MessageRead` | `{ conversationId, userId, lastReadMessageId }`, gửi khi một bên đã đọc |
 
 - **Kết nối:** URL `BASE_URL + "hubs/feed"`, gửi JWT qua `accessTokenProvider` (thư viện SignalR Java client tự gắn `?access_token=`). Server tự đưa kết nối vào nhóm theo user và theo app, client không cần gọi hàm join nào.
 - **Khi kết nối lại:** gọi lại API danh sách (`GET /feed`, `GET .../quotes`), vì sự kiện phát ra lúc mất mạng sẽ không được gửi lại.
 - **Chỉ đối tác Online mới nhận NewPost:** phải gọi #25 trước và gửi heartbeat #26 mỗi 30 giây.
+- **Chat:** client gọi hub method `SendMessage({ conversationId, clientMessageId, type, content, attachmentUrl })` và `MarkRead(conversationId, messageId)`. `clientMessageId` là UUID do app tạo trước khi gửi; gửi lại cùng UUID (khi mất mạng) không tạo tin trùng. Khi hub mất kết nối, gửi qua `POST /conversations/{id}/messages`. Lỗi nghiệp vụ trả về dạng `HubException` có nội dung `MÃ_LỖI: thông báo`.
+- **Sau khi kết nối lại:** gọi `GET /conversations/{id}/messages?after=<syncCursor>` để lấy các tin bị lỡ.
 
 ## 6. Quy ước
 
