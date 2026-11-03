@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dialog theme following the Servio design system. Candidate to move into :core so both apps share it. -->
+<resources>
+    <style name="ThemeOverlay.Servio.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurfaceContainerHigh">@color/servio_surface</item>
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.Servio</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.Servio.Title.Text</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.Servio.Body.Text</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.Servio.Button.Dialog</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.Servio.Button.Dialog</item>
+    </style>
+
+    <!-- Confirmation of a destructive action: the positive button is red. -->
+    <style name="ThemeOverlay.Servio.AlertDialog.Destructive">
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.Servio.Button.Dialog.Destructive</item>
+    </style>
+
+    <style name="MaterialAlertDialog.Servio" parent="MaterialAlertDialog.Material3">
+        <item name="backgroundTint">@color/servio_surface</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Servio.Large</item>
+        <item name="shapeAppearanceOverlay">@null</item>
+    </style>
+
+    <style name="MaterialAlertDialog.Servio.Title.Text" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textAppearance">@style/TextAppearance.Servio.SectionTitle</item>
+        <item name="android:textColor">@color/servio_text_primary</item>
+    </style>
+
+    <style name="MaterialAlertDialog.Servio.Body.Text" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:textAppearance">@style/TextAppearance.Servio.Body</item>
+        <item name="android:textColor">@color/servio_text_primary</item>
+    </style>
+
+    <style name="Widget.Servio.Button.Dialog" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textAppearance">@style/TextAppearance.Servio.Label</item>
+        <item name="android:textColor">@color/servio_text_primary</item>
+    </style>
+
+    <style name="Widget.Servio.Button.Dialog.Destructive">
+        <item name="android:textColor">@color/servio_error</item>
+    </style>
+</resources>
