@@ -19,15 +19,22 @@ data class RequestDraft(
     val scheduledDate: LocalDate? = null,
     /** Start hour of the chosen 2-hour slot, one of [ScheduleSlots.START_HOURS]. */
     val scheduledHour: Int? = null,
-    /** Both null = "Để người làm báo giá". */
+    /** "Để người làm báo giá" (the default): the budget boxes keep their numbers but nothing is sent. */
+    val quoteByPartner: Boolean = true,
+    /** CS-10 "Từ" / "Đến" as typed, null when empty. */
     val budgetMin: Long? = null,
     val budgetMax: Long? = null,
     val requireExperience: Boolean = false,
+    /** The customer's own choice; a category that requires a certificate overrides it (see [certificateState]). */
     val requireCertificate: Boolean = false,
     val requireHighRating: Boolean = false,
     val searchRadiusKm: Int = DEFAULT_RADIUS_KM,
 ) {
-    val hasBudget: Boolean get() = budgetMin != null && budgetMax != null
+    val hasBudget: Boolean get() = !quoteByPartner && budgetMin != null && budgetMax != null
+
+    /** #36 budget: both null with "Để người làm báo giá". */
+    val budgetMinToSend: Long? get() = if (hasBudget) budgetMin else null
+    val budgetMaxToSend: Long? get() = if (hasBudget) budgetMax else null
 
     companion object {
         const val TITLE_MIN = 5
@@ -57,6 +64,77 @@ data class DraftImage(
 
 /** The chosen level-2 service and its level-1 group ("Sửa máy lạnh" · "Điện lạnh"). */
 data class CategoryChoice(val service: Category, val group: Category)
+
+/** CS-10 "Có chứng chỉ nghề": ticked and locked when the service requires a certificate. */
+data class CertificateState(val checked: Boolean, val locked: Boolean)
+
+fun certificateState(categoryRequires: Boolean, userChoice: Boolean): CertificateState =
+    if (categoryRequires) CertificateState(checked = true, locked = true) else CertificateState(userChoice, locked = false)
+
+/** CS-10 reference price of a service, shown only when both ends are known. */
+data class PriceRange(val min: Long, val max: Long)
+
+fun referenceRange(category: Category): PriceRange? {
+    val min = category.referencePriceMin ?: return null
+    val max = category.referencePriceMax ?: return null
+    return PriceRange(min, max)
+}
+
+/**
+ * CS-10 money boxes: digits only, grouped with "." (300.000), at most [MAX_DIGITS] digits, no leading zero.
+ * Locale-independent so the format matches Figma whatever the device language.
+ */
+object MoneyInput {
+    const val MAX_DIGITS = 9
+
+    fun format(amount: Long): String = amount.toString().reversed().chunked(3).joinToString(".").reversed()
+
+    /** The digits of [text] as a number; null when it has none. */
+    fun parse(text: CharSequence): Long? = normalize(digitsOf(text)).takeIf { it.isNotEmpty() }?.toLongOrNull()
+
+    data class Edit(val text: String, val cursor: Int)
+
+    /**
+     * The box text after an edit: [previous] is the text before it, [edited] what the field now holds and [cursor]
+     * where its cursor is. Returns null when the edit would go over [MAX_DIGITS] digits: the caller restores
+     * [previous]. The cursor keeps the same number of digits in front of it, so editing mid-number does not jump to
+     * the end. Backspace over a "." removes the digit in front of it, as the dot alone would come straight back.
+     */
+    fun reformat(previous: CharSequence, edited: CharSequence, cursor: Int): Edit? {
+        var text: CharSequence = edited
+        var at = cursor.coerceIn(0, edited.length)
+        if (edited.length < previous.length && digitsOf(edited) == digitsOf(previous)) {
+            val digitIndex = (at - 1 downTo 0).firstOrNull { edited[it] in '0'..'9' }
+            if (digitIndex != null) {
+                text = StringBuilder(edited).deleteCharAt(digitIndex)
+                at = digitIndex
+            }
+        }
+        val digits = digitsOf(text)
+        if (digits.length > MAX_DIGITS) return null
+        val before = digitsOf(text.subSequence(0, at))
+        val normalized = normalize(digits)
+        val dropped = digits.length - normalized.length
+        val digitsBefore = (before.length - dropped).coerceIn(0, normalized.length)
+        val formatted = normalized.toLongOrNull()?.let(::format).orEmpty()
+        return Edit(formatted, cursorAfter(formatted, digitsBefore))
+    }
+
+    private fun digitsOf(text: CharSequence) = text.filter { it in '0'..'9' }.toString()
+
+    /** "000300" → "300"; a lone "0" stays. */
+    private fun normalize(digits: String) = digits.trimStart('0').ifEmpty { if (digits.isEmpty()) "" else "0" }
+
+    private fun cursorAfter(formatted: String, digits: Int): Int {
+        if (digits == 0) return 0
+        var seen = 0
+        formatted.forEachIndexed { index, char ->
+            if (char != '.') seen++
+            if (seen == digits) return index + 1
+        }
+        return formatted.length
+    }
+}
 
 /**
  * CS-09 time slots: 2-hour windows starting at [START_HOURS], Vietnam time. A slot can be booked when it starts

@@ -23,8 +23,24 @@
         <item name="cardForegroundColor">@android:color/transparent</item>
     </style>
 
-    <!-- Day chips and slots are pills. -->
+    <!-- Day chips and slots are pills (radius chips on CS-10 too). -->
     <style name="Widget.Servio.Card.Choice.Pill">
         <item name="shapeAppearance">@style/ShapeAppearance.Servio.Circle</item>
+    </style>
+
+    <!-- CS-10 budget radios and requirement checkboxes, coloured as in Figma. -->
+    <style name="Widget.Servio.RadioButton" parent="Widget.Material3.CompoundButton.RadioButton">
+        <item name="buttonTint">@color/request_radio</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingStart">@dimen/space_s</item>
+        <item name="android:textAppearance">@style/TextAppearance.Servio.Body</item>
+    </style>
+
+    <style name="Widget.Servio.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="buttonTint">@color/request_check_box</item>
+        <item name="buttonIconTint">@color/request_check_icon</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingStart">@dimen/space_s</item>
+        <item name="android:textAppearance">@style/TextAppearance.Servio.Body</item>
     </style>
 </resources>

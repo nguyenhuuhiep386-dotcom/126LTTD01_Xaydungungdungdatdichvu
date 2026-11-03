@@ -9,15 +9,15 @@ import androidx.recyclerview.widget.RecyclerView
 import vn.servio.customer.databinding.ItemScheduleChoiceBinding
 
 /**
- * CS-09 day chips (horizontal row) and time slots (2-column grid). [fillWidth] stretches each item over its grid
- * column. An item that can no longer be booked is faded and not clickable.
+ * CS-09 day chips (horizontal row) and time slots (2-column grid), CS-10 radius chips. [fillWidth] stretches each
+ * item over its grid column. An item that can no longer be booked is faded and not clickable.
  */
 class ScheduleChipAdapter(
     private val fillWidth: Boolean,
     private val onClick: (Item) -> Unit,
 ) : ListAdapter<ScheduleChipAdapter.Item, ScheduleChipAdapter.ViewHolder>(Diff) {
 
-    /** [key] is the ISO date of a day chip or the start hour of a slot. */
+    /** [key] is the ISO date of a day chip, the start hour of a slot or the km of a radius chip. */
     data class Item(val key: String, val label: String, val enabled: Boolean, val selected: Boolean)
 
     class ViewHolder(val binding: ItemScheduleChoiceBinding) : RecyclerView.ViewHolder(binding.root)

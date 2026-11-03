@@ -41,9 +41,9 @@ import javax.inject.Inject
  * nested graph is on the back stack and is dropped when the customer leaves the flow or posts.
  * The graph argument `categoryId` is the level-2 service picked on CS-07.
  *
- * The service, title, description, address id and schedule live in [SavedStateHandle] so they survive process death;
- * the picked images do not (the photo picker's read grant ends with the process), except a camera capture still
- * waiting for its result.
+ * The service, title, description, address id, schedule and CS-10 choices live in [SavedStateHandle] so they survive
+ * process death; the picked images do not (the photo picker's read grant ends with the process), except a camera
+ * capture still waiting for its result.
  */
 @HiltViewModel
 class CreateRequestViewModel @Inject constructor(
@@ -60,7 +60,7 @@ class CreateRequestViewModel @Inject constructor(
     enum class FieldError {
         TITLE_LENGTH, TITLE_CONTACT_INFO, DESCRIPTION_LENGTH, DESCRIPTION_CONTACT_INFO, IMAGES_UPLOADING, IMAGES_FAILED,
         ADDRESS_REQUIRED, ADDRESS_NOT_READY, SLOT_REQUIRED,
-        BUDGET_INCOMPLETE, BUDGET_RANGE,
+        BUDGET_MIN_MISSING, BUDGET_MAX_MISSING, BUDGET_RANGE,
     }
 
     sealed interface Event {
@@ -117,9 +117,10 @@ class CreateRequestViewModel @Inject constructor(
     /** Images taken with the camera: their temporary file goes away with them. */
     private val capturedUris = mutableSetOf<Uri>()
 
-    /** Set by the first "Tiếp tục" on CS-08 / CS-09; from then on every edit re-checks that step. */
+    /** Set by the first "Tiếp tục" on CS-08 / CS-09 ("Xem lại" on CS-10); from then on every edit re-checks that step. */
     private var describeChecked = false
     private var addressTimeChecked = false
+    private var budgetChecked = false
 
     private var addressLoaded = false
     private var addressJob: Job? = null
@@ -146,7 +147,7 @@ class CreateRequestViewModel @Inject constructor(
         }
     }
 
-    /** Title, description and schedule as saved before process death; the address is restored by CS-09. */
+    /** Everything typed but the images, as saved before process death; the address is restored by CS-09. */
     private fun restoreDraft() = RequestDraft(
         title = savedStateHandle.get<String>(KEY_TITLE).orEmpty(),
         description = savedStateHandle.get<String>(KEY_DESCRIPTION).orEmpty(),
@@ -155,6 +156,15 @@ class CreateRequestViewModel @Inject constructor(
             ?: ScheduleType.NOW,
         scheduledDate = savedStateHandle.get<String>(KEY_SCHEDULED_DATE)?.let { runCatching { LocalDate.parse(it) }.getOrNull() },
         scheduledHour = savedStateHandle.get<Int>(KEY_SCHEDULED_HOUR),
+        quoteByPartner = savedStateHandle.get<Boolean>(KEY_QUOTE_BY_PARTNER) ?: true,
+        budgetMin = savedStateHandle.get<Long>(KEY_BUDGET_MIN),
+        budgetMax = savedStateHandle.get<Long>(KEY_BUDGET_MAX),
+        requireExperience = savedStateHandle.get<Boolean>(KEY_REQUIRE_EXPERIENCE) ?: false,
+        requireCertificate = savedStateHandle.get<Boolean>(KEY_REQUIRE_CERTIFICATE) ?: false,
+        requireHighRating = savedStateHandle.get<Boolean>(KEY_REQUIRE_HIGH_RATING) ?: false,
+        searchRadiusKm = savedStateHandle.get<Int>(KEY_SEARCH_RADIUS)
+            ?.takeIf { it in RequestDraft.RADIUS_OPTIONS_KM }
+            ?: RequestDraft.DEFAULT_RADIUS_KM,
     )
 
     // region Category (shown on CS-08 and CS-11; reference price on CS-10)
@@ -449,40 +459,53 @@ class CreateRequestViewModel @Inject constructor(
 
     // region CS-10 Ngân sách & yêu cầu
 
-    /**
-     * "Xem lại" on CS-10. [budgetMin]/[budgetMax] are the parsed inputs (null when empty); with [letPartnerQuote]
-     * both are ignored. Otherwise both must be filled — one filled box alone is an error, never sent.
-     */
-    fun submitBudget(
-        letPartnerQuote: Boolean,
-        budgetMin: Long?,
-        budgetMax: Long?,
-        requireExperience: Boolean,
-        requireCertificate: Boolean,
-        requireHighRating: Boolean,
-        searchRadiusKm: Int,
-    ): Boolean {
-        val errors = buildSet {
-            if (!letPartnerQuote) {
-                if (budgetMin == null || budgetMax == null) {
-                    add(FieldError.BUDGET_INCOMPLETE)
-                } else if (budgetMin < 0 || budgetMin > budgetMax) {
-                    add(FieldError.BUDGET_RANGE)
-                }
-            }
-        }
-        _draft.update {
-            it.copy(
-                budgetMin = if (letPartnerQuote) null else budgetMin,
-                budgetMax = if (letPartnerQuote) null else budgetMax,
-                requireExperience = requireExperience,
-                requireCertificate = requireCertificate,
-                requireHighRating = requireHighRating,
-                searchRadiusKm = searchRadiusKm,
-            )
-        }
-        return setErrors(errors)
+    fun setQuoteByPartner(quoteByPartner: Boolean) = updateBudget(_draft.value.copy(quoteByPartner = quoteByPartner))
+
+    /** Parsed "Từ" / "Đến" (null when the box is empty). */
+    fun setBudgetMin(amount: Long?) = updateBudget(_draft.value.copy(budgetMin = amount))
+
+    fun setBudgetMax(amount: Long?) = updateBudget(_draft.value.copy(budgetMax = amount))
+
+    fun setRequireExperience(required: Boolean) = updateBudget(_draft.value.copy(requireExperience = required))
+
+    /** Ignored by [certificateFor] while the service requires a certificate, but kept for a service that does not. */
+    fun setRequireCertificate(required: Boolean) = updateBudget(_draft.value.copy(requireCertificate = required))
+
+    fun setRequireHighRating(required: Boolean) = updateBudget(_draft.value.copy(requireHighRating = required))
+
+    fun setSearchRadius(km: Int) {
+        if (km in RequestDraft.RADIUS_OPTIONS_KM) updateBudget(_draft.value.copy(searchRadiusKm = km))
     }
+
+    private fun updateBudget(draft: RequestDraft) {
+        if (draft == _draft.value) return
+        savedStateHandle[KEY_QUOTE_BY_PARTNER] = draft.quoteByPartner
+        savedStateHandle[KEY_BUDGET_MIN] = draft.budgetMin
+        savedStateHandle[KEY_BUDGET_MAX] = draft.budgetMax
+        savedStateHandle[KEY_REQUIRE_EXPERIENCE] = draft.requireExperience
+        savedStateHandle[KEY_REQUIRE_CERTIFICATE] = draft.requireCertificate
+        savedStateHandle[KEY_REQUIRE_HIGH_RATING] = draft.requireHighRating
+        savedStateHandle[KEY_SEARCH_RADIUS] = draft.searchRadiusKm
+        _draft.value = draft
+        recheckBudget()
+    }
+
+    /** "Xem lại" on CS-10. Errors are shown from this first tap on, and then follow every change. */
+    fun validateBudget(): Boolean {
+        budgetChecked = true
+        return setErrors(budgetErrors(_draft.value))
+    }
+
+    /** Also called when CS-10 is shown again: CS-09 shares [fieldErrors] and may have replaced them. */
+    fun recheckBudget() {
+        if (budgetChecked) setErrors(budgetErrors(_draft.value))
+    }
+
+    /** "Có chứng chỉ nghề" for the service in use; locked (and sent as true) when the service requires it. */
+    fun certificateFor(draft: RequestDraft, category: UiState<CategoryChoice>): CertificateState = certificateState(
+        categoryRequires = (category as? UiState.Content)?.data?.service?.requiresCertificate == true,
+        userChoice = draft.requireCertificate,
+    )
 
     // endregion
 
@@ -496,6 +519,7 @@ class CreateRequestViewModel @Inject constructor(
         val firstInvalid = when {
             describeErrors(draft).isNotEmpty() || service == null -> Step.DESCRIBE
             addressTimeErrors(draft).isNotEmpty() -> Step.ADDRESS_TIME
+            budgetErrors(draft).isNotEmpty() -> Step.BUDGET
             else -> null
         }
         if (firstInvalid != null || service == null) {
@@ -516,10 +540,10 @@ class CreateRequestViewModel @Inject constructor(
             } else {
                 null
             },
-            budgetMin = draft.budgetMin,
-            budgetMax = draft.budgetMax,
+            budgetMin = draft.budgetMinToSend,
+            budgetMax = draft.budgetMaxToSend,
             requireExperienceYears = if (draft.requireExperience) RequestDraft.EXPERIENCE_YEARS else null,
-            requireCertificate = draft.requireCertificate,
+            requireCertificate = certificateFor(draft, _category.value).checked,
             requireMinRating = if (draft.requireHighRating) RequestDraft.MIN_RATING else null,
             searchRadiusKm = draft.searchRadiusKm,
         )
@@ -569,6 +593,17 @@ class CreateRequestViewModel @Inject constructor(
             draftAddress == null || card.data == null -> setOf(FieldError.ADDRESS_REQUIRED)
             else -> emptySet()
         }
+
+        /** CS-10 budget errors: none with "Để người làm báo giá", whatever the boxes still hold. */
+        fun budgetErrors(draft: RequestDraft): Set<FieldError> = buildSet {
+            if (draft.quoteByPartner) return@buildSet
+            val min = draft.budgetMin
+            val max = draft.budgetMax
+            if (min == null) add(FieldError.BUDGET_MIN_MISSING)
+            if (max == null) add(FieldError.BUDGET_MAX_MISSING)
+            if (min != null && max != null && (min < 0 || min > max)) add(FieldError.BUDGET_RANGE)
+        }
+
         private const val KEY_TITLE = "draftTitle"
         private const val KEY_DESCRIPTION = "draftDescription"
         private const val KEY_PENDING_CAPTURE = "pendingCaptureUri"
@@ -576,5 +611,12 @@ class CreateRequestViewModel @Inject constructor(
         private const val KEY_SCHEDULE_TYPE = "draftScheduleType"
         private const val KEY_SCHEDULED_DATE = "draftScheduledDate"
         private const val KEY_SCHEDULED_HOUR = "draftScheduledHour"
+        private const val KEY_QUOTE_BY_PARTNER = "draftQuoteByPartner"
+        private const val KEY_BUDGET_MIN = "draftBudgetMin"
+        private const val KEY_BUDGET_MAX = "draftBudgetMax"
+        private const val KEY_REQUIRE_EXPERIENCE = "draftRequireExperience"
+        private const val KEY_REQUIRE_CERTIFICATE = "draftRequireCertificate"
+        private const val KEY_REQUIRE_HIGH_RATING = "draftRequireHighRating"
+        private const val KEY_SEARCH_RADIUS = "draftSearchRadiusKm"
     }
 }
