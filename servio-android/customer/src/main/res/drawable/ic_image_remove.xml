@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-08: small round "x" in the corner of an image tile; the button around it keeps a 40dp touch target. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/bg_image_remove" />
+    <item
+        android:bottom="4dp"
+        android:drawable="@drawable/ic_close"
+        android:left="4dp"
+        android:right="4dp"
+        android:top="4dp" />
+</layer-list>

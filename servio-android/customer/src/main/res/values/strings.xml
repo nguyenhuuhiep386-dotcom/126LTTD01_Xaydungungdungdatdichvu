@@ -21,6 +21,18 @@
     <string name="home_see_all">Xem tất cả</string>
     <string name="home_services_count">%1$d dịch vụ</string>
 
+    <!-- CS-07 Categories -->
+    <string name="category_title">Chọn dịch vụ</string>
+    <string name="category_search_hint">Tìm loại dịch vụ</string>
+    <string name="category_search_clear">Xoá từ khoá</string>
+    <string name="category_group_hint">Chọn đúng loại việc để người làm phù hợp nhận được yêu cầu.</string>
+    <string name="category_group_empty">Nhóm này chưa có dịch vụ nào.</string>
+    <string name="category_search_results">Kết quả tìm kiếm</string>
+    <plurals name="category_search_count">
+        <item quantity="other">%1$d dịch vụ phù hợp</item>
+    </plurals>
+    <string name="category_search_empty">Không tìm thấy dịch vụ nào cho “%1$s”. Thử từ khoá khác hoặc chọn một nhóm bên trái.</string>
+
     <!-- CS-14 My requests -->
     <string name="requests_title">Yêu cầu của tôi</string>
     <string name="requests_fake_note">Dữ liệu mẫu (FakeServiceRequestRepository)</string>
@@ -92,4 +104,131 @@
     <string name="settings_logout_all_title">Đăng xuất khỏi mọi thiết bị</string>
     <string name="settings_logout_all_subtitle">Thu hồi phiên đăng nhập ở các máy khác</string>
     <string name="settings_coming_soon">Đang phát triển</string>
+
+    <!-- KH-2 Tạo yêu cầu (CS-07 → CS-11) -->
+    <string name="create_request_image_unreadable">Không đọc được ảnh này, vui lòng chọn ảnh khác.</string>
+    <string name="create_request_title">Tạo yêu cầu</string>
+    <string name="create_request_step">Bước %1$d/%2$d · %3$s</string>
+    <string name="create_request_step_describe">Mô tả công việc</string>
+    <string name="create_request_change_service">Đổi</string>
+    <string name="create_request_service_loading">Đang tải dịch vụ…</string>
+    <string name="create_request_service_missing">Chưa tải được dịch vụ. Bấm “Thử lại” trên thẻ dịch vụ.</string>
+
+    <!-- CS-08 Bước 1 Mô tả -->
+    <string name="create_request_title_label">Tiêu đề</string>
+    <string name="create_request_title_helper">Từ 5 đến 150 ký tự</string>
+    <string name="create_request_title_length">Tiêu đề dài từ 5 đến 150 ký tự</string>
+    <string name="create_request_description_label">Mô tả chi tiết</string>
+    <string name="create_request_description_helper">Không ghi số điện thoại hoặc đường link.</string>
+    <string name="create_request_description_length">Mô tả dài từ 20 đến 2000 ký tự</string>
+    <string name="create_request_contact_info">Không ghi số điện thoại hoặc đường link. Hai bên trao đổi qua chat trong ứng dụng.</string>
+    <string name="create_request_images_label">Ảnh (%1$d/%2$d)</string>
+    <string name="create_request_images_helper">Tối đa 6 ảnh, mỗi ảnh không quá 5 MB.</string>
+    <string name="create_request_images_uploading">Ảnh đang được tải lên. Đợi tải xong rồi bấm Tiếp tục.</string>
+    <string name="create_request_images_failed">Có ảnh tải lên không thành công. Bấm vào ảnh để thử lại hoặc xoá ảnh đó.</string>
+    <string name="create_request_add_image">Thêm ảnh</string>
+    <string name="create_request_take_photo">Chụp ảnh</string>
+    <string name="create_request_pick_gallery">Chọn từ thư viện</string>
+    <string name="create_request_image_remove">Xoá ảnh</string>
+    <string name="create_request_image_desc">Ảnh đã tải lên</string>
+    <string name="create_request_image_uploading_desc">Ảnh đang tải lên</string>
+    <string name="create_request_image_failed_desc">Ảnh tải lên không thành công. Bấm để thử lại</string>
+    <string name="create_request_camera_denied">Chưa được cấp quyền camera. Bạn vẫn có thể chọn ảnh từ thư viện.</string>
+    <string name="create_request_camera_unavailable">Không mở được camera. Bạn vẫn có thể chọn ảnh từ thư viện.</string>
+    <string name="create_request_discard_title">Bỏ yêu cầu đang soạn?</string>
+    <string name="create_request_discard_message">Nội dung bạn đã nhập sẽ không được lưu.</string>
+    <string name="create_request_discard_confirm">Bỏ</string>
+    <string name="create_request_discard_keep">Tiếp tục soạn</string>
+
+    <!-- CS-09 Tạo yêu cầu – Bước 2 Địa chỉ & thời gian -->
+    <string name="create_request_step_address_time">Địa chỉ và thời gian</string>
+    <string name="create_request_address_section">Địa chỉ</string>
+    <string name="create_request_address_loading">Đang tải địa chỉ…</string>
+    <string name="create_request_address_empty">Chưa có địa chỉ</string>
+    <string name="create_request_address_default">%1$s · Mặc định</string>
+    <string name="create_request_change_address">Đổi</string>
+    <string name="create_request_pick_on_map">Chọn vị trí trên bản đồ</string>
+    <string name="create_request_address_required">Chọn địa chỉ làm việc. Bạn có thể ghim vị trí trên bản đồ.</string>
+    <string name="create_request_address_not_ready">Chưa tải được địa chỉ. Bấm Thử lại để tải lại.</string>
+    <string name="create_request_time_section">Thời gian</string>
+    <string name="create_request_time_now">Càng sớm càng tốt</string>
+    <string name="create_request_time_now_hint">Trong vòng 2 giờ</string>
+    <string name="create_request_time_scheduled">Hẹn lịch</string>
+    <string name="create_request_time_scheduled_hint">Chọn ngày và khung giờ</string>
+    <string name="create_request_slot_helper">Khung 2 giờ. Đặt trước tối đa 30 ngày.</string>
+    <string name="create_request_slot_required">Chọn ngày và khung giờ còn đặt được.</string>
+    <string name="create_request_slot_expired">Khung giờ bạn chọn đã qua, vui lòng chọn khung khác.</string>
+    <!-- Day chip: "T5 30/10" (Monday = T2 … Saturday = T7), Sunday "CN 01/11". -->
+    <string name="create_request_day_weekday">T%1$d %2$s</string>
+    <string name="create_request_day_sunday">CN %1$s</string>
+    <string name="create_request_slot_label">%1$02d:00 – %2$02d:00</string>
+
+    <!-- CS-10 Tạo yêu cầu – Bước 3 Ngân sách và yêu cầu -->
+    <string name="create_request_step_budget">Ngân sách và yêu cầu</string>
+    <string name="create_request_budget_section">Ngân sách dự kiến</string>
+    <string name="create_request_budget_range">Nhập khoảng ngân sách</string>
+    <string name="create_request_budget_quote">Để người làm báo giá</string>
+    <string name="create_request_budget_min">Từ</string>
+    <string name="create_request_budget_max">Đến</string>
+    <string name="create_request_budget_currency">đ</string>
+    <string name="create_request_budget_min_missing">Nhập mức Từ.</string>
+    <string name="create_request_budget_max_missing">Nhập mức Đến.</string>
+    <string name="create_request_budget_both_missing">Nhập cả hai mức Từ và Đến, hoặc chọn Để người làm báo giá.</string>
+    <string name="create_request_budget_range_error">Mức Từ không được lớn hơn mức Đến.</string>
+    <!-- "Giá tham chiếu Sửa máy lạnh: 250.000 – 600.000 đ. …" -->
+    <string name="create_request_reference_price">Giá tham chiếu %1$s: %2$s – %3$s đ. Đây là giá ước tính, chưa gồm linh kiện.</string>
+    <string name="create_request_requirements_section">Yêu cầu với người làm</string>
+    <string name="create_request_require_experience">Có từ %1$d năm kinh nghiệm</string>
+    <string name="create_request_require_certificate">Có chứng chỉ nghề</string>
+    <string name="create_request_certificate_required">Dịch vụ này yêu cầu người làm có chứng chỉ.</string>
+    <!-- %1$s is already in Vietnamese format: "4,5". -->
+    <string name="create_request_require_rating">Đánh giá từ %1$s sao</string>
+    <string name="create_request_radius_section">Bán kính tìm người làm</string>
+    <string name="create_request_radius_option">%1$d km</string>
+    <string name="create_request_review">Xem lại</string>
+
+    <!-- CS-11 Xem lại yêu cầu -->
+    <string name="create_request_review_title">Xem lại yêu cầu</string>
+    <string name="create_request_review_edit">Sửa</string>
+    <string name="create_request_review_service_section">Dịch vụ</string>
+    <string name="create_request_review_describe_section">Mô tả</string>
+    <string name="create_request_review_address_time_section">Địa chỉ và thời gian</string>
+    <string name="create_request_review_budget_section">Ngân sách và yêu cầu</string>
+    <!-- "Điện lạnh · Sửa máy lạnh" -->
+    <string name="create_request_review_service">%1$s · %2$s</string>
+    <string name="create_request_review_image">Ảnh %1$d</string>
+    <string name="create_request_review_images_lost">Ảnh đã chọn bị mất khi ứng dụng đóng. Bấm Sửa ở phần Mô tả để thêm lại.</string>
+    <string name="create_request_review_time_now">Càng sớm càng tốt · trong vòng 2 giờ</string>
+    <!-- "Thứ Bảy 17/10 · 14:00 – 16:00" -->
+    <string name="create_request_review_time_scheduled">%1$s · %2$s</string>
+    <string name="create_request_review_day">%1$s %2$s</string>
+    <string-array name="create_request_weekday_full">
+        <item>Thứ Hai</item>
+        <item>Thứ Ba</item>
+        <item>Thứ Tư</item>
+        <item>Thứ Năm</item>
+        <item>Thứ Sáu</item>
+        <item>Thứ Bảy</item>
+        <item>Chủ Nhật</item>
+    </string-array>
+    <string name="create_request_review_time_missing">Chưa chọn khung giờ</string>
+    <string name="create_request_review_budget_range">%1$s đ</string>
+    <string name="create_request_review_experience">Từ %1$d năm kinh nghiệm</string>
+    <string name="create_request_review_no_requirement">Không yêu cầu thêm</string>
+    <string name="create_request_review_radius">bán kính %1$d km</string>
+    <string name="create_request_review_expiry_scheduled">Yêu cầu tự hết hạn sau 24 giờ hoặc khi tới giờ hẹn, tuỳ mốc nào đến trước.</string>
+    <string name="create_request_review_expiry_now">Yêu cầu tự hết hạn sau 2 giờ kể từ lúc đăng.</string>
+    <string name="create_request_post">Đăng yêu cầu</string>
+    <string name="create_request_posting">Đang đăng…</string>
+    <string name="create_request_post_not_ready">Đang tải lại thông tin yêu cầu. Đợi tải xong rồi bấm Đăng.</string>
+    <string name="create_request_post_incomplete">Thông tin ở bước này chưa hợp lệ, vui lòng kiểm tra lại.</string>
+    <string name="create_request_post_contact_info">Vui lòng trao đổi thông tin liên hệ trong ứng dụng.</string>
+    <string name="create_request_post_images_not_ready">Ảnh chưa tải xong. Vui lòng xoá và tải lại ảnh.</string>
+    <string name="create_request_post_profile_title">Cần cập nhật hồ sơ</string>
+    <string name="create_request_post_debt_title">Còn phí huỷ chưa thanh toán</string>
+    <string name="create_request_post_restricted_title">Tạm thời chưa đăng được</string>
+    <string name="create_request_post_view_fee">Xem phí huỷ</string>
+    <string name="action_close">Đóng</string>
+    <!-- CS-15 is still a placeholder: shows the id it was opened with. -->
+    <string name="create_request_posted_placeholder">requestId: %1$s</string>
 </resources>

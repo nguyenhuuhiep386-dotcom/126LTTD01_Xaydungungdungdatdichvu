@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-10 checkboxes: dark box when ticked (Figma), muted while locked by the service. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/servio_text_secondary" android:state_enabled="false" />
+    <item android:color="@color/servio_text_primary" android:state_checked="true" />
+    <item android:color="@color/servio_outline" />
+</selector>

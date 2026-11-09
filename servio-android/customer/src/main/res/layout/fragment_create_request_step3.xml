@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-10 Tạo yêu cầu – Bước 3 Ngân sách và yêu cầu. Same frame as CS-08 / CS-09: the form scrolls, "Xem lại" stays at the bottom. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationContentDescription="@string/action_back"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="@string/create_request_title" />
+
+    <include
+        android:id="@+id/steps"
+        layout="@layout/view_create_request_steps" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/screen_padding"
+            android:paddingTop="@dimen/space_l"
+            android:paddingBottom="@dimen/space_xl">
+
+            <!-- region Ngân sách -->
+
+            <TextView
+                android:id="@+id/budgetLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/create_request_budget_section"
+                android:textAppearance="@style/TextAppearance.Servio.SectionTitle" />
+
+            <!-- The two radios with the boxes between them, as in Figma; RadioGroup only links its RadioButton children. -->
+            <RadioGroup
+                android:id="@+id/budgetGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/budgetRangeRadio"
+                    style="@style/Widget.Servio.RadioButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:saveEnabled="false"
+                    android:text="@string/create_request_budget_range" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_s"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/space_s"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/budgetMinLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:labelFor="@id/budgetMinInput"
+                            android:text="@string/create_request_budget_min"
+                            android:textAppearance="@style/TextAppearance.Servio.Body" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/budgetMinLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_s"
+                            app:suffixText="@string/create_request_budget_currency">
+
+                            <!-- saveEnabled=false: the text is restored from the ViewModel only, never from the view state. -->
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/budgetMinInput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:digits="0123456789."
+                                android:imeOptions="actionNext"
+                                android:importantForAutofill="no"
+                                android:inputType="number"
+                                android:maxLines="1"
+                                android:nextFocusForward="@id/budgetMaxInput"
+                                android:saveEnabled="false"
+                                android:textAppearance="@style/TextAppearance.Servio.Body"
+                                tools:text="300.000" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_s"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/budgetMaxLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:labelFor="@id/budgetMaxInput"
+                            android:text="@string/create_request_budget_max"
+                            android:textAppearance="@style/TextAppearance.Servio.Body" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/budgetMaxLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_s"
+                            app:suffixText="@string/create_request_budget_currency">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/budgetMaxInput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:digits="0123456789."
+                                android:imeOptions="actionDone"
+                                android:importantForAutofill="no"
+                                android:inputType="number"
+                                android:maxLines="1"
+                                android:saveEnabled="false"
+                                android:textAppearance="@style/TextAppearance.Servio.Body"
+                                tools:text="500.000" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/budgetError"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:textAppearance="@style/TextAppearance.Servio.Caption"
+                    android:textColor="@color/servio_error"
+                    android:visibility="gone"
+                    tools:text="@string/create_request_budget_range_error"
+                    tools:visibility="visible" />
+
+                <RadioButton
+                    android:id="@+id/budgetQuoteRadio"
+                    style="@style/Widget.Servio.RadioButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_s"
+                    android:saveEnabled="false"
+                    android:text="@string/create_request_budget_quote" />
+            </RadioGroup>
+
+            <!-- Only when the service has both ends of a reference price. -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/referenceCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/servio_surface_variant"
+                app:strokeWidth="0dp"
+                tools:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/space_l">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginTop="2dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_info"
+                        app:tint="@color/servio_text_primary" />
+
+                    <TextView
+                        android:id="@+id/referenceText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_m"
+                        android:layout_weight="1"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        android:textColor="@color/servio_text_primary"
+                        tools:text="Giá tham chiếu Sửa máy lạnh: 250.000 – 600.000 đ. Đây là giá ước tính, chưa gồm linh kiện." />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- endregion -->
+
+            <!-- region Yêu cầu với người làm -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xl"
+                android:text="@string/create_request_requirements_section"
+                android:textAppearance="@style/TextAppearance.Servio.SectionTitle" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/experienceCheck"
+                style="@style/Widget.Servio.CheckBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:saveEnabled="false"
+                tools:text="Có từ 3 năm kinh nghiệm" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/certificateCheck"
+                style="@style/Widget.Servio.CheckBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:saveEnabled="false"
+                android:text="@string/create_request_require_certificate" />
+
+            <!-- Lines up with the checkbox text: 32dp box + paddingStart. -->
+            <TextView
+                android:id="@+id/certificateNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="40dp"
+                android:text="@string/create_request_certificate_required"
+                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/ratingCheck"
+                style="@style/Widget.Servio.CheckBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:saveEnabled="false"
+                tools:text="Đánh giá từ 4,5 sao" />
+
+            <!-- endregion -->
+
+            <!-- region Bán kính -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xl"
+                android:text="@string/create_request_radius_section"
+                android:textAppearance="@style/TextAppearance.Servio.SectionTitle" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/radiusList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="-4dp"
+                android:layout_marginTop="@dimen/space_m"
+                android:nestedScrollingEnabled="false"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_schedule_choice" />
+
+            <!-- endregion -->
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/servio_surface"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/servio_divider" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/reviewButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/screen_padding"
+            android:layout_marginVertical="@dimen/space_m"
+            android:text="@string/create_request_review" />
+    </LinearLayout>
+</LinearLayout>

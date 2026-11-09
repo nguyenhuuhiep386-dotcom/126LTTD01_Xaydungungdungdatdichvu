@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "zap" icon of the Figma icon set (design/figma-servio-builder). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M13 2 4 14h7l-1 8 9-12h-7z"
+        android:strokeWidth="2"
+        android:strokeColor="@color/servio_text_primary"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

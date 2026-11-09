@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-08 "Thêm ảnh" bottom sheet. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/space_l">
+
+    <TextView
+        android:id="@+id/cameraRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:drawablePadding="@dimen/space_l"
+        android:gravity="center_vertical"
+        android:minHeight="56dp"
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:text="@string/create_request_take_photo"
+        android:textAppearance="@style/TextAppearance.Servio.Body"
+        app:drawableStartCompat="@drawable/ic_camera" />
+
+    <TextView
+        android:id="@+id/galleryRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:drawablePadding="@dimen/space_l"
+        android:gravity="center_vertical"
+        android:minHeight="56dp"
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:text="@string/create_request_pick_gallery"
+        android:textAppearance="@style/TextAppearance.Servio.Body"
+        app:drawableStartCompat="@drawable/ic_image" />
+</LinearLayout>

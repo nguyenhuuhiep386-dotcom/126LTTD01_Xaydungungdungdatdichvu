@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationContentDescription="@string/action_back"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="@string/category_title" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/searchLayout"
+        style="@style/Widget.Servio.TextInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/screen_padding"
+        android:layout_marginBottom="@dimen/space_l"
+        app:endIconContentDescription="@string/category_search_clear"
+        app:endIconMode="clear_text"
+        app:hintEnabled="false"
+        app:startIconDrawable="@drawable/ic_search">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/searchInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/category_search_hint"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <!-- Fixed width: long group names wrap onto 2–3 lines instead of being cut (checked at 360dp). -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/groupList"
+                android:layout_width="104dp"
+                android:layout_height="match_parent"
+                android:background="@color/servio_surface_variant"
+                android:clipToPadding="false"
+                android:paddingHorizontal="@dimen/space_s"
+                android:paddingVertical="@dimen/space_s"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="7"
+                tools:listitem="@layout/item_category_group" />
+
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/serviceScroll"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/space_l"
+                    android:paddingTop="@dimen/space_l"
+                    android:paddingEnd="@dimen/screen_padding"
+                    android:paddingBottom="@dimen/screen_padding">
+
+                    <TextView
+                        android:id="@+id/serviceHeader"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:accessibilityHeading="true"
+                        android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                        tools:text="Điện lạnh" />
+
+                    <TextView
+                        android:id="@+id/serviceSubtitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xs"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        tools:text="@string/category_group_hint" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/serviceList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:nestedScrollingEnabled="false"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        tools:itemCount="4"
+                        tools:listitem="@layout/item_service" />
+
+                    <TextView
+                        android:id="@+id/serviceEmpty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="@dimen/space_xl"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        android:visibility="gone"
+                        tools:text="@string/category_group_empty" />
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+        </LinearLayout>
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            app:indicatorColor="@color/servio_text_primary" />
+
+        <LinearLayout
+            android:id="@+id/errorGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_padding"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/errorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/retryButton"
+                style="@style/Widget.Servio.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:text="@string/action_retry" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

@@ -27,6 +27,9 @@ interface AddressRepository {
 
     companion object {
         const val MAX_ADDRESSES = 10
+
+        /** Error code when the id is not in the book (e.g. deleted meanwhile). */
+        const val NOT_FOUND = "NOT_FOUND"
     }
 }
 
@@ -61,11 +64,10 @@ class RemoteAddressRepository @Inject constructor(
         is ApiResult.Success -> apiCall { api.updateAddress(id, result.data.copy(isDefault = true).toSaveRequest()) }.map { }
     }
 
-    private fun notFound() = ApiResult.Failure(NOT_FOUND, ErrorMessages.forCode(NOT_FOUND, fallback = "Không tìm thấy địa chỉ"))
-
-    private companion object {
-        const val NOT_FOUND = "NOT_FOUND"
-    }
+    private fun notFound() = ApiResult.Failure(
+        AddressRepository.NOT_FOUND,
+        ErrorMessages.forCode(AddressRepository.NOT_FOUND, fallback = "Không tìm thấy địa chỉ"),
+    )
 }
 
 /**
@@ -127,7 +129,7 @@ class FakeAddressRepository @Inject constructor() : AddressRepository {
         return ApiResult.Success(Unit)
     }
 
-    private fun notFound() = ApiResult.Failure(ErrorMessages.UNKNOWN, ErrorMessages.forCode(ErrorMessages.UNKNOWN))
+    private fun notFound() = ApiResult.Failure(AddressRepository.NOT_FOUND, ErrorMessages.forCode(ErrorMessages.UNKNOWN))
 
     private companion object {
         const val ADDRESS_LIMIT_REACHED = "ADDRESS_LIMIT_REACHED"

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-11 image tile: the thumbnail, or "Ảnh N" as in Figma when it cannot be decoded. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="72dp"
+    android:layout_height="72dp"
+    android:layout_marginEnd="@dimen/space_s"
+    app:cardBackgroundColor="@color/servio_surface_variant"
+    app:shapeAppearance="@style/ShapeAppearance.Servio.Medium"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_image"
+            app:tint="@color/servio_text_secondary" />
+
+        <TextView
+            android:id="@+id/label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            tools:text="Ảnh 1" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/thumbnail"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop" />
+</com.google.android.material.card.MaterialCardView>

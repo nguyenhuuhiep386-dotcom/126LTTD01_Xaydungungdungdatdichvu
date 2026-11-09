@@ -125,7 +125,12 @@ class PickLocationFragment : Fragment(R.layout.fragment_pick_location) {
         collectWhenStarted(viewModel.saving) { binding.updateSaveButton() }
         collectWhenStarted(viewModel.events) { event ->
             when (event) {
-                Event.Saved -> findNavController().navigateUp()
+                is Event.Saved -> {
+                    // CS-09 picks the address it just added; CS-13 reloads its list anyway and ignores the key.
+                    findNavController().previousBackStackEntry?.savedStateHandle
+                        ?.set(AddressBookFragment.RESULT_SAVED_ADDRESS_ID, event.address.id)
+                    findNavController().navigateUp()
+                }
                 is Event.Error -> Snackbar.make(view, event.message, Snackbar.LENGTH_LONG).show()
             }
         }
