@@ -107,6 +107,12 @@ class CreateRequestStep1Fragment : Fragment(R.layout.fragment_create_request_ste
         collectWhenStarted(viewModel.fieldErrors) { errors -> binding.bindErrors(errors) }
     }
 
+    /** A notice left by CS-11 when it sent the customer back here. */
+    override fun onResume() {
+        super.onResume()
+        viewModel.takeNotice()?.let(::showMessage)
+    }
+
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
@@ -302,9 +308,11 @@ class CreateRequestStep1Fragment : Fragment(R.layout.fragment_create_request_ste
         findNavController().popBackStack(R.id.create_request_graph, true)
     }
 
-    private fun showMessage(messageRes: Int) {
+    private fun showMessage(messageRes: Int) = showMessage(getString(messageRes))
+
+    private fun showMessage(message: String) {
         val binding = binding ?: return
-        Snackbar.make(binding.root, messageRes, Snackbar.LENGTH_LONG).setAnchorView(binding.continueButton).show()
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).setAnchorView(binding.continueButton).show()
     }
 
     private companion object {

@@ -186,4 +186,49 @@
     <string name="create_request_radius_section">Bán kính tìm người làm</string>
     <string name="create_request_radius_option">%1$d km</string>
     <string name="create_request_review">Xem lại</string>
+
+    <!-- CS-11 Xem lại yêu cầu -->
+    <string name="create_request_review_title">Xem lại yêu cầu</string>
+    <string name="create_request_review_edit">Sửa</string>
+    <string name="create_request_review_service_section">Dịch vụ</string>
+    <string name="create_request_review_describe_section">Mô tả</string>
+    <string name="create_request_review_address_time_section">Địa chỉ và thời gian</string>
+    <string name="create_request_review_budget_section">Ngân sách và yêu cầu</string>
+    <!-- "Điện lạnh · Sửa máy lạnh" -->
+    <string name="create_request_review_service">%1$s · %2$s</string>
+    <string name="create_request_review_image">Ảnh %1$d</string>
+    <string name="create_request_review_images_lost">Ảnh đã chọn bị mất khi ứng dụng đóng. Bấm Sửa ở phần Mô tả để thêm lại.</string>
+    <string name="create_request_review_time_now">Càng sớm càng tốt · trong vòng 2 giờ</string>
+    <!-- "Thứ Bảy 17/10 · 14:00 – 16:00" -->
+    <string name="create_request_review_time_scheduled">%1$s · %2$s</string>
+    <string name="create_request_review_day">%1$s %2$s</string>
+    <string-array name="create_request_weekday_full">
+        <item>Thứ Hai</item>
+        <item>Thứ Ba</item>
+        <item>Thứ Tư</item>
+        <item>Thứ Năm</item>
+        <item>Thứ Sáu</item>
+        <item>Thứ Bảy</item>
+        <item>Chủ Nhật</item>
+    </string-array>
+    <string name="create_request_review_time_missing">Chưa chọn khung giờ</string>
+    <string name="create_request_review_budget_range">%1$s đ</string>
+    <string name="create_request_review_experience">Từ %1$d năm kinh nghiệm</string>
+    <string name="create_request_review_no_requirement">Không yêu cầu thêm</string>
+    <string name="create_request_review_radius">bán kính %1$d km</string>
+    <string name="create_request_review_expiry_scheduled">Yêu cầu tự hết hạn sau 24 giờ hoặc khi tới giờ hẹn, tuỳ mốc nào đến trước.</string>
+    <string name="create_request_review_expiry_now">Yêu cầu tự hết hạn sau 2 giờ kể từ lúc đăng.</string>
+    <string name="create_request_post">Đăng yêu cầu</string>
+    <string name="create_request_posting">Đang đăng…</string>
+    <string name="create_request_post_not_ready">Đang tải lại thông tin yêu cầu. Đợi tải xong rồi bấm Đăng.</string>
+    <string name="create_request_post_incomplete">Thông tin ở bước này chưa hợp lệ, vui lòng kiểm tra lại.</string>
+    <string name="create_request_post_contact_info">Vui lòng trao đổi thông tin liên hệ trong ứng dụng.</string>
+    <string name="create_request_post_images_not_ready">Ảnh chưa tải xong. Vui lòng xoá và tải lại ảnh.</string>
+    <string name="create_request_post_profile_title">Cần cập nhật hồ sơ</string>
+    <string name="create_request_post_debt_title">Còn phí huỷ chưa thanh toán</string>
+    <string name="create_request_post_restricted_title">Tạm thời chưa đăng được</string>
+    <string name="create_request_post_view_fee">Xem phí huỷ</string>
+    <string name="action_close">Đóng</string>
+    <!-- CS-15 is still a placeholder: shows the id it was opened with. -->
+    <string name="create_request_posted_placeholder">requestId: %1$s</string>
 </resources>

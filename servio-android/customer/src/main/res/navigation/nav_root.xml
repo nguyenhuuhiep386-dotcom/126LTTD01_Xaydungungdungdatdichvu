@@ -79,24 +79,8 @@
 
             <fragment
                 android:id="@+id/cs11"
-                android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+                android:name="vn.servio.customer.ui.request.CreateRequestReviewFragment"
                 android:label="CS-11 Xem lại &amp; đăng">
-                <argument
-                    android:name="code"
-                    android:defaultValue="CS-11"
-                    app:argType="string" />
-                <argument
-                    android:name="title"
-                    android:defaultValue="Xem lại &amp; đăng"
-                    app:argType="string" />
-                <argument
-                    android:name="description"
-                    android:defaultValue="Tóm tắt và POST /service-requests (#36)"
-                    app:argType="string" />
-                <argument
-                    android:name="links"
-                    android:defaultValue="cs15|Đăng → Chi tiết yêu cầu"
-                    app:argType="string" />
             </fragment>
         </navigation>
 
@@ -137,6 +121,11 @@
             android:id="@+id/cs15"
             android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
             android:label="CS-15 Chi tiết yêu cầu &amp; báo giá">
+            <!-- Set by CS-11 after #36 (empty when opened from a placeholder link). -->
+            <argument
+                android:name="requestId"
+                android:defaultValue=""
+                app:argType="string" />
             <argument
                 android:name="code"
                 android:defaultValue="CS-15"

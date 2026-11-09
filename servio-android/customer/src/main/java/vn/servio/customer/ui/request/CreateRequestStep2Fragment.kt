@@ -97,6 +97,8 @@ class CreateRequestStep2Fragment : Fragment(R.layout.fragment_create_request_ste
     override fun onResume() {
         super.onResume()
         if (viewModel.refreshSchedule()) showMessage(R.string.create_request_slot_expired)
+        // From CS-11. An expired slot leaves none: the line above already says it.
+        viewModel.takeNotice()?.let(::showMessage)
     }
 
     override fun onDestroyView() {
@@ -271,8 +273,10 @@ class CreateRequestStep2Fragment : Fragment(R.layout.fragment_create_request_ste
         if (navController.currentDestination?.id == R.id.cs09) navController.navigate(destination, args)
     }
 
-    private fun showMessage(messageRes: Int) {
+    private fun showMessage(messageRes: Int) = showMessage(getString(messageRes))
+
+    private fun showMessage(message: String) {
         val binding = binding ?: return
-        Snackbar.make(binding.root, messageRes, Snackbar.LENGTH_LONG).setAnchorView(binding.continueButton).show()
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).setAnchorView(binding.continueButton).show()
     }
 }

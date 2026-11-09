@@ -6,7 +6,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-/** CS-09 labels (also for the CS-11 summary): "T5 30/10", "CN 01/11", "08:00 – 10:00". */
+/** CS-09 labels (also for the CS-11 summary): "T5 30/10", "CN 01/11", "08:00 – 10:00", "Thứ Bảy 17/10". */
 object ScheduleLabels {
 
     private val DAY_MONTH: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM")
@@ -19,6 +19,12 @@ object ScheduleLabels {
         } else {
             context.getString(R.string.create_request_day_weekday, date.dayOfWeek.value + 1, dayMonth)
         }
+    }
+
+    /** CS-11: "Thứ Bảy 17/10", "Chủ Nhật 18/10". */
+    fun fullDay(context: Context, date: LocalDate): String {
+        val weekday = context.resources.getStringArray(R.array.create_request_weekday_full)[ReviewTexts.weekdayIndex(date)]
+        return context.getString(R.string.create_request_review_day, weekday, date.format(DAY_MONTH))
     }
 
     fun slot(context: Context, startHour: Int): String =

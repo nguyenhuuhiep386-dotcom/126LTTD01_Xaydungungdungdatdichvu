@@ -10,6 +10,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import vn.servio.core.R as CoreR
@@ -71,6 +72,15 @@ class CreateRequestStep3Fragment : Fragment(R.layout.fragment_create_request_ste
             binding.bindDraft(draft, category, radiusAdapter)
         }
         collectWhenStarted(viewModel.fieldErrors) { errors -> binding.bindErrors(errors) }
+    }
+
+    /** A notice left by CS-11 when it sent the customer back here. */
+    override fun onResume() {
+        super.onResume()
+        val binding = binding ?: return
+        viewModel.takeNotice()?.let { message ->
+            Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).setAnchorView(binding.reviewButton).show()
+        }
     }
 
     override fun onDestroyView() {

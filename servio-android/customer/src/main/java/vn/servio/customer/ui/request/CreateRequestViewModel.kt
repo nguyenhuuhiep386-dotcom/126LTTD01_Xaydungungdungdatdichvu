@@ -33,6 +33,7 @@ import vn.servio.customer.data.repository.FileRepository
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 
@@ -66,11 +67,17 @@ class CreateRequestViewModel @Inject constructor(
     sealed interface Event {
         data class Posted(val requestId: String) : Event
 
-        /** [step] is set when the server error belongs to a field of that step, so CS-11 can send the user back. */
-        data class Error(val message: String, val step: Step? = null) : Event
+        /** #36 answered with an error, see [PostFailure.of]. */
+        data class Failed(val failure: PostFailure) : Event
 
-        /** The draft is no longer valid on [step] (e.g. the chosen slot is now too close); checked before calling #36. */
-        data class Incomplete(val step: Step) : Event
+        /**
+         * The draft is no longer valid on [step]; checked before calling #36, and that step's errors are now shown.
+         * [slotExpired]: the chosen slot is now too close, which CS-09 itself tells when it resumes.
+         */
+        data class Incomplete(val step: Step, val slotExpired: Boolean = false) : Event
+
+        /** The service or the address is still loading (or failed) after process death: nothing to send yet. */
+        data object NotReady : Event
     }
 
     /** CS-09 day chips and slot grid, as plain data: the screen builds the labels. */
@@ -110,6 +117,16 @@ class CreateRequestViewModel @Inject constructor(
 
     private val _events = Channel<Event>(Channel.BUFFERED)
     val events: Flow<Event> = _events.receiveAsFlow()
+
+    /**
+     * CS-11: the draft had images before the process died and they could not be restored (the photo picker's read
+     * grant ends with the process). Cleared as soon as the customer edits the images on CS-08.
+     */
+    private val _imagesLost = MutableStateFlow((savedStateHandle.get<Int>(KEY_IMAGE_COUNT) ?: 0) > 0)
+    val imagesLost: StateFlow<Boolean> = _imagesLost.asStateFlow()
+
+    /** Snackbar text CS-11 leaves for the step it sends the customer back to; taken once by that step. */
+    private var pendingNotice: String? = null
 
     private val nextImageId = AtomicLong()
     private val uploadJobs = mutableMapOf<Long, Job>()
@@ -223,8 +240,15 @@ class CreateRequestViewModel @Inject constructor(
         val added = uris.take(freeImageSlots).map { DraftImage(nextImageId.incrementAndGet(), it, DraftImage.Status.UPLOADING) }
         if (added.isEmpty()) return
         _draft.update { it.copy(images = it.images + added) }
+        onImagesEdited()
         added.forEach { upload(it) }
         recheckDescribe()
+    }
+
+    /** Remembers how many images were picked, for [imagesLost] after process death. */
+    private fun onImagesEdited() {
+        savedStateHandle[KEY_IMAGE_COUNT] = _draft.value.images.size
+        _imagesLost.value = false
     }
 
     /** A new temporary file for the camera. Kept in SavedStateHandle: the app may be killed while the camera is open. */
@@ -255,6 +279,7 @@ class CreateRequestViewModel @Inject constructor(
         val image = _draft.value.images.firstOrNull { it.localId == localId } ?: return
         uploadJobs.remove(localId)?.cancel()
         _draft.update { draft -> draft.copy(images = draft.images.filter { it.localId != localId }) }
+        onImagesEdited()
         if (capturedUris.remove(image.uri)) cameraFiles.delete(image.uri)
         recheckDescribe()
     }
@@ -511,22 +536,37 @@ class CreateRequestViewModel @Inject constructor(
 
     // region CS-11 Xem lại & đăng
 
+    /**
+     * CS-11 shows the service and the address from the same loads as CS-08 / CS-09; after process death on CS-11 the
+     * address is loaded from here, as CS-09 was never opened.
+     */
+    fun loadReviewData() = loadAddressIfNeeded()
+
+    /** "Đăng yêu cầu". Ignored while a post is running and once it succeeded. */
     fun post() {
         if (_posting.value) return
         val draft = _draft.value
         val service = (_category.value as? UiState.Content)?.data?.service
+        if (service == null || _address.value !is UiState.Content) {
+            sendEvent(Event.NotReady)
+            return
+        }
         // Re-check every step: a slot may have expired while the customer was reviewing.
+        val addressTime = addressTimeErrors(draft)
         val firstInvalid = when {
-            describeErrors(draft).isNotEmpty() || service == null -> Step.DESCRIBE
-            addressTimeErrors(draft).isNotEmpty() -> Step.ADDRESS_TIME
+            describeErrors(draft).isNotEmpty() -> Step.DESCRIBE
+            addressTime.isNotEmpty() -> Step.ADDRESS_TIME
             budgetErrors(draft).isNotEmpty() -> Step.BUDGET
             else -> null
         }
-        if (firstInvalid != null || service == null) {
-            viewModelScope.launch { _events.send(Event.Incomplete(firstInvalid ?: Step.DESCRIBE)) }
+        val address = draft.address
+        if (firstInvalid != null || address == null) {
+            val step = firstInvalid ?: Step.ADDRESS_TIME
+            markChecked(step)
+            val slotExpired = step == Step.ADDRESS_TIME && FieldError.SLOT_REQUIRED in addressTime && draft.scheduledHour != null
+            sendEvent(Event.Incomplete(step, slotExpired))
             return
         }
-        val address = draft.address ?: return
         val scheduled = draft.scheduleType == ScheduleType.SCHEDULED
         val request = CreateServiceRequestRequest(
             serviceCategoryId = service.id,
@@ -547,26 +587,55 @@ class CreateRequestViewModel @Inject constructor(
             requireMinRating = if (draft.requireHighRating) RequestDraft.MIN_RATING else null,
             searchRadiusKm = draft.searchRadiusKm,
         )
+        val key = idempotencyKeyFor(request)
         _posting.value = true
         viewModelScope.launch {
-            val result = createRequestRepository.createRequest(request)
-            _posting.value = false
-            _events.send(
-                when (result) {
-                    is ApiResult.Success -> Event.Posted(result.data.id)
-                    is ApiResult.Failure -> Event.Error(result.message, stepOf(result.field))
-                },
-            )
+            when (val result = createRequestRepository.createRequest(request, key)) {
+                // posting stays on: the flow is left right away and nothing may be sent twice.
+                is ApiResult.Success -> _events.send(Event.Posted(result.data.id))
+                is ApiResult.Failure -> {
+                    _posting.value = false
+                    val failure = PostFailure.of(result.code, result.field, result.message)
+                    if (failure is PostFailure.BackToStep) markChecked(failure.step)
+                    _events.send(Event.Failed(failure))
+                }
+            }
         }
     }
 
-    /** Maps a server field name of #36 to the step that edits it. */
-    private fun stepOf(field: String?): Step? = when {
-        field == null -> null
-        field == "title" || field == "description" || field == "serviceCategoryId" || field.startsWith("images") -> Step.DESCRIBE
-        field == "addressId" || field == "scheduledStartAt" || field == "scheduleType" -> Step.ADDRESS_TIME
-        field.startsWith("budget") || field.startsWith("require") || field == "searchRadiusKm" -> Step.BUDGET
-        else -> null
+    /**
+     * The key of the last post when [request] is exactly what was sent then (a retry after a network error), a new
+     * one once the draft changed. Kept in SavedStateHandle; the fingerprint is the body's text, stable across process
+     * death (an enum's hashCode is not).
+     */
+    private fun idempotencyKeyFor(request: CreateServiceRequestRequest): String {
+        val fingerprint = request.toString().hashCode()
+        val saved = savedStateHandle.get<String>(KEY_IDEMPOTENCY_KEY)
+        if (saved != null && savedStateHandle.get<Int>(KEY_IDEMPOTENCY_FINGERPRINT) == fingerprint) return saved
+        val key = UUID.randomUUID().toString()
+        savedStateHandle[KEY_IDEMPOTENCY_KEY] = key
+        savedStateHandle[KEY_IDEMPOTENCY_FINGERPRINT] = fingerprint
+        return key
+    }
+
+    /** Shows [step]'s errors right away when CS-11 sends the customer back to it. */
+    private fun markChecked(step: Step) {
+        when (step) {
+            Step.DESCRIBE -> validateDescribe()
+            Step.ADDRESS_TIME -> validateAddressTime()
+            Step.BUDGET -> validateBudget()
+        }
+    }
+
+    fun leaveNotice(text: String) {
+        pendingNotice = text
+    }
+
+    /** The snackbar text CS-11 left for this step, once. */
+    fun takeNotice(): String? = pendingNotice.also { pendingNotice = null }
+
+    private fun sendEvent(event: Event) {
+        viewModelScope.launch { _events.send(event) }
     }
 
     // endregion
@@ -618,5 +687,8 @@ class CreateRequestViewModel @Inject constructor(
         private const val KEY_REQUIRE_CERTIFICATE = "draftRequireCertificate"
         private const val KEY_REQUIRE_HIGH_RATING = "draftRequireHighRating"
         private const val KEY_SEARCH_RADIUS = "draftSearchRadiusKm"
+        private const val KEY_IMAGE_COUNT = "draftImageCount"
+        private const val KEY_IDEMPOTENCY_KEY = "postIdempotencyKey"
+        private const val KEY_IDEMPOTENCY_FINGERPRINT = "postIdempotencyFingerprint"
     }
 }

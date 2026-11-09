@@ -1,6 +1,7 @@
 package vn.servio.customer.data.remote
 
 import retrofit2.http.Body
+import retrofit2.http.Header
 import retrofit2.http.POST
 import vn.servio.core.network.ApiResponse
 import vn.servio.customer.data.model.CreateServiceRequestRequest
@@ -10,6 +11,13 @@ import vn.servio.customer.data.model.CreatedRequest
 
 /** Service requests of the signed-in customer. #36 comes with BE-2 (returns 201 with the envelope). */
 interface ServiceRequestApi {
+    /**
+     * [idempotencyKey]: same key for a retry of the same body (spec 6.1). The BE-2 server does not read it yet, so for
+     * now only the app's "posting" flag keeps a double tap from creating two requests.
+     */
     @POST("service-requests")
-    suspend fun create(@Body body: CreateServiceRequestRequest): ApiResponse<CreatedRequest>
+    suspend fun create(
+        @Header("Idempotency-Key") idempotencyKey: String,
+        @Body body: CreateServiceRequestRequest,
+    ): ApiResponse<CreatedRequest>
 }
