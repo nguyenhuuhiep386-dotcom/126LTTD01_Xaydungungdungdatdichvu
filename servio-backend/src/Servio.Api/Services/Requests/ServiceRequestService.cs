@@ -172,6 +172,7 @@ public sealed class ServiceRequestService(
         request.CancelReason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
         request.UpdatedAt = now;
         ExpireQuotes(request.Quotes, now);
+        await FreezeConversationsAsync([request.Id], now, ct);
 
         var recentCancels = await db.ServiceRequests.CountAsync(r =>
             r.CustomerId == request.CustomerId && r.Status == (byte)ServiceRequestStatus.Cancelled && r.UpdatedAt >= now.AddDays(-7) && r.Id != request.Id, ct);
@@ -201,6 +202,7 @@ public sealed class ServiceRequestService(
             request.UpdatedAt = now;
             ExpireQuotes(request.Quotes, now);
         }
+        await FreezeConversationsAsync(due.Select(r => r.Id).ToList(), now, ct);
         await db.SaveChangesAsync(ct);
         return due.Count;
     }
@@ -257,6 +259,23 @@ public sealed class ServiceRequestService(
             resolved.Add(FileService.UrlOf(file));
         }
         return resolved;
+    }
+
+    /// <summary>F-CHAT-10 (v1.4 P0): a post that ends without an order makes its conversations READ_ONLY.</summary>
+    private async Task FreezeConversationsAsync(IReadOnlyCollection<Guid> requestIds, DateTimeOffset now, CancellationToken ct)
+    {
+        if (requestIds.Count == 0)
+        {
+            return;
+        }
+        var conversations = await db.Conversations
+            .Where(c => requestIds.Contains(c.ServiceRequestId) && c.OrderId == null && c.Status == (byte)ConversationStatus.Active)
+            .ToListAsync(ct);
+        foreach (var conversation in conversations)
+        {
+            conversation.Status = (byte)ConversationStatus.ReadOnly;
+            conversation.UpdatedAt = now;
+        }
     }
 
     private static void ExpireQuotes(IEnumerable<Quote> quotes, DateTimeOffset now)
