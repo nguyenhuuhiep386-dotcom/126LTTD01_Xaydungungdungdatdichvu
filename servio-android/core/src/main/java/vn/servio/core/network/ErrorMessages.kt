@@ -27,7 +27,9 @@ object ErrorMessages {
         // RESOURCE_VERSION_CONFLICT (post vs quote changed), PARTNER_NOT_ELIGIBLE (quoting vs choosing a partner),
         // QUOTE_ALREADY_ACCEPTED, INVALID_STATUS_TRANSITION (says which step), OUTSTANDING_DEBT (says how much).
         // BE-4 order codes also use the server message: PARTNER_CAPACITY_EXCEEDED, SCHEDULE_CONFLICT,
-        // EXTRA_CHARGE_PENDING, ORDER_DISPUTED.
+        // EXTRA_CHARGE_PENDING, ORDER_DISPUTED. BE-5 check-in codes too: TOO_FAR_FROM_ADDRESS (says how far),
+        // GPS_NOT_RELIABLE, ARRIVAL_CONFIRMATION_NOT_ALLOWED (pending vs limit reached). BE-6: NO_SHOW_NOT_ALLOWED
+        // (says which condition is missing), NOTHING_TO_PAY, ORDER_NOT_CANCELLABLE (customer vs partner wording).
         "CONVERSATION_READ_ONLY" to "Hội thoại đã đóng, bạn chỉ xem được tin nhắn cũ.",
         // PROFILE_INCOMPLETE is not mapped: the server message lists exactly what is missing.
         "VERIFICATION_LOCKED" to "Hồ sơ đang chờ duyệt hoặc đã được duyệt, không thể thay đổi giấy tờ.",
@@ -41,9 +43,7 @@ object ErrorMessages {
         "QUOTE_LIMIT_EXCEEDED" to "Bạn đã đạt số báo giá đang chờ tối đa.",
         "QUOTE_ALREADY_EXISTS" to "Bạn đã báo giá cho bài này.",
         "REQUEST_EXPIRED" to "Bài đăng đã hết hạn.",
-        "TOO_FAR_FROM_ADDRESS" to "Bạn đang cách địa chỉ quá 200 m.",
         "MOCK_LOCATION_DETECTED" to "Phát hiện vị trí giả, không thể check-in.",
-        "ORDER_NOT_CANCELLABLE" to "Không thể huỷ đơn ở trạng thái này.",
         "REVIEW_ALREADY_SUBMITTED" to "Bạn đã đánh giá đơn này.",
     )
 

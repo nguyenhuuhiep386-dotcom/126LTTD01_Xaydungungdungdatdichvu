@@ -5,7 +5,7 @@ namespace Servio.Api.Jobs;
 
 /// <summary>
 /// Background job of the course scope (spec 0.2.2 row 6): every 30 seconds, expire OPEN posts past ExpiresAt and cancel
-/// assignments the partner did not accept within the deadline (0.2.7 ý 4). Auto-confirm (BE-6) will be added here.
+/// assignments the partner did not accept within the deadline (0.2.7 ý 4), and auto-confirm COD orders at AutoConfirmAt (ý 7).
 /// Each step runs in its own scope so one failing step does not stop the others.
 /// </summary>
 public sealed class ExpiryJob(IServiceScopeFactory scopes, ILogger<ExpiryJob> logger) : BackgroundService
@@ -19,6 +19,7 @@ public sealed class ExpiryJob(IServiceScopeFactory scopes, ILogger<ExpiryJob> lo
         {
             await RunAsync("service requests", sp => sp.GetRequiredService<ServiceRequestService>().ExpireDueAsync(stoppingToken));
             await RunAsync("unaccepted assignments", sp => sp.GetRequiredService<AssignmentService>().ExpireUnacceptedAsync(stoppingToken));
+            await RunAsync("auto-confirmed orders", sp => sp.GetRequiredService<CompletionService>().AutoConfirmDueAsync(stoppingToken));
         }
         while (await timer.WaitForNextTickAsync(stoppingToken));
     }

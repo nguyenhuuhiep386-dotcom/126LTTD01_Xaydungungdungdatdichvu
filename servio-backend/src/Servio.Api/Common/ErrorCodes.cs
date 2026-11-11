@@ -47,6 +47,14 @@ public static class ErrorCodes
     public const string ExtraChargePending = "EXTRA_CHARGE_PENDING";
     public const string OrderDisputed = "ORDER_DISPUTED";
 
+    // M5 tracking and check-in (BE-5). TOO_FAR_FROM_ADDRESS / GPS_NOT_RELIABLE mean the partner may ask the customer (#178).
+    public const string GpsNotReliable = "GPS_NOT_RELIABLE";
+    public const string ArrivalConfirmationNotAllowed = "ARRIVAL_CONFIRMATION_NOT_ALLOWED";
+
+    // M5/M6 COD, cancel, debts (BE-6)
+    public const string NoShowNotAllowed = "NO_SHOW_NOT_ALLOWED";
+    public const string NothingToPay = "NOTHING_TO_PAY";
+
     // Files (POST /files)
     public const string FileNotReady = "FILE_NOT_READY";
     public const string FileTooLarge = "FILE_TOO_LARGE";

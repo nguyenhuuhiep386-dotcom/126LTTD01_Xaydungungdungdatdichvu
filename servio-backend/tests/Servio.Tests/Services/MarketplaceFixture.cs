@@ -9,6 +9,7 @@ using Servio.Api.Services.Feed;
 using Servio.Api.Services.Orders;
 using Servio.Api.Services.Quotes;
 using Servio.Api.Services.Requests;
+using Servio.Api.Services.Wallets;
 
 namespace Servio.Tests.Services;
 
@@ -139,6 +140,14 @@ public sealed class MarketplaceFixture : IDisposable
     public AssignmentService Assignments() => new(Ctx.Db, Workflow(), Ctx.Files(), Configs(), Ctx.Clock, NullLogger<AssignmentService>.Instance);
 
     public ExtraChargeService ExtraCharges() => new(Ctx.Db, Workflow(), Ctx.Files(), Notifier, Ctx.Clock);
+
+    public TrackingService Tracking() => new(Ctx.Db, Workflow(), Notifier, Configs(), Ctx.Clock);
+
+    public WalletService Wallets() => new(Ctx.Db, Ctx.Files(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Ctx.Clock);
+
+    public CompletionService Completion() => new(Ctx.Db, Workflow(), Wallets(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Ctx.Clock, NullLogger<CompletionService>.Instance);
+
+    public CancellationService Cancellation() => new(Ctx.Db, Workflow(), Configs(), Ctx.Clock);
 
     /// <summary>Uploads a tiny PNG for <paramref name="userId"/> and returns its URL.</summary>
     public async Task<string> UploadImageAsync(Guid userId, FilePurpose purpose = FilePurpose.OrderImage)
