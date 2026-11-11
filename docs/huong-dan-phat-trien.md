@@ -107,11 +107,18 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 | BE-4: #43 chọn báo giá tạo đơn; #62–#64 danh sách, chi tiết, lịch sử đơn; #65, #66 đối tác nhận/từ chối; #69, #70 bắt đầu/hoàn thành; #73, #74 phát sinh; job tự huỷ đơn quá 10 phút chưa xác nhận | Xong, có trên Swagger |
 | BE-5: #67 bắt đầu di chuyển; hub method `UpdateLocation`; #76, #77 vị trí và ETA (Haversine ÷ 25 km/h); #68 check-in GPS chặn cứng; #178, #179 nhờ khách xác nhận đã đến | Xong, có trên Swagger; chưa kiểm Play Integrity (demo tắt) và không lưu các lần check-in bị từ chối (bảng CheckInAttempts ngoài phạm vi) |
 | BE-6: #71 khách xác nhận hoàn thành COD (ghi giao dịch tiền mặt và công nợ hoa hồng) + job tự xác nhận; #151, #72 khách huỷ có phí; #152 đối tác huỷ; #180 khách không có mặt; #87, #88, #155, #156 ví, công nợ và khai báo chuyển khoản; hàm xác nhận/từ chối trả nợ cho AW-18 (cấn trừ tự động) | Xong, có trên Swagger; trang AW-18 thuộc QT-2 |
+| BE-7: #95, #96, #100 đánh giá hai chiều (rating trung bình); #146–#148 khiếu nại (đơn DISPUTED, tạm dừng tự xác nhận) + hàm admin chốt khiếu nại cho AW-08; #101–#104 thông báo; gửi FCM HTTP v1 cho báo giá mới, đơn đổi trạng thái, phát sinh, xác nhận đã đến, đánh giá, kết quả KYC, kết quả trả nợ | Xong, có trên Swagger; chưa gửi thông báo cho bài mới (NEW_POST_MATCH) và tin nhắn chat (đã có SignalR) |
 | Android `:core`: design system, Retrofit, token + tự refresh, xử lý mất mạng | Xong |
 | Màn CS-01, CS-03, CS-04, CS-05 (dùng chung, gọi API thật) | Xong |
 | CS-06 Trang chủ (API thật), CS-14 Yêu cầu của tôi (dữ liệu giả), PS-07 Newsfeed (dữ liệu giả) | Xong, làm mẫu |
 | Các màn còn lại của 2 app | Fragment giữ chỗ, đã nối đủ điều hướng |
 | SignalR client Android, FCM, osmdroid | Chưa có, thuộc các luồng ở mục 5 của kế hoạch |
+
+### Thông báo (FCM)
+
+- Mỗi sự kiện ghi vào bảng `Notifications` (#101–#104 đọc từ đây) rồi mới gửi FCM; FCM lỗi thì inbox vẫn đúng. Thông báo chỉ gửi cho bên không thực hiện thao tác, đúng app (`appFlavor`) của thiết bị.
+- App gửi `fcmToken` khi đăng nhập (#2) hoặc qua #16. Payload FCM có `notification { title, body }` và `data { notificationId, type, payload, deepLink }`; `deepLink` dạng `orders/{id}`, `service-requests/{id}`, `wallet`, `profile`.
+- Bật gửi FCM trên laptop chạy backend: Firebase Console → Project settings → Service accounts → Generate new private key, lưu file JSON **ngoài repo** rồi đặt đường dẫn vào `Fcm:ServiceAccountFile` trong `appsettings.Development.json` / `appsettings.Demo.json`, hoặc biến môi trường `Fcm__ServiceAccountFile=D:/keys/servio-firebase.json`. Không commit file khoá (`.gitignore` đã chặn tên mặc định `*firebase-adminsdk*.json`). Để trống thì backend chỉ ghi inbox, không gửi push.
 
 ### Realtime (SignalR)
 
@@ -148,6 +155,8 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
   - **Huỷ (khách):** gọi #151 để hiện phí, rồi #72 với `{ reason, expectedRowVersion: rowVersion của #151 }`. Phí: 0 đ khi chưa di chuyển, 20.000 đ khi đang di chuyển, max(30.000 đ, 20% giá) khi đã đến; từ lúc bắt đầu làm thì 422 `ORDER_NOT_CANCELLABLE`.
   - **Huỷ (đối tác) #152** từ ACCEPTED đến ARRIVED, không thu phí khách. **Khách không có mặt #180:** đến bằng GPS, chờ 15 phút và đã nhắn tin cho khách sau khi đến; sai điều kiện trả 422 `NO_SHOW_NOT_ALLOWED` kèm lý do.
   - **Công nợ (CS-30, PS-21):** #87 số dư, #155 danh sách khoản nợ, #156 khai báo chuyển khoản `{ debtIds, bankTransferReference, evidenceUrl }` (ảnh tải lên với purpose `DISPUTE_EVIDENCE`; đối tác không gửi `debtIds`). Admin xác nhận trên AW-18 thì khoản nợ mới giảm.
+  - **Đánh giá (CS-26, PS-27):** sau khi đơn COMPLETED, trong 5 ngày. Khách gửi `rating` và 4 tiêu chí; đối tác gửi `rating` và `tags` (ví dụ `PAID_ON_TIME`, `ACCURATE_DESCRIPTION`, `FRIENDLY`). #100 trả danh sách đơn chờ đánh giá để hiện nhắc nhở.
+  - **Khiếu nại (CS-33):** #146 `{ reason, description, evidenceUrls }` (ảnh purpose `DISPUTE_EVIDENCE`). Đơn chuyển DISPUTED, mọi thao tác trả 409 `ORDER_DISPUTED` cho tới khi admin xử lý trên AW-08; sau đó đơn về trạng thái cũ.
   - **Khách xác nhận (#178, #179):** mỗi lần chờ tối đa 300 giây, tối đa 3 lần cho một phần việc. Khi demo trong lớp, dùng đường này vì điện thoại đối tác không ở gần địa chỉ đơn.
 
 ## 6. Quy ước

@@ -38,3 +38,5 @@ captures/
 *.keystore
 *.jks
 google-services.json
+*firebase-adminsdk*.json
+service-account*.json

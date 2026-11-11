@@ -166,6 +166,7 @@ public sealed class TrackingService(
         await notifier.OrderEventAsync([(AppFlavor.Customer, order.Customer.UserId)], RealtimeEvents.ArrivalConfirmationRequested, dto, ct);
         await workflow.SystemMessageAsync(order.ServiceRequestId, assignment.PartnerProfileId,
             "Đối tác báo đã đến nơi. Vui lòng xác nhận trong màn hình đơn.", ct);
+        await workflow.NotifyOrderAsync(order, [(AppFlavor.Customer, order.Customer.UserId)], "Thợ báo đã đến nơi, bạn xác nhận giúp nhé.", ct);
         return dto;
     }
 
@@ -212,6 +213,8 @@ public sealed class TrackingService(
         else
         {
             await workflow.SystemMessageAsync(order.ServiceRequestId, assignment.PartnerProfileId, "Khách chưa thấy đối tác đến nơi.", ct);
+            await workflow.NotifyOrderAsync(order, [(AppFlavor.Partner, assignment.PartnerProfile.UserId)],
+                "Khách chưa thấy bạn đến nơi. Hãy kiểm tra lại địa chỉ hoặc nhắn tin cho khách.", ct);
         }
         return dto;
     }

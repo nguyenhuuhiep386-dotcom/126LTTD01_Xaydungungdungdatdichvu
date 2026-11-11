@@ -55,6 +55,10 @@ public static class ErrorCodes
     public const string NoShowNotAllowed = "NO_SHOW_NOT_ALLOWED";
     public const string NothingToPay = "NOTHING_TO_PAY";
 
+    // M7 reviews, disputes (BE-7)
+    public const string ReviewWindowClosed = "REVIEW_WINDOW_CLOSED";
+    public const string DisputeNotAllowed = "DISPUTE_NOT_ALLOWED";
+
     // Files (POST /files)
     public const string FileNotReady = "FILE_NOT_READY";
     public const string FileTooLarge = "FILE_TOO_LARGE";

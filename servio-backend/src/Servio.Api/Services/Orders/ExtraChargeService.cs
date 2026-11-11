@@ -55,6 +55,8 @@ public sealed class ExtraChargeService(
             new { orderId = order.Id, extraChargeId = charge.Id, amount = input.Amount, description }, ct);
         await workflow.SystemMessageAsync(order.ServiceRequestId, assignment.PartnerProfileId,
             $"Đối tác đề nghị phát sinh {Money.Vnd(input.Amount)}: {description}. Vui lòng duyệt trong màn hình đơn.", ct);
+        await workflow.NotifyOrderAsync(order, [(AppFlavor.Customer, order.Customer.UserId)],
+            $"Đối tác đề nghị phát sinh {Money.Vnd(input.Amount)}: {description}. Bấm để duyệt.", ct);
         return OrderService.ToDto(charge);
     }
 
@@ -101,6 +103,8 @@ public sealed class ExtraChargeService(
         await notifier.OrderEventAsync([(AppFlavor.Partner, assignment.PartnerProfile.UserId)], RealtimeEvents.ExtraChargeResponded, dto, ct);
         await workflow.SystemMessageAsync(order.ServiceRequestId, assignment.PartnerProfileId,
             $"Khách đã {(approved ? "duyệt" : "từ chối")} phát sinh {Money.Vnd(charge.Amount)}: {charge.Description}.", ct);
+        await workflow.NotifyOrderAsync(order, [(AppFlavor.Partner, assignment.PartnerProfile.UserId)],
+            $"Khách đã {(approved ? "duyệt" : "từ chối")} phát sinh {Money.Vnd(charge.Amount)}.", ct);
         return dto;
     }
 }

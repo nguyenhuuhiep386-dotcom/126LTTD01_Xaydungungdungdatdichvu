@@ -140,9 +140,10 @@ public sealed record TimelineEntryDto(OrderStatus Status, OrderStatus? FromStatu
 
 /// <summary>
 /// Result of #65/#69/#70 and payload of OrderStatusChanged on /hubs/orders.
-/// status = order status (what the order screens show); assignmentStatus = this partner's part.
+/// status = order status (what the order screens show); assignmentStatus = this partner's part; changedBy = who did it.
 /// </summary>
-public sealed record OrderStatusChangedDto(Guid OrderId, Guid AssignmentId, OrderStatus Status, OrderStatus AssignmentStatus, DateTimeOffset ChangedAt);
+public sealed record OrderStatusChangedDto(Guid OrderId, Guid AssignmentId, OrderStatus Status, OrderStatus AssignmentStatus, DateTimeOffset ChangedAt,
+    ActorType ChangedBy = ActorType.System);
 
 /// <summary>#67 start-moving: where the partner starts from (shown on CS-21 until the first UpdateLocation).</summary>
 public sealed record StartMovingRequest(decimal? Latitude, decimal? Longitude, [Range(0, 10_000)] int? Accuracy);

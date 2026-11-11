@@ -4,6 +4,7 @@ using Servio.Api.Data;
 using Servio.Api.Data.Entities;
 using Servio.Api.Services.Admin;
 using Servio.Api.Services.Files;
+using Servio.Api.Services.Notifications;
 
 namespace Servio.Api.Services.Wallets;
 
@@ -18,6 +19,7 @@ public sealed class WalletService(
     FileService files,
     CodeGenerator codes,
     SystemConfigService configs,
+    NotificationService notifications,
     TimeProvider clock)
 {
     public async Task<Data.Entities.Wallet> GetOrCreateAsync(Guid userId, CancellationToken ct)
@@ -263,6 +265,8 @@ public sealed class WalletService(
         db.AddAudit(actor, "DEBT_PAYMENT_CONFIRM", nameof(Transaction), tx.Id,
             new { Status = nameof(TransactionStatus.Pending) }, new { Status = nameof(TransactionStatus.Success), tx.Amount, ChargeCount = charges.Count }, now);
         await db.SaveChangesAsync(ct);
+        await notifications.SendAsync([(charges.Count > 0 ? AppFlavor.Customer : AppFlavor.Partner, tx.UserId)], NotificationType.Payment,
+            "Đã xác nhận thanh toán", $"Khoản chuyển khoản {Money.Vnd(tx.Amount)} ({tx.Code}) đã được xác nhận.", new { transactionId = tx.Id }, "wallet", ct);
     }
 
     /// <summary>AW-18 reject: the declaration fails and the charges can be declared again.</summary>
@@ -270,7 +274,8 @@ public sealed class WalletService(
     {
         var tx = await PendingBankTransferAsync(transactionId, ct);
         var now = clock.GetUtcNow();
-        foreach (var c in await db.CancellationCharges.Where(c => c.CollectedTransactionId == tx.Id).ToListAsync(ct))
+        var linked = await db.CancellationCharges.Where(c => c.CollectedTransactionId == tx.Id).ToListAsync(ct);
+        foreach (var c in linked)
         {
             c.CollectedTransactionId = null;
             c.UpdatedAt = now;
@@ -278,9 +283,12 @@ public sealed class WalletService(
         tx.Status = (byte)TransactionStatus.Failed;
         tx.ConfirmedByAdminId = actor.AdminId;
         tx.UpdatedAt = now;
+        var forCustomer = linked.Count > 0;
         db.AddAudit(actor, "DEBT_PAYMENT_REJECT", nameof(Transaction), tx.Id,
             new { Status = nameof(TransactionStatus.Pending) }, new { Status = nameof(TransactionStatus.Failed), Reason = reason }, now);
         await db.SaveChangesAsync(ct);
+        await notifications.SendAsync([(forCustomer ? AppFlavor.Customer : AppFlavor.Partner, tx.UserId)], NotificationType.Payment,
+            "Chưa xác nhận được thanh toán", $"Khoản {Money.Vnd(tx.Amount)} ({tx.Code}): {reason}", new { transactionId = tx.Id }, "wallet", ct);
     }
 
     private async Task<Transaction> PendingBankTransferAsync(Guid transactionId, CancellationToken ct) =>

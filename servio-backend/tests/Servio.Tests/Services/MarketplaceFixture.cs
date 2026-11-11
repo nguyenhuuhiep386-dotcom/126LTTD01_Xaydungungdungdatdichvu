@@ -10,6 +10,8 @@ using Servio.Api.Services.Orders;
 using Servio.Api.Services.Quotes;
 using Servio.Api.Services.Requests;
 using Servio.Api.Services.Wallets;
+using Servio.Api.Services.Notifications;
+using Servio.Api.Services.Reviews;
 
 namespace Servio.Tests.Services;
 
@@ -57,6 +59,19 @@ public sealed class RecordingNotifier : IRealtimeNotifier
     {
         OrderEvents.Add((eventName, recipients, payload));
         return Task.CompletedTask;
+    }
+}
+
+/// <summary>Records pushes instead of calling FCM. Tokens in <see cref="Dead"/> answer "unregistered".</summary>
+public sealed class RecordingPush : IPushSender
+{
+    public List<(string Token, string Title, string Body, IReadOnlyDictionary<string, string> Data)> Sent { get; } = [];
+    public HashSet<string> Dead { get; } = [];
+
+    public Task<bool> SendAsync(string token, string title, string body, IReadOnlyDictionary<string, string> data, CancellationToken ct)
+    {
+        Sent.Add((token, title, body, data));
+        return Task.FromResult(!Dead.Contains(token));
     }
 }
 
@@ -129,11 +144,15 @@ public sealed class MarketplaceFixture : IDisposable
     public ServiceRequestService Requests() =>
         new(Ctx.Db, Ctx.Files(), Feed(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Notifier, Ctx.Clock);
 
-    public QuoteService Quotes() => new(Ctx.Db, Feed(), Configs(), Notifier, Ctx.Clock);
+    public QuoteService Quotes() => new(Ctx.Db, Feed(), Configs(), Notifier, Notifications(), Ctx.Clock);
 
     public ChatService Chat() => new(Ctx.Db, Feed(), Ctx.Files(), Notifier, Ctx.Clock);
 
-    public OrderWorkflow Workflow() => new(Ctx.Db, Chat(), Notifier, Configs(), Ctx.Clock, NullLogger<OrderWorkflow>.Instance);
+    public OrderWorkflow Workflow() => new(Ctx.Db, Chat(), Notifier, Notifications(), Configs(), Ctx.Clock, NullLogger<OrderWorkflow>.Instance);
+
+    public RecordingPush Push { get; } = new();
+
+    public NotificationService Notifications() => new(Ctx.Db, Push, Ctx.Clock, NullLogger<NotificationService>.Instance);
 
     public OrderService Orders() => new(Ctx.Db, Workflow(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Notifier, Ctx.Clock);
 
@@ -143,11 +162,15 @@ public sealed class MarketplaceFixture : IDisposable
 
     public TrackingService Tracking() => new(Ctx.Db, Workflow(), Notifier, Configs(), Ctx.Clock);
 
-    public WalletService Wallets() => new(Ctx.Db, Ctx.Files(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Ctx.Clock);
+    public WalletService Wallets() => new(Ctx.Db, Ctx.Files(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Notifications(), Ctx.Clock);
 
     public CompletionService Completion() => new(Ctx.Db, Workflow(), Wallets(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Ctx.Clock, NullLogger<CompletionService>.Instance);
 
     public CancellationService Cancellation() => new(Ctx.Db, Workflow(), Configs(), Ctx.Clock);
+
+    public ReviewService Reviews() => new(Ctx.Db, Notifications(), Configs(), Ctx.Clock);
+
+    public DisputeService Disputes() => new(Ctx.Db, Workflow(), Ctx.Files(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Ctx.Clock);
 
     /// <summary>Uploads a tiny PNG for <paramref name="userId"/> and returns its URL.</summary>
     public async Task<string> UploadImageAsync(Guid userId, FilePurpose purpose = FilePurpose.OrderImage)

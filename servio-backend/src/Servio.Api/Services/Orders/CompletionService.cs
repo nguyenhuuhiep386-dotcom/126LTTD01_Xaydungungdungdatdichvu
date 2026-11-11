@@ -100,6 +100,7 @@ public sealed class CompletionService(
             cash.BusinessEventKey = key;
             cash.PaidAt = now;
             a.PaymentStatus = (byte)PaymentStatus.Paid;
+            a.PartnerProfile.CompletedOrders++;
             a.PaidAt = now;
             var debt = Settlement(a);
             if (debt > 0)
