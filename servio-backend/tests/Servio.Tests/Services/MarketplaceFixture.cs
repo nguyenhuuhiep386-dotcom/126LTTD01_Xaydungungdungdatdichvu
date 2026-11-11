@@ -140,6 +140,8 @@ public sealed class MarketplaceFixture : IDisposable
 
     public ExtraChargeService ExtraCharges() => new(Ctx.Db, Workflow(), Ctx.Files(), Notifier, Ctx.Clock);
 
+    public TrackingService Tracking() => new(Ctx.Db, Workflow(), Notifier, Configs(), Ctx.Clock);
+
     /// <summary>Uploads a tiny PNG for <paramref name="userId"/> and returns its URL.</summary>
     public async Task<string> UploadImageAsync(Guid userId, FilePurpose purpose = FilePurpose.OrderImage)
     {

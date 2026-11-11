@@ -104,7 +104,8 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 | BE-2: #36–#38, #40 bài đăng; #46 newsfeed; #42, #50, #52, #53 báo giá; job tự hết hạn bài 30 giây/lần | Xong, có trên Swagger |
 | SignalR server: `/hubs/feed` (NewPost), `/hubs/orders` (báo giá và đơn hàng), `/hubs/chat` | Xong; client Android chưa có (mục 5.1, hạ tầng của Nguyên) |
 | BE-3: chat #54–#59, #61; hội thoại chỉ đọc khi bài bị huỷ/hết hạn | Xong, có trên Swagger |
-| BE-4: #43 chọn báo giá tạo đơn; #62–#64 danh sách, chi tiết, lịch sử đơn; #65, #66 đối tác nhận/từ chối; #69, #70 bắt đầu/hoàn thành; #73, #74 phát sinh; job tự huỷ đơn quá 10 phút chưa xác nhận | Xong, có trên Swagger; #67, #68 (di chuyển, đã đến) thuộc BE-5 |
+| BE-4: #43 chọn báo giá tạo đơn; #62–#64 danh sách, chi tiết, lịch sử đơn; #65, #66 đối tác nhận/từ chối; #69, #70 bắt đầu/hoàn thành; #73, #74 phát sinh; job tự huỷ đơn quá 10 phút chưa xác nhận | Xong, có trên Swagger |
+| BE-5: #67 bắt đầu di chuyển; hub method `UpdateLocation`; #76, #77 vị trí và ETA (Haversine ÷ 25 km/h); #68 check-in GPS chặn cứng; #178, #179 nhờ khách xác nhận đã đến | Xong, có trên Swagger; chưa kiểm Play Integrity (demo tắt) và không lưu các lần check-in bị từ chối (bảng CheckInAttempts ngoài phạm vi) |
 | Android `:core`: design system, Retrofit, token + tự refresh, xử lý mất mạng | Xong |
 | Màn CS-01, CS-03, CS-04, CS-05 (dùng chung, gọi API thật) | Xong |
 | CS-06 Trang chủ (API thật), CS-14 Yêu cầu của tôi (dữ liệu giả), PS-07 Newsfeed (dữ liệu giả) | Xong, làm mẫu |
@@ -123,6 +124,9 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 | `/hubs/orders` | Cả hai | `OrderStatusChanged` | `OrderStatusChangedDto` `{ orderId, assignmentId, status, assignmentStatus, changedAt }`, giống kết quả của #65, #69, #70 |
 | `/hubs/orders` | Khách | `ExtraChargeRequested` | `{ orderId, extraChargeId, amount, description }` (mở CS-22) |
 | `/hubs/orders` | Đối tác | `ExtraChargeResponded` | `ExtraChargeDto`: khách đã duyệt hoặc từ chối phát sinh |
+| `/hubs/orders` | Khách | `PartnerLocationUpdated` | `TrackingDto` `{ orderId, assignmentId, location, distanceKm, etaMinutes, isStale }`, giống một phần tử của #76 |
+| `/hubs/orders` | Khách | `ArrivalConfirmationRequested` | `ArrivalConfirmationDto` `{ orderId, assignmentId, requestId, status, expiresAt }`: mở hộp thoại "Thợ báo đã đến, đúng không?" |
+| `/hubs/orders` | Đối tác | `ArrivalConfirmationResolved` | `ArrivalConfirmationDto`, `status` là `CONFIRMED` hoặc `DENIED` |
 | `/hubs/chat` | Cả hai | `ReceiveMessage` | `MessageDto`, tới cả hai bên (gồm các máy khác của người gửi) |
 | `/hubs/chat` | Cả hai | `MessageAck` | `{ clientMessageId, messageId, sentAt }`, chỉ gửi cho kết nối vừa gửi tin: tin chuyển từ SENDING sang SENT |
 | `/hubs/chat` | Cả hai | `MessageRead` | `{ conversationId, userId, lastReadMessageId }`, gửi khi một bên đã đọc |
@@ -136,7 +140,10 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
   - #43 gửi `{ quoteIds: [id], quoteVersions: { id: rowVersion }, paymentMethod: "CASH" }`, `rowVersion` lấy từ #42. Kết quả là chi tiết đơn (#63). Gửi lại cùng báo giá thì nhận lại đúng đơn đã tạo.
   - Khi nhận `OrderStatusChanged`, gọi lại #63 để lấy dữ liệu mới. Mỗi thao tác cũng ghi một tin hệ thống vào chat của hai bên.
   - Số điện thoại và địa chỉ chính xác chỉ có trong #63 từ khi đối tác xác nhận (ACCEPTED) đến khi báo hoàn thành.
-  - #67, #68 chưa có (BE-5). Để thử #69, #70 trước khi có BE-5, đưa phần việc sang ARRIVED bằng SQL: `UPDATE OrderAssignments SET Status = 4 WHERE Id = '<assignmentId>'`.
+  - **Di chuyển (DT-4):** sau #67, foreground service gọi hub method `UpdateLocation(assignmentId, latitude, longitude, accuracy, capturedAt)` trên `/hubs/orders` mỗi 10 giây. Trả `false` khi điểm cũ hơn điểm đã lưu (bỏ qua). Nhận `HubException` bắt đầu bằng `INVALID_STATUS_TRANSITION` thì dừng service (đã đến, đơn bị huỷ hoặc đang khiếu nại).
+  - **Theo dõi (CS-21):** gọi #76 khi mở màn, sau đó cập nhật marker theo `PartnerLocationUpdated`. `location` chỉ có khi đối tác đang ON_THE_WAY. `isStale = true` (điểm cũ hơn 30 giây) thì hiện "Chưa cập nhật" và không đếm ngược ETA.
+  - **Đã đến (#68):** gửi `{ latitude, longitude, accuracy, capturedAt, isMock }`. Lỗi 422 `TOO_FAR_FROM_ADDRESS` hoặc `GPS_NOT_RELIABLE` thì hiện nút "Nhờ khách xác nhận" (#178). Lỗi `MOCK_LOCATION_DETECTED` thì không hiện nút này.
+  - **Khách xác nhận (#178, #179):** mỗi lần chờ tối đa 300 giây, tối đa 3 lần cho một phần việc. Khi demo trong lớp, dùng đường này vì điện thoại đối tác không ở gần địa chỉ đơn.
 
 ## 6. Quy ước
 

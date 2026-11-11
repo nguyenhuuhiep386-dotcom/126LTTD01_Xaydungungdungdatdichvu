@@ -6,14 +6,15 @@ using Servio.Api.Services.Orders;
 namespace Servio.Api.Controllers;
 
 /// <summary>
-/// M5 — orders (#43, #62–#66, #69, #70, #73, #74). Status changes are pushed as OrderStatusChanged on /hubs/orders to
+/// M5 — orders (#43, #62–#70, #73, #74, #76, #77, #178, #179). Status changes are pushed as OrderStatusChanged on /hubs/orders to
 /// both sides; each action also writes a system line in their chat. Partner endpoints act on the partner's own assignment.
 /// </summary>
 [Authorize]
 public sealed class OrdersController(
     OrderService orders,
     AssignmentService assignments,
-    ExtraChargeService extraCharges) : ApiControllerBase
+    ExtraChargeService extraCharges,
+    TrackingService tracking) : ApiControllerBase
 {
     /// <summary>
     /// #43 Choose a quote: creates the order with one PENDING assignment; the partner has 10 minutes to accept (#65).
@@ -59,6 +60,48 @@ public sealed class OrdersController(
         await assignments.RejectAsync(CurrentUserId, id, aid, request, ct);
         return NoContent();
     }
+
+    /// <summary>
+    /// #67 ACCEPTED → ON_THE_WAY. Then send the position every ~10 s with UpdateLocation on /hubs/orders until ARRIVED.
+    /// </summary>
+    [HttpPost("api/v1/orders/{id:guid}/assignments/{aid:guid}/start-moving")]
+    [Authorize(Policy = AuthPolicies.Partner)]
+    public async Task<ActionResult<ApiResponse<OrderStatusChangedDto>>> StartMoving(Guid id, Guid aid, StartMovingRequest request, CancellationToken ct) =>
+        OkEnvelope(await tracking.StartMovingAsync(CurrentUserId, id, aid, request, ct));
+
+    /// <summary>
+    /// #68 ON_THE_WAY → ARRIVED by GPS: fix ≤ 60 s old, accuracy ≤ 100 m, ≤ 200 m from the address, not mock.
+    /// 422 TOO_FAR_FROM_ADDRESS / GPS_NOT_RELIABLE → offer "Nhờ khách xác nhận" (#178); 422 MOCK_LOCATION_DETECTED → no customer path.
+    /// </summary>
+    [HttpPost("api/v1/orders/{id:guid}/assignments/{aid:guid}/arrive")]
+    [Authorize(Policy = AuthPolicies.Partner)]
+    public async Task<ActionResult<ApiResponse<ArriveResultDto>>> Arrive(Guid id, Guid aid, ArriveRequest request, CancellationToken ct) =>
+        OkEnvelope(await tracking.ArriveAsync(CurrentUserId, id, aid, request, ct));
+
+    /// <summary>#178 Ask the customer to confirm the arrival (ON_THE_WAY; one pending, at most 3, expires after 300 s).</summary>
+    [HttpPost("api/v1/orders/{id:guid}/assignments/{aid:guid}/arrival-confirmation-requests")]
+    [Authorize(Policy = AuthPolicies.Partner)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<ActionResult<ApiResponse<ArrivalConfirmationDto>>> RequestArrivalConfirmation(Guid id, Guid aid, CancellationToken ct) =>
+        CreatedEnvelope(await tracking.RequestConfirmationAsync(CurrentUserId, id, aid, ct));
+
+    /// <summary>#179 The customer answers "Thợ báo đã đến, đúng không?". confirmed → ARRIVED. 409 when expired or answered.</summary>
+    [HttpPost("api/v1/orders/{id:guid}/assignments/{aid:guid}/arrival-confirmation-requests/{requestId:guid}/respond")]
+    [Authorize(Policy = AuthPolicies.Customer)]
+    public async Task<ActionResult<ApiResponse<ArrivalConfirmationDto>>> RespondArrivalConfirmation(Guid id, Guid aid, Guid requestId,
+        RespondArrivalRequest request, CancellationToken ct) =>
+        OkEnvelope(await tracking.RespondConfirmationAsync(CurrentUserId, id, aid, requestId, request, ct));
+
+    /// <summary>#76 Live position, distance and ETA per assignment (CS-21). Customer: all; partner: own. Position only while ON_THE_WAY.</summary>
+    [HttpGet("api/v1/orders/{id:guid}/tracking")]
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<TrackingDto>>>> Tracking(Guid id, [FromQuery] Guid? assignmentId, CancellationToken ct) =>
+        OkEnvelope(await tracking.GetTrackingAsync(CurrentUserId, CurrentAppFlavor, id, assignmentId, ct));
+
+    /// <summary>#77 ETA of one assignment for the customer. isStale = last fix older than 30 s ("Chưa cập nhật").</summary>
+    [HttpGet("api/v1/orders/{id:guid}/eta")]
+    [Authorize(Policy = AuthPolicies.Customer)]
+    public async Task<ActionResult<ApiResponse<EtaDto>>> Eta(Guid id, [FromQuery] Guid assignmentId, CancellationToken ct) =>
+        OkEnvelope(await tracking.GetEtaAsync(CurrentUserId, id, assignmentId, ct));
 
     /// <summary>#69 ARRIVED → IN_PROGRESS. beforeImages: URLs from POST /files (purpose ORDER_IMAGE).</summary>
     [HttpPost("api/v1/orders/{id:guid}/assignments/{aid:guid}/start-work")]

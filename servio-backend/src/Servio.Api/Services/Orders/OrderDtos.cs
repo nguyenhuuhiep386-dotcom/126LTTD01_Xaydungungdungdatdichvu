@@ -143,3 +143,50 @@ public sealed record TimelineEntryDto(OrderStatus Status, OrderStatus? FromStatu
 /// status = order status (what the order screens show); assignmentStatus = this partner's part.
 /// </summary>
 public sealed record OrderStatusChangedDto(Guid OrderId, Guid AssignmentId, OrderStatus Status, OrderStatus AssignmentStatus, DateTimeOffset ChangedAt);
+
+/// <summary>#67 start-moving: where the partner starts from (shown on CS-21 until the first UpdateLocation).</summary>
+public sealed record StartMovingRequest(decimal? Latitude, decimal? Longitude, [Range(0, 10_000)] int? Accuracy);
+
+/// <summary>
+/// #68 arrive (F-ORD-07). accuracy in metres; capturedAt = time of the GPS fix on the phone; isMock from
+/// Location.isMock() / isFromMockProvider. integrityToken is accepted but not checked (integrity.checkin_required=false, 0.2.2 row 11).
+/// </summary>
+public sealed record ArriveRequest(
+    decimal? Latitude,
+    decimal? Longitude,
+    [Required(ErrorMessage = "Thiếu độ chính xác GPS"), Range(0, 10_000)] int? Accuracy,
+    [Required(ErrorMessage = "Thiếu thời điểm lấy vị trí")] DateTimeOffset? CapturedAt,
+    bool IsMock,
+    string? IntegrityToken);
+
+/// <summary>Result of #68. distanceMeters = distance to the address at check-in.</summary>
+public sealed record ArriveResultDto(Guid OrderId, Guid AssignmentId, OrderStatus Status, OrderStatus AssignmentStatus, int DistanceMeters, DateTimeOffset ChangedAt);
+
+/// <summary>#179 respond. confirmed is required: a missing field must not count as a denial.</summary>
+public sealed record RespondArrivalRequest([Required(ErrorMessage = "Hãy chọn xác nhận hoặc từ chối")] bool? Confirmed);
+
+/// <summary>
+/// #178 result and payload of ArrivalConfirmationRequested (to the customer) / ArrivalConfirmationResolved (to the partner).
+/// </summary>
+public sealed record ArrivalConfirmationDto(Guid OrderId, Guid AssignmentId, Guid RequestId, ArrivalConfirmationStatus Status, DateTimeOffset ExpiresAt);
+
+/// <summary>Last known position of the partner. capturedAt is the time of the GPS fix.</summary>
+public sealed record LocationDto(decimal Latitude, decimal Longitude, int? Accuracy, DateTimeOffset CapturedAt);
+
+/// <summary>
+/// One assignment on CS-21 (#76) and payload of PartnerLocationUpdated. location is only sent while the partner is
+/// ON_THE_WAY; isStale = the last fix is older than 30 s (show "Chưa cập nhật", do not count the ETA down).
+/// ETA = Haversine distance ÷ 25 km/h (0.2.2 row 10).
+/// </summary>
+public sealed record TrackingDto(
+    Guid OrderId,
+    Guid AssignmentId,
+    Guid PartnerProfileId,
+    OrderStatus AssignmentStatus,
+    LocationDto? Location,
+    double? DistanceKm,
+    int? EtaMinutes,
+    bool IsStale);
+
+/// <summary>#77 ETA of one assignment for the customer.</summary>
+public sealed record EtaDto(Guid AssignmentId, int? EtaMinutes, double? DistanceKm, DateTimeOffset? UpdatedAt, bool IsStale);

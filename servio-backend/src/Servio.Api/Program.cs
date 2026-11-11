@@ -73,6 +73,7 @@ builder.Services.AddScoped<OrderWorkflow>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<AssignmentService>();
 builder.Services.AddScoped<ExtraChargeService>();
+builder.Services.AddScoped<TrackingService>();
 builder.Services.AddHostedService<ExpiryJob>();
 builder.Services.AddSignalR().AddJsonProtocol(options =>
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper)));
