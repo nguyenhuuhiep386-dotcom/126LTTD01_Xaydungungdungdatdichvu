@@ -108,7 +108,7 @@ public sealed class ChatService(
         {
             await db.SaveChangesAsync(ct);
         }
-        catch (DbUpdateException e) when (e is not DbUpdateConcurrencyException)
+        catch (DbUpdateException e) when (e.IsUniqueViolation())
         {
             // Both sides opened it at the same time: unique (ServiceRequestId, PartnerProfileId) kept one.
             db.Entry(conversation).State = EntityState.Detached;
@@ -194,7 +194,7 @@ public sealed class ChatService(
         {
             await db.SaveChangesAsync(ct);
         }
-        catch (DbUpdateException e) when (e is not DbUpdateConcurrencyException)
+        catch (DbUpdateException e) when (e.IsUniqueViolation())
         {
             // Two retries raced past the duplicate check; UQ_Messages_Client kept the first.
             db.ChangeTracker.Clear();

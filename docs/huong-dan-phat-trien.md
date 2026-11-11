@@ -102,8 +102,9 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 | Admin: AW-01 đăng nhập, layout, AW-02 số liệu cơ bản | Xong |
 | QT-1: AW-04 duyệt KYC + kỹ năng (xem ảnh riêng tư, AuditLog, thông báo), AW-11 thêm/sửa/ẩn danh mục | Xong; chỉ SUPER_ADMIN và OPERATOR |
 | BE-2: #36–#38, #40 bài đăng; #46 newsfeed; #42, #50, #52, #53 báo giá; job tự hết hạn bài 30 giây/lần | Xong, có trên Swagger |
-| SignalR server: `/hubs/feed` (NewPost), `/hubs/orders` (NewQuote, QuoteWithdrawn), `/hubs/chat` | Xong; client Android chưa có (mục 5.1, hạ tầng của Nguyên) |
+| SignalR server: `/hubs/feed` (NewPost), `/hubs/orders` (báo giá và đơn hàng), `/hubs/chat` | Xong; client Android chưa có (mục 5.1, hạ tầng của Nguyên) |
 | BE-3: chat #54–#59, #61; hội thoại chỉ đọc khi bài bị huỷ/hết hạn | Xong, có trên Swagger |
+| BE-4: #43 chọn báo giá tạo đơn; #62–#64 danh sách, chi tiết, lịch sử đơn; #65, #66 đối tác nhận/từ chối; #69, #70 bắt đầu/hoàn thành; #73, #74 phát sinh; job tự huỷ đơn quá 10 phút chưa xác nhận | Xong, có trên Swagger; #67, #68 (di chuyển, đã đến) thuộc BE-5 |
 | Android `:core`: design system, Retrofit, token + tự refresh, xử lý mất mạng | Xong |
 | Màn CS-01, CS-03, CS-04, CS-05 (dùng chung, gọi API thật) | Xong |
 | CS-06 Trang chủ (API thật), CS-14 Yêu cầu của tôi (dữ liệu giả), PS-07 Newsfeed (dữ liệu giả) | Xong, làm mẫu |
@@ -117,6 +118,11 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 | `/hubs/feed` | Đối tác | `NewPost` | `FeedItemDto`, giống một phần tử của `GET /feed` |
 | `/hubs/orders` | Khách | `NewQuote` | `CustomerQuoteDto`, giống một phần tử của `GET /service-requests/{id}/quotes` |
 | `/hubs/orders` | Khách | `QuoteWithdrawn` | `{ serviceRequestId, quoteId }` |
+| `/hubs/orders` | Đối tác | `QuoteAccepted` | `{ quoteId, orderId }`: khách đã chọn báo giá, đơn chờ xác nhận (#65) |
+| `/hubs/orders` | Đối tác | `QuoteRejected` | `{ quoteId, orderId: null }`: khách đã chọn người khác |
+| `/hubs/orders` | Cả hai | `OrderStatusChanged` | `OrderStatusChangedDto` `{ orderId, assignmentId, status, assignmentStatus, changedAt }`, giống kết quả của #65, #69, #70 |
+| `/hubs/orders` | Khách | `ExtraChargeRequested` | `{ orderId, extraChargeId, amount, description }` (mở CS-22) |
+| `/hubs/orders` | Đối tác | `ExtraChargeResponded` | `ExtraChargeDto`: khách đã duyệt hoặc từ chối phát sinh |
 | `/hubs/chat` | Cả hai | `ReceiveMessage` | `MessageDto`, tới cả hai bên (gồm các máy khác của người gửi) |
 | `/hubs/chat` | Cả hai | `MessageAck` | `{ clientMessageId, messageId, sentAt }`, chỉ gửi cho kết nối vừa gửi tin: tin chuyển từ SENDING sang SENT |
 | `/hubs/chat` | Cả hai | `MessageRead` | `{ conversationId, userId, lastReadMessageId }`, gửi khi một bên đã đọc |
@@ -126,6 +132,11 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 - **Chỉ đối tác Online mới nhận NewPost:** phải gọi #25 trước và gửi heartbeat #26 mỗi 30 giây.
 - **Chat:** client gọi hub method `SendMessage({ conversationId, clientMessageId, type, content, attachmentUrl })` và `MarkRead(conversationId, messageId)`. `clientMessageId` là UUID do app tạo trước khi gửi; gửi lại cùng UUID (khi mất mạng) không tạo tin trùng. Khi hub mất kết nối, gửi qua `POST /conversations/{id}/messages`. Lỗi nghiệp vụ trả về dạng `HubException` có nội dung `MÃ_LỖI: thông báo`.
 - **Sau khi kết nối lại:** gọi `GET /conversations/{id}/messages?after=<syncCursor>` để lấy các tin bị lỡ.
+- **Đơn hàng:**
+  - #43 gửi `{ quoteIds: [id], quoteVersions: { id: rowVersion }, paymentMethod: "CASH" }`, `rowVersion` lấy từ #42. Kết quả là chi tiết đơn (#63). Gửi lại cùng báo giá thì nhận lại đúng đơn đã tạo.
+  - Khi nhận `OrderStatusChanged`, gọi lại #63 để lấy dữ liệu mới. Mỗi thao tác cũng ghi một tin hệ thống vào chat của hai bên.
+  - Số điện thoại và địa chỉ chính xác chỉ có trong #63 từ khi đối tác xác nhận (ACCEPTED) đến khi báo hoàn thành.
+  - #67, #68 chưa có (BE-5). Để thử #69, #70 trước khi có BE-5, đưa phần việc sang ARRIVED bằng SQL: `UPDATE OrderAssignments SET Status = 4 WHERE Id = '<assignmentId>'`.
 
 ## 6. Quy ước
 

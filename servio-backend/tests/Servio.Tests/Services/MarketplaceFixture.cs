@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 using Servio.Api.Common;
 using Servio.Api.Data.Entities;
 using Servio.Api.Hubs;
 using Servio.Api.Services;
 using Servio.Api.Services.Chat;
 using Servio.Api.Services.Feed;
+using Servio.Api.Services.Orders;
 using Servio.Api.Services.Quotes;
 using Servio.Api.Services.Requests;
 
@@ -17,6 +20,7 @@ public sealed class RecordingNotifier : IRealtimeNotifier
     public List<(Guid CustomerUserId, Guid QuoteId)> Withdrawn { get; } = [];
     public List<MessageDto> Messages { get; } = [];
     public List<MessageRead> Reads { get; } = [];
+    public List<(string Event, IReadOnlyList<(AppFlavor Flavor, Guid UserId)> To, object Payload)> OrderEvents { get; } = [];
 
     public Task NewPostAsync(IReadOnlyList<(Guid PartnerUserId, FeedItemDto Item)> recipients, CancellationToken ct)
     {
@@ -45,6 +49,12 @@ public sealed class RecordingNotifier : IRealtimeNotifier
     public Task MessageReadAsync(Guid customerUserId, Guid partnerUserId, MessageRead read, CancellationToken ct)
     {
         Reads.Add(read);
+        return Task.CompletedTask;
+    }
+
+    public Task OrderEventAsync(IReadOnlyList<(AppFlavor Flavor, Guid UserId)> recipients, string eventName, object payload, CancellationToken ct)
+    {
+        OrderEvents.Add((eventName, recipients, payload));
         return Task.CompletedTask;
     }
 }
@@ -121,6 +131,22 @@ public sealed class MarketplaceFixture : IDisposable
     public QuoteService Quotes() => new(Ctx.Db, Feed(), Configs(), Notifier, Ctx.Clock);
 
     public ChatService Chat() => new(Ctx.Db, Feed(), Ctx.Files(), Notifier, Ctx.Clock);
+
+    public OrderWorkflow Workflow() => new(Ctx.Db, Chat(), Notifier, Configs(), Ctx.Clock, NullLogger<OrderWorkflow>.Instance);
+
+    public OrderService Orders() => new(Ctx.Db, Workflow(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Notifier, Ctx.Clock);
+
+    public AssignmentService Assignments() => new(Ctx.Db, Workflow(), Ctx.Files(), Configs(), Ctx.Clock, NullLogger<AssignmentService>.Instance);
+
+    public ExtraChargeService ExtraCharges() => new(Ctx.Db, Workflow(), Ctx.Files(), Notifier, Ctx.Clock);
+
+    /// <summary>Uploads a tiny PNG for <paramref name="userId"/> and returns its URL.</summary>
+    public async Task<string> UploadImageAsync(Guid userId, FilePurpose purpose = FilePurpose.OrderImage)
+    {
+        byte[] png = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 0x0D];
+        var upload = await Ctx.Files().UploadAsync(userId, new FormFile(new MemoryStream(png), 0, png.Length, "file", "a.png"), purpose, default);
+        return upload.Url;
+    }
 
     public CreateServiceRequestRequest Post(string title = "Máy lạnh phòng ngủ chảy nước",
         ScheduleType schedule = ScheduleType.Now, DateTimeOffset? start = null, int? requireYears = null, decimal? minRating = null) =>

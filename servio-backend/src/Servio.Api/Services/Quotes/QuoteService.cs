@@ -82,7 +82,7 @@ public sealed class QuoteService(
         {
             await db.SaveChangesAsync(ct);
         }
-        catch (DbUpdateException e) when (e is not DbUpdateConcurrencyException)
+        catch (DbUpdateException e) when (e.IsUniqueViolation())
         {
             // Unique (ServiceRequestId, PartnerProfileId, RequestRevision): a double tap that slipped past the check above.
             throw new ApiException(StatusCodes.Status409Conflict, ErrorCodes.QuoteAlreadyExists, "Bạn đã báo giá cho bài này");
@@ -220,7 +220,7 @@ public sealed class QuoteService(
         if (debt > maxDebt)
         {
             throw new ApiException(StatusCodes.Status422UnprocessableEntity, ErrorCodes.OutstandingDebt,
-                $"Nợ hoa hồng vượt {maxDebt:N0} đ, hãy thanh toán để tiếp tục nhận việc");
+                $"Nợ hoa hồng vượt {Money.Vnd(maxDebt)}, hãy thanh toán để tiếp tục nhận việc");
         }
     }
 
