@@ -61,6 +61,27 @@ Tài liệu này giúp mỗi thành viên clone repo, chạy được demo trên
 
 Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở trình duyệt; dùng khi demo trên lớp.
 
+### Dữ liệu demo (buổi báo cáo cuối)
+
+Chạy **một lần** trên CSDL vừa tạo bằng script 01 và 02, nên chạy vào sáng ngày demo vì bài đang mở hết hạn sau 24 giờ và đơn chờ khách xác nhận tự hoàn tất sau `order.auto_confirm_hours`:
+
+```bash
+dotnet run --project servio-backend/src/Servio.Api --launch-profile Development -- --seed-demo
+```
+
+Lệnh tạo dữ liệu rồi thoát; chạy lại khi dữ liệu đã có thì không làm gì. Dữ liệu được tạo qua đúng luồng nghiệp vụ nên tiền, công nợ, timeline, chat và thông báo đều khớp. Mọi tài khoản đăng nhập bằng OTP `123456`.
+
+| Tài khoản | SĐT | Có sẵn |
+|---|---|---|
+| Khách Nguyễn Thị Lan | 0901000001 | Địa chỉ tại trường (1 Võ Văn Ngân) nên check-in GPS chạy được trong lớp; 1 đơn hoàn tất đã đánh giá, 1 đơn đã nhận, 1 bài đang mở có báo giá |
+| Khách Trần Văn Minh | 0901000002 | Đơn hoàn tất 450.000 + phát sinh 180.000 (ví dụ 2.6.1); 1 đơn đang khiếu nại; 1 bài đang mở chưa có báo giá |
+| Khách Lê Thu Hà | 0901000003 | Phí huỷ 20.000 đ chưa trả (CS-30); 1 đơn chờ khách xác nhận hoàn thành (CS-23) |
+| Đối tác Phạm Văn Hùng (điện lạnh) | 0902000001 | Rating 4,5; nợ hoa hồng 139.500 đ, đã khai báo chuyển khoản chờ admin xác nhận (AW-18) |
+| Đối tác Võ Thanh Tâm (điện nước) | 0902000002 | Nợ hoa hồng 37.500 đ; bị khách khiếu nại một đơn (AW-08) |
+| Đối tác Đỗ Quốc Bảo (máy tính, mạng) | 0902000003 | 1 đơn chờ khách xác nhận, 1 đơn đã nhận |
+
+Các đối tác để Offline sau khi seed; bật Online trong app khi demo. Ảnh trong dữ liệu seed là ảnh 1×1 điểm ảnh, ảnh thật chụp trực tiếp khi demo. Icon danh mục do app hiển thị theo `slug`, không cần seed.
+
 ## 4. Chạy app Android
 
 1. Mở thư mục `servio-android` bằng Android Studio.

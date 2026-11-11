@@ -86,6 +86,7 @@ builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<DisputeService>();
 builder.Services.AddScoped<AdminUserService>();
+builder.Services.AddScoped<DemoSeeder>();
 builder.Services.AddHostedService<ExpiryJob>();
 builder.Services.AddSignalR().AddJsonProtocol(options =>
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper)));
@@ -251,6 +252,13 @@ app.MapRazorPages();
 app.MapGet("/", () => Results.Redirect(isDemoEnvironment ? "/swagger" : "/admin")).ExcludeFromDescription();
 
 await AdminSeeder.SeedAsync(app.Services);
+if (args.Contains("--seed-demo"))
+{
+    // One-off: create the demo data (docs/huong-dan-phat-trien.md) and exit without starting the server.
+    using var scope = app.Services.CreateScope();
+    await scope.ServiceProvider.GetRequiredService<DemoSeeder>().RunAsync();
+    return;
+}
 await app.RunAsync();
 
 public partial class Program;

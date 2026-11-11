@@ -170,7 +170,7 @@
 **Việc cần làm:**
 - [ ] Chạy trọn luồng demo 10 bước ở mục 0.2.8, ghi lỗi lên Trello kèm mức độ — hạn 12/11 (cả nhóm)
 - [ ] Sửa lỗi. Ưu tiên lỗi chặn luồng demo, sau đó đến lỗi hiển thị — hạn 14/11 (người phụ trách từng phần)
-- [ ] Seed dữ liệu demo: 3 khách, 3 đối tác đã duyệt, danh mục có icon, vài bài và đơn mẫu ở các trạng thái — hạn 14/11 (Hoàng)
+- [x] Seed dữ liệu demo: 3 khách, 3 đối tác đã duyệt, danh mục có icon, vài bài và đơn mẫu ở các trạng thái — hạn 14/11 (Hoàng) — xong 11/11, lệnh `--seed-demo` (xem `docs/huong-dan-phat-trien.md`)
 - [ ] Nếu còn thời gian: #177 "Khách chưa thanh toán", CS-02 onboarding, PS-26, AW-15 cấu hình — chỉ làm sau khi luồng 0.2.8 chạy trọn (người phụ trách từng phần)
 - [ ] Code freeze (đóng băng code): từ ngày này chỉ sửa lỗi chặn — 15/11 (cả nhóm)
 - [ ] Viết kịch bản demo từng bước, phân vai người cầm máy khách, máy đối tác và laptop admin — hạn 15/11 (Hiệp)
