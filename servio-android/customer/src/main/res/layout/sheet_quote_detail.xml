@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CS-16 Chi tiết báo giá (bottom sheet). [progress] only while CS-15 is still loading the quotes (restored after the
+  app was killed); if the quote is not in the list the sheet closes itself instead of staying empty.
+  No "Nhắn tin" yet: chat comes with KH-4.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginVertical="@dimen/space_xxl"
+        android:visibility="gone" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/screen_padding"
+            android:paddingTop="@dimen/space_s"
+            android:paddingBottom="@dimen/space_l">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:text="@string/quote_detail_title"
+                android:textAppearance="@style/TextAppearance.Servio.SectionTitle" />
+
+            <include
+                android:id="@+id/partner"
+                layout="@layout/view_quote_partner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l" />
+
+            <TextView
+                android:id="@+id/distanceText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                tools:text="Cách bạn 1,2 km" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="@dimen/space_l"
+                android:background="@color/servio_divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/priceText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAppearance="@style/TextAppearance.Servio.ScreenTitle"
+                    tools:text="250.000 đ" />
+
+                <TextView
+                    android:id="@+id/acceptedText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_chip_code"
+                    android:paddingHorizontal="@dimen/space_m"
+                    android:paddingVertical="@dimen/space_xs"
+                    android:text="@string/quote_status_accepted"
+                    android:textAppearance="@style/TextAppearance.Servio.Accent"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/availableText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:drawablePadding="@dimen/space_m"
+                android:gravity="center_vertical"
+                android:textAppearance="@style/TextAppearance.Servio.Body"
+                app:drawableStartCompat="@drawable/ic_review_calendar"
+                tools:text="Có mặt lúc 14:30 · 11/11" />
+
+            <TextView
+                android:id="@+id/durationText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:drawablePadding="@dimen/space_m"
+                android:gravity="center_vertical"
+                android:textAppearance="@style/TextAppearance.Servio.Body"
+                app:drawableStartCompat="@drawable/ic_review_clock"
+                tools:text="Làm khoảng 1 giờ 30 phút · xong dự kiến 16:00 · 11/11" />
+
+            <TextView
+                android:id="@+id/noteLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:text="@string/quote_note_label"
+                android:textAppearance="@style/TextAppearance.Servio.Label" />
+
+            <TextView
+                android:id="@+id/noteText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:textAppearance="@style/TextAppearance.Servio.Body"
+                android:textColor="@color/servio_text_secondary"
+                tools:text="Có thể đến ngay, mang đủ đồ nghề" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/selectButton"
+                style="@style/Widget.Servio.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xl"
+                android:text="@string/quote_select_this" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/profileButton"
+                style="@style/Widget.Servio.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:text="@string/quote_view_profile" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</FrameLayout>

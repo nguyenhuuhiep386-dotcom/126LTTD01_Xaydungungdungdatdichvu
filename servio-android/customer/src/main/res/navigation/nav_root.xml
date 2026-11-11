@@ -119,57 +119,35 @@
 
         <fragment
             android:id="@+id/cs15"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.requestdetail.RequestDetailFragment"
             android:label="CS-15 Chi tiết yêu cầu &amp; báo giá">
-            <!-- Set by CS-11 after #36 (empty when opened from a placeholder link). -->
+            <!-- Set by CS-14 and by CS-11 after #36 (empty when opened from a placeholder link). -->
             <argument
                 android:name="requestId"
                 android:defaultValue=""
                 app:argType="string" />
-            <argument
-                android:name="code"
-                android:defaultValue="CS-15"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Chi tiết yêu cầu &amp; báo giá"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Trung tâm quyết định; báo giá realtime qua SignalR"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs16|Xem báo giá;cs28|Chat với đối tác;cs18|Chọn đối tác"
-                app:argType="string" />
         </fragment>
 
-        <fragment
+        <!-- Bottom sheet over CS-15; reads the quote from the CS-15 ViewModel (cs15 back stack entry). -->
+        <dialog
             android:id="@+id/cs16"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.requestdetail.QuoteDetailSheet"
             android:label="CS-16 Chi tiết báo giá">
             <argument
-                android:name="code"
-                android:defaultValue="CS-16"
+                android:name="quoteId"
+                android:defaultValue=""
                 app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Chi tiết báo giá"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Bottom sheet: hồ sơ đối tác + Chat / Chọn"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs17|Hồ sơ đối tác;cs28|Chat;cs18|Chọn báo giá này"
-                app:argType="string" />
-        </fragment>
+        </dialog>
 
         <fragment
             android:id="@+id/cs17"
             android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
             android:label="CS-17 Hồ sơ công khai đối tác">
+            <!-- Set by CS-16 "Xem hồ sơ". -->
+            <argument
+                android:name="partnerId"
+                android:defaultValue=""
+                app:argType="string" />
             <argument
                 android:name="code"
                 android:defaultValue="CS-17"
@@ -192,6 +170,23 @@
             android:id="@+id/cs18"
             android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
             android:label="CS-18 Xác nhận chọn đối tác">
+            <!-- Set by "Chọn" on CS-15/CS-16: what #43 needs (quote rowVersion, request revision). -->
+            <argument
+                android:name="requestId"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="quoteId"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="rowVersion"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="revision"
+                android:defaultValue="0"
+                app:argType="integer" />
             <argument
                 android:name="code"
                 android:defaultValue="CS-18"

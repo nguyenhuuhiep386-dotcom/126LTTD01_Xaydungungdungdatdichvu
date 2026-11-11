@@ -52,6 +52,53 @@
     <string name="requests_status_cancelled">Đã huỷ</string>
     <string name="requests_status_rejected">Không được duyệt</string>
 
+    <!-- CS-15 Request detail and quotes -->
+    <string name="request_detail_title">Chi tiết yêu cầu</string>
+    <string name="request_detail_not_found">Không tìm thấy yêu cầu</string>
+    <string name="request_detail_expires">Hết hạn lúc %1$s</string>
+    <string name="request_detail_time_now">Càng sớm càng tốt</string>
+    <string name="request_detail_time_now_until">Càng sớm càng tốt · trước %1$s</string>
+    <string name="request_detail_time_unknown">Chưa có khung giờ</string>
+    <string name="request_detail_cancel_reason">Lý do huỷ: %1$s</string>
+    <string name="request_detail_quotes_title">Báo giá (%1$d)</string>
+    <string name="request_detail_quotes_empty">Chưa có báo giá</string>
+    <string name="request_detail_sort_time">Có mặt sớm nhất</string>
+    <string name="request_detail_sort_price">Giá thấp nhất</string>
+    <string name="request_detail_sort_rating">Đánh giá cao nhất</string>
+    <string name="request_detail_menu_cancel">Huỷ yêu cầu</string>
+    <string name="request_detail_cancel_title">Huỷ yêu cầu này?</string>
+    <string name="request_detail_cancel_message">Các báo giá đang chờ sẽ hết hiệu lực và yêu cầu không nhận thêm báo giá.</string>
+    <string name="request_detail_cancel_reason_hint">Lý do (không bắt buộc)</string>
+    <string name="request_detail_cancelled">Đã huỷ yêu cầu</string>
+    <!-- #40 → 409 INVALID_STATUS_TRANSITION -->
+    <string name="request_detail_cancel_conflict">Yêu cầu đã thay đổi trạng thái, vui lòng tải lại.</string>
+
+    <!-- Quote card (CS-15) and CS-16 Quote detail -->
+    <string name="quote_detail_title">Chi tiết báo giá</string>
+    <string name="quote_price">%1$s đ</string>
+    <!-- "4,8 · 12 đánh giá" -->
+    <string name="quote_rating">%1$s · %2$d đánh giá</string>
+    <string name="quote_no_reviews">Chưa có đánh giá</string>
+    <string name="quote_experience">%1$d năm kinh nghiệm</string>
+    <string name="quote_completed">%1$d đơn hoàn thành</string>
+    <string name="quote_distance">Cách bạn %1$s km</string>
+    <!-- Always an absolute time: "Có mặt lúc 14:30 · 11/11" -->
+    <string name="quote_available">Có mặt lúc %1$s</string>
+    <string name="quote_duration_minutes">%1$d phút</string>
+    <string name="quote_duration_hours">%1$d giờ</string>
+    <string name="quote_duration_hours_minutes">%1$d giờ %2$d phút</string>
+    <string name="quote_duration">Làm khoảng %1$s</string>
+    <string name="quote_duration_until">Làm khoảng %1$s · xong dự kiến %2$s</string>
+    <string name="quote_note_label">Ghi chú của người làm</string>
+    <string name="quote_status_accepted">Đã chọn</string>
+    <string name="quote_select">Chọn</string>
+    <string name="quote_select_this">Chọn báo giá này</string>
+    <string name="quote_view_profile">Xem hồ sơ</string>
+    <string name="quote_gone">Báo giá này không còn nữa</string>
+    <!-- CS-18 and CS-17 are still placeholders: they show what they were opened with. -->
+    <string name="quote_selection_placeholder">requestId: %1$s\nquoteId: %2$s\nrowVersion: %3$s\nrevision: %4$d</string>
+    <string name="quote_partner_placeholder">partnerId: %1$s</string>
+
     <!-- CS-29 Account -->
     <string name="account_title">Tài khoản</string>
     <string name="account_edit">Sửa</string>
@@ -242,6 +289,4 @@
     <string name="create_request_post_restricted_title">Tạm thời chưa đăng được</string>
     <string name="create_request_post_view_fee">Xem phí huỷ</string>
     <string name="action_close">Đóng</string>
-    <!-- CS-15 is still a placeholder: shows the id it was opened with. -->
-    <string name="create_request_posted_placeholder">requestId: %1$s</string>
 </resources>

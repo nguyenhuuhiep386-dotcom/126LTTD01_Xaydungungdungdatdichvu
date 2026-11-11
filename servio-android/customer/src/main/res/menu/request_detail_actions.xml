@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-15 overflow. Spec 7.3 also lists Sửa (#39) and Gia hạn (#41): the backend has neither yet, so they are left out. -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_cancel_request"
+        android:title="@string/request_detail_menu_cancel"
+        app:showAsAction="never" />
+</menu>

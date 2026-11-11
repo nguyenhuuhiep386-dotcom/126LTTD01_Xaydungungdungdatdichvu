@@ -16,6 +16,7 @@ import org.junit.Before
 import org.junit.Test
 import vn.servio.core.network.ApiResult
 import vn.servio.core.network.PagedResult
+import vn.servio.customer.data.model.QuoteSort
 import vn.servio.customer.data.model.ServiceRequestStatus
 import vn.servio.customer.data.model.ServiceRequestSummary
 import vn.servio.customer.data.repository.ServiceRequestRepository
@@ -42,6 +43,11 @@ class MyRequestsViewModelTest {
             val items = matching.drop((page - 1) * pageSize).take(pageSize)
             return ApiResult.Success(PagedResult(items, matching.size, page, pageSize, (matching.size + pageSize - 1) / pageSize))
         }
+
+        // CS-15 calls: not used by CS-14.
+        override suspend fun getDetail(requestId: String) = error("unused")
+        override suspend fun cancel(requestId: String, reason: String?) = error("unused")
+        override suspend fun getQuotes(requestId: String, sort: QuoteSort) = error("unused")
     }
 
     private fun row(id: Int, status: ServiceRequestStatus, quotes: Int = 0) = ServiceRequestSummary(

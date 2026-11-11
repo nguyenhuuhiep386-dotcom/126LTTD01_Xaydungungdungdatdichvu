@@ -210,10 +210,7 @@ class CreateRequestReviewFragment : Fragment(R.layout.fragment_create_request_re
         if (navController.currentDestination?.id != R.id.cs11) return
         navController.navigate(
             R.id.cs15,
-            bundleOf(
-                ARG_REQUEST_ID to requestId,
-                PLACEHOLDER_DESCRIPTION to getString(R.string.create_request_posted_placeholder, requestId),
-            ),
+            bundleOf(ARG_REQUEST_ID to requestId),
             navOptions { popUpTo(R.id.cs07) { inclusive = true } },
         )
     }
@@ -269,9 +266,6 @@ class CreateRequestReviewFragment : Fragment(R.layout.fragment_create_request_re
         const val THUMBNAIL_EDGE = 240
 
         const val ARG_REQUEST_ID = "requestId"
-
-        /** cs15 is still a PlaceholderFragment, which only shows its "description". */
-        const val PLACEHOLDER_DESCRIPTION = "description"
 
         /** "4,5" whatever the device language. */
         val RATING_FORMAT: NumberFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag("vi-VN"))

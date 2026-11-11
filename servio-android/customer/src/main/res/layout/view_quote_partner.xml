@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Who sent a quote (CS-15 card and CS-16 sheet): avatar or initial, name, rating, experience and finished orders. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="48dp"
+        android:layout_height="48dp">
+
+        <TextView
+            android:id="@+id/avatarInitial"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_profile_avatar"
+            android:gravity="center"
+            android:importantForAccessibility="no"
+            android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+            tools:text="A" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/avatarImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:scaleType="centerCrop"
+            app:shapeAppearance="@style/ShapeAppearance.Servio.Circle" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_m"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/nameText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+            tools:text="Nguyễn Văn An" />
+
+        <TextView
+            android:id="@+id/ratingText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            tools:text="4,8 · 12 đánh giá" />
+
+        <TextView
+            android:id="@+id/statsText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            tools:text="5 năm kinh nghiệm · 12 đơn hoàn thành" />
+    </LinearLayout>
+</LinearLayout>

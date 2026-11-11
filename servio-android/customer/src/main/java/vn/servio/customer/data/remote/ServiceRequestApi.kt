@@ -1,14 +1,19 @@
 package vn.servio.customer.data.remote
 
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 import vn.servio.core.network.ApiResponse
 import vn.servio.core.network.PagedResult
+import vn.servio.customer.data.model.CancelRequestBody
 import vn.servio.customer.data.model.CreateServiceRequestRequest
 import vn.servio.customer.data.model.CreatedRequest
+import vn.servio.customer.data.model.CustomerQuote
+import vn.servio.customer.data.model.ServiceRequestDetail
 import vn.servio.customer.data.model.ServiceRequestSummary
 
 // Paths are relative to BASE_URL + "api/v1/". Endpoint numbers (#n) refer to spec section 6.
@@ -32,4 +37,21 @@ interface ServiceRequestApi {
         @Query("page") page: Int,
         @Query("pageSize") pageSize: Int,
     ): ApiResponse<PagedResult<ServiceRequestSummary>>
+
+    /** #38 as the owner. 404 for someone else's request. */
+    @GET("service-requests/{id}")
+    suspend fun getDetail(@Path("id") id: String): ApiResponse<ServiceRequestDetail>
+
+    /** #40. 204; 409 INVALID_STATUS_TRANSITION when the request is no longer OPEN/DRAFT. */
+    @POST("service-requests/{id}/cancel")
+    suspend fun cancel(@Path("id") id: String, @Body body: CancelRequestBody): Response<Unit>
+
+    /** #42. [sort]: TIME, PRICE or RATING. The server caps pageSize at 50. */
+    @GET("service-requests/{id}/quotes")
+    suspend fun getQuotes(
+        @Path("id") id: String,
+        @Query("sort") sort: String,
+        @Query("page") page: Int,
+        @Query("pageSize") pageSize: Int,
+    ): ApiResponse<PagedResult<CustomerQuote>>
 }

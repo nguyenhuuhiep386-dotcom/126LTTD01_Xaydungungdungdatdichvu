@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CS-15 Chi tiết yêu cầu & báo giá: the request on top, then its quotes (one #42 call, sorted by the server).
+  The error group is only for the first load; later failures are a snackbar over the content.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:menu="@menu/request_detail_actions"
+        app:navigationContentDescription="@string/action_back"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="@string/request_detail_title" />
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/screen_padding"
+                android:paddingTop="@dimen/space_s"
+                android:paddingBottom="@dimen/screen_padding">
+
+                <LinearLayout
+                    android:id="@+id/content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <!-- region Bài của tôi -->
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/statusText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_chip_code"
+                            android:paddingHorizontal="@dimen/space_m"
+                            android:paddingVertical="@dimen/space_xs"
+                            android:textAppearance="@style/TextAppearance.Servio.Accent"
+                            tools:text="Đang mở" />
+
+                        <TextView
+                            android:id="@+id/expiryText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_m"
+                            android:layout_weight="1"
+                            android:textAppearance="@style/TextAppearance.Servio.Caption"
+                            tools:text="Hết hạn lúc 23:50 · 11/11" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/titleText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                        tools:text="Máy lạnh chảy nước, kém lạnh" />
+
+                    <TextView
+                        android:id="@+id/categoryText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xs"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        tools:text="Sửa máy lạnh" />
+
+                    <TextView
+                        android:id="@+id/descriptionText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:textAppearance="@style/TextAppearance.Servio.Body"
+                        android:textColor="@color/servio_text_secondary"
+                        tools:text="Máy lạnh 1,5 HP ở phòng ngủ, dùng khoảng 4 năm." />
+
+                    <HorizontalScrollView
+                        android:id="@+id/imageScroll"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:id="@+id/imageRow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+
+                    <TextView
+                        android:id="@+id/addressText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_l"
+                        android:drawablePadding="@dimen/space_m"
+                        android:gravity="center_vertical"
+                        android:textAppearance="@style/TextAppearance.Servio.Body"
+                        app:drawableStartCompat="@drawable/ic_profile_address"
+                        tools:text="12 Võ Văn Ngân, P. Linh Chiểu, TP. Thủ Đức" />
+
+                    <TextView
+                        android:id="@+id/timeText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:drawablePadding="@dimen/space_m"
+                        android:gravity="center_vertical"
+                        android:textAppearance="@style/TextAppearance.Servio.Body"
+                        app:drawableStartCompat="@drawable/ic_review_calendar"
+                        tools:text="14:00 – 16:00 · 17/10" />
+
+                    <TextView
+                        android:id="@+id/budgetText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:drawablePadding="@dimen/space_m"
+                        android:gravity="center_vertical"
+                        android:textAppearance="@style/TextAppearance.Servio.Body"
+                        app:drawableStartCompat="@drawable/ic_review_money"
+                        tools:text="300.000 – 500.000 đ" />
+
+                    <TextView
+                        android:id="@+id/cancelReasonText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        android:visibility="gone"
+                        tools:text="Lý do huỷ: Đã tự sửa được" />
+
+                    <!-- endregion -->
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="@dimen/space_l"
+                        android:background="@color/servio_divider" />
+
+                    <!-- region Báo giá -->
+
+                    <TextView
+                        android:id="@+id/quotesTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:accessibilityHeading="true"
+                        android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                        tools:text="Báo giá (2)" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/sortGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        app:selectionRequired="true"
+                        app:singleSelection="true">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/sortTime"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/request_detail_sort_time" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/sortPrice"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/request_detail_sort_price" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/sortRating"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/request_detail_sort_rating" />
+                    </com.google.android.material.chip.ChipGroup>
+
+                    <TextView
+                        android:id="@+id/quotesEmpty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:paddingVertical="@dimen/space_xl"
+                        android:text="@string/request_detail_quotes_empty"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        android:visibility="gone" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/quoteList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:nestedScrollingEnabled="false"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        tools:itemCount="2"
+                        tools:listitem="@layout/item_quote" />
+
+                    <!-- endregion -->
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/errorGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/errorText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/retryButton"
+                        style="@style/Widget.Servio.Button.Outlined"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:text="@string/action_retry" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</LinearLayout>

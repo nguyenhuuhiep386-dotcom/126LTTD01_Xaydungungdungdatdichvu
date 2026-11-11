@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-15 quote card. Tap = CS-16. "Chọn" only for a pending quote of an open request; an accepted one shows "Đã chọn". -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/space_m"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/space_l">
+
+        <include
+            android:id="@+id/partner"
+            layout="@layout/view_quote_partner" />
+
+        <TextView
+            android:id="@+id/priceText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+            tools:text="250.000 đ" />
+
+        <TextView
+            android:id="@+id/availableText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:textAppearance="@style/TextAppearance.Servio.Body"
+            tools:text="Có mặt lúc 14:30 · 11/11" />
+
+        <TextView
+            android:id="@+id/noteText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            tools:text="Có thể đến ngay, mang đủ đồ nghề" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:gravity="center_vertical|end"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/acceptedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_chip_code"
+                android:paddingHorizontal="@dimen/space_m"
+                android:paddingVertical="@dimen/space_xs"
+                android:text="@string/quote_status_accepted"
+                android:textAppearance="@style/TextAppearance.Servio.Accent"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/selectButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/quote_select" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
