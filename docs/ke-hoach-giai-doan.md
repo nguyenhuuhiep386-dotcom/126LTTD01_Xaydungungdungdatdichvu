@@ -232,7 +232,7 @@ Giao diện chat dùng chung (DT-3) phải xong bằng dữ liệu giả trướ
 | BE-5 Tracking và check-in | `UpdateLocation`, #67, #68, #76, #77, #178, #179 | KH-5, DT-4 | 04/11 — **xong 11/11** |
 | BE-6 COD, huỷ, công nợ | #71 + auto-confirm, #72, #151, #152, #180, #155, #156; unit test công thức tiền 2.6.1 | KH-6, DT-5 | 06/11 — **xong 11/11** |
 | BE-7 Đánh giá, khiếu nại, thông báo | #95, #96, #100, #146–#148, #101–#104, FCM | KH-6, KH-7, DT-6 | 08/11 — **xong 11/11** |
-| QT-2 Các trang vận hành | AW-02, AW-03, AW-06, AW-07, AW-08, AW-18 | Luồng demo bước 10 | 09/11 |
+| QT-2 Các trang vận hành | AW-02, AW-03, AW-06, AW-07, AW-08, AW-18 | Luồng demo bước 10 | 09/11 — **xong 11/11** |
 
 ### 5.4. Mốc kiểm tra chung
 

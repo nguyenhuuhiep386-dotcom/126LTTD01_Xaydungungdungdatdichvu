@@ -3,16 +3,16 @@
     var path = Context.Request.Path.Value?.ToLowerInvariant() ?? "";
     bool IsActive(string href) => href == "/admin" ? path is "/admin" or "/admin/" or "/admin/index" : path.StartsWith(href.ToLowerInvariant());
 
-    // AW pages in scope (spec 0.2.6). Change the href from /admin/soon/... to the real route when a page is built.
+    // AW pages in scope (spec 0.2.6). AW-15 (configuration) is optional and not built.
     var menu = new (string Group, string Code, string Title, string Href)[]
     {
         ("Tổng quan", "AW-02", "Dashboard", "/admin"),
-        ("Người dùng", "AW-03", "Người dùng", "/admin/soon/AW-03"),
+        ("Người dùng", "AW-03", "Người dùng", "/admin/users"),
         ("Người dùng", "AW-04", "Duyệt đối tác (KYC)", "/admin/partners/verifications"),
-        ("Vận hành", "AW-06", "Bài đăng", "/admin/soon/AW-06"),
-        ("Vận hành", "AW-07", "Đơn hàng", "/admin/soon/AW-07"),
-        ("Vận hành", "AW-08", "Khiếu nại", "/admin/soon/AW-08"),
-        ("Tài chính", "AW-18", "Công nợ & trả nợ", "/admin/soon/AW-18"),
+        ("Vận hành", "AW-06", "Bài đăng", "/admin/requests"),
+        ("Vận hành", "AW-07", "Đơn hàng", "/admin/orders"),
+        ("Vận hành", "AW-08", "Khiếu nại", "/admin/disputes"),
+        ("Tài chính", "AW-18", "Công nợ & trả nợ", "/admin/debts"),
         ("Cấu hình", "AW-11", "Danh mục dịch vụ", "/admin/catalog/categories"),
     };
 }

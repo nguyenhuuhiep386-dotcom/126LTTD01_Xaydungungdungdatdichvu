@@ -1,0 +1,129 @@
+@page "/admin/orders/{id:guid}"
+@model Servio.Api.Pages.Admin.Orders.DetailModel
+@using Servio.Api.Pages.Admin
+@{
+    var o = Model.Order;
+    ViewData["Title"] = $"Đơn {o.Code}";
+    static string ImageLabel(byte type) => type switch { 1 => "Trước khi làm", 2 => "Sau khi làm", _ => "Phát sinh" };
+    static string ExtraLabel(byte s) => s switch { 1 => "Chờ khách duyệt", 2 => "Đã duyệt", _ => "Từ chối" };
+}
+<p><a href="/admin/orders">← Danh sách đơn</a></p>
+
+<section class="card profile-head">
+    <div>
+        <div class="profile-status">@AdminText.Badge((OrderStatus)o.Status)</div>
+        <h2 class="order-title">@o.ServiceRequest.Title</h2>
+        <dl class="facts">
+            <dt>Dịch vụ</dt><dd>@o.ServiceCategory.Name</dd>
+            <dt>Khách</dt><dd>@o.Customer.User.FullName · @o.Customer.User.PhoneNumber</dd>
+            <dt>Địa chỉ</dt><dd>@o.ServiceRequest.AddressSnapshot</dd>
+            <dt>Hẹn lúc</dt><dd>@AdminText.Time(o.ScheduledStartAt)</dd>
+            <dt>Tạo lúc</dt><dd>@AdminText.Time(o.CreatedAt)</dd>
+            @if (o.AutoConfirmAt is not null) { <dt>Tự xác nhận lúc</dt><dd>@AdminText.Time(o.AutoConfirmAt)</dd> }
+            @if (o.CompletedAt is not null) { <dt>Hoàn tất lúc</dt><dd>@AdminText.Time(o.CompletedAt)</dd> }
+            @if (o.CancelledAt is not null)
+            {
+                <dt>Huỷ lúc</dt><dd>@AdminText.Time(o.CancelledAt) bởi @AdminText.Label((ActorType)(o.CancelledBy ?? 3)) — @o.CancelReason</dd>
+            }
+        </dl>
+        <p class="muted">@o.ServiceRequest.Description</p>
+    </div>
+</section>
+
+<h2 class="section-title">Tiền (tiền mặt)</h2>
+<table class="table money">
+    <tbody>
+    <tr><td>Giá báo</td><td>@AdminText.Vnd(o.SubTotal)</td></tr>
+    <tr><td>Phát sinh đã duyệt</td><td>@AdminText.Vnd(o.ExtraChargeTotal)</td></tr>
+    <tr><td><strong>Khách trả</strong></td><td><strong>@AdminText.Vnd(o.TotalAmount)</strong></td></tr>
+    <tr><td>Hoa hồng</td><td>@AdminText.Vnd(o.CommissionAmount)</td></tr>
+    <tr><td>Đối tác thực nhận</td><td>@AdminText.Vnd(o.PartnerEarning)</td></tr>
+    @if (o.CancellationFee > 0) { <tr><td>Phí huỷ</td><td>@AdminText.Vnd(o.CancellationFee)</td></tr> }
+    @foreach (var t in Model.Payments)
+    {
+        <tr><td class="muted">Giao dịch @t.Code @(t.IsPresumed ? "(tiền mặt, ghi nhận tự động)" : "")</td><td class="muted">@AdminText.Vnd(t.Amount) · @AdminText.Time(t.PaidAt)</td></tr>
+    }
+    </tbody>
+</table>
+
+<h2 class="section-title">Đối tác</h2>
+@foreach (var a in o.OrderAssignments)
+{
+    <section class="card assignment">
+        <div class="toolbar">
+            <strong>@a.PartnerProfile.User.FullName · @a.PartnerProfile.User.PhoneNumber</strong>
+            @AdminText.Badge((OrderStatus)a.Status)
+        </div>
+        <dl class="facts">
+            <dt>Giá báo</dt><dd>@AdminText.Vnd(a.Amount) (hoa hồng @a.CommissionRateSnapshot.ToString("0.##")%)</dd>
+            <dt>Xác nhận</dt><dd>@AdminText.Time(a.AcceptedAt)</dd>
+            <dt>Bắt đầu đi</dt><dd>@AdminText.Time(a.OnTheWayAt)</dd>
+            <dt>Đến nơi</dt>
+            <dd>
+                @AdminText.Time(a.ArrivedAt)
+                @if (a.ArrivalMethod == 1) { <span class="muted">· GPS, cách @a.ArrivalDistanceMeters m, sai số @a.ArrivalAccuracyMeters m</span> }
+                @if (a.ArrivalMethod == 2) { <span class="muted">· khách xác nhận</span> }
+            </dd>
+            <dt>Bắt đầu làm</dt><dd>@AdminText.Time(a.StartedAt)</dd>
+            <dt>Báo hoàn thành</dt><dd>@AdminText.Time(a.CompletedAt)</dd>
+        </dl>
+        @if (a.OrderImages.Count > 0)
+        {
+            <div class="doc-grid">
+                @foreach (var img in a.OrderImages.OrderBy(i => i.Type).ThenBy(i => i.CreatedAt))
+                {
+                    <figure class="card doc">
+                        <a href="@img.Url" target="_blank" rel="noopener"><img src="@img.Url" alt="@ImageLabel(img.Type)" loading="lazy" /></a>
+                        <figcaption class="muted">@ImageLabel(img.Type)</figcaption>
+                    </figure>
+                }
+            </div>
+        }
+    </section>
+}
+
+@if (o.OrderExtraCharges.Count > 0)
+{
+    <h2 class="section-title">Phát sinh</h2>
+    <table class="table">
+        <thead><tr><th>Nội dung</th><th>Số tiền</th><th>Trạng thái</th><th>Lúc</th></tr></thead>
+        <tbody>
+        @foreach (var e in o.OrderExtraCharges.OrderBy(e => e.CreatedAt))
+        {
+            <tr><td>@e.Description</td><td>@AdminText.Vnd(e.Amount)</td><td>@ExtraLabel(e.Status)</td><td class="muted">@AdminText.Time(e.CreatedAt)</td></tr>
+        }
+        </tbody>
+    </table>
+}
+
+@if (o.CancellationCharges.Count > 0 || o.Disputes.Count > 0 || o.Reviews.Count > 0)
+{
+    <h2 class="section-title">Phí huỷ, khiếu nại, đánh giá</h2>
+    <ul class="plain-list">
+        @foreach (var c in o.CancellationCharges)
+        {
+            <li>Phí @(c.Reason == 2 ? "khách không có mặt" : "huỷ") @AdminText.Vnd(c.Amount) — @(c.Status switch { 1 => c.CollectedTransactionId is null ? "chưa trả" : "đã khai báo, chờ xác nhận", 2 => "đã trả", _ => "miễn" })</li>
+        }
+        @foreach (var d in o.Disputes)
+        {
+            <li><a href="/admin/disputes/@d.Id">Khiếu nại @d.Code</a> — @AdminText.Label((DisputeReason)d.Reason) — @AdminText.Badge((DisputeStatus)d.Status)</li>
+        }
+        @foreach (var r in o.Reviews)
+        {
+            <li>@AdminText.Label((ActorType)r.ReviewerType) đánh giá @r.Rating★ @(r.Comment is null ? "" : $"— {r.Comment}")</li>
+        }
+    </ul>
+}
+
+<h2 class="section-title">Lịch sử trạng thái</h2>
+<ol class="timeline">
+    @foreach (var h in o.OrderStatusHistories.OrderBy(h => h.CreatedAt))
+    {
+        <li>
+            <span class="muted">@AdminText.Time(h.CreatedAt)</span>
+            @AdminText.Badge((OrderStatus)h.ToStatus)
+            <span>@(h.OrderAssignmentId is null ? "Đơn" : "Phần việc") · @AdminText.Label((ActorType)h.ChangedByType)</span>
+            @if (h.Note is not null) { <span class="muted">— @h.Note</span> }
+        </li>
+    }
+</ol>

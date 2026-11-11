@@ -1,0 +1,84 @@
+@page "/admin/disputes/{id:guid}"
+@model Servio.Api.Pages.Admin.Disputes.DetailModel
+@using Servio.Api.Pages.Admin
+@{
+    var d = Model.Dispute;
+    var o = d.Order;
+    ViewData["Title"] = $"Khiếu nại {d.Code}";
+    var isOpen = d.Status is (byte)DisputeStatus.Open or (byte)DisputeStatus.InReview;
+}
+<p><a href="/admin/disputes">← Hàng đợi khiếu nại</a></p>
+@if (Model.Flash is not null) { <p class="flash" role="status">@Model.Flash</p> }
+@if (Model.Error is not null) { <p class="alert" role="alert">@Model.Error</p> }
+
+<section class="card profile-head">
+    <div>
+        <div class="profile-status">@AdminText.Badge((DisputeStatus)d.Status)</div>
+        <dl class="facts">
+            <dt>Lý do</dt><dd>@AdminText.Label((DisputeReason)d.Reason)</dd>
+            <dt>Người mở</dt><dd>@AdminText.Label((ActorType)d.RaisedByType): @d.RaisedByUser.FullName · @d.RaisedByUser.PhoneNumber</dd>
+            <dt>Mở lúc</dt><dd>@AdminText.Time(d.CreatedAt)</dd>
+            <dt>Hạn xử lý</dt><dd>@AdminText.Time(d.SlaDueAt)</dd>
+            <dt>Đơn</dt><dd><a href="/admin/orders/@o.Id">@o.Code</a> · @o.ServiceRequest.Title · @AdminText.Vnd(o.TotalAmount)</dd>
+            <dt>Trạng thái đơn trước khiếu nại</dt><dd>@AdminText.Badge((OrderStatus)d.PreviousOrderStatus)</dd>
+            <dt>Khách</dt><dd>@o.Customer.User.FullName · @o.Customer.User.PhoneNumber</dd>
+            @foreach (var a in o.OrderAssignments)
+            {
+                <dt>Đối tác</dt><dd>@a.PartnerProfile.User.FullName · @a.PartnerProfile.User.PhoneNumber</dd>
+            }
+        </dl>
+        <p>@d.Description</p>
+        @if (d.ResolutionNote is not null)
+        {
+            <p class="muted">Kết quả (@AdminText.Time(d.ResolvedAt)): @d.ResolutionNote</p>
+        }
+    </div>
+</section>
+
+@if (Model.Evidence.Count > 0)
+{
+    <h2 class="section-title">Bằng chứng</h2>
+    <div class="doc-grid">
+        @foreach (var url in Model.Evidence)
+        {
+            <figure class="card doc">
+                <a href="@AdminText.FileUrl(url)" target="_blank" rel="noopener"><img src="@AdminText.FileUrl(url)" alt="Ảnh bằng chứng" loading="lazy" /></a>
+            </figure>
+        }
+    </div>
+}
+
+<h2 class="section-title">Chat của đơn</h2>
+@if (Model.Chat.Count == 0)
+{
+    <p class="muted">Không có tin nhắn.</p>
+}
+else
+{
+    <ol class="timeline chat-log">
+        @foreach (var m in Model.Chat)
+        {
+            <li>
+                <span class="muted">@AdminText.Time(m.At)</span>
+                <strong>@m.Sender:</strong> @m.Content
+                @if (m.Image is not null) { <a href="@m.Image" target="_blank" rel="noopener">[ảnh]</a> }
+            </li>
+        }
+    </ol>
+}
+
+@if (isOpen)
+{
+    <h2 class="section-title">Quyết định</h2>
+    <form method="post" asp-page-handler="Resolve" asp-route-id="@d.Id" class="card form-card">
+        <label class="field">
+            <span>Kết quả gửi cho hai bên (ghi cả khoản hoàn tiền mặt thoả thuận ngoài app, nếu có)</span>
+            <textarea name="note" rows="4" required minlength="3"></textarea>
+        </label>
+        <p class="muted">Đơn sẽ về trạng thái trước khiếu nại; nếu đang chờ khách xác nhận, thời gian tự xác nhận chạy tiếp phần còn lại.</p>
+        <div class="toolbar">
+            <button class="btn btn-primary" type="submit" name="upheld" value="true">Chấp nhận khiếu nại</button>
+            <button class="btn btn-ghost btn-danger" type="submit" name="upheld" value="false">Bác bỏ</button>
+        </div>
+    </form>
+}

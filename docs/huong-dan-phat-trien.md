@@ -99,14 +99,15 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 | API #1, #2, #5, #6, #9, #10, #29, #30 | Xong, có trên Swagger |
 | BE-1: `POST /files`, `GET /files/{id}`, #12–#16 (địa chỉ, thiết bị), #17–#23, #25–#28 (hồ sơ, KYC, kỹ năng, online, hồ sơ công khai) | Xong, có trên Swagger |
 | Envelope, mã lỗi, validation, rate limit OTP | Xong |
-| Admin: AW-01 đăng nhập, layout, AW-02 số liệu cơ bản | Xong |
+| Admin: AW-01 đăng nhập, layout | Xong |
 | QT-1: AW-04 duyệt KYC + kỹ năng (xem ảnh riêng tư, AuditLog, thông báo), AW-11 thêm/sửa/ẩn danh mục | Xong; chỉ SUPER_ADMIN và OPERATOR |
+| QT-2: AW-02 dashboard (hàng đợi, GMV, hoa hồng, công nợ, 7 ngày); AW-03 người dùng (tìm, khoá/mở); AW-06 bài đăng (ẩn bài vi phạm); AW-07 đơn hàng + chi tiết và timeline; AW-08 khiếu nại (xem bằng chứng, chat, chốt kết quả); AW-18 công nợ (xác nhận/từ chối chuyển khoản) | Xong; AW-08 cho SUPER_ADMIN/OPERATOR/SUPPORT, AW-18 cho SUPER_ADMIN/FINANCE, mọi thao tác ghi AuditLog. AW-15 cấu hình chưa làm (sửa trực tiếp bảng SystemConfigs) |
 | BE-2: #36–#38, #40 bài đăng; #46 newsfeed; #42, #50, #52, #53 báo giá; job tự hết hạn bài 30 giây/lần | Xong, có trên Swagger |
 | SignalR server: `/hubs/feed` (NewPost), `/hubs/orders` (báo giá và đơn hàng), `/hubs/chat` | Xong; client Android chưa có (mục 5.1, hạ tầng của Nguyên) |
 | BE-3: chat #54–#59, #61; hội thoại chỉ đọc khi bài bị huỷ/hết hạn | Xong, có trên Swagger |
 | BE-4: #43 chọn báo giá tạo đơn; #62–#64 danh sách, chi tiết, lịch sử đơn; #65, #66 đối tác nhận/từ chối; #69, #70 bắt đầu/hoàn thành; #73, #74 phát sinh; job tự huỷ đơn quá 10 phút chưa xác nhận | Xong, có trên Swagger |
 | BE-5: #67 bắt đầu di chuyển; hub method `UpdateLocation`; #76, #77 vị trí và ETA (Haversine ÷ 25 km/h); #68 check-in GPS chặn cứng; #178, #179 nhờ khách xác nhận đã đến | Xong, có trên Swagger; chưa kiểm Play Integrity (demo tắt) và không lưu các lần check-in bị từ chối (bảng CheckInAttempts ngoài phạm vi) |
-| BE-6: #71 khách xác nhận hoàn thành COD (ghi giao dịch tiền mặt và công nợ hoa hồng) + job tự xác nhận; #151, #72 khách huỷ có phí; #152 đối tác huỷ; #180 khách không có mặt; #87, #88, #155, #156 ví, công nợ và khai báo chuyển khoản; hàm xác nhận/từ chối trả nợ cho AW-18 (cấn trừ tự động) | Xong, có trên Swagger; trang AW-18 thuộc QT-2 |
+| BE-6: #71 khách xác nhận hoàn thành COD (ghi giao dịch tiền mặt và công nợ hoa hồng) + job tự xác nhận; #151, #72 khách huỷ có phí; #152 đối tác huỷ; #180 khách không có mặt; #87, #88, #155, #156 ví, công nợ và khai báo chuyển khoản; hàm xác nhận/từ chối trả nợ cho AW-18 (cấn trừ tự động) | Xong, có trên Swagger |
 | BE-7: #95, #96, #100 đánh giá hai chiều (rating trung bình); #146–#148 khiếu nại (đơn DISPUTED, tạm dừng tự xác nhận) + hàm admin chốt khiếu nại cho AW-08; #101–#104 thông báo; gửi FCM HTTP v1 cho báo giá mới, đơn đổi trạng thái, phát sinh, xác nhận đã đến, đánh giá, kết quả KYC, kết quả trả nợ | Xong, có trên Swagger; chưa gửi thông báo cho bài mới (NEW_POST_MATCH) và tin nhắn chat (đã có SignalR) |
 | Android `:core`: design system, Retrofit, token + tự refresh, xử lý mất mạng | Xong |
 | Màn CS-01, CS-03, CS-04, CS-05 (dùng chung, gọi API thật) | Xong |

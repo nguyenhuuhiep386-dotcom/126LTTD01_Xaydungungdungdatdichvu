@@ -85,6 +85,7 @@ builder.Services.AddHttpClient<IPushSender, FcmPushSender>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<DisputeService>();
+builder.Services.AddScoped<AdminUserService>();
 builder.Services.AddHostedService<ExpiryJob>();
 builder.Services.AddSignalR().AddJsonProtocol(options =>
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper)));
@@ -162,7 +163,11 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy(AuthPolicies.Partner, p => p.RequireRole(nameof(UserRoleType.Partner)))
     .AddPolicy(AuthPolicies.Admin, p => p.AddAuthenticationSchemes(AuthPolicies.AdminScheme).RequireAuthenticatedUser())
     .AddPolicy(AuthPolicies.AdminOperator, p => p.AddAuthenticationSchemes(AuthPolicies.AdminScheme)
-        .RequireRole(nameof(AdminRole.SuperAdmin), nameof(AdminRole.Operator)));
+        .RequireRole(nameof(AdminRole.SuperAdmin), nameof(AdminRole.Operator)))
+    .AddPolicy(AuthPolicies.AdminSupport, p => p.AddAuthenticationSchemes(AuthPolicies.AdminScheme)
+        .RequireRole(nameof(AdminRole.SuperAdmin), nameof(AdminRole.Operator), nameof(AdminRole.Support)))
+    .AddPolicy(AuthPolicies.AdminFinance, p => p.AddAuthenticationSchemes(AuthPolicies.AdminScheme)
+        .RequireRole(nameof(AdminRole.SuperAdmin), nameof(AdminRole.Finance)));
 
 // ---------- Rate limiting ----------
 builder.Services.AddRateLimiter(options =>

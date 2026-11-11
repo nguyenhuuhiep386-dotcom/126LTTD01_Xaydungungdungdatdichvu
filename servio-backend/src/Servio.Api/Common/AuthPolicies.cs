@@ -10,6 +10,12 @@ public static class AuthPolicies
     /// <summary>Admin pages that change partners or the catalog, and KYC images: SUPER_ADMIN and OPERATOR only (F-PROF-04).</summary>
     public const string AdminOperator = "AdminOperator";
 
+    /// <summary>AW-08 disputes: SUPER_ADMIN, OPERATOR and SUPPORT.</summary>
+    public const string AdminSupport = "AdminSupport";
+
+    /// <summary>AW-18 debt payments: SUPER_ADMIN and FINANCE.</summary>
+    public const string AdminFinance = "AdminFinance";
+
     /// <summary>Cookie scheme of the admin Razor Pages (separate from the apps' JWT).</summary>
     public const string AdminScheme = "AdminCookie";
 }
