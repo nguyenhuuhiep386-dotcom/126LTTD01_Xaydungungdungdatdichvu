@@ -51,6 +51,10 @@ public static class ErrorCodes
     public const string GpsNotReliable = "GPS_NOT_RELIABLE";
     public const string ArrivalConfirmationNotAllowed = "ARRIVAL_CONFIRMATION_NOT_ALLOWED";
 
+    // M5/M6 COD, cancel, debts (BE-6)
+    public const string NoShowNotAllowed = "NO_SHOW_NOT_ALLOWED";
+    public const string NothingToPay = "NOTHING_TO_PAY";
+
     // Files (POST /files)
     public const string FileNotReady = "FILE_NOT_READY";
     public const string FileTooLarge = "FILE_TOO_LARGE";

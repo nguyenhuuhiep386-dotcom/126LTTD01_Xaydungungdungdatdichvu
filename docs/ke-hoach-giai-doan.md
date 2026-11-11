@@ -230,7 +230,7 @@ Giao diện chat dùng chung (DT-3) phải xong bằng dữ liệu giả trướ
 | BE-3 Chat | #54–#59, #61; `/hubs/chat`; hội thoại READ_ONLY | KH-4, DT-3 | 26/10 — **xong 08/10** |
 | BE-4 Tạo đơn và state machine | #43 (transaction, slot ≤ 3, chồng lịch), #62–#66, #69, #70, #73, #74; job hết hạn xác nhận; unit test | KH-5, DT-4 | 02/11 — **xong 20/10** |
 | BE-5 Tracking và check-in | `UpdateLocation`, #67, #68, #76, #77, #178, #179 | KH-5, DT-4 | 04/11 — **xong 11/11** |
-| BE-6 COD, huỷ, công nợ | #71 + auto-confirm, #72, #151, #152, #180, #155, #156; unit test công thức tiền 2.6.1 | KH-6, DT-5 | 06/11 |
+| BE-6 COD, huỷ, công nợ | #71 + auto-confirm, #72, #151, #152, #180, #155, #156; unit test công thức tiền 2.6.1 | KH-6, DT-5 | 06/11 — **xong 11/11** |
 | BE-7 Đánh giá, khiếu nại, thông báo | #95, #96, #100, #146–#148, #101–#104, FCM | KH-6, KH-7, DT-6 | 08/11 |
 | QT-2 Các trang vận hành | AW-02, AW-03, AW-06, AW-07, AW-08, AW-18 | Luồng demo bước 10 | 09/11 |
 

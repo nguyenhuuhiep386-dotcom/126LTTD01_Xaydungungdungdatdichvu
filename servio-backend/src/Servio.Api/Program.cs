@@ -21,6 +21,7 @@ using Servio.Api.Services.Catalog;
 using Servio.Api.Services.Feed;
 using Servio.Api.Services.Files;
 using Servio.Api.Services.Orders;
+using Servio.Api.Services.Wallets;
 using Servio.Api.Services.Partners;
 using Servio.Api.Services.Quotes;
 using Servio.Api.Services.Requests;
@@ -74,6 +75,9 @@ builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<AssignmentService>();
 builder.Services.AddScoped<ExtraChargeService>();
 builder.Services.AddScoped<TrackingService>();
+builder.Services.AddScoped<WalletService>();
+builder.Services.AddScoped<CompletionService>();
+builder.Services.AddScoped<CancellationService>();
 builder.Services.AddHostedService<ExpiryJob>();
 builder.Services.AddSignalR().AddJsonProtocol(options =>
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper)));

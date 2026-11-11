@@ -190,3 +190,32 @@ public sealed record TrackingDto(
 
 /// <summary>#77 ETA of one assignment for the customer.</summary>
 public sealed record EtaDto(Guid AssignmentId, int? EtaMinutes, double? DistanceKm, DateTimeOffset? UpdatedAt, bool IsStale);
+
+/// <summary>#71 confirm-completion. expectedRowVersion = rowVersion from #63.</summary>
+public sealed record ConfirmCompletionRequest([Required(ErrorMessage = "Thiếu phiên bản đơn")] string ExpectedRowVersion);
+
+/// <summary>Result of #71. CASH: paymentRequired is always false, the order is COMPLETED (v1.3).</summary>
+public sealed record CompletionResultDto(Guid OrderId, OrderStatus Status, bool PaymentRequired, long TotalAmount, long CustomerPayableTotal);
+
+/// <summary>One assignment in #151 (fee by the 2.5.2 table for its current status).</summary>
+public sealed record AssignmentFeeDto(Guid AssignmentId, OrderStatus Status, long Fee);
+
+/// <summary>#151 cancel-preview. Send rowVersion back as expectedRowVersion in #72 before expiresAt (60 s).</summary>
+public sealed record CancelPreviewDto(long Fee, IReadOnlyList<AssignmentFeeDto> AssignmentFees, string RowVersion, DateTimeOffset ExpiresAt);
+
+/// <summary>#72 customer cancels the whole order.</summary>
+public sealed record CancelOrderRequest(
+    [Required(ErrorMessage = "Hãy nhập lý do"), StringLength(500, MinimumLength = 3, ErrorMessage = "Lý do dài 3–500 ký tự")] string Reason,
+    [Required(ErrorMessage = "Thiếu phiên bản đơn")] string ExpectedRowVersion);
+
+/// <summary>#152 partner cancels their own assignment (ACCEPTED, ON_THE_WAY or ARRIVED).</summary>
+public sealed record PartnerCancelRequest(
+    [Required(ErrorMessage = "Hãy nhập lý do"), StringLength(500, MinimumLength = 3, ErrorMessage = "Lý do dài 3–500 ký tự")] string Reason);
+
+/// <summary>#180 customer-no-show. note is optional.</summary>
+public sealed record CustomerNoShowRequest([StringLength(500)] string? Note);
+
+public sealed record CancellationChargeDto(Guid Id, Guid AssignmentId, long Amount, CancellationReason Reason, CancellationChargeStatus Status);
+
+/// <summary>Result of #72 and #180.</summary>
+public sealed record CancelResultDto(Guid OrderId, OrderStatus Status, long CancellationFee, IReadOnlyList<CancellationChargeDto> Charges);

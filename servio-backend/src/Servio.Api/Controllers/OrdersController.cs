@@ -6,7 +6,7 @@ using Servio.Api.Services.Orders;
 namespace Servio.Api.Controllers;
 
 /// <summary>
-/// M5 — orders (#43, #62–#70, #73, #74, #76, #77, #178, #179). Status changes are pushed as OrderStatusChanged on /hubs/orders to
+/// M5 — orders (#43, #62–#74, #76, #77, #151, #152, #178–#180). Status changes are pushed as OrderStatusChanged on /hubs/orders to
 /// both sides; each action also writes a system line in their chat. Partner endpoints act on the partner's own assignment.
 /// </summary>
 [Authorize]
@@ -14,7 +14,9 @@ public sealed class OrdersController(
     OrderService orders,
     AssignmentService assignments,
     ExtraChargeService extraCharges,
-    TrackingService tracking) : ApiControllerBase
+    TrackingService tracking,
+    CompletionService completion,
+    CancellationService cancellation) : ApiControllerBase
 {
     /// <summary>
     /// #43 Choose a quote: creates the order with one PENDING assignment; the partner has 10 minutes to accept (#65).
@@ -114,6 +116,41 @@ public sealed class OrdersController(
     [Authorize(Policy = AuthPolicies.Partner)]
     public async Task<ActionResult<ApiResponse<OrderStatusChangedDto>>> Complete(Guid id, Guid aid, CompleteWorkRequest request, CancellationToken ct) =>
         OkEnvelope(await assignments.CompleteAsync(CurrentUserId, id, aid, request, ct));
+
+    /// <summary>
+    /// #71 The customer confirms the work is done and paid in cash (CS-23): the order is COMPLETED and the partner's
+    /// commission debt is recorded. expectedRowVersion = rowVersion from #63.
+    /// </summary>
+    [HttpPost("api/v1/orders/{id:guid}/confirm-completion")]
+    [Authorize(Policy = AuthPolicies.Customer)]
+    public async Task<ActionResult<ApiResponse<CompletionResultDto>>> ConfirmCompletion(Guid id, ConfirmCompletionRequest request, CancellationToken ct) =>
+        OkEnvelope(await completion.ConfirmAsync(CurrentUserId, id, request, ct));
+
+    /// <summary>#151 Fee the customer would pay to cancel now (2.5.2). Valid 60 s; send rowVersion to #72.</summary>
+    [HttpGet("api/v1/orders/{id:guid}/cancel-preview")]
+    [Authorize(Policy = AuthPolicies.Customer)]
+    public async Task<ActionResult<ApiResponse<CancelPreviewDto>>> CancelPreview(Guid id, CancellationToken ct) =>
+        OkEnvelope(await cancellation.PreviewAsync(CurrentUserId, id, ct));
+
+    /// <summary>#72 The customer cancels the order. 422 ORDER_NOT_CANCELLABLE once work started; 409 when the fee changed.</summary>
+    [HttpPost("api/v1/orders/{id:guid}/cancel")]
+    [Authorize(Policy = AuthPolicies.Customer)]
+    public async Task<ActionResult<ApiResponse<CancelResultDto>>> Cancel(Guid id, CancelOrderRequest request, CancellationToken ct) =>
+        OkEnvelope(await cancellation.CancelAsync(CurrentUserId, id, request, ct));
+
+    /// <summary>#152 The partner cancels their accepted part (before starting work). No fee for the customer.</summary>
+    [HttpPost("api/v1/orders/{id:guid}/assignments/{aid:guid}/cancel")]
+    [Authorize(Policy = AuthPolicies.Partner)]
+    public async Task<ActionResult<ApiResponse<OrderStatusChangedDto>>> PartnerCancel(Guid id, Guid aid, PartnerCancelRequest request, CancellationToken ct) =>
+        OkEnvelope(await cancellation.PartnerCancelAsync(CurrentUserId, id, aid, request, ct));
+
+    /// <summary>
+    /// #180 "Khách không có mặt": arrived by GPS, waited 15 minutes and messaged the customer. The customer owes the ARRIVED fee.
+    /// </summary>
+    [HttpPost("api/v1/orders/{id:guid}/assignments/{aid:guid}/customer-no-show")]
+    [Authorize(Policy = AuthPolicies.Partner)]
+    public async Task<ActionResult<ApiResponse<CancelResultDto>>> CustomerNoShow(Guid id, Guid aid, CustomerNoShowRequest request, CancellationToken ct) =>
+        OkEnvelope(await cancellation.CustomerNoShowAsync(CurrentUserId, id, aid, request, ct));
 
     /// <summary>#73 Ask the customer to approve an extra charge (ARRIVED or IN_PROGRESS). The customer gets ExtraChargeRequested.</summary>
     [HttpPost("api/v1/orders/{id:guid}/extra-charges")]

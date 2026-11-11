@@ -106,6 +106,7 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 | BE-3: chat #54–#59, #61; hội thoại chỉ đọc khi bài bị huỷ/hết hạn | Xong, có trên Swagger |
 | BE-4: #43 chọn báo giá tạo đơn; #62–#64 danh sách, chi tiết, lịch sử đơn; #65, #66 đối tác nhận/từ chối; #69, #70 bắt đầu/hoàn thành; #73, #74 phát sinh; job tự huỷ đơn quá 10 phút chưa xác nhận | Xong, có trên Swagger |
 | BE-5: #67 bắt đầu di chuyển; hub method `UpdateLocation`; #76, #77 vị trí và ETA (Haversine ÷ 25 km/h); #68 check-in GPS chặn cứng; #178, #179 nhờ khách xác nhận đã đến | Xong, có trên Swagger; chưa kiểm Play Integrity (demo tắt) và không lưu các lần check-in bị từ chối (bảng CheckInAttempts ngoài phạm vi) |
+| BE-6: #71 khách xác nhận hoàn thành COD (ghi giao dịch tiền mặt và công nợ hoa hồng) + job tự xác nhận; #151, #72 khách huỷ có phí; #152 đối tác huỷ; #180 khách không có mặt; #87, #88, #155, #156 ví, công nợ và khai báo chuyển khoản; hàm xác nhận/từ chối trả nợ cho AW-18 (cấn trừ tự động) | Xong, có trên Swagger; trang AW-18 thuộc QT-2 |
 | Android `:core`: design system, Retrofit, token + tự refresh, xử lý mất mạng | Xong |
 | Màn CS-01, CS-03, CS-04, CS-05 (dùng chung, gọi API thật) | Xong |
 | CS-06 Trang chủ (API thật), CS-14 Yêu cầu của tôi (dữ liệu giả), PS-07 Newsfeed (dữ liệu giả) | Xong, làm mẫu |
@@ -143,6 +144,10 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
   - **Di chuyển (DT-4):** sau #67, foreground service gọi hub method `UpdateLocation(assignmentId, latitude, longitude, accuracy, capturedAt)` trên `/hubs/orders` mỗi 10 giây. Trả `false` khi điểm cũ hơn điểm đã lưu (bỏ qua). Nhận `HubException` bắt đầu bằng `INVALID_STATUS_TRANSITION` thì dừng service (đã đến, đơn bị huỷ hoặc đang khiếu nại).
   - **Theo dõi (CS-21):** gọi #76 khi mở màn, sau đó cập nhật marker theo `PartnerLocationUpdated`. `location` chỉ có khi đối tác đang ON_THE_WAY. `isStale = true` (điểm cũ hơn 30 giây) thì hiện "Chưa cập nhật" và không đếm ngược ETA.
   - **Đã đến (#68):** gửi `{ latitude, longitude, accuracy, capturedAt, isMock }`. Lỗi 422 `TOO_FAR_FROM_ADDRESS` hoặc `GPS_NOT_RELIABLE` thì hiện nút "Nhờ khách xác nhận" (#178). Lỗi `MOCK_LOCATION_DETECTED` thì không hiện nút này.
+  - **Hoàn tất (CS-23, #71):** gửi `{ expectedRowVersion }` lấy `rowVersion` từ #63. Đơn chuyển COMPLETED ngay (tiền mặt), công nợ hoa hồng của đối tác tăng K (ví dụ 630.000 → 94.500). Không bấm thì job tự xác nhận lúc `autoConfirmAt` (rút ngắn khi demo bằng `order.auto_confirm_hours` trong SystemConfigs).
+  - **Huỷ (khách):** gọi #151 để hiện phí, rồi #72 với `{ reason, expectedRowVersion: rowVersion của #151 }`. Phí: 0 đ khi chưa di chuyển, 20.000 đ khi đang di chuyển, max(30.000 đ, 20% giá) khi đã đến; từ lúc bắt đầu làm thì 422 `ORDER_NOT_CANCELLABLE`.
+  - **Huỷ (đối tác) #152** từ ACCEPTED đến ARRIVED, không thu phí khách. **Khách không có mặt #180:** đến bằng GPS, chờ 15 phút và đã nhắn tin cho khách sau khi đến; sai điều kiện trả 422 `NO_SHOW_NOT_ALLOWED` kèm lý do.
+  - **Công nợ (CS-30, PS-21):** #87 số dư, #155 danh sách khoản nợ, #156 khai báo chuyển khoản `{ debtIds, bankTransferReference, evidenceUrl }` (ảnh tải lên với purpose `DISPUTE_EVIDENCE`; đối tác không gửi `debtIds`). Admin xác nhận trên AW-18 thì khoản nợ mới giảm.
   - **Khách xác nhận (#178, #179):** mỗi lần chờ tối đa 300 giây, tối đa 3 lần cho một phần việc. Khi demo trong lớp, dùng đường này vì điện thoại đối tác không ở gần địa chỉ đơn.
 
 ## 6. Quy ước

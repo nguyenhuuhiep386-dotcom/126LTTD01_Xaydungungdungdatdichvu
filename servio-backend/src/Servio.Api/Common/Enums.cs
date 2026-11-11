@@ -68,6 +68,25 @@ public enum PaymentMethod : byte { Cash = 1 }
 
 public enum PaymentStatus : byte { Unpaid = 1, Processing = 2, Paid = 3 }
 
+/// <summary>Transactions.Type (course scope: COD payment and debt payment).</summary>
+public enum TransactionType : byte { Payment = 1, DebtPayment = 5 }
+
+public enum TransactionProvider : byte { Cash = 1, BankTransfer = 6, InternalOffset = 7 }
+
+public enum TransactionStatus : byte { Pending = 1, Success = 3, Failed = 4, Cancelled = 5 }
+
+/// <summary>WalletTransactions.Type. DEBT_PAYMENT (5) is the ledger side of a successful debt payment (2.6.1).</summary>
+public enum WalletTransactionType : byte { OrderEarning = 3, Commission = 4, DebtPayment = 5, CancellationFee = 7, Adjustment = 8 }
+
+public enum LedgerDirection : byte { Credit = 1, Debit = 2 }
+
+public enum WalletBucket : byte { Available = 1, Debt = 3 }
+
+/// <summary>CancellationCharges.Status. A DUE charge with CollectedTransactionId set is waiting for the admin (AW-18).</summary>
+public enum CancellationChargeStatus : byte { Due = 1, Paid = 2, Waived = 3 }
+
+public enum CancellationReason : byte { CustomerCancel = 1, CustomerNoShow = 2 }
+
 public enum DisputeStatus : byte { Open = 1, InReview = 2, Resolved = 3, Rejected = 4 }
 
 public enum DisputeReason : byte { WorkQuality = 1, NoShow = 2, Overcharge = 3, Damage = 4, Behavior = 5, Payment = 6, UnpaidCash = 7, Other = 99 }

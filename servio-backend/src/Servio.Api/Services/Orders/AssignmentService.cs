@@ -40,7 +40,7 @@ public sealed class AssignmentService(
     /// <summary>
     /// #66 PENDING → CANCELLED by the partner, free of charge. The order is cancelled with it (one partner per order);
     /// the post stays MATCHED (2.5.1), the customer posts again to find someone else.
-    /// Cancelling after ACCEPTED is #152 with the 2.5.2 policy (BE-6).
+    /// Cancelling after ACCEPTED is #152 (CancellationService).
     /// </summary>
     public async Task RejectAsync(Guid userId, Guid orderId, Guid assignmentId, RejectAssignmentRequest input, CancellationToken ct)
     {
@@ -72,7 +72,7 @@ public sealed class AssignmentService(
 
     /// <summary>
     /// #70 IN_PROGRESS → COMPLETED_BY_PARTNER with at least one AFTER photo and no extra charge waiting for the customer.
-    /// The order gets AutoConfirmAt = now + order.auto_confirm_hours (confirming is #71, BE-6).
+    /// The order gets AutoConfirmAt = now + order.auto_confirm_hours (confirming is #71, CompletionService).
     /// </summary>
     public async Task<OrderStatusChangedDto> CompleteAsync(Guid userId, Guid orderId, Guid assignmentId, CompleteWorkRequest input, CancellationToken ct)
     {
