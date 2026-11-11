@@ -9,7 +9,7 @@ namespace Servio.Api.Services.Orders;
 
 /// <summary>
 /// Partner side of an assignment: #65 accept, #66 reject, #69 start work, #70 complete (2.5.1), plus the 10-minute
-/// acceptance timeout run by the background job. Moving and arriving (#67, #68) belong to BE-5.
+/// acceptance timeout run by the background job. Moving and arriving (#67, #68) are in TrackingService.
 /// </summary>
 public sealed class AssignmentService(
     ServioDbContext db,

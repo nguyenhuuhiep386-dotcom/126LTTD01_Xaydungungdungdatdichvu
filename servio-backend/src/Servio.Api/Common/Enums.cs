@@ -72,6 +72,12 @@ public enum DisputeStatus : byte { Open = 1, InReview = 2, Resolved = 3, Rejecte
 
 public enum DisputeReason : byte { WorkQuality = 1, NoShow = 2, Overcharge = 3, Damage = 4, Behavior = 5, Payment = 6, UnpaidCash = 7, Other = 99 }
 
+/// <summary>OrderAssignments.ArrivalMethod: check-in by GPS (#68) or confirmed by the customer (#179).</summary>
+public enum ArrivalMethod : byte { Gps = 1, Customer = 2 }
+
+/// <summary>ArrivalConfirmationRequests.Status</summary>
+public enum ArrivalConfirmationStatus : byte { Pending = 1, Confirmed = 2, Denied = 3, Expired = 4, Cancelled = 5 }
+
 public enum ActorType : byte { Customer = 1, Partner = 2, System = 3, Admin = 4 }
 
 /// <summary>Parses UPPER_SNAKE_CASE values from query strings and multipart forms (JSON bodies use the converter in Program.cs).</summary>
