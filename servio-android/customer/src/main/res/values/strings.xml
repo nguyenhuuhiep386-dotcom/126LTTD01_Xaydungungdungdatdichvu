@@ -35,9 +35,22 @@
 
     <!-- CS-14 My requests -->
     <string name="requests_title">Yêu cầu của tôi</string>
-    <string name="requests_fake_note">Dữ liệu mẫu (FakeServiceRequestRepository)</string>
-    <string name="requests_empty">Bạn chưa có yêu cầu nào</string>
+    <string name="requests_tab_open">Đang mở</string>
+    <string name="requests_tab_matched">Đã ghép</string>
+    <string name="requests_tab_history">Lịch sử</string>
+    <string name="requests_tab_with_count">%1$s (%2$d)</string>
+    <string name="requests_empty_open">Bạn chưa có yêu cầu nào đang mở</string>
+    <string name="requests_empty_matched">Chưa có yêu cầu nào đã ghép với người làm</string>
+    <string name="requests_empty_history">Chưa có yêu cầu nào hết hạn hoặc đã huỷ</string>
+    <string name="requests_meta">%1$s · %2$s</string>
+    <string name="requests_waiting_quotes">Chờ báo giá</string>
     <string name="requests_quotes">%1$d báo giá</string>
+    <string name="requests_status_draft">Đang kiểm duyệt</string>
+    <string name="requests_status_open">Đang mở</string>
+    <string name="requests_status_matched">Đã ghép</string>
+    <string name="requests_status_expired">Hết hạn</string>
+    <string name="requests_status_cancelled">Đã huỷ</string>
+    <string name="requests_status_rejected">Không được duyệt</string>
 
     <!-- CS-29 Account -->
     <string name="account_title">Tài khoản</string>

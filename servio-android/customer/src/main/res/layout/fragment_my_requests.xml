@@ -15,13 +15,7 @@
         android:text="@string/requests_title"
         android:textAppearance="@style/TextAppearance.Servio.ScreenTitle" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:text="@string/requests_fake_note"
-        android:textAppearance="@style/TextAppearance.Servio.Accent" />
-
+    <!-- Tabs are added in MyRequestsFragment (title + totalCount of #37). -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
         android:layout_width="match_parent"
@@ -30,26 +24,7 @@
         android:background="@color/servio_background"
         app:tabIndicatorColor="@color/servio_text_accent"
         app:tabSelectedTextColor="@color/servio_text_primary"
-        app:tabTextColor="@color/servio_text_secondary">
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Đang mở"
-            tools:ignore="HardcodedText" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Đã ghép"
-            tools:ignore="HardcodedText" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Lịch sử"
-            tools:ignore="HardcodedText" />
-    </com.google.android.material.tabs.TabLayout>
+        app:tabTextColor="@color/servio_text_secondary" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
@@ -69,15 +44,32 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_request" />
 
-            <TextView
-                android:id="@+id/message"
+            <!-- Empty tab or failed load (the button only for a failure). -->
+            <LinearLayout
+                android:id="@+id/stateGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:gravity="center"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
                 android:padding="@dimen/screen_padding"
-                android:textAppearance="@style/TextAppearance.Servio.Caption"
-                android:visibility="gone" />
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/retryButton"
+                    style="@style/Widget.Servio.Button.Outlined"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_m"
+                    android:text="@string/action_retry" />
+            </LinearLayout>
         </FrameLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>
