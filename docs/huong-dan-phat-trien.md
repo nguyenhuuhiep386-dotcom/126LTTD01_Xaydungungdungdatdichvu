@@ -140,6 +140,7 @@ Các đối tác để Offline sau khi seed; bật Online trong app khi demo. �
 | BE-5: #67 bắt đầu di chuyển; hub method `UpdateLocation`; #76, #77 vị trí và ETA (Haversine ÷ 25 km/h); #68 check-in GPS chặn cứng; #178, #179 nhờ khách xác nhận đã đến | Xong, có trên Swagger; chưa kiểm Play Integrity (demo tắt) và không lưu các lần check-in bị từ chối (bảng CheckInAttempts ngoài phạm vi) |
 | BE-6: #71 khách xác nhận hoàn thành COD (ghi giao dịch tiền mặt và công nợ hoa hồng) + job tự xác nhận; #151, #72 khách huỷ có phí; #152 đối tác huỷ; #180 khách không có mặt; #87, #88, #155, #156 ví, công nợ và khai báo chuyển khoản; hàm xác nhận/từ chối trả nợ cho AW-18 (cấn trừ tự động) | Xong, có trên Swagger |
 | BE-7: #95, #96, #100 đánh giá hai chiều (rating trung bình); #146–#148 khiếu nại (đơn DISPUTED, tạm dừng tự xác nhận) + hàm admin chốt khiếu nại cho AW-08; #101–#104 thông báo; gửi FCM HTTP v1 cho báo giá mới, đơn đổi trạng thái, phát sinh, xác nhận đã đến, đánh giá, kết quả KYC, kết quả trả nợ | Xong, có trên Swagger; chưa gửi thông báo cho bài mới (NEW_POST_MATCH) và tin nhắn chat (đã có SignalR) |
+| #177 "Khách chưa thanh toán": đối tác báo trong lúc chờ khách xác nhận hoặc ≤ 24 giờ sau khi hoàn tất → khiếu nại UNPAID_CASH; admin xác nhận chưa trả thì đảo giao dịch tiền mặt và nợ hoa hồng, đơn chuyển AWAITING_PAYMENT, khách bị chặn đăng bài; khách trả xong thì FINANCE xác nhận ở AW-07 | Xong, có trên Swagger |
 | Android `:core`: design system, Retrofit, token + tự refresh, xử lý mất mạng | Xong |
 | Màn CS-01, CS-03, CS-04, CS-05 (dùng chung, gọi API thật) | Xong |
 | CS-06 Trang chủ (API thật), CS-14 Yêu cầu của tôi (dữ liệu giả), PS-07 Newsfeed (dữ liệu giả) | Xong, làm mẫu |
@@ -189,6 +190,7 @@ Các đối tác để Offline sau khi seed; bật Online trong app khi demo. �
   - **Công nợ (CS-30, PS-21):** #87 số dư, #155 danh sách khoản nợ, #156 khai báo chuyển khoản `{ debtIds, bankTransferReference, evidenceUrl }` (ảnh tải lên với purpose `DISPUTE_EVIDENCE`; đối tác không gửi `debtIds`). Admin xác nhận trên AW-18 thì khoản nợ mới giảm.
   - **Đánh giá (CS-26, PS-27):** sau khi đơn COMPLETED, trong 5 ngày. Khách gửi `rating` và 4 tiêu chí; đối tác gửi `rating` và `tags` (ví dụ `PAID_ON_TIME`, `ACCURATE_DESCRIPTION`, `FRIENDLY`). #100 trả danh sách đơn chờ đánh giá để hiện nhắc nhở.
   - **Khiếu nại (CS-33):** #146 `{ reason, description, evidenceUrls }` (ảnh purpose `DISPUTE_EVIDENCE`). Đơn chuyển DISPUTED, mọi thao tác trả 409 `ORDER_DISPUTED` cho tới khi admin xử lý trên AW-08; sau đó đơn về trạng thái cũ.
+  - **Khách chưa trả tiền (#177, PS-14):** đối tác gọi `POST /orders/{id}/assignments/{aid}/report-unpaid` `{ note, evidenceUrls }` từ lúc báo hoàn thành tới 24 giờ sau khi đơn hoàn tất; quá hạn 422 `UNPAID_REPORT_WINDOW_CLOSED`, đang có khiếu nại 409 `DISPUTE_ALREADY_OPEN`. Đơn ở `AWAITING_PAYMENT` nghĩa là khách còn nợ đối tác: app khách nên hiện nhắc thanh toán.
   - **Khách xác nhận (#178, #179):** mỗi lần chờ tối đa 300 giây, tối đa 3 lần cho một phần việc. Khi demo trong lớp, dùng đường này vì điện thoại đối tác không ở gần địa chỉ đơn.
 
 ## 6. Quy ước

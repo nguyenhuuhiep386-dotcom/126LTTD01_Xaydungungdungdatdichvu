@@ -1,5 +1,5 @@
 """
-Servio — chạy thử luồng demo 10 bước (spec v1.4 mục 0.2.8) qua HTTP, đúng như hai app và trang quản trị gọi.
+Servio — chạy thử luồng demo 10 bước (spec v1.4 mục 0.2.8) và #177 qua HTTP, đúng như hai app và trang quản trị gọi.
 
 Dùng trước buổi demo để chắc backend + CSDL trên laptop chạy trọn luồng:
     python servio-backend/tools/demo_smoke.py                       # backend ở http://localhost:5080
@@ -285,8 +285,19 @@ def main():
     assert api("GET", "/wallet/me", partner)["debtBalance"] == 74_500  # 20.000 bù phí huỷ tự cấn trừ nợ (2.6.1)
     ok("khách hết nợ phí huỷ; đối tác được bù 20.000 đ, nợ còn 74.500 đ")
 
+    # ---------- (11) #177: đối tác báo khách chưa trả tiền mặt ----------
+    step("#177 Đối tác báo khách chưa thanh toán, admin xác nhận rồi ghi nhận khách đã trả")
+    report = api("POST", f"/orders/{order_id}/assignments/{assignment_id}/report-unpaid", partner,
+                 {"note": "Khách hẹn chuyển khoản sau nhưng chưa thấy tiền về."}, expect=201)
+    admin.post(f"/admin/disputes/{report['id']}?handler=Resolve", {"upheld": "true", "note": "Khách xác nhận chưa trả."})
+    assert api("GET", f"/orders/{order_id}", customer)["status"] == "AWAITING_PAYMENT"
+    expect_error("OUTSTANDING_DEBT", lambda: post("Bài mới khi còn nợ"))
+    admin.post(f"/admin/orders/{order_id}?handler=ConfirmCollected", {}, page=f"/admin/orders/{order_id}")
+    assert api("GET", f"/orders/{order_id}", customer)["status"] == "COMPLETED"
+    ok("đơn chờ thanh toán → khách trả → COMPLETED")
+
     unread = api("GET", "/notifications/unread-count", customer)["total"]
-    print(f"\nĐẠT cả 10 bước trong {time.time() - started:.1f} s (khách có {unread} thông báo chưa đọc).")
+    print(f"\nĐẠT cả 10 bước + #177 trong {time.time() - started:.1f} s (khách có {unread} thông báo chưa đọc).")
 
 
 if __name__ == "__main__":
