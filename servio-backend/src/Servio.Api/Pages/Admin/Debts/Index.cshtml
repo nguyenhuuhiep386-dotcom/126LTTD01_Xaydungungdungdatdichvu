@@ -1,0 +1,127 @@
+@page
+@model Servio.Api.Pages.Admin.Debts.IndexModel
+@using Servio.Api.Pages.Admin
+@using DebtTab = Servio.Api.Pages.Admin.Debts.IndexModel.DebtTab
+@{
+    ViewData["Title"] = "Công nợ & trả nợ";
+    var tabs = new (DebtTab Tab, string Label)[]
+    {
+        (DebtTab.Pending, "Chờ xác nhận"),
+        (DebtTab.Partners, "Nợ hoa hồng đối tác"),
+        (DebtTab.Customers, "Phí huỷ khách chưa trả"),
+        (DebtTab.History, "Đã xử lý"),
+    };
+}
+@if (Model.Flash is not null) { <p class="flash" role="status">@Model.Flash</p> }
+@if (Model.Error is not null) { <p class="alert" role="alert">@Model.Error</p> }
+
+<nav class="tabs" aria-label="Công nợ">
+    @foreach (var t in tabs)
+    {
+        <a class="tab @(t.Tab == Model.Tab ? "active" : "")" href="?tab=@t.Tab">@t.Label</a>
+    }
+</nav>
+
+@if (Model.Tab is DebtTab.Pending or DebtTab.History)
+{
+    @if (Model.Payments.Count == 0)
+    {
+        <div class="card empty"><h2>Không có giao dịch nào</h2></div>
+    }
+    else
+    {
+        <table class="table">
+            <thead><tr><th>Mã</th><th>Người trả</th><th>Khoản</th><th>Số tiền</th><th>Mã chuyển khoản</th><th>Chứng từ</th><th>Khai báo lúc</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var p in Model.Payments)
+            {
+                <tr>
+                    <td><strong>@p.Code</strong></td>
+                    <td>@p.Payer<div class="muted">@p.Phone</div></td>
+                    <td>@(p.ForCancellationFees ? $"Phí huỷ ({p.Charges} khoản)" : "Nợ hoa hồng")</td>
+                    <td><strong>@AdminText.Vnd(p.Amount)</strong></td>
+                    <td>@p.Reference</td>
+                    <td>
+                        @if (p.EvidenceFileId is { } fileId)
+                        {
+                            <a href="/admin/files/@fileId" target="_blank" rel="noopener"><img class="thumb" src="/admin/files/@fileId" alt="Ảnh chứng từ @p.Code" loading="lazy" /></a>
+                        }
+                    </td>
+                    <td class="muted">@AdminText.Time(p.CreatedAt)</td>
+                    <td>
+                        @if (p.Status == TransactionStatus.Pending)
+                        {
+                            <form method="post" asp-page-handler="Confirm" asp-route-id="@p.Id" asp-route-tab="@Model.Tab">
+                                <button class="btn btn-primary" type="submit">Đã nhận tiền</button>
+                            </form>
+                            <details class="inline-action">
+                                <summary class="btn btn-ghost btn-danger">Từ chối</summary>
+                                <form method="post" asp-page-handler="Reject" asp-route-id="@p.Id" asp-route-tab="@Model.Tab">
+                                    <input name="reason" required minlength="3" placeholder="Lý do (người trả sẽ thấy)" aria-label="Lý do từ chối" />
+                                    <button class="btn btn-danger-solid" type="submit">Xác nhận từ chối</button>
+                                </form>
+                            </details>
+                        }
+                        else
+                        {
+                            <span class="badge @(p.Status == TransactionStatus.Success ? "badge-success" : "badge-error")">@(p.Status == TransactionStatus.Success ? "Đã xác nhận" : "Từ chối")</span>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+}
+else if (Model.Tab == DebtTab.Partners)
+{
+    @if (Model.PartnerDebts.Count == 0)
+    {
+        <div class="card empty"><h2>Không đối tác nào đang nợ</h2></div>
+    }
+    else
+    {
+        <p class="muted">Nợ vượt @AdminText.Vnd(Model.MaxPartnerDebt) bị chặn nhận việc mới.</p>
+        <table class="table">
+            <thead><tr><th>Đối tác</th><th>Nợ hoa hồng</th><th>Số dư khả dụng</th><th>Cập nhật</th></tr></thead>
+            <tbody>
+            @foreach (var w in Model.PartnerDebts)
+            {
+                <tr>
+                    <td>@w.Name<div class="muted">@w.Phone</div></td>
+                    <td><strong class="@(w.Debt > Model.MaxPartnerDebt ? "overdue" : "")">@AdminText.Vnd(w.Debt)</strong>@(w.Debt > Model.MaxPartnerDebt ? " · đang bị chặn" : "")</td>
+                    <td>@AdminText.Vnd(w.Available)</td>
+                    <td class="muted">@AdminText.Time(w.UpdatedAt)</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+}
+else
+{
+    @if (Model.Fees.Count == 0)
+    {
+        <div class="card empty"><h2>Không có phí huỷ chưa trả</h2></div>
+    }
+    else
+    {
+        <table class="table">
+            <thead><tr><th>Khách</th><th>Đơn</th><th>Loại</th><th>Đối tác được bù</th><th>Số tiền</th><th>Tình trạng</th><th>Phát sinh</th></tr></thead>
+            <tbody>
+            @foreach (var f in Model.Fees)
+            {
+                <tr>
+                    <td>@f.Customer<div class="muted">@f.Phone</div></td>
+                    <td><a href="/admin/orders/@f.OrderId">@f.OrderCode</a></td>
+                    <td>@(f.NoShow ? "Khách không có mặt" : "Khách huỷ")</td>
+                    <td>@f.Partner</td>
+                    <td>@AdminText.Vnd(f.Amount)</td>
+                    <td>@(f.Declared ? "Đã khai báo, chờ xác nhận" : "Chưa trả")</td>
+                    <td class="muted">@AdminText.Time(f.CreatedAt)</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+}

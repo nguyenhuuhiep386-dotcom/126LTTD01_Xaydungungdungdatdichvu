@@ -1,0 +1,67 @@
+@page
+@model Servio.Api.Pages.Admin.Requests.IndexModel
+@using Servio.Api.Pages.Admin
+@{
+    ViewData["Title"] = "Bài đăng";
+}
+@if (Model.Flash is not null) { <p class="flash" role="status">@Model.Flash</p> }
+@if (Model.Error is not null) { <p class="alert" role="alert">@Model.Error</p> }
+
+<nav class="tabs" aria-label="Trạng thái bài">
+    @foreach (var tab in Servio.Api.Pages.Admin.Requests.IndexModel.Tabs)
+    {
+        <a class="tab @(tab.Status == Model.Status ? "active" : "")" href="?status=@(tab.Status?.ToString() ?? "")">@tab.Label</a>
+    }
+</nav>
+<form method="get" class="toolbar filters">
+    <input type="hidden" name="status" value="@Model.Status" />
+    <input type="search" name="q" value="@Model.Q" placeholder="Mã bài hoặc tiêu đề" aria-label="Tìm bài đăng" />
+    <button class="btn btn-ghost" type="submit">Tìm</button>
+    <span class="muted">@Model.Total bài</span>
+</form>
+
+@if (Model.Rows.Count == 0)
+{
+    <div class="card empty"><h2>Không có bài đăng nào</h2></div>
+}
+else
+{
+    <table class="table">
+        <thead><tr><th>Mã / tiêu đề</th><th>Dịch vụ</th><th>Khách</th><th>Báo giá</th><th>Trạng thái</th><th>Đăng lúc</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var r in Model.Rows)
+        {
+            <tr>
+                <td>
+                    <div class="muted">@r.Code</div>
+                    <strong>@r.Title</strong>
+                    <details><summary class="muted">Mô tả</summary><p>@r.Description</p></details>
+                    @if (r.Note is not null) { <div class="muted">Ghi chú: @r.Note</div> }
+                </td>
+                <td>@r.Category</td>
+                <td>@r.Customer<div class="muted">@r.Phone</div></td>
+                <td>@r.Quotes</td>
+                <td>@AdminText.Badge(r.Status)</td>
+                <td class="muted">@AdminText.Time(r.CreatedAt)</td>
+                <td>
+                    @if (r.OrderId is { } orderId)
+                    {
+                        <a class="btn btn-ghost" href="/admin/orders/@orderId">Xem đơn</a>
+                    }
+                    @if (r.Status == ServiceRequestStatus.Open)
+                    {
+                        <details class="inline-action">
+                            <summary class="btn btn-ghost btn-danger">Ẩn bài</summary>
+                            <form method="post" asp-page-handler="Hide" asp-route-id="@r.Id" asp-route-status="@Model.Status" asp-route-q="@Model.Q" asp-route-p="@Model.PageNumber">
+                                <input name="reason" required minlength="3" placeholder="Lý do (khách sẽ thấy)" aria-label="Lý do ẩn" />
+                                <button class="btn btn-danger-solid" type="submit">Xác nhận ẩn</button>
+                            </form>
+                        </details>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <partial name="_Pager" model="(Model.PageNumber, (int)Math.Ceiling(Model.Total / (double)Servio.Api.Pages.Admin.Requests.IndexModel.PageSize))" />
+}

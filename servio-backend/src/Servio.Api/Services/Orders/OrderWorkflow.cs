@@ -5,6 +5,7 @@ using Servio.Api.Data;
 using Servio.Api.Data.Entities;
 using Servio.Api.Hubs;
 using Servio.Api.Services.Chat;
+using Servio.Api.Services.Notifications;
 
 namespace Servio.Api.Services.Orders;
 
@@ -16,6 +17,7 @@ public sealed class OrderWorkflow(
     ServioDbContext db,
     ChatService chat,
     IRealtimeNotifier notifier,
+    NotificationService notifications,
     SystemConfigService configs,
     TimeProvider clock,
     ILogger<OrderWorkflow> logger)
@@ -74,7 +76,23 @@ public sealed class OrderWorkflow(
             }
         }
         order.UpdatedAt = now;
-        return new OrderStatusChangedDto(order.Id, assignment.Id, after, to, now);
+        return new OrderStatusChangedDto(order.Id, assignment.Id, after, to, now, by);
+    }
+
+    /// <summary>
+    /// Order-level move that does not come from an assignment (dispute opened or closed): writes one history row with
+    /// assignmentId null. The returned change carries <paramref name="assignment"/> so the apps can refresh it.
+    /// </summary>
+    public OrderStatusChangedDto SetOrderStatus(Order order, OrderAssignment assignment, OrderStatus to, ActorType by,
+        Guid? userId, Guid? adminId, string? note)
+    {
+        var now = clock.GetUtcNow();
+        var from = (OrderStatus)order.Status;
+        AddHistory(order, null, from, to, by, userId, note, now);
+        order.OrderStatusHistories.Last().ChangedByAdminId = adminId;
+        order.Status = (byte)to;
+        order.UpdatedAt = now;
+        return new OrderStatusChangedDto(order.Id, assignment.Id, to, (OrderStatus)assignment.Status, now, by);
     }
 
     /// <summary>
@@ -98,17 +116,32 @@ public sealed class OrderWorkflow(
         order.PartnerEarning = live.Sum(a => a.Earning);
     }
 
-    /// <summary>After commit: OrderStatusChanged to both sides, then an optional system line in their chat.</summary>
+    /// <summary>
+    /// After commit: OrderStatusChanged to both sides, an optional system line in their chat, and an inbox + push
+    /// notification (ORDER_STATUS_CHANGED) to the side that did not make the change (both when SYSTEM/ADMIN did).
+    /// </summary>
     public async Task PublishAsync(Order order, OrderAssignment assignment, OrderStatusChangedDto change, string? systemMessage, CancellationToken ct)
     {
-        await notifier.OrderEventAsync(
-            [(AppFlavor.Customer, order.Customer.UserId), (AppFlavor.Partner, assignment.PartnerProfile.UserId)],
-            RealtimeEvents.OrderStatusChanged, change, ct);
+        (AppFlavor, Guid) customer = (AppFlavor.Customer, order.Customer.UserId);
+        (AppFlavor, Guid) partner = (AppFlavor.Partner, assignment.PartnerProfile.UserId);
+        await notifier.OrderEventAsync([customer, partner], RealtimeEvents.OrderStatusChanged, change, ct);
         if (systemMessage is not null)
         {
             await SystemMessageAsync(order.ServiceRequestId, assignment.PartnerProfileId, systemMessage, ct);
         }
+        IReadOnlyList<(AppFlavor, Guid)> to = change.ChangedBy switch
+        {
+            ActorType.Customer => [partner],
+            ActorType.Partner => [customer],
+            _ => [customer, partner],
+        };
+        await NotifyOrderAsync(order, to, systemMessage ?? "Trạng thái đơn đã thay đổi.", ct);
     }
+
+    /// <summary>Inbox + push about an order: title "Đơn OD…", opens the order screen (deepLink orders/{id}).</summary>
+    public Task NotifyOrderAsync(Order order, IReadOnlyList<(AppFlavor Flavor, Guid UserId)> to, string body, CancellationToken ct,
+        NotificationType type = NotificationType.OrderStatusChanged) =>
+        notifications.SendAsync(to, type, $"Đơn {order.Code}", body, new { orderId = order.Id }, $"orders/{order.Id}", ct);
 
     /// <summary>The order change is already saved, so a failed chat line is only logged (spec 0.2.7 ý 12).</summary>
     public async Task SystemMessageAsync(Guid serviceRequestId, Guid partnerProfileId, string text, CancellationToken ct)

@@ -4,6 +4,7 @@ using Servio.Api.Data;
 using Servio.Api.Data.Entities;
 using Servio.Api.Hubs;
 using Servio.Api.Services.Feed;
+using Servio.Api.Services.Admin;
 using Servio.Api.Services.Files;
 using Servio.Api.Services.Users;
 
@@ -180,6 +181,36 @@ public sealed class ServiceRequestService(
         {
             request.Customer.User.PostingRestrictedUntil = now.AddHours(24);
         }
+        await db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
+    /// AW-06: an admin hides an OPEN post that breaks the rules (0.2.7 ý 1) → REJECTED_BY_MODERATION; pending quotes
+    /// expire and the pre-order chats become read-only, like a cancelled post. Audited.
+    /// </summary>
+    public async Task HideAsync(AdminActor actor, Guid requestId, string reason, CancellationToken ct)
+    {
+        reason = reason.Trim();
+        if (reason.Length < 3)
+        {
+            throw Invalid("Hãy ghi lý do ẩn bài", "reason");
+        }
+        var request = await db.ServiceRequests
+                          .Include(r => r.Quotes.Where(q => q.Status == (byte)QuoteStatus.Pending))
+                          .FirstOrDefaultAsync(r => r.Id == requestId, ct)
+                      ?? throw ApiException.NotFound("Không tìm thấy bài đăng");
+        if (request.Status != (byte)ServiceRequestStatus.Open)
+        {
+            throw new ApiException(StatusCodes.Status409Conflict, ErrorCodes.InvalidStatusTransition, "Chỉ ẩn được bài đang mở");
+        }
+        var now = clock.GetUtcNow();
+        request.Status = (byte)ServiceRequestStatus.RejectedByModeration;
+        request.ModerationNote = reason;
+        request.UpdatedAt = now;
+        ExpireQuotes(request.Quotes, now);
+        await FreezeConversationsAsync([request.Id], now, ct);
+        db.AddAudit(actor, "SERVICE_REQUEST_HIDDEN", nameof(ServiceRequest), request.Id,
+            new { Status = nameof(ServiceRequestStatus.Open) }, new { Status = "REJECTED_BY_MODERATION", Reason = reason }, now);
         await db.SaveChangesAsync(ct);
     }
 

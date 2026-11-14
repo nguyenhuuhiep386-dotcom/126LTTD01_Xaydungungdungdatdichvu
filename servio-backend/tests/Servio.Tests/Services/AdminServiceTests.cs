@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using Servio.Api.Common;
 using Servio.Api.Data.Entities;
 using Servio.Api.Services.Admin;
+using Servio.Api.Services.Notifications;
 
 namespace Servio.Tests.Services;
 
@@ -12,7 +14,8 @@ public sealed class AdminServiceTests : IDisposable
 
     public void Dispose() => _ctx.Dispose();
 
-    private PartnerVerificationService Verifications() => new(_ctx.Db, _ctx.Clock);
+    private PartnerVerificationService Verifications() =>
+        new(_ctx.Db, new NotificationService(_ctx.Db, new RecordingPush(), _ctx.Clock, NullLogger<NotificationService>.Instance), _ctx.Clock);
 
     private AdminCategoryService Categories() => new(_ctx.Db, _ctx.Clock);
 

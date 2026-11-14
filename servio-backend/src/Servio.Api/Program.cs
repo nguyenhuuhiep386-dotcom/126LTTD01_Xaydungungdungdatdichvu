@@ -22,6 +22,8 @@ using Servio.Api.Services.Feed;
 using Servio.Api.Services.Files;
 using Servio.Api.Services.Orders;
 using Servio.Api.Services.Wallets;
+using Servio.Api.Services.Notifications;
+using Servio.Api.Services.Reviews;
 using Servio.Api.Services.Partners;
 using Servio.Api.Services.Quotes;
 using Servio.Api.Services.Requests;
@@ -78,6 +80,13 @@ builder.Services.AddScoped<TrackingService>();
 builder.Services.AddScoped<WalletService>();
 builder.Services.AddScoped<CompletionService>();
 builder.Services.AddScoped<CancellationService>();
+builder.Services.Configure<FcmOptions>(config.GetSection(FcmOptions.Section));
+builder.Services.AddHttpClient<IPushSender, FcmPushSender>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<ReviewService>();
+builder.Services.AddScoped<DisputeService>();
+builder.Services.AddScoped<AdminUserService>();
+builder.Services.AddScoped<DemoSeeder>();
 builder.Services.AddHostedService<ExpiryJob>();
 builder.Services.AddSignalR().AddJsonProtocol(options =>
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper)));
@@ -155,7 +164,11 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy(AuthPolicies.Partner, p => p.RequireRole(nameof(UserRoleType.Partner)))
     .AddPolicy(AuthPolicies.Admin, p => p.AddAuthenticationSchemes(AuthPolicies.AdminScheme).RequireAuthenticatedUser())
     .AddPolicy(AuthPolicies.AdminOperator, p => p.AddAuthenticationSchemes(AuthPolicies.AdminScheme)
-        .RequireRole(nameof(AdminRole.SuperAdmin), nameof(AdminRole.Operator)));
+        .RequireRole(nameof(AdminRole.SuperAdmin), nameof(AdminRole.Operator)))
+    .AddPolicy(AuthPolicies.AdminSupport, p => p.AddAuthenticationSchemes(AuthPolicies.AdminScheme)
+        .RequireRole(nameof(AdminRole.SuperAdmin), nameof(AdminRole.Operator), nameof(AdminRole.Support)))
+    .AddPolicy(AuthPolicies.AdminFinance, p => p.AddAuthenticationSchemes(AuthPolicies.AdminScheme)
+        .RequireRole(nameof(AdminRole.SuperAdmin), nameof(AdminRole.Finance)));
 
 // ---------- Rate limiting ----------
 builder.Services.AddRateLimiter(options =>
@@ -239,6 +252,13 @@ app.MapRazorPages();
 app.MapGet("/", () => Results.Redirect(isDemoEnvironment ? "/swagger" : "/admin")).ExcludeFromDescription();
 
 await AdminSeeder.SeedAsync(app.Services);
+if (args.Contains("--seed-demo"))
+{
+    // One-off: create the demo data (docs/huong-dan-phat-trien.md) and exit without starting the server.
+    using var scope = app.Services.CreateScope();
+    await scope.ServiceProvider.GetRequiredService<DemoSeeder>().RunAsync();
+    return;
+}
 await app.RunAsync();
 
 public partial class Program;

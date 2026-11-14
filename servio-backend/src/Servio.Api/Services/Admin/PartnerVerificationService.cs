@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Servio.Api.Common;
 using Servio.Api.Data;
 using Servio.Api.Data.Entities;
+using Servio.Api.Services.Notifications;
 using Servio.Api.Services.Files;
 
 namespace Servio.Api.Services.Admin;
@@ -41,7 +42,7 @@ public sealed record VerificationSkill(Guid Id, string CategoryName, string? Gro
 /// AW-04 (F-ADM-03, UC-01 step 8): review partner KYC and skills. Every decision writes an AuditLog entry and an
 /// inbox notification (type KYC_RESULT) in the same SaveChanges. FCM push is added with BE-7.
 /// </summary>
-public sealed class PartnerVerificationService(ServioDbContext db, TimeProvider clock)
+public sealed class PartnerVerificationService(ServioDbContext db, NotificationService notifications, TimeProvider clock)
 {
     public const int MaxReasonLength = 500;
 
@@ -116,8 +117,8 @@ public sealed class PartnerVerificationService(ServioDbContext db, TimeProvider 
         db.AddAudit(actor, "PARTNER_KYC_APPROVED", nameof(PartnerProfile), partner.Id,
             new { Status = "PENDING" },
             new { Status = "APPROVED", ApprovedSkillIds = approvedSkills.Select(s => s.Id) }, now);
-        Notify(partner, "Hồ sơ đối tác đã được duyệt", "Bạn có thể bật Online để bắt đầu nhận việc.", now);
         await db.SaveChangesAsync(ct);
+        await Notify(partner, "Hồ sơ đối tác đã được duyệt", "Bạn có thể bật Online để bắt đầu nhận việc.", ct);
     }
 
     /// <summary>PENDING → REJECTED with a reason. Only the selected documents are marked REJECTED, so the partner redoes only those.</summary>
@@ -139,8 +140,8 @@ public sealed class PartnerVerificationService(ServioDbContext db, TimeProvider 
         db.AddAudit(actor, "PARTNER_KYC_REJECTED", nameof(PartnerProfile), partner.Id,
             new { Status = "PENDING" },
             new { Status = "REJECTED", Reason = note, RejectedDocumentIds = rejectedDocumentIds }, now);
-        Notify(partner, "Hồ sơ đối tác cần bổ sung", note, now);
         await db.SaveChangesAsync(ct);
+        await Notify(partner, "Hồ sơ đối tác cần bổ sung", note, ct);
     }
 
     /// <summary>Decide one skill (allowed at any profile status, e.g. a skill added after approval).</summary>
@@ -160,11 +161,10 @@ public sealed class PartnerVerificationService(ServioDbContext db, TimeProvider 
         skill.Status = (byte)(approve ? ApprovalStatus.Approved : ApprovalStatus.Rejected);
         db.AddAudit(actor, approve ? "PARTNER_SKILL_APPROVED" : "PARTNER_SKILL_REJECTED", nameof(PartnerSkill), skill.Id,
             new { Status = "PENDING" }, new { Status = approve ? "APPROVED" : "REJECTED", Category = skill.ServiceCategory.Name }, now);
-        Notify(skill.PartnerProfile,
-            approve ? "Kỹ năng đã được duyệt" : "Kỹ năng chưa được duyệt",
-            approve ? $"Bạn có thể nhận việc {skill.ServiceCategory.Name}." : $"Kỹ năng {skill.ServiceCategory.Name} chưa đạt, hãy bổ sung chứng chỉ rồi đăng ký lại.",
-            now);
         await db.SaveChangesAsync(ct);
+        await Notify(skill.PartnerProfile,
+            approve ? "Kỹ năng đã được duyệt" : "Kỹ năng chưa được duyệt",
+            approve ? $"Bạn có thể nhận việc {skill.ServiceCategory.Name}." : $"Kỹ năng {skill.ServiceCategory.Name} chưa đạt, hãy bổ sung chứng chỉ rồi đăng ký lại.", ct);
     }
 
     /// <summary>KYC images are viewed through /admin/files/{id}; each view is audited (F-PROF-04).</summary>
@@ -210,16 +210,8 @@ public sealed class PartnerVerificationService(ServioDbContext db, TimeProvider 
         return partner;
     }
 
-    private void Notify(PartnerProfile partner, string title, string body, DateTimeOffset now) =>
-        db.Notifications.Add(new Notification
-        {
-            Id = Guid.CreateVersion7(),
-            UserId = partner.UserId,
-            Type = 8, // KYC_RESULT
-            Title = title,
-            Body = body,
-            AppFlavor = (byte)AppFlavor.Partner,
-            DataPayload = JsonSerializer.Serialize(new { partnerId = partner.Id }),
-            CreatedAt = now,
-        });
+    /// <summary>After the decision is saved: inbox + push KYC_RESULT to the partner app (0.2.7 ý 12).</summary>
+    private Task Notify(PartnerProfile partner, string title, string body, CancellationToken ct) =>
+        notifications.SendAsync([(AppFlavor.Partner, partner.UserId)], NotificationType.KycResult, title, body,
+            new { partnerId = partner.Id }, "profile", ct);
 }

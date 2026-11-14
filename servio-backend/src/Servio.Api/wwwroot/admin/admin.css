@@ -133,3 +133,31 @@ a:hover { text-decoration: underline; }
 .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { outline: 3px solid var(--primary); outline-offset: 1px; }
 .check { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
 .validation-summary-valid { display: none; }
+
+/* QT-2 operations pages */
+.filters { justify-content: flex-start; flex-wrap: wrap; }
+.filters input[type=search], .filters select, .inline-action input { font: inherit; padding: 8px 12px; border: 1px solid var(--divider); border-radius: 10px; background: var(--surface); min-width: 220px; }
+.inline-action { display: inline-block; }
+.inline-action summary { list-style: none; display: inline-block; }
+.inline-action summary::-webkit-details-marker { display: none; }
+.inline-action form { display: grid; gap: 8px; margin-top: 8px; min-width: 260px; }
+.pager { display: flex; gap: 12px; align-items: center; justify-content: center; margin-top: 16px; }
+.split { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; }
+.bar-cell { display: flex; align-items: center; gap: 8px; }
+.bar { display: inline-block; height: 10px; min-width: 2px; border-radius: 5px; background: var(--primary); }
+.timeline { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.timeline li { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 12px; background: var(--surface); border: 1px solid var(--divider); border-radius: 10px; }
+.chat-log li { display: block; }
+.overdue { color: var(--error); font-weight: 600; }
+.thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid var(--divider); }
+.plain-list { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.order-title { margin: 0 0 8px; font-size: 20px; }
+.money { max-width: 520px; }
+.money td:last-child { text-align: right; }
+.assignment { margin-bottom: 12px; }
+@media (max-width: 760px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; }
+    .content { padding: 20px 16px 40px; }
+    .table { display: block; overflow-x: auto; }
+}

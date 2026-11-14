@@ -1,0 +1,36 @@
+@page
+@model Servio.Api.Pages.Admin.Disputes.IndexModel
+@using Servio.Api.Pages.Admin
+@{
+    ViewData["Title"] = "Khiếu nại";
+}
+<nav class="tabs" aria-label="Hàng đợi khiếu nại">
+    <a class="tab @(!Model.Closed ? "active" : "")" href="?closed=false">Chờ xử lý</a>
+    <a class="tab @(Model.Closed ? "active" : "")" href="?closed=true">Đã xử lý</a>
+</nav>
+
+@if (Model.Rows.Count == 0)
+{
+    <div class="card empty"><h2>Không có khiếu nại nào</h2><p class="muted">Hàng đợi này đang trống.</p></div>
+}
+else
+{
+    <table class="table">
+        <thead><tr><th>Mã</th><th>Đơn</th><th>Lý do</th><th>Người mở</th><th>Trạng thái</th><th>Hạn xử lý</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var d in Model.Rows)
+        {
+            var overdue = !Model.Closed && d.SlaDueAt < Model.Now;
+            <tr>
+                <td><strong>@d.Code</strong><div class="muted">@AdminText.Time(d.CreatedAt)</div></td>
+                <td><a href="/admin/orders/@d.OrderId">@d.OrderCode</a></td>
+                <td>@AdminText.Label(d.Reason)</td>
+                <td>@AdminText.Label(d.RaisedBy): @d.RaisedByName</td>
+                <td>@AdminText.Badge(d.Status)</td>
+                <td class="@(overdue ? "overdue" : "muted")">@AdminText.Time(d.SlaDueAt)@(overdue ? " · quá hạn" : "")</td>
+                <td><a class="btn btn-ghost" href="/admin/disputes/@d.Id">@(Model.Closed ? "Xem" : "Xử lý")</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

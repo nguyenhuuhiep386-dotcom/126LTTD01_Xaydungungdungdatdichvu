@@ -30,6 +30,8 @@ object ErrorMessages {
         // EXTRA_CHARGE_PENDING, ORDER_DISPUTED. BE-5 check-in codes too: TOO_FAR_FROM_ADDRESS (says how far),
         // GPS_NOT_RELIABLE, ARRIVAL_CONFIRMATION_NOT_ALLOWED (pending vs limit reached). BE-6: NO_SHOW_NOT_ALLOWED
         // (says which condition is missing), NOTHING_TO_PAY, ORDER_NOT_CANCELLABLE (customer vs partner wording).
+        // BE-7: DISPUTE_NOT_ALLOWED (open case vs window passed).
+        "REVIEW_WINDOW_CLOSED" to "Đã quá hạn 5 ngày để đánh giá đơn này.",
         "CONVERSATION_READ_ONLY" to "Hội thoại đã đóng, bạn chỉ xem được tin nhắn cũ.",
         // PROFILE_INCOMPLETE is not mapped: the server message lists exactly what is missing.
         "VERIFICATION_LOCKED" to "Hồ sơ đang chờ duyệt hoặc đã được duyệt, không thể thay đổi giấy tờ.",
