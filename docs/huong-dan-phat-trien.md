@@ -63,6 +63,9 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 
 ### Chạy thử luồng demo 10 bước
 
+Checklist chuẩn bị và kịch bản cho ngày demo: [`checklist-demo.md`](checklist-demo.md).
+
+
 Trước buổi demo, khi backend đã chạy (Development hoặc Demo), chạy script sau từ thư mục gốc repo. Script dùng thư viện chuẩn của Python 3, tự tạo một khách và một đối tác mới, rồi gọi API và trang quản trị đúng như hai app: đăng ký và duyệt KYC, đăng bài, feed, báo giá, chọn, di chuyển, check-in, phát sinh, hoàn tất 630.000 đ, công nợ 94.500 đ, đánh giá, huỷ có phí, khiếu nại và xác nhận trả nợ.
 
 ```bash
