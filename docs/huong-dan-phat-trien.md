@@ -61,6 +61,16 @@ Tài liệu này giúp mỗi thành viên clone repo, chạy được demo trên
 
 Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở trình duyệt; dùng khi demo trên lớp.
 
+### Chạy thử luồng demo 10 bước
+
+Trước buổi demo, khi backend đã chạy (Development hoặc Demo), chạy script sau từ thư mục gốc repo. Script dùng thư viện chuẩn của Python 3, tự tạo một khách và một đối tác mới, rồi gọi API và trang quản trị đúng như hai app: đăng ký và duyệt KYC, đăng bài, feed, báo giá, chọn, di chuyển, check-in, phát sinh, hoàn tất 630.000 đ, công nợ 94.500 đ, đánh giá, huỷ có phí, khiếu nại và xác nhận trả nợ.
+
+```bash
+python servio-backend/tools/demo_smoke.py http://localhost:5080
+```
+
+Đạt thì in `ĐẠT cả 10 bước`; lỗi thì in bước hỏng và JSON lỗi của server. Script ghi thêm dữ liệu thử vào CSDL, nên chạy trước khi seed demo hoặc tạo lại CSDL sau đó. Tài khoản admin lấy từ `SeedAdmin`; đổi bằng biến môi trường `SERVIO_ADMIN_EMAIL`, `SERVIO_ADMIN_PASSWORD`.
+
 ### Dữ liệu demo (buổi báo cáo cuối)
 
 Chạy **một lần** trên CSDL vừa tạo bằng script 01 và 02, nên chạy vào sáng ngày demo vì bài đang mở hết hạn sau 24 giờ và đơn chờ khách xác nhận tự hoàn tất sau `order.auto_confirm_hours`:
@@ -120,9 +130,9 @@ Các đối tác để Offline sau khi seed; bật Online trong app khi demo. �
 | API #1, #2, #5, #6, #9, #10, #29, #30 | Xong, có trên Swagger |
 | BE-1: `POST /files`, `GET /files/{id}`, #12–#16 (địa chỉ, thiết bị), #17–#23, #25–#28 (hồ sơ, KYC, kỹ năng, online, hồ sơ công khai) | Xong, có trên Swagger |
 | Envelope, mã lỗi, validation, rate limit OTP | Xong |
-| Admin: AW-01 đăng nhập, layout | Xong |
+| Admin: AW-01 đăng nhập, layout; AW-15 tham số hệ thống (chỉ SUPER_ADMIN, ghi AuditLog) | Xong |
 | QT-1: AW-04 duyệt KYC + kỹ năng (xem ảnh riêng tư, AuditLog, thông báo), AW-11 thêm/sửa/ẩn danh mục | Xong; chỉ SUPER_ADMIN và OPERATOR |
-| QT-2: AW-02 dashboard (hàng đợi, GMV, hoa hồng, công nợ, 7 ngày); AW-03 người dùng (tìm, khoá/mở); AW-06 bài đăng (ẩn bài vi phạm); AW-07 đơn hàng + chi tiết và timeline; AW-08 khiếu nại (xem bằng chứng, chat, chốt kết quả); AW-18 công nợ (xác nhận/từ chối chuyển khoản) | Xong; AW-08 cho SUPER_ADMIN/OPERATOR/SUPPORT, AW-18 cho SUPER_ADMIN/FINANCE, mọi thao tác ghi AuditLog. AW-15 cấu hình chưa làm (sửa trực tiếp bảng SystemConfigs) |
+| QT-2: AW-02 dashboard (hàng đợi, GMV, hoa hồng, công nợ, 7 ngày); AW-03 người dùng (tìm, khoá/mở); AW-06 bài đăng (ẩn bài vi phạm); AW-07 đơn hàng + chi tiết và timeline; AW-08 khiếu nại (xem bằng chứng, chat, chốt kết quả); AW-18 công nợ (xác nhận/từ chối chuyển khoản) | Xong; AW-08 cho SUPER_ADMIN/OPERATOR/SUPPORT, AW-18 cho SUPER_ADMIN/FINANCE, mọi thao tác ghi AuditLog. cấu hình ở AW-15 |
 | BE-2: #36–#38, #40 bài đăng; #46 newsfeed; #42, #50, #52, #53 báo giá; job tự hết hạn bài 30 giây/lần | Xong, có trên Swagger |
 | SignalR server: `/hubs/feed` (NewPost), `/hubs/orders` (báo giá và đơn hàng), `/hubs/chat` | Xong; client Android chưa có (mục 5.1, hạ tầng của Nguyên) |
 | BE-3: chat #54–#59, #61; hội thoại chỉ đọc khi bài bị huỷ/hết hạn | Xong, có trên Swagger |
