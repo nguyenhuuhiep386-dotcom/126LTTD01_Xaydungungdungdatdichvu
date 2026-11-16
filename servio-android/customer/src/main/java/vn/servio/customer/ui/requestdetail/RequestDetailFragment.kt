@@ -24,6 +24,7 @@ import vn.servio.customer.data.model.ServiceRequestStatus
 import vn.servio.customer.databinding.DialogCancelRequestBinding
 import vn.servio.customer.databinding.FragmentRequestDetailBinding
 import vn.servio.customer.ui.common.RemoteImages
+import vn.servio.customer.ui.common.RequestStatusChip
 import vn.servio.customer.ui.request.MoneyInput
 import vn.servio.customer.ui.requestdetail.RequestDetailViewModel.Event
 import vn.servio.customer.ui.requestdetail.RequestDetailViewModel.State
@@ -119,7 +120,7 @@ class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
         categoryText.text = categoryGroup
             ?.let { getString(R.string.request_detail_category, it, detail.categoryName) }
             ?: detail.categoryName
-        statusText.setText(statusLabel(detail.status))
+        RequestStatusChip.bind(statusText, detail.status, openLabel = R.string.request_detail_status_open)
 
         timeText.text = when (detail.scheduleType) {
             ScheduleType.NOW -> QuoteTexts.moment(detail.scheduledEndAt, weekdays)
@@ -142,15 +143,6 @@ class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
         expiryText.text = expiry
         cancelReasonText.isVisible = !detail.cancelReason.isNullOrBlank()
         cancelReasonText.text = getString(R.string.request_detail_cancel_reason, detail.cancelReason.orEmpty())
-    }
-
-    private fun statusLabel(status: ServiceRequestStatus) = when (status) {
-        ServiceRequestStatus.DRAFT -> R.string.requests_status_draft
-        ServiceRequestStatus.OPEN -> R.string.request_detail_status_open
-        ServiceRequestStatus.MATCHED -> R.string.requests_status_matched
-        ServiceRequestStatus.EXPIRED -> R.string.requests_status_expired
-        ServiceRequestStatus.CANCELLED -> R.string.requests_status_cancelled
-        ServiceRequestStatus.REJECTED_BY_MODERATION -> R.string.requests_status_rejected
     }
 
     /** The three orders #42 knows; there is no "newest first" on the server. */

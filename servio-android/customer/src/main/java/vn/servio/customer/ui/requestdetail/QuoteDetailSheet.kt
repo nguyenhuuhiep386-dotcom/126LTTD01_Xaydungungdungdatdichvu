@@ -10,6 +10,8 @@ import androidx.core.view.isVisible
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import okhttp3.OkHttpClient
@@ -38,6 +40,18 @@ class QuoteDetailSheet : BottomSheetDialogFragment() {
     private var shownSkills: List<String>? = null
 
     override fun getTheme() = R.style.ThemeOverlay_Servio_BottomSheetDialog
+
+    /**
+     * Always fully open, also in landscape where the default peek height showed only the name: the content scrolls
+     * inside the sheet, so "Chọn báo giá này" is reached without dragging. Dragging down closes it (no half state).
+     */
+    override fun onStart() {
+        super.onStart()
+        (dialog as? BottomSheetDialog)?.behavior?.apply {
+            skipCollapsed = true
+            state = BottomSheetBehavior.STATE_EXPANDED
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
         SheetQuoteDetailBinding.inflate(inflater, container, false).root
