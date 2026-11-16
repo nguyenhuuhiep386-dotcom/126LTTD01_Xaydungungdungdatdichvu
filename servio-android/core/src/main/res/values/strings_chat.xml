@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Chat screens shared by both apps (CS-27, CS-28 / PS-20, PS-20a). Kept apart from strings.xml. -->
+<resources>
+    <string name="chat_list_title">Tin nhắn</string>
+    <string name="chat_list_empty">Chưa có cuộc trò chuyện nào.</string>
+    <string name="chat_back">Quay lại</string>
+    <string name="chat_hint">Nhập tin nhắn</string>
+    <string name="chat_send">Gửi</string>
+    <string name="chat_sending">Đang gửi…</string>
+    <string name="chat_sent">Đã gửi</string>
+    <string name="chat_read">Đã xem</string>
+    <string name="chat_failed">Gửi lỗi · Chạm để gửi lại</string>
+    <string name="chat_image">[Ảnh]</string>
+    <string name="chat_yesterday">Hôm qua</string>
+    <string name="chat_read_only">Cuộc trò chuyện đã đóng. Bạn chỉ xem được tin nhắn cũ.</string>
+    <string name="chat_read_only_short">Chỉ xem</string>
+    <string name="chat_privacy_note">Số điện thoại và địa chỉ chính xác hiện sau khi khách chọn và đối tác nhận đơn.</string>
+</resources>

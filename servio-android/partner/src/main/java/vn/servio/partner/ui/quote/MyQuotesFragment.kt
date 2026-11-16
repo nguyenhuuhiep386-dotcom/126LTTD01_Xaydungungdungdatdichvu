@@ -17,6 +17,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
+import vn.servio.core.ui.chat.ChatFragment
 import vn.servio.core.utils.Money
 import vn.servio.core.utils.UiState
 import vn.servio.core.utils.collectWhenStarted
@@ -42,6 +43,11 @@ class MyQuotesFragment : Fragment(R.layout.fragment_my_quotes) {
                 findNavController().navigate(R.id.ps10, bundleOf(RequestDetailFragment.ARG_REQUEST_ID to quote.serviceRequestId))
             },
             onWithdraw = { quote -> confirmWithdraw(quote) },
+            onChat = { quote ->
+                quote.conversationId?.let {
+                    findNavController().navigate(R.id.chat, bundleOf(ChatFragment.ARG_CONVERSATION_ID to it))
+                }
+            },
         )
         binding.list.adapter = adapter
         binding.swipeRefresh.setOnRefreshListener { viewModel.load(showSpinner = false) }
@@ -89,6 +95,7 @@ class MyQuotesFragment : Fragment(R.layout.fragment_my_quotes) {
     private class QuoteAdapter(
         private val onOpen: (PartnerQuote) -> Unit,
         private val onWithdraw: (PartnerQuote) -> Unit,
+        private val onChat: (PartnerQuote) -> Unit,
     ) : ListAdapter<PartnerQuote, QuoteAdapter.Holder>(Diff) {
 
         class Holder(val binding: ItemMyQuoteBinding) : RecyclerView.ViewHolder(binding.root)
@@ -107,6 +114,8 @@ class MyQuotesFragment : Fragment(R.layout.fragment_my_quotes) {
                 amount.text = Money.format(quote.amount)
                 withdrawButton.isVisible = quote.status == QuoteStatus.PENDING
                 withdrawButton.setOnClickListener { onWithdraw(quote) }
+                chatButton.isVisible = quote.conversationId != null
+                chatButton.setOnClickListener { onChat(quote) }
                 root.setOnClickListener { onOpen(quote) }
             }
         }

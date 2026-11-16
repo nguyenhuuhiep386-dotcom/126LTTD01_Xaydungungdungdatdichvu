@@ -73,6 +73,13 @@
                 tools:text="450.000 đ" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/chatButton"
+                style="@style/Widget.Servio.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/action_chat" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/withdrawButton"
                 style="@style/Widget.Servio.Button.Text"
                 android:layout_width="wrap_content"
