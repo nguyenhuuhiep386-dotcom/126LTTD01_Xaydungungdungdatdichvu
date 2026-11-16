@@ -13,12 +13,18 @@ import vn.servio.partner.data.location.Fix
 import vn.servio.partner.data.model.ArrivalConfirmation
 import vn.servio.partner.data.model.ArriveRequest
 import vn.servio.partner.data.model.ArriveResult
+import vn.servio.partner.data.model.CancelResult
+import vn.servio.partner.data.model.CompleteWorkRequest
+import vn.servio.partner.data.model.CreateExtraChargeRequest
+import vn.servio.partner.data.model.CustomerNoShowRequest
+import vn.servio.partner.data.model.ExtraCharge
 import vn.servio.partner.data.model.OrderDetail
 import vn.servio.partner.data.model.OrderStatusChanged
 import vn.servio.partner.data.model.OrderSummary
 import vn.servio.partner.data.model.PartnerCancelRequest
 import vn.servio.partner.data.model.RejectAssignmentRequest
 import vn.servio.partner.data.model.StartMovingRequest
+import vn.servio.partner.data.model.StartWorkRequest
 import vn.servio.partner.data.model.TimelineEntry
 import vn.servio.partner.data.remote.OrderApi
 import java.time.Instant
@@ -39,6 +45,10 @@ interface OrderRepository {
     suspend fun arrive(orderId: String, assignmentId: String, fix: Fix): ApiResult<ArriveResult>
     suspend fun requestArrivalConfirmation(orderId: String, assignmentId: String): ApiResult<ArrivalConfirmation>
     suspend fun cancel(orderId: String, assignmentId: String, reason: String): ApiResult<OrderStatusChanged>
+    suspend fun startWork(orderId: String, assignmentId: String, beforeImages: List<String>): ApiResult<OrderStatusChanged>
+    suspend fun complete(orderId: String, assignmentId: String, afterImages: List<String>, note: String?): ApiResult<OrderStatusChanged>
+    suspend fun addExtraCharge(orderId: String, request: CreateExtraChargeRequest): ApiResult<ExtraCharge>
+    suspend fun customerNoShow(orderId: String, assignmentId: String, note: String?): ApiResult<CancelResult>
 
     /** Ids of orders that changed (status, new order to confirm, extra charge answered, arrival answered). */
     fun changes(): Flow<String?>
@@ -85,6 +95,18 @@ class RemoteOrderRepository @Inject constructor(
 
     override suspend fun cancel(orderId: String, assignmentId: String, reason: String) =
         apiCall { api.cancel(orderId, assignmentId, PartnerCancelRequest(reason)) }
+
+    override suspend fun startWork(orderId: String, assignmentId: String, beforeImages: List<String>) =
+        apiCall { api.startWork(orderId, assignmentId, StartWorkRequest(beforeImages)) }
+
+    override suspend fun complete(orderId: String, assignmentId: String, afterImages: List<String>, note: String?) =
+        apiCall { api.complete(orderId, assignmentId, CompleteWorkRequest(afterImages, note)) }
+
+    override suspend fun addExtraCharge(orderId: String, request: CreateExtraChargeRequest) =
+        apiCall { api.createExtraCharge(orderId, request) }
+
+    override suspend fun customerNoShow(orderId: String, assignmentId: String, note: String?) =
+        apiCall { api.customerNoShow(orderId, assignmentId, CustomerNoShowRequest(note)) }
 
     override fun changes(): Flow<String?> {
         val hub = realtime.orders

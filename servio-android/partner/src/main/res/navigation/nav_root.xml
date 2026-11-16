@@ -112,90 +112,51 @@
 
         <fragment
             android:id="@+id/ps16"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.partner.ui.work.WorkFragment"
             android:label="PS-16 Thực hiện công việc">
             <argument
-                android:name="code"
-                android:defaultValue="PS-16"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Thực hiện công việc"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Ảnh trước (#69), thêm phát sinh"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="ps17|Thêm phát sinh;ps18|Hoàn thành công việc"
-                app:argType="string" />
+                android:name="orderId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
         </fragment>
 
-        <fragment
+        <dialog
             android:id="@+id/ps17"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.partner.ui.work.ExtraChargeSheet"
             android:label="PS-17 Thêm chi phí phát sinh">
             <argument
-                android:name="code"
-                android:defaultValue="PS-17"
-                app:argType="string" />
+                android:name="orderId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
             <argument
-                android:name="title"
-                android:defaultValue="Thêm chi phí phát sinh"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Bottom sheet (#73)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
-        </fragment>
+                android:name="assignmentId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
+        </dialog>
 
         <fragment
             android:id="@+id/ps18"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.partner.ui.work.CompleteFragment"
             android:label="PS-18 Hoàn thành công việc">
             <argument
-                android:name="code"
-                android:defaultValue="PS-18"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Hoàn thành công việc"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Ảnh sau + ghi chú (#70)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="ps19|Thu tiền mặt"
-                app:argType="string" />
+                android:name="orderId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
         </fragment>
 
         <fragment
             android:id="@+id/ps19"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.partner.ui.work.CashFragment"
             android:label="PS-19 Thu tiền mặt">
             <argument
-                android:name="code"
-                android:defaultValue="PS-19"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Thu tiền mặt"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Hiển thị số tiền cần thu; không có nút xác nhận đã thu"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="ps27|Đánh giá khách"
-                app:argType="string" />
+                android:name="orderId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
         </fragment>
 
         <fragment

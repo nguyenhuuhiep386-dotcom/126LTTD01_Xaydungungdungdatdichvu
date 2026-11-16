@@ -11,12 +11,18 @@ import vn.servio.core.network.PagedResult
 import vn.servio.partner.data.model.ArrivalConfirmation
 import vn.servio.partner.data.model.ArriveRequest
 import vn.servio.partner.data.model.ArriveResult
+import vn.servio.partner.data.model.CancelResult
+import vn.servio.partner.data.model.CompleteWorkRequest
+import vn.servio.partner.data.model.CreateExtraChargeRequest
+import vn.servio.partner.data.model.CustomerNoShowRequest
+import vn.servio.partner.data.model.ExtraCharge
 import vn.servio.partner.data.model.OrderDetail
 import vn.servio.partner.data.model.OrderStatusChanged
 import vn.servio.partner.data.model.OrderSummary
 import vn.servio.partner.data.model.PartnerCancelRequest
 import vn.servio.partner.data.model.RejectAssignmentRequest
 import vn.servio.partner.data.model.StartMovingRequest
+import vn.servio.partner.data.model.StartWorkRequest
 import vn.servio.partner.data.model.TimelineEntry
 
 // Paths are relative to BASE_URL + "api/v1/". Endpoint numbers (#n) refer to spec section 6.
@@ -81,4 +87,32 @@ interface OrderApi {
         @Path("aid") assignmentId: String,
         @Body body: PartnerCancelRequest,
     ): ApiResponse<OrderStatusChanged>
+
+    /** #69 ARRIVED → IN_PROGRESS with the before photos. */
+    @POST("orders/{id}/assignments/{aid}/start-work")
+    suspend fun startWork(
+        @Path("id") id: String,
+        @Path("aid") assignmentId: String,
+        @Body body: StartWorkRequest,
+    ): ApiResponse<OrderStatusChanged>
+
+    /** #70 IN_PROGRESS → COMPLETED_BY_PARTNER with the after photos. */
+    @POST("orders/{id}/assignments/{aid}/complete")
+    suspend fun complete(
+        @Path("id") id: String,
+        @Path("aid") assignmentId: String,
+        @Body body: CompleteWorkRequest,
+    ): ApiResponse<OrderStatusChanged>
+
+    /** #73 */
+    @POST("orders/{id}/extra-charges")
+    suspend fun createExtraCharge(@Path("id") id: String, @Body body: CreateExtraChargeRequest): ApiResponse<ExtraCharge>
+
+    /** #180 */
+    @POST("orders/{id}/assignments/{aid}/customer-no-show")
+    suspend fun customerNoShow(
+        @Path("id") id: String,
+        @Path("aid") assignmentId: String,
+        @Body body: CustomerNoShowRequest,
+    ): ApiResponse<CancelResult>
 }

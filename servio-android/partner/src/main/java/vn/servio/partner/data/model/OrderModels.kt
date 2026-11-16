@@ -189,3 +189,28 @@ data class ArrivalConfirmation(
     val status: String,
     val expiresAt: String,
 )
+
+/** #69 start-work: 1–10 BEFORE photo URLs (POST /files ORDER_IMAGE). */
+@Serializable
+data class StartWorkRequest(val beforeImages: List<String>)
+
+/** #70 complete: 1–10 AFTER photo URLs and an optional note for the customer. */
+@Serializable
+data class CompleteWorkRequest(val afterImages: List<String>, val note: String? = null)
+
+/** #73 extra charge: 1.000–100.000.000 đ, the customer approves it in the app (#74). */
+@Serializable
+data class CreateExtraChargeRequest(
+    val assignmentId: String,
+    val description: String,
+    val amount: Long,
+    val evidenceImageUrl: String? = null,
+)
+
+/** #180 the customer is not there (after arriving by GPS, waiting and messaging). */
+@Serializable
+data class CustomerNoShowRequest(val note: String? = null)
+
+/** Result of #180 (only the new status is used). */
+@Serializable
+data class CancelResult(val orderId: String, val status: OrderStatus, val cancellationFee: Long = 0)

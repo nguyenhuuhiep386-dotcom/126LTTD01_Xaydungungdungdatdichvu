@@ -174,7 +174,7 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         }
     }
 
-    /** Bottom buttons for each assignment status. DT-5 adds the steps after arriving. */
+    /** Bottom buttons for each assignment status: confirm → move → work (PS-16) → cash (PS-19) → review (PS-27). */
     private fun bindActions(binding: FragmentOrderDetailBinding, order: OrderDetail, status: OrderStatus) {
         val primary = binding.primaryButton
         val secondary = binding.secondaryButton
@@ -202,6 +202,21 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
                     order.assignment?.let { LocationTrackingService.start(requireContext(), order.id, it.id) }
                     openNavigation()
                 }
+            }
+            OrderStatus.ARRIVED, OrderStatus.IN_PROGRESS -> {
+                secondary.isVisible = false
+                primary.setText(if (status == OrderStatus.ARRIVED) R.string.work_start else R.string.order_open_work)
+                primary.setOnClickListener { openStep(R.id.ps16) }
+            }
+            OrderStatus.COMPLETED_BY_PARTNER, OrderStatus.AWAITING_PAYMENT -> {
+                secondary.isVisible = false
+                primary.setText(R.string.work_go_cash)
+                primary.setOnClickListener { openStep(R.id.ps19) }
+            }
+            OrderStatus.COMPLETED -> {
+                secondary.isVisible = false
+                primary.setText(R.string.cash_rate_customer)
+                primary.setOnClickListener { openStep(R.id.ps27) }
             }
             else -> {
                 primary.isVisible = false
@@ -264,6 +279,10 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
                 }
             }
             .show()
+    }
+
+    private fun openStep(destination: Int) {
+        findNavController().navigate(destination, bundleOf(ARG_ORDER_ID to viewModel.orderId))
     }
 
     private fun openNavigation() {
