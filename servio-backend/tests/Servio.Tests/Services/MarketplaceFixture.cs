@@ -170,7 +170,7 @@ public sealed class MarketplaceFixture : IDisposable
 
     public ReviewService Reviews() => new(Ctx.Db, Notifications(), Configs(), Ctx.Clock);
 
-    public DisputeService Disputes() => new(Ctx.Db, Workflow(), Ctx.Files(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Ctx.Clock);
+    public DisputeService Disputes() => new(Ctx.Db, Workflow(), Ctx.Files(), Wallets(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Ctx.Clock);
 
     /// <summary>Uploads a tiny PNG for <paramref name="userId"/> and returns its URL.</summary>
     public async Task<string> UploadImageAsync(Guid userId, FilePurpose purpose = FilePurpose.OrderImage)

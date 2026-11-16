@@ -6,7 +6,7 @@ using Servio.Api.Services.Orders;
 namespace Servio.Api.Controllers;
 
 /// <summary>
-/// M5 — orders (#43, #62–#74, #76, #77, #151, #152, #178–#180). Status changes are pushed as OrderStatusChanged on /hubs/orders to
+/// M5 — orders (#43, #62–#74, #76, #77, #151, #152, #177–#180). Status changes are pushed as OrderStatusChanged on /hubs/orders to
 /// both sides; each action also writes a system line in their chat. Partner endpoints act on the partner's own assignment.
 /// </summary>
 [Authorize]
@@ -16,7 +16,8 @@ public sealed class OrdersController(
     ExtraChargeService extraCharges,
     TrackingService tracking,
     CompletionService completion,
-    CancellationService cancellation) : ApiControllerBase
+    CancellationService cancellation,
+    DisputeService disputes) : ApiControllerBase
 {
     /// <summary>
     /// #43 Choose a quote: creates the order with one PENDING assignment; the partner has 10 minutes to accept (#65).
@@ -151,6 +152,16 @@ public sealed class OrdersController(
     [Authorize(Policy = AuthPolicies.Partner)]
     public async Task<ActionResult<ApiResponse<CancelResultDto>>> CustomerNoShow(Guid id, Guid aid, CustomerNoShowRequest request, CancellationToken ct) =>
         OkEnvelope(await cancellation.CustomerNoShowAsync(CurrentUserId, id, aid, request, ct));
+
+    /// <summary>
+    /// #177 "Khách chưa thanh toán": from COMPLETED_BY_PARTNER until 24 h after completion. Opens an UNPAID_CASH dispute;
+    /// 422 UNPAID_REPORT_WINDOW_CLOSED after the window, 409 DISPUTE_ALREADY_OPEN when a case is open.
+    /// </summary>
+    [HttpPost("api/v1/orders/{id:guid}/assignments/{aid:guid}/report-unpaid")]
+    [Authorize(Policy = AuthPolicies.Partner)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<ActionResult<ApiResponse<DisputeDto>>> ReportUnpaid(Guid id, Guid aid, ReportUnpaidRequest request, CancellationToken ct) =>
+        CreatedEnvelope(await disputes.ReportUnpaidAsync(CurrentUserId, id, aid, request, ct));
 
     /// <summary>#73 Ask the customer to approve an extra charge (ARRIVED or IN_PROGRESS). The customer gets ExtraChargeRequested.</summary>
     [HttpPost("api/v1/orders/{id:guid}/extra-charges")]

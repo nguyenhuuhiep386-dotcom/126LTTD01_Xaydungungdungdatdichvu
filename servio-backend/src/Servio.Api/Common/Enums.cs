@@ -68,8 +68,8 @@ public enum PaymentMethod : byte { Cash = 1 }
 
 public enum PaymentStatus : byte { Unpaid = 1, Processing = 2, Paid = 3 }
 
-/// <summary>Transactions.Type (course scope: COD payment and debt payment).</summary>
-public enum TransactionType : byte { Payment = 1, DebtPayment = 5 }
+/// <summary>Transactions.Type (course scope: COD payment, debt payment, reversal of a presumed COD payment after #177).</summary>
+public enum TransactionType : byte { Payment = 1, DebtPayment = 5, PaymentReversal = 6 }
 
 public enum TransactionProvider : byte { Cash = 1, BankTransfer = 6, InternalOffset = 7 }
 

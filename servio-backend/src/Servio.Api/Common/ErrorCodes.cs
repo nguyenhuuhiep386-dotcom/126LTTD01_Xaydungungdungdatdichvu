@@ -58,6 +58,8 @@ public static class ErrorCodes
     // M7 reviews, disputes (BE-7)
     public const string ReviewWindowClosed = "REVIEW_WINDOW_CLOSED";
     public const string DisputeNotAllowed = "DISPUTE_NOT_ALLOWED";
+    public const string DisputeAlreadyOpen = "DISPUTE_ALREADY_OPEN";
+    public const string UnpaidReportWindowClosed = "UNPAID_REPORT_WINDOW_CLOSED";
 
     // Files (POST /files)
     public const string FileNotReady = "FILE_NOT_READY";
