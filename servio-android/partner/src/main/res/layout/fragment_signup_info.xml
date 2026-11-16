@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PS-02 Đăng ký đối tác – Bước 1 Thông tin cá nhân. Form scrolls; "Tiếp tục" stays at the bottom. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:title="@string/signup_title" />
+
+    <include
+        android:id="@+id/steps"
+        layout="@layout/view_signup_steps" />
+
+    <include
+        android:id="@+id/status"
+        layout="@layout/view_load_status" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/form"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/screen_padding"
+            android:paddingTop="@dimen/space_l"
+            android:paddingBottom="@dimen/space_xl">
+
+            <FrameLayout
+                android:id="@+id/avatarButton"
+                android:layout_width="104dp"
+                android:layout_height="104dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/bg_avatar_placeholder"
+                android:clickable="true"
+                android:contentDescription="@string/signup_avatar_label"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/avatarImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Servio.Circle" />
+
+                <ImageView
+                    android:id="@+id/avatarCamera"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_camera"
+                    app:tint="@color/servio_text_secondary" />
+
+                <ProgressBar
+                    android:id="@+id/avatarProgress"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:gravity="center"
+                android:text="@string/signup_avatar_label"
+                android:textAppearance="@style/TextAppearance.Servio.Accent" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:gravity="center"
+                android:text="@string/signup_avatar_helper"
+                android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xl"
+                android:labelFor="@id/nameInput"
+                android:text="@string/signup_name_label"
+                android:textAppearance="@style/TextAppearance.Servio.BodyStrong" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/nameLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                app:helperText="@string/signup_name_helper"
+                app:helperTextEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/nameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:importantForAutofill="no"
+                    android:inputType="textPersonName|textCapWords"
+                    android:maxLength="100"
+                    android:saveEnabled="false"
+                    android:textAppearance="@style/TextAppearance.Servio.Body" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:labelFor="@id/bioInput"
+                android:text="@string/signup_bio_label"
+                android:textAppearance="@style/TextAppearance.Servio.BodyStrong" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/bioLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                app:counterEnabled="true"
+                app:counterMaxLength="500"
+                app:helperText="@string/signup_bio_helper"
+                app:helperTextEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/bioInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top|start"
+                    android:importantForAutofill="no"
+                    android:inputType="textMultiLine|textCapSentences"
+                    android:maxLength="500"
+                    android:minLines="4"
+                    android:saveEnabled="false"
+                    android:textAppearance="@style/TextAppearance.Servio.Body" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:text="@string/signup_years_label"
+                android:textAppearance="@style/TextAppearance.Servio.BodyStrong" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/yearsMinus"
+                    style="@style/Widget.Servio.Button.Outlined"
+                    android:layout_width="52dp"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/signup_years_minus"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:padding="0dp"
+                    android:text="@string/sign_minus" />
+
+                <TextView
+                    android:id="@+id/yearsValue"
+                    android:layout_width="96dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                    tools:text="6 năm" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/yearsPlus"
+                    style="@style/Widget.Servio.Button.Outlined"
+                    android:layout_width="52dp"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/signup_years_plus"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:padding="0dp"
+                    android:text="@string/sign_plus" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <include
+        android:id="@+id/actionBar"
+        layout="@layout/view_bottom_action" />
+</LinearLayout>

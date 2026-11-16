@@ -16,4 +16,102 @@
     <string name="feed_distance">%1$.1f km</string>
     <string name="feed_budget">Ngân sách %1$s</string>
     <string name="feed_quotes">%1$d báo giá</string>
+
+    <!-- Shared -->
+    <string name="action_back">Quay lại</string>
+    <string name="action_save">Lưu</string>
+    <string name="action_cancel">Huỷ</string>
+    <string name="action_close">Đóng</string>
+    <string name="sign_minus">−</string>
+    <string name="sign_plus">+</string>
+    <string name="map_attribution">© OpenStreetMap contributors</string>
+    <string name="image_unreadable">Không đọc được ảnh này, vui lòng chọn ảnh khác.</string>
+    <string name="photo_picker_title">Thêm ảnh</string>
+    <string name="photo_take">Chụp ảnh</string>
+    <string name="photo_gallery">Chọn từ thư viện</string>
+    <string name="location_permission_denied">Cần quyền vị trí để dùng chức năng này. Bạn có thể bật trong Cài đặt.</string>
+    <string name="location_unavailable">Chưa lấy được vị trí. Hãy bật định vị (GPS) rồi thử lại.</string>
+    <string name="status_pending">Chờ duyệt</string>
+    <string name="status_approved">Đã duyệt</string>
+    <string name="status_rejected">Bị từ chối</string>
+    <string name="status_received">Đã nhận</string>
+    <string name="status_resend">Cần gửi lại</string>
+    <string name="status_missing">Còn thiếu</string>
+
+    <!-- PS-02 → PS-05 Đăng ký đối tác -->
+    <string name="signup_title">Đăng ký đối tác</string>
+    <string name="signup_step_label">Bước %1$d/%2$d · %3$s</string>
+    <string name="signup_step_info">Thông tin cá nhân</string>
+    <string name="signup_step_skills">Kỹ năng</string>
+    <string name="signup_step_area">Khu vực nhận việc</string>
+    <string name="signup_step_kyc">Xác minh danh tính</string>
+    <string name="signup_avatar_label">Ảnh chân dung</string>
+    <string name="signup_avatar_helper">Rõ mặt, không đeo kính râm. Khách thấy ảnh này khi nhận báo giá.</string>
+    <string name="signup_name_label">Họ và tên</string>
+    <string name="signup_name_helper">Như trên CCCD</string>
+    <string name="signup_name_invalid">Họ tên từ 2 đến 100 ký tự</string>
+    <string name="signup_bio_label">Giới thiệu bản thân</string>
+    <string name="signup_bio_helper">Khách đọc phần này trên hồ sơ của bạn</string>
+    <string name="signup_years_label">Số năm kinh nghiệm</string>
+    <string name="signup_years_value">%1$d năm</string>
+    <string name="signup_years_minus">Giảm số năm kinh nghiệm</string>
+    <string name="signup_years_plus">Tăng số năm kinh nghiệm</string>
+
+    <string name="skills_intro">Chọn tối đa 5 kỹ năng bạn nhận làm. Quản trị viên duyệt từng kỹ năng.</string>
+    <string name="skills_selected_count">Đã chọn %1$d/%2$d</string>
+    <string name="skills_group_count">%1$d đã chọn</string>
+    <string name="skills_needs_certificate">Cần chứng chỉ</string>
+    <string name="skills_certificate_title">Chứng chỉ nghề (không bắt buộc)</string>
+    <string name="skills_certificate_helper">Bắt buộc với dịch vụ ghi “Cần chứng chỉ”. Ảnh lưu riêng, chỉ quản trị viên xem.</string>
+    <string name="skills_certificate_upload">Tải ảnh chứng chỉ</string>
+    <string name="skills_certificate_uploading">Đang tải lên…</string>
+    <string name="skills_certificate_uploaded">Đã tải chứng chỉ · Chạm để đổi ảnh</string>
+    <string name="skills_none">Chọn ít nhất 1 kỹ năng để tiếp tục.</string>
+    <string name="skills_limit">Bạn chỉ được chọn tối đa %1$d kỹ năng.</string>
+    <string name="skills_certificate_missing">“%1$s” cần ảnh chứng chỉ nghề. Hãy tải ảnh chứng chỉ ở cuối trang.</string>
+    <string name="skills_manage_title">Quản lý kỹ năng</string>
+
+    <string name="area_anchor_title">Vị trí gốc</string>
+    <string name="area_anchor_helper">Kéo bản đồ để đặt ghim vào nơi bạn thường xuất phát (nhà hoặc cửa hàng).</string>
+    <string name="area_use_current">Dùng vị trí hiện tại</string>
+    <string name="area_radius_title">Bán kính nhận việc</string>
+    <string name="area_radius_3">3 km</string>
+    <string name="area_radius_5">5 km</string>
+    <string name="area_radius_10">10 km</string>
+    <string name="area_radius_20">20 km</string>
+    <string name="area_radius_helper">Bạn chỉ thấy yêu cầu nằm trong bán kính này và trong bán kính khách chọn.</string>
+    <string name="area_manage_title">Khu vực nhận việc</string>
+
+    <string name="kyc_intro">Chụp CCCD và ảnh chân dung cầm CCCD để quản trị viên xác minh.</string>
+    <string name="kyc_id_front">CCCD mặt trước</string>
+    <string name="kyc_id_back">CCCD mặt sau</string>
+    <string name="kyc_selfie">Ảnh chân dung cầm CCCD</string>
+    <string name="kyc_take">Chụp</string>
+    <string name="kyc_retake">Chụp lại</string>
+    <string name="kyc_not_taken">Chưa chụp</string>
+    <string name="kyc_uploading">Đang tải lên…</string>
+    <string name="kyc_uploaded">Đã tải lên</string>
+    <string name="kyc_rejected">Cần chụp lại: %1$s</string>
+    <string name="kyc_rejected_no_reason">ảnh chưa đạt</string>
+    <string name="kyc_tip">Đặt giấy tờ trong khung, đủ sáng, không loá, đọc rõ số CCCD.</string>
+    <string name="kyc_privacy">Ảnh giấy tờ lưu riêng, chỉ quản trị viên duyệt hồ sơ được xem.</string>
+    <string name="kyc_submit">Gửi xét duyệt</string>
+
+    <!-- PS-06 Chờ duyệt -->
+    <string name="verification_toolbar">Hồ sơ đối tác</string>
+    <string name="verification_pending_title">Hồ sơ đang được duyệt</string>
+    <string name="verification_pending_subtitle">Bạn sẽ nhận thông báo khi có kết quả. Kéo xuống để làm mới.</string>
+    <string name="verification_approved_title">Hồ sơ đã được duyệt</string>
+    <string name="verification_approved_subtitle">Bật Online ở bảng tin để bắt đầu nhận yêu cầu gần bạn.</string>
+    <string name="verification_rejected_title">Hồ sơ cần bổ sung</string>
+    <string name="verification_rejected_subtitle">Sửa các mục được đánh dấu rồi gửi lại.</string>
+    <string name="verification_not_submitted_title">Hồ sơ chưa gửi</string>
+    <string name="verification_missing">Còn thiếu: %1$s</string>
+    <string name="verification_row_profile">Thông tin cá nhân và khu vực</string>
+    <string name="verification_note_title">Lý do cần bổ sung</string>
+    <string name="verification_note_default">Quản trị viên chưa ghi lý do. Hãy kiểm tra lại ảnh giấy tờ.</string>
+    <string name="verification_reason">Lý do: %1$s</string>
+    <string name="verification_refresh">Làm mới trạng thái</string>
+    <string name="verification_start">Bắt đầu nhận việc</string>
+    <string name="verification_fix">Sửa và gửi lại</string>
 </resources>

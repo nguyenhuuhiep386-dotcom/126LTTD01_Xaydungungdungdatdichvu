@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PS-05 Đăng ký – Bước 4 Xác minh danh tính: CCCD 2 mặt + ảnh chân dung cầm CCCD, then "Gửi xét duyệt". -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:title="@string/signup_title" />
+
+    <include
+        android:id="@+id/steps"
+        layout="@layout/view_signup_steps" />
+
+    <include
+        android:id="@+id/status"
+        layout="@layout/view_load_status" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/form"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/screen_padding"
+            android:paddingTop="@dimen/space_s"
+            android:paddingBottom="@dimen/space_xl">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/kyc_intro"
+                android:textAppearance="@style/TextAppearance.Servio.Body" />
+
+            <include
+                android:id="@+id/idFront"
+                layout="@layout/item_kyc_slot" />
+
+            <include
+                android:id="@+id/idBack"
+                layout="@layout/item_kyc_slot" />
+
+            <include
+                android:id="@+id/selfie"
+                layout="@layout/item_kyc_slot" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:drawablePadding="@dimen/space_s"
+                android:text="@string/kyc_tip"
+                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                app:drawableStartCompat="@drawable/ic_camera"
+                app:drawableTint="@color/servio_text_secondary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:drawablePadding="@dimen/space_s"
+                android:text="@string/kyc_privacy"
+                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                app:drawableStartCompat="@drawable/ic_lock"
+                app:drawableTint="@color/servio_text_secondary" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <include
+        android:id="@+id/actionBar"
+        layout="@layout/view_bottom_action" />
+</LinearLayout>

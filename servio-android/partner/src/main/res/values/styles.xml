@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Avatars and round buttons over a map. -->
+    <style name="ShapeAppearance.Servio.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- Bottom sheets (PS-08, PS-11, PS-17): cream surface instead of the Material default container colour. -->
+    <style name="ThemeOverlay.Servio.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="colorSurfaceContainerLow">@color/servio_surface</item>
+    </style>
+</resources>

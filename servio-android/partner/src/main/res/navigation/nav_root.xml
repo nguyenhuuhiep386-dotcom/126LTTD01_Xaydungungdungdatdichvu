@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ServioPartner navigation. Bottom tabs: ps07, ps12, ps13, ps20, ps21.
-  Signup/KYC screens (PS-02..PS-06) sit outside main_graph; PartnerAuthRouter decides where to land.
+  Signup/KYC screens (PS-02..PS-06, ui/signup) sit outside main_graph; AppModule.destinationAfterLogin decides where to land.
   Generated from the screen list in docs/ke-hoach-giai-doan.md (spec 7.2/7.4/7.6). Edit by hand from now on.
   Placeholder screens use PlaceholderFragment; to build a screen, change android:name only (keep the id).
 -->
@@ -14,117 +14,28 @@
     <include app:graph="@navigation/auth_graph" />
     <fragment
         android:id="@+id/ps02"
-        android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-        android:label="PS-02 Đăng ký đối tác — B1 Thông tin">
-        <argument
-            android:name="code"
-            android:defaultValue="PS-02"
-            app:argType="string" />
-        <argument
-            android:name="title"
-            android:defaultValue="Đăng ký đối tác — B1 Thông tin"
-            app:argType="string" />
-        <argument
-            android:name="description"
-            android:defaultValue="Tên, ảnh, giới thiệu, năm kinh nghiệm (#10, #18)"
-            app:argType="string" />
-        <argument
-            android:name="links"
-            android:defaultValue="ps03|Bước 2: Kỹ năng"
-            app:argType="string" />
-    </fragment>
+        android:name="vn.servio.partner.ui.signup.SignupInfoFragment"
+        android:label="PS-02 Đăng ký đối tác — B1 Thông tin" />
 
     <fragment
         android:id="@+id/ps03"
-        android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-        android:label="PS-03 Đăng ký — B2 Kỹ năng">
-        <argument
-            android:name="code"
-            android:defaultValue="PS-03"
-            app:argType="string" />
-        <argument
-            android:name="title"
-            android:defaultValue="Đăng ký — B2 Kỹ năng"
-            app:argType="string" />
-        <argument
-            android:name="description"
-            android:defaultValue="Chọn danh mục cấp 2 + chứng chỉ (#22)"
-            app:argType="string" />
-        <argument
-            android:name="links"
-            android:defaultValue="ps04|Bước 3: Khu vực"
-            app:argType="string" />
-    </fragment>
+        android:name="vn.servio.partner.ui.signup.SignupSkillsFragment"
+        android:label="PS-03 Đăng ký — B2 Kỹ năng" />
 
     <fragment
         android:id="@+id/ps04"
-        android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-        android:label="PS-04 Đăng ký — B3 Khu vực">
-        <argument
-            android:name="code"
-            android:defaultValue="PS-04"
-            app:argType="string" />
-        <argument
-            android:name="title"
-            android:defaultValue="Đăng ký — B3 Khu vực"
-            app:argType="string" />
-        <argument
-            android:name="description"
-            android:defaultValue="Điểm neo + bán kính 3/5/10/20 km (#18)"
-            app:argType="string" />
-        <argument
-            android:name="links"
-            android:defaultValue="ps05|Bước 4: KYC"
-            app:argType="string" />
-    </fragment>
+        android:name="vn.servio.partner.ui.signup.SignupAreaFragment"
+        android:label="PS-04 Đăng ký — B3 Khu vực" />
 
     <fragment
         android:id="@+id/ps05"
-        android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-        android:label="PS-05 Đăng ký — B4 KYC">
-        <argument
-            android:name="code"
-            android:defaultValue="PS-05"
-            app:argType="string" />
-        <argument
-            android:name="title"
-            android:defaultValue="Đăng ký — B4 KYC"
-            app:argType="string" />
-        <argument
-            android:name="description"
-            android:defaultValue="CCCD 2 mặt + selfie (POST /files KYC, #19, #20)"
-            app:argType="string" />
-        <argument
-            android:name="links"
-            android:defaultValue="ps06|Gửi hồ sơ"
-            app:argType="string" />
-    </fragment>
+        android:name="vn.servio.partner.ui.signup.SignupKycFragment"
+        android:label="PS-05 Đăng ký — B4 KYC" />
 
     <fragment
         android:id="@+id/ps06"
-        android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-        android:label="PS-06 Chờ duyệt">
-        <argument
-            android:name="code"
-            android:defaultValue="PS-06"
-            app:argType="string" />
-        <argument
-            android:name="title"
-            android:defaultValue="Chờ duyệt"
-            app:argType="string" />
-        <argument
-            android:name="description"
-            android:defaultValue="Trạng thái, lý do từ chối, nút gửi lại"
-            app:argType="string" />
-        <argument
-            android:name="links"
-            android:defaultValue="ps02|Sửa hồ sơ;main_graph|Vào trang chính (khi đã được duyệt)"
-            app:argType="string" />
-        <argument
-            android:name="showLogout"
-            android:defaultValue="true"
-            app:argType="boolean" />
-    </fragment>
+        android:name="vn.servio.partner.ui.signup.VerificationStatusFragment"
+        android:label="PS-06 Chờ duyệt" />
 
     <navigation
         android:id="@id/main_graph"
