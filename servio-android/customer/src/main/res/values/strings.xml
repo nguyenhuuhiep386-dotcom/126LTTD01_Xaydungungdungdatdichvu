@@ -114,9 +114,42 @@
     <string name="quote_select_this">Chọn báo giá này</string>
     <string name="quote_view_profile">Xem hồ sơ đầy đủ</string>
     <string name="quote_gone">Báo giá này không còn nữa</string>
-    <!-- CS-18 and CS-17 are still placeholders: they show what they were opened with. -->
-    <string name="quote_selection_placeholder">requestId: %1$s\nquoteId: %2$s\nrowVersion: %3$s\nrevision: %4$d</string>
+    <!-- CS-17 is still a placeholder: it shows what it was opened with. -->
     <string name="quote_partner_placeholder">partnerId: %1$s</string>
+
+    <!-- CS-18 Xác nhận đặt dịch vụ (#43) -->
+    <string name="confirm_quote_title">Xác nhận đặt dịch vụ</string>
+    <string name="confirm_quote_job">Công việc</string>
+    <!-- "Có mặt 14:00, Thứ Bảy 17/10": the time of the quote, weekday spelled out. -->
+    <string name="confirm_quote_arrival">Có mặt %1$s</string>
+    <string name="confirm_quote_price_title">Chi tiết giá</string>
+    <string name="confirm_quote_price_label">Giá báo (tiền công)</string>
+    <string name="confirm_quote_extra_label">Chi phí phát sinh</string>
+    <string name="confirm_quote_extra_value">Duyệt trong app</string>
+    <string name="confirm_quote_total_label">Tổng dự kiến</string>
+    <string name="confirm_quote_payment_title">Thanh toán</string>
+    <string name="confirm_quote_cash">Tiền mặt</string>
+    <string name="confirm_quote_cash_hint">Trả trực tiếp cho đối tác khi xác nhận hoàn thành</string>
+    <!-- Fixed as in Figma: 10 minutes and the fees are SystemConfigs on the server, and no API reads them. -->
+    <string name="confirm_quote_note_accept">Đối tác có 10 phút để xác nhận. Các báo giá khác sẽ tự đóng.</string>
+    <string name="confirm_quote_note_cancel">Huỷ miễn phí trước khi đối tác di chuyển. Đang di chuyển: 20.000 đ. Đã đến: 30.000 đ hoặc 20% giá báo.</string>
+    <string name="confirm_quote_confirm">Xác nhận đặt dịch vụ</string>
+    <string name="confirm_quote_sending">Đang đặt…</string>
+    <string name="confirm_quote_unavailable_title">Báo giá này không còn hiệu lực</string>
+    <string name="confirm_quote_unavailable_message">Đối tác đã rút báo giá, yêu cầu đã hết hạn, đã huỷ hoặc đã chọn được đối tác.</string>
+    <string name="confirm_quote_other_quotes">Xem báo giá khác</string>
+    <string name="confirm_quote_changed_title">Báo giá vừa thay đổi</string>
+    <string name="confirm_quote_changed_message">Đối tác vừa cập nhật báo giá. Hãy xem lại giá rồi xác nhận lần nữa.</string>
+    <string name="confirm_quote_matched_title">Yêu cầu đã chọn đối tác</string>
+    <string name="confirm_quote_matched_message">Yêu cầu này đã chọn được đối tác, không đặt thêm báo giá khác được.</string>
+    <string name="confirm_quote_partner_title">Không đặt được với đối tác này</string>
+    <string name="confirm_quote_closed_title">Yêu cầu không còn nhận báo giá</string>
+    <string name="confirm_quote_not_found_title">Không tìm thấy</string>
+    <string name="confirm_quote_not_found_message">Không tìm thấy yêu cầu hoặc báo giá này.</string>
+    <string name="confirm_quote_back_to_request">Về yêu cầu</string>
+    <string name="confirm_quote_got_it">Đã hiểu</string>
+    <!-- CS-20 is still a placeholder: it shows the order it was opened with. -->
+    <string name="confirm_quote_order_placeholder">orderId: %1$s\nMã đơn: %2$s</string>
 
     <!-- CS-29 Account -->
     <string name="account_title">Tài khoản</string>

@@ -23,6 +23,14 @@ class QuoteTextsTest {
     }
 
     @Test
+    fun momentWithFullWeekdaysAsOnCs18() {
+        // CS-18 passes the CS-11 array `create_request_weekday_full` (Monday first, as ReviewTexts.weekdayIndex).
+        val full = listOf("Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật")
+        assertEquals("14:00, Thứ Bảy 17/10", QuoteTexts.moment("2026-10-17T07:00:00+00:00", full, vietnam))
+        assertEquals("09:05, Chủ Nhật 18/10", QuoteTexts.moment("2026-10-18T09:05:00+07:00", full, vietnam))
+    }
+
+    @Test
     fun momentIsNullWhenMissingOrUnreadable() {
         assertNull(QuoteTexts.moment(null, weekdays, vietnam))
         assertNull(QuoteTexts.moment("", weekdays, vietnam))

@@ -21,6 +21,7 @@ import vn.servio.customer.data.model.CustomerQuote
 import vn.servio.customer.data.model.QuoteStatus
 import vn.servio.customer.databinding.SheetQuoteDetailBinding
 import vn.servio.customer.ui.common.RemoteImages
+import vn.servio.customer.ui.confirmquote.ConfirmQuoteFragment
 import vn.servio.customer.ui.requestdetail.RequestDetailViewModel.State
 import javax.inject.Inject
 
@@ -117,12 +118,9 @@ class QuoteDetailSheet : BottomSheetDialogFragment() {
                 ),
             )
         }
-        val revision = state.detail?.revision
         acceptedText.isVisible = quote.status == QuoteStatus.ACCEPTED
-        actions.isVisible = state.canSelect(quote) && revision != null
-        selectButton.setOnClickListener {
-            if (revision != null) leaveTo(R.id.cs18, RequestDetailFragment.selectionArgs(this@QuoteDetailSheet, requestId, quote, revision))
-        }
+        actions.isVisible = state.canSelect(quote)
+        selectButton.setOnClickListener { leaveTo(R.id.cs18, ConfirmQuoteFragment.args(requestId, quote.id)) }
     }
 
     /** [skills] is null until #27 has answered (or when it failed): the row is hidden, the sheet is not blocked. */

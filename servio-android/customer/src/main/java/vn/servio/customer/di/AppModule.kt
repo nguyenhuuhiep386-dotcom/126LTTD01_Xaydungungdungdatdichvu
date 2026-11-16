@@ -12,11 +12,14 @@ import vn.servio.core.utils.AuthRouter
 import vn.servio.customer.BuildConfig
 import vn.servio.customer.data.remote.AddressApi
 import vn.servio.customer.data.remote.FileApi
+import vn.servio.customer.data.remote.OrderApi
 import vn.servio.customer.data.remote.PartnerApi
 import vn.servio.customer.data.remote.ServiceRequestApi
 import vn.servio.customer.data.repository.AddressRepository
 import vn.servio.customer.data.repository.CreateRequestRepository
 import vn.servio.customer.data.repository.FileRepository
+import vn.servio.customer.data.repository.OrderRepository
+import vn.servio.customer.data.repository.RemoteOrderRepository
 import vn.servio.customer.data.repository.PartnerRepository
 import vn.servio.customer.data.repository.ProfileRepository
 import vn.servio.customer.data.repository.RemoteAddressRepository
@@ -57,6 +60,10 @@ object AppModule {
     @Provides
     @Singleton
     fun providePartnerApi(retrofit: Retrofit): PartnerApi = retrofit.create(PartnerApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideOrderApi(retrofit: Retrofit): OrderApi = retrofit.create(OrderApi::class.java)
 }
 
 /** Customer repositories. All of them call the real API. */
@@ -81,4 +88,7 @@ abstract class RepositoryBindings {
 
     @Binds
     abstract fun bindPartnerRepository(impl: RemotePartnerRepository): PartnerRepository
+
+    @Binds
+    abstract fun bindOrderRepository(impl: RemoteOrderRepository): OrderRepository
 }

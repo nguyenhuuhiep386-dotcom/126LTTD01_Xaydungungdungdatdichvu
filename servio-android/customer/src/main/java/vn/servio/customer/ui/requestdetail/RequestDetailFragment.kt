@@ -25,6 +25,7 @@ import vn.servio.customer.databinding.DialogCancelRequestBinding
 import vn.servio.customer.databinding.FragmentRequestDetailBinding
 import vn.servio.customer.ui.common.RemoteImages
 import vn.servio.customer.ui.common.RequestStatusChip
+import vn.servio.customer.ui.confirmquote.ConfirmQuoteFragment
 import vn.servio.customer.ui.request.MoneyInput
 import vn.servio.customer.ui.requestdetail.RequestDetailViewModel.Event
 import vn.servio.customer.ui.requestdetail.RequestDetailViewModel.State
@@ -171,8 +172,7 @@ class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
     private fun selectQuote(quote: CustomerQuote) {
         val navController = findNavController()
         if (navController.currentDestination?.id != R.id.cs15) return
-        val revision = viewModel.state.value.detail?.revision ?: return
-        navController.navigate(R.id.cs18, selectionArgs(this, viewModel.requestId, quote, revision))
+        navController.navigate(R.id.cs18, ConfirmQuoteFragment.args(viewModel.requestId, quote.id))
     }
 
     private fun showCancelDialog() {
@@ -186,19 +186,5 @@ class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
                 viewModel.cancel(form.reasonInput.text?.toString()?.take(CancelRequestBody.MAX_REASON_LENGTH))
             }
             .show()
-    }
-
-    companion object {
-        /**
-         * What CS-18 needs to call #43: the quote with its rowVersion and the request revision the customer saw.
-         * "description" only feeds the CS-18 placeholder until that screen is built.
-         */
-        fun selectionArgs(fragment: Fragment, requestId: String, quote: CustomerQuote, revision: Int): Bundle = bundleOf(
-            "requestId" to requestId,
-            "quoteId" to quote.id,
-            "rowVersion" to quote.rowVersion,
-            "revision" to revision,
-            "description" to fragment.getString(R.string.quote_selection_placeholder, requestId, quote.id, quote.rowVersion, revision),
-        )
     }
 }

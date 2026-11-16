@@ -168,9 +168,9 @@
 
         <fragment
             android:id="@+id/cs18"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-18 Xác nhận chọn đối tác">
-            <!-- Set by "Chọn" on CS-15/CS-16: what #43 needs (quote rowVersion, request revision). -->
+            android:name="vn.servio.customer.ui.confirmquote.ConfirmQuoteFragment"
+            android:label="CS-18 Xác nhận đặt dịch vụ">
+            <!-- Set by "Chọn" on CS-15/CS-16. CS-18 reads the quote (and its rowVersion) from #42 itself. -->
             <argument
                 android:name="requestId"
                 android:defaultValue=""
@@ -178,30 +178,6 @@
             <argument
                 android:name="quoteId"
                 android:defaultValue=""
-                app:argType="string" />
-            <argument
-                android:name="rowVersion"
-                android:defaultValue=""
-                app:argType="string" />
-            <argument
-                android:name="revision"
-                android:defaultValue="0"
-                app:argType="integer" />
-            <argument
-                android:name="code"
-                android:defaultValue="CS-18"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Xác nhận chọn đối tác"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Tóm tắt giá, tiền mặt (CASH), POST accept-quotes (#43)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs20|Xác nhận → Chi tiết đơn"
                 app:argType="string" />
         </fragment>
 
@@ -231,6 +207,11 @@
             android:id="@+id/cs20"
             android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
             android:label="CS-20 Chi tiết đơn hàng">
+            <!-- Set by CS-18 after #43 (201); CS-18 is popped, so Back returns to CS-15. -->
+            <argument
+                android:name="orderId"
+                android:defaultValue=""
+                app:argType="string" />
             <argument
                 android:name="code"
                 android:defaultValue="CS-20"
