@@ -18,7 +18,6 @@ import vn.servio.customer.R
 import vn.servio.customer.data.model.CancelRequestBody
 import vn.servio.customer.data.model.CustomerQuote
 import vn.servio.customer.data.model.QuoteSort
-import vn.servio.customer.data.model.ScheduleType
 import vn.servio.customer.data.model.ServiceRequestDetail
 import vn.servio.customer.data.model.ServiceRequestStatus
 import vn.servio.customer.databinding.DialogCancelRequestBinding
@@ -110,7 +109,6 @@ class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
     }
 
     private fun FragmentRequestDetailBinding.bindRequest(detail: ServiceRequestDetail, categoryGroup: String?, images: RemoteImages) {
-        val weekdays = QuoteFormat.weekdays(requireContext())
         // Loading again would restart a download that is still running, so only when the photo changes.
         val photo = detail.images.firstOrNull()
         if (thumbnail.getTag(R.id.thumbnail) != photo) {
@@ -123,13 +121,7 @@ class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
             ?: detail.categoryName
         RequestStatusChip.bind(statusText, detail.status, openLabel = R.string.request_detail_status_open)
 
-        timeText.text = when (detail.scheduleType) {
-            ScheduleType.NOW -> QuoteTexts.moment(detail.scheduledEndAt, weekdays)
-                ?.let { getString(R.string.request_detail_time_now_until, it) }
-                ?: getString(R.string.request_detail_time_now)
-            ScheduleType.SCHEDULED -> QuoteTexts.window(detail.scheduledStartAt, detail.scheduledEndAt, weekdays)
-                ?: getString(R.string.request_detail_time_unknown)
-        }
+        timeText.text = QuoteFormat.schedule(requireContext(), detail.scheduleType, detail.scheduledStartAt, detail.scheduledEndAt)
         addressText.text = detail.addressSnapshot
         val min = detail.budgetMin
         val max = detail.budgetMax

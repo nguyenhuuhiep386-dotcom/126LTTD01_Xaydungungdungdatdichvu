@@ -3,6 +3,7 @@ package vn.servio.customer.ui.requestdetail
 import android.content.Context
 import vn.servio.customer.R
 import vn.servio.customer.data.model.QuotePartner
+import vn.servio.customer.data.model.ScheduleType
 import vn.servio.customer.ui.request.MoneyInput
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -99,5 +100,20 @@ object QuoteFormat {
         is QuoteTexts.Remaining.Minutes -> context.getString(R.string.request_detail_expires_minutes, left.minutes)
         QuoteTexts.Remaining.Past -> context.getString(R.string.request_detail_expired)
         null -> null
+    }
+
+    /**
+     * Schedule line of a request (CS-14 card, CS-15 header): "Càng sớm càng tốt · trước 16:00, T7 17/10" for NOW,
+     * "T7 17/10 · 14:00–16:00" for a booked slot. [endIso] is the end of the 2-hour window.
+     */
+    fun schedule(context: Context, type: ScheduleType, startIso: String?, endIso: String?): String {
+        val weekdays = weekdays(context)
+        return when (type) {
+            ScheduleType.NOW -> QuoteTexts.moment(endIso, weekdays)
+                ?.let { context.getString(R.string.request_detail_time_now_until, it) }
+                ?: context.getString(R.string.request_detail_time_now)
+            ScheduleType.SCHEDULED -> QuoteTexts.window(startIso, endIso, weekdays)
+                ?: context.getString(R.string.request_detail_time_unknown)
+        }
     }
 }

@@ -221,7 +221,7 @@ class CreateRequestReviewFragment : Fragment(R.layout.fragment_create_request_re
             PostFailure.DialogKind.OUTSTANDING_DEBT -> R.string.create_request_post_debt_title
             PostFailure.DialogKind.POSTING_RESTRICTED -> R.string.create_request_post_restricted_title
         }
-        val builder = MaterialAlertDialogBuilder(requireContext())
+        val builder = MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Servio_AlertDialog)
             .setTitle(title)
             .setMessage(failure.message)
             .setPositiveButton(R.string.action_close, null)

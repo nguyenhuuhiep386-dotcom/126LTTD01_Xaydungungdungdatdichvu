@@ -43,6 +43,7 @@
     <string name="requests_empty_matched">Chưa có yêu cầu nào đã ghép với người làm</string>
     <string name="requests_empty_history">Chưa có yêu cầu nào hết hạn hoặc đã huỷ</string>
     <string name="requests_meta">%1$s · %2$s</string>
+    <string name="requests_new">Đăng yêu cầu mới</string>
     <string name="requests_waiting_quotes">Chờ báo giá</string>
     <string name="requests_quotes">%1$d báo giá</string>
     <string name="requests_status_draft">Đang kiểm duyệt</string>

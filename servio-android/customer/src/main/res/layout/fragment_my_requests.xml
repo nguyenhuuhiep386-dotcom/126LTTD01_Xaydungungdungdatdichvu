@@ -6,25 +6,57 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:accessibilityHeading="true"
-        android:paddingHorizontal="@dimen/screen_padding"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/screen_padding"
         android:paddingTop="@dimen/space_l"
-        android:text="@string/requests_title"
-        android:textAppearance="@style/TextAppearance.Servio.ScreenTitle" />
+        android:paddingEnd="@dimen/space_xs">
 
-    <!-- Tabs are added in MyRequestsFragment (title + totalCount of #37). -->
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:accessibilityHeading="true"
+            android:text="@string/requests_title"
+            android:textAppearance="@style/TextAppearance.Servio.ScreenTitle"
+            android:textStyle="bold" />
+
+        <!-- "+" → CS-07, the start of the create flow (same as "Đăng yêu cầu" on the home screen). -->
+        <ImageButton
+            android:id="@+id/newRequestButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/requests_new"
+            android:src="@drawable/ic_add"
+            app:tint="@color/servio_text_primary" />
+    </LinearLayout>
+
+    <!-- Tabs are added in MyRequestsFragment: custom labels, bold when selected, a number on "Đang mở" only (Figma). -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_s"
         android:background="@color/servio_background"
-        app:tabIndicatorColor="@color/servio_text_accent"
-        app:tabSelectedTextColor="@color/servio_text_primary"
-        app:tabTextColor="@color/servio_text_secondary" />
+        app:tabContentStart="@dimen/screen_padding"
+        app:tabGravity="start"
+        app:tabIndicatorColor="@color/servio_text_primary"
+        app:tabIndicatorFullWidth="false"
+        app:tabIndicatorHeight="3dp"
+        app:tabMinWidth="0dp"
+        app:tabMode="scrollable"
+        app:tabPaddingEnd="@dimen/space_s"
+        app:tabPaddingStart="@dimen/space_s"
+        app:tabRippleColor="@null" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/servio_divider" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
