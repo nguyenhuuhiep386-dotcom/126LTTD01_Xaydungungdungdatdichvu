@@ -356,4 +356,21 @@
     <string name="notifications_title">Thông báo</string>
     <string name="notifications_empty">Chưa có thông báo.</string>
     <string name="notifications_read_all">Đọc hết</string>
+
+    <!-- Đồng ý xử lý dữ liệu cá nhân (CONSENT_REQUIRED), khách chọn báo giá, #177 -->
+    <string name="consent_title">Đồng ý xử lý dữ liệu cá nhân</string>
+    <string name="consent_kyc">Ảnh CCCD và ảnh chân dung là dữ liệu nhạy cảm. Servio chỉ dùng để quản trị viên xác minh danh tính đối tác, lưu riêng và không hiển thị cho khách.</string>
+    <string name="consent_location">Khi bật Online và khi đi tới khách, Servio dùng vị trí của bạn để gợi ý việc gần bạn và chia sẻ cho khách của đơn đang làm, chỉ trong lúc di chuyển.</string>
+    <string name="consent_terms">Bạn đồng ý với Điều khoản sử dụng và Chính sách bảo mật của Servio khi gửi hồ sơ đối tác.</string>
+    <string name="consent_read_policy">Đọc Chính sách bảo mật</string>
+    <string name="consent_checkbox">Tôi đã đọc và đồng ý</string>
+    <string name="consent_agree">Đồng ý</string>
+    <string name="quote_accepted_title">Khách đã chọn báo giá của bạn</string>
+    <string name="quote_accepted_message">Hãy xác nhận nhận đơn trong 10 phút, quá hạn đơn sẽ tự huỷ.</string>
+    <string name="quote_accepted_open">Xem đơn</string>
+    <string name="cash_unpaid">Khách chưa thanh toán</string>
+    <string name="cash_unpaid_message">Chỉ báo khi khách chưa trả tiền mặt. Quản trị viên sẽ xem xét; trong thời gian đó đơn tạm dừng.</string>
+    <string name="cash_unpaid_hint">Mô tả tình huống (ít nhất 10 ký tự)</string>
+    <string name="cash_unpaid_invalid">Hãy mô tả ít nhất 10 ký tự.</string>
+    <string name="cash_unpaid_sent">Đã gửi báo cáo. Quản trị viên sẽ liên hệ.</string>
 </resources>

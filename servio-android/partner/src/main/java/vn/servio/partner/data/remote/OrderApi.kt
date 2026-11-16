@@ -21,6 +21,7 @@ import vn.servio.partner.data.model.OrderStatusChanged
 import vn.servio.partner.data.model.OrderSummary
 import vn.servio.partner.data.model.PartnerCancelRequest
 import vn.servio.partner.data.model.RejectAssignmentRequest
+import vn.servio.partner.data.model.ReportUnpaidRequest
 import vn.servio.partner.data.model.StartMovingRequest
 import vn.servio.partner.data.model.StartWorkRequest
 import vn.servio.partner.data.model.TimelineEntry
@@ -115,4 +116,12 @@ interface OrderApi {
         @Path("aid") assignmentId: String,
         @Body body: CustomerNoShowRequest,
     ): ApiResponse<CancelResult>
+
+    /** #177 from COMPLETED_BY_PARTNER until 24 h after completion; 409 DISPUTE_ALREADY_OPEN when a case is open. */
+    @POST("orders/{id}/assignments/{aid}/report-unpaid")
+    suspend fun reportUnpaid(
+        @Path("id") id: String,
+        @Path("aid") assignmentId: String,
+        @Body body: ReportUnpaidRequest,
+    ): ApiResponse<kotlinx.serialization.json.JsonObject>
 }

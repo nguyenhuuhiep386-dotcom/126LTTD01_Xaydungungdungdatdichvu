@@ -23,6 +23,7 @@ import vn.servio.partner.data.model.OrderStatusChanged
 import vn.servio.partner.data.model.OrderSummary
 import vn.servio.partner.data.model.PartnerCancelRequest
 import vn.servio.partner.data.model.RejectAssignmentRequest
+import vn.servio.partner.data.model.ReportUnpaidRequest
 import vn.servio.partner.data.model.StartMovingRequest
 import vn.servio.partner.data.model.StartWorkRequest
 import vn.servio.partner.data.model.TimelineEntry
@@ -49,6 +50,7 @@ interface OrderRepository {
     suspend fun complete(orderId: String, assignmentId: String, afterImages: List<String>, note: String?): ApiResult<OrderStatusChanged>
     suspend fun addExtraCharge(orderId: String, request: CreateExtraChargeRequest): ApiResult<ExtraCharge>
     suspend fun customerNoShow(orderId: String, assignmentId: String, note: String?): ApiResult<CancelResult>
+    suspend fun reportUnpaid(orderId: String, assignmentId: String, note: String): ApiResult<Unit>
 
     /** Ids of orders that changed (status, new order to confirm, extra charge answered, arrival answered). */
     fun changes(): Flow<String?>
@@ -107,6 +109,9 @@ class RemoteOrderRepository @Inject constructor(
 
     override suspend fun customerNoShow(orderId: String, assignmentId: String, note: String?) =
         apiCall { api.customerNoShow(orderId, assignmentId, CustomerNoShowRequest(note)) }
+
+    override suspend fun reportUnpaid(orderId: String, assignmentId: String, note: String) =
+        apiCall { api.reportUnpaid(orderId, assignmentId, ReportUnpaidRequest(note)) }.map { }
 
     override fun changes(): Flow<String?> {
         val hub = realtime.orders

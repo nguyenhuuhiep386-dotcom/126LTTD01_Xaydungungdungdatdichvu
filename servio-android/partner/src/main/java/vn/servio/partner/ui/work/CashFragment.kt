@@ -11,12 +11,17 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import vn.servio.core.network.ApiResult
 import vn.servio.core.utils.Money
@@ -33,6 +38,7 @@ import vn.servio.partner.databinding.ItemStatusRowBinding
 import vn.servio.partner.ui.common.LoadStatus
 import vn.servio.partner.ui.common.Texts
 import vn.servio.partner.ui.order.OrderDetailFragment
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -51,6 +57,21 @@ class CashViewModel @Inject constructor(
         // The customer confirms on CS-23 (#71) or the server auto-confirms: OrderStatusChanged arrives here.
         viewModelScope.launch {
             repository.changes().filter { it == null || it == orderId }.collect { load(showSpinner = false) }
+        }
+    }
+
+    private val _messages = kotlinx.coroutines.channels.Channel<String?>(kotlinx.coroutines.channels.Channel.BUFFERED)
+
+    /** Result of #177: null = case opened, otherwise the error message. */
+    val reportResults: kotlinx.coroutines.flow.Flow<String?> = _messages.receiveAsFlow()
+
+    fun reportUnpaid(note: String) {
+        val order = (_state.value as? UiState.Content)?.data ?: return
+        val assignmentId = order.assignment?.id ?: return
+        viewModelScope.launch {
+            val result = repository.reportUnpaid(order.id, assignmentId, note.trim())
+            _messages.send((result as? ApiResult.Failure)?.message)
+            if (result is ApiResult.Success) load(showSpinner = false)
         }
     }
 
@@ -77,6 +98,9 @@ class CashFragment : Fragment(R.layout.fragment_cash) {
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
         binding.swipeRefresh.setOnRefreshListener { viewModel.load(showSpinner = false) }
 
+        collectWhenStarted(viewModel.reportResults) { error ->
+            Snackbar.make(view, error ?: getString(R.string.cash_unpaid_sent), Snackbar.LENGTH_LONG).show()
+        }
         collectWhenStarted(viewModel.state) { state ->
             binding.swipeRefresh.isRefreshing = false
             LoadStatus.bind(binding.status, state, binding.swipeRefresh) { viewModel.load() }
@@ -109,6 +133,13 @@ class CashFragment : Fragment(R.layout.fragment_cash) {
         }
         pricing.partnerEarning?.let { addRow(binding.breakdown, getString(R.string.order_price_earning), Money.format(it)) }
 
+        // #177: the customer has not paid. Allowed from COMPLETED_BY_PARTNER until 24 h after completion.
+        val completedAt = Texts.parse(order.completedAt)
+        val withinWindow = completedAt == null || completedAt.plusHours(UNPAID_WINDOW_HOURS).isAfter(ZonedDateTime.now())
+        binding.unpaidButton.isVisible = withinWindow &&
+            (order.status == OrderStatus.COMPLETED_BY_PARTNER || order.status == OrderStatus.COMPLETED)
+        binding.unpaidButton.setOnClickListener { askUnpaid() }
+
         val primary = binding.actionBar.primaryButton
         if (done) {
             primary.setText(R.string.cash_rate_customer)
@@ -123,10 +154,40 @@ class CashFragment : Fragment(R.layout.fragment_cash) {
         }
     }
 
+    private fun askUnpaid() {
+        val context = requireContext()
+        val layout = TextInputLayout(context).apply {
+            val padding = resources.getDimensionPixelSize(vn.servio.core.R.dimen.screen_padding)
+            setPadding(padding, 0, padding, 0)
+            hint = getString(R.string.cash_unpaid_hint)
+        }
+        val input = TextInputEditText(layout.context)
+        layout.addView(input)
+        MaterialAlertDialogBuilder(context)
+            .setTitle(R.string.cash_unpaid)
+            .setMessage(R.string.cash_unpaid_message)
+            .setView(layout)
+            .setNegativeButton(R.string.action_close, null)
+            .setPositiveButton(R.string.action_confirm) { _, _ ->
+                val note = input.text?.toString()?.trim().orEmpty()
+                if (note.length >= MIN_UNPAID_NOTE) {
+                    viewModel.reportUnpaid(note)
+                } else {
+                    view?.let { Snackbar.make(it, R.string.cash_unpaid_invalid, Snackbar.LENGTH_LONG).show() }
+                }
+            }
+            .show()
+    }
+
     private fun addRow(container: ViewGroup, label: String, value: String) {
         val row = ItemStatusRowBinding.inflate(layoutInflater, container, false)
         row.label.text = label
         row.value.text = value
         container.addView(row.root)
+    }
+
+    private companion object {
+        const val UNPAID_WINDOW_HOURS = 24L
+        const val MIN_UNPAID_NOTE = 10
     }
 }

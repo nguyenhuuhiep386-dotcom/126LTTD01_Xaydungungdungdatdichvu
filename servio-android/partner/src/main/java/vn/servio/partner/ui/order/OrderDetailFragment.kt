@@ -31,11 +31,14 @@ import vn.servio.partner.R
 import vn.servio.partner.data.location.DeviceLocation
 import vn.servio.partner.data.model.OrderDetail
 import vn.servio.partner.data.model.OrderStatus
+import vn.servio.partner.data.repository.ConsentPurpose
+import vn.servio.partner.data.repository.ConsentRepository
 import vn.servio.partner.databinding.FragmentOrderDetailBinding
 import vn.servio.partner.databinding.ItemStatusRowBinding
 import vn.servio.partner.tracking.LocationTrackingService
 import vn.servio.partner.ui.common.LoadStatus
 import vn.servio.partner.ui.common.Texts
+import vn.servio.partner.ui.common.withConsent
 import vn.servio.partner.ui.order.OrderDetailViewModel.Event
 import java.time.Duration
 import java.time.ZonedDateTime
@@ -46,6 +49,7 @@ import javax.inject.Inject
 class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
 
     @Inject lateinit var deviceLocation: DeviceLocation
+    @Inject lateinit var consents: ConsentRepository
 
     private val viewModel: OrderDetailViewModel by viewModels()
     private var countdownJob: Job? = null
@@ -191,7 +195,9 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
                 secondary.setText(R.string.order_partner_cancel)
                 secondary.setOnClickListener { askReason(R.string.order_partner_cancel_title) { viewModel.cancel(it) } }
                 primary.setText(R.string.order_start_moving)
-                primary.setOnClickListener { requestTripPermissions() }
+                primary.setOnClickListener {
+                    withConsent(consents, listOf(ConsentPurpose.LOCATION_SHARING)) { requestTripPermissions() }
+                }
             }
             OrderStatus.ON_THE_WAY -> {
                 secondary.setText(R.string.order_partner_cancel)

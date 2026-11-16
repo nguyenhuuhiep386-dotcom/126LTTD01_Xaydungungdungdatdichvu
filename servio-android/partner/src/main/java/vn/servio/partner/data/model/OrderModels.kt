@@ -211,6 +211,10 @@ data class CreateExtraChargeRequest(
 @Serializable
 data class CustomerNoShowRequest(val note: String? = null)
 
+/** #177 "Khách chưa thanh toán": opens an UNPAID_CASH case for the admin (10–1000 characters). */
+@Serializable
+data class ReportUnpaidRequest(val note: String, val evidenceUrls: List<String>? = null)
+
 /** Result of #180 (only the new status is used). */
 @Serializable
 data class CancelResult(val orderId: String, val status: OrderStatus, val cancellationFee: Long = 0)

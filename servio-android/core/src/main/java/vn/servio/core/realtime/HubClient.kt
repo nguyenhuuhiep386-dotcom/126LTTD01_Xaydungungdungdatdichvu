@@ -55,6 +55,9 @@ class HubClient internal constructor(
     private val eventNames = mutableSetOf<String>()
     private val registered = mutableSetOf<String>()
     private var connection: HubConnection? = null
+
+    /** The hub being opened: events registered meanwhile must be attached to it too, or they are missed. */
+    private var connecting: HubConnection? = null
     private var loop: Job? = null
 
     private val _state = MutableStateFlow(State.DISCONNECTED)
@@ -81,7 +84,9 @@ class HubClient internal constructor(
             loop?.cancel()
             loop = null
             connection?.let { runCatching { it.stop() } }
+            connecting?.let { runCatching { it.stop() } }
             connection = null
+            connecting = null
             registered.clear()
         }
         _state.value = State.DISCONNECTED
@@ -112,7 +117,7 @@ class HubClient internal constructor(
     private fun register(name: String) {
         synchronized(this) {
             eventNames.add(name)
-            connection?.let { attach(it, name) }
+            (connecting ?: connection)?.let { attach(it, name) }
         }
     }
 
@@ -141,10 +146,12 @@ class HubClient internal constructor(
             val closed = CompletableDeferred<Unit>()
             hub.onClosed { closed.complete(Unit) }
             synchronized(this) {
+                connecting = hub
                 registered.clear()
                 eventNames.forEach { attach(hub, it) }
             }
             val opened = runCatching { hub.start().blockingAwait(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS) }.getOrDefault(false)
+            synchronized(this) { if (connecting === hub) connecting = null }
             if (opened) {
                 synchronized(this) { connection = hub }
                 _state.value = State.CONNECTED

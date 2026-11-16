@@ -18,8 +18,11 @@ import vn.servio.core.utils.collectWhenStarted
 import vn.servio.partner.R
 import vn.servio.partner.data.location.DeviceLocation
 import vn.servio.partner.data.model.FeedSort
+import vn.servio.partner.data.repository.ConsentPurpose
+import vn.servio.partner.data.repository.ConsentRepository
 import vn.servio.partner.databinding.FragmentFeedBinding
 import vn.servio.partner.ui.feed.FeedViewModel.Event
+import vn.servio.partner.ui.common.withConsent
 import vn.servio.partner.ui.quote.RequestDetailFragment
 import javax.inject.Inject
 import vn.servio.core.R as CoreR
@@ -29,6 +32,7 @@ import vn.servio.core.R as CoreR
 class FeedFragment : Fragment(R.layout.fragment_feed) {
 
     @Inject lateinit var deviceLocation: DeviceLocation
+    @Inject lateinit var consents: ConsentRepository
 
     private val viewModel: FeedViewModel by viewModels()
 
@@ -59,10 +63,13 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         binding.onlineSwitch.setOnClickListener {
             val wanted = binding.onlineSwitch.isChecked
             binding.onlineSwitch.isChecked = viewModel.isOnline.value
-            when {
-                !wanted -> viewModel.setOnline(false)
-                deviceLocation.hasPermission -> viewModel.setOnline(true)
-                else -> locationPermission.launch(DeviceLocation.PERMISSIONS)
+            if (!wanted) {
+                viewModel.setOnline(false)
+            } else {
+                // Going Online shares the position for matching: LOCATION_SHARING consent, then the OS permission.
+                withConsent(consents, listOf(ConsentPurpose.LOCATION_SHARING)) {
+                    if (deviceLocation.hasPermission) viewModel.setOnline(true) else locationPermission.launch(DeviceLocation.PERMISSIONS)
+                }
             }
         }
 
