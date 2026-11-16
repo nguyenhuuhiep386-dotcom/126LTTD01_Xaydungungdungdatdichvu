@@ -4,6 +4,10 @@
     <!-- PS-04 anchor point, Online heartbeats (#26), check-in (#68). INTERNET comes from :core. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- DT-4: sharing the position while moving to the customer (foreground service of type location). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".ServioPartnerApp"
@@ -23,6 +27,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".tracking.LocationTrackingService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
 
         <!-- KYC, certificate and order photos: the camera app writes into cache/camera/ through this provider. -->
         <provider

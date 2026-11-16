@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PS-15 Điều hướng tới khách: full map, sharing banner, destination card, check-in problem, arrive / ask customer. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <org.osmdroid.views.MapView
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="@dimen/space_m">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_round_surface"
+            android:contentDescription="@string/action_back"
+            android:src="@drawable/ic_back"
+            app:tint="@color/servio_text_primary" />
+
+        <TextView
+            android:id="@+id/sharingBanner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_m"
+            android:layout_weight="1"
+            android:background="@drawable/bg_pill_surface"
+            android:drawablePadding="@dimen/space_s"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="@dimen/space_m"
+            android:paddingVertical="@dimen/space_s"
+            android:text="@string/navigate_sharing"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            android:textColor="@color/servio_text_primary"
+            app:drawableStartCompat="@drawable/bg_dot"
+            app:drawableTint="@color/servio_success" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/attribution"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="76dp"
+        android:layout_marginEnd="@dimen/space_s"
+        android:background="@drawable/bg_map_attribution"
+        android:paddingHorizontal="@dimen/space_xs"
+        android:textAppearance="@style/TextAppearance.Servio.Caption"
+        android:textSize="11sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_sheet_top"
+        android:orientation="vertical"
+        android:padding="@dimen/screen_padding">
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/errorText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.Servio.Body"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/destination"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                        tools:text="Đến nhà Minh Anh" />
+
+                    <TextView
+                        android:id="@+id/address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        tools:text="12 Võ Văn Ngân, P. Linh Chiểu" />
+
+                    <TextView
+                        android:id="@+id/distance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.Accent"
+                        tools:text="Còn khoảng 1,2 km" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/directionsButton"
+                    style="@style/Widget.Servio.Button.Outlined"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/navigate_directions" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/problemCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:background="@drawable/bg_error_card"
+                android:orientation="vertical"
+                android:padding="@dimen/space_m"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="@dimen/space_s"
+                    android:text="@string/navigate_problem_title"
+                    android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                    android:textColor="@color/servio_error"
+                    app:drawableStartCompat="@drawable/ic_alert"
+                    app:drawableTint="@color/servio_error" />
+
+                <TextView
+                    android:id="@+id/problemText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:textAppearance="@style/TextAppearance.Servio.Caption"
+                    android:textColor="@color/servio_text_primary"
+                    tools:text="GPS cho thấy bạn cách địa chỉ khoảng 350 m. Cần ở trong 200 m." />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/waitingText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:background="@drawable/bg_warning_card"
+                android:padding="@dimen/space_m"
+                android:textAppearance="@style/TextAppearance.Servio.Body"
+                android:visibility="gone"
+                tools:text="Đang chờ khách xác nhận (tới 14:05)…" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/arriveButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:text="@string/navigate_arrived" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/askCustomerButton"
+                style="@style/Widget.Servio.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:text="@string/navigate_ask_customer"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chatButton"
+                    style="@style/Widget.Servio.Button.Text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/action_chat"
+                    app:icon="@drawable/ic_chat"
+                    app:iconTint="@color/servio_text_accent" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/callButton"
+                    style="@style/Widget.Servio.Button.Text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/order_call"
+                    app:icon="@drawable/ic_phone"
+                    app:iconTint="@color/servio_text_accent" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>
