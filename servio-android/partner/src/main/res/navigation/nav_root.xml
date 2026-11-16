@@ -47,93 +47,41 @@
             android:label="PS-07 Newsfeed">
         </fragment>
 
-        <fragment
+        <dialog
             android:id="@+id/ps08"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="PS-08 Bộ lọc newsfeed">
-            <argument
-                android:name="code"
-                android:defaultValue="PS-08"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Bộ lọc newsfeed"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Danh mục, khoảng cách, sắp xếp"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
-        </fragment>
+            android:name="vn.servio.partner.ui.feed.FeedFilterSheet"
+            android:label="PS-08 Bộ lọc newsfeed" />
 
         <fragment
             android:id="@+id/ps10"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.partner.ui.quote.RequestDetailFragment"
             android:label="PS-10 Chi tiết bài đăng">
             <argument
-                android:name="code"
-                android:defaultValue="PS-10"
-                app:argType="string" />
+                android:name="requestId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
             <argument
-                android:name="title"
-                android:defaultValue="Chi tiết bài đăng"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="GET /service-requests/{id} (#38)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="ps11|Gửi báo giá;chat|Chat với khách"
-                app:argType="string" />
+                android:name="openQuote"
+                android:defaultValue="false"
+                app:argType="boolean" />
         </fragment>
 
-        <fragment
+        <dialog
             android:id="@+id/ps11"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.partner.ui.quote.QuoteSheet"
             android:label="PS-11 Gửi báo giá">
             <argument
-                android:name="code"
-                android:defaultValue="PS-11"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Gửi báo giá"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Bottom sheet: giá, thời gian, ghi chú (#50)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="ps12|Gửi → Báo giá của tôi"
-                app:argType="string" />
-        </fragment>
+                android:name="requestId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
+        </dialog>
 
         <fragment
             android:id="@+id/ps12"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="PS-12 Báo giá của tôi">
-            <argument
-                android:name="code"
-                android:defaultValue="PS-12"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Báo giá của tôi"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Tab: Chờ / Được chọn / Bị từ chối (#53)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="ps10|Mở bài đăng"
-                app:argType="string" />
-        </fragment>
+            android:name="vn.servio.partner.ui.quote.MyQuotesFragment"
+            android:label="PS-12 Báo giá của tôi" />
 
         <fragment
             android:id="@+id/ps13"

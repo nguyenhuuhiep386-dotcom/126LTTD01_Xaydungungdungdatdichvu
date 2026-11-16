@@ -56,6 +56,9 @@ dependencies {
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+    // SignalR Java client (realtime/HubClient). Gson only to read the raw event payload, which is then parsed with kotlinx.
+    implementation(libs.signalr)
+    implementation(libs.gson)
     ksp(libs.hilt.compiler)
 
     testImplementation(libs.junit)

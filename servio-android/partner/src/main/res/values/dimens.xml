@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Partner-only sizes. Spacing tokens live in :core (space_*, screen_padding). -->
+<resources>
+    <dimen name="request_photo_width">200dp</dimen>
+    <dimen name="request_photo_height">150dp</dimen>
+</resources>

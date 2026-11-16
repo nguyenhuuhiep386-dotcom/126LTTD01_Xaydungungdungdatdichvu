@@ -13,14 +13,18 @@ import vn.servio.core.utils.AppConfig
 import vn.servio.core.utils.AuthRouter
 import vn.servio.partner.BuildConfig
 import vn.servio.partner.R
+import vn.servio.partner.data.remote.FeedApi
 import vn.servio.partner.data.remote.FileApi
 import vn.servio.partner.data.remote.PartnerApi
-import vn.servio.partner.data.repository.FakeFeedRepository
+import vn.servio.partner.data.remote.PresenceApi
 import vn.servio.partner.data.repository.FeedRepository
 import vn.servio.partner.data.repository.FileRepository
 import vn.servio.partner.data.repository.PartnerProfileRepository
+import vn.servio.partner.data.repository.PresenceRepository
+import vn.servio.partner.data.repository.RemoteFeedRepository
 import vn.servio.partner.data.repository.RemoteFileRepository
 import vn.servio.partner.data.repository.RemotePartnerProfileRepository
+import vn.servio.partner.data.repository.RemotePresenceRepository
 import javax.inject.Singleton
 
 @Module
@@ -48,6 +52,14 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFileApi(retrofit: Retrofit): FileApi = retrofit.create(FileApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideFeedApi(retrofit: Retrofit): FeedApi = retrofit.create(FeedApi::class.java)
+
+    @Provides
+    @Singleton
+    fun providePresenceApi(retrofit: Retrofit): PresenceApi = retrofit.create(PresenceApi::class.java)
 }
 
 /** Partner repositories. Swap Fake → Remote here once the endpoint is ready on Swagger. */
@@ -56,7 +68,10 @@ object AppModule {
 abstract class RepositoryBindings {
 
     @Binds
-    abstract fun bindFeedRepository(impl: FakeFeedRepository): FeedRepository
+    abstract fun bindFeedRepository(impl: RemoteFeedRepository): FeedRepository
+
+    @Binds
+    abstract fun bindPresenceRepository(impl: RemotePresenceRepository): PresenceRepository
 
     @Binds
     abstract fun bindPartnerProfileRepository(impl: RemotePartnerProfileRepository): PartnerProfileRepository

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- One post on PS-07: category · ago, title, area · distance, time, budget, quote count, "Báo giá". -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -26,14 +27,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textAppearance="@style/TextAppearance.Servio.Accent"
-                tools:text="Vệ sinh máy lạnh" />
+                tools:text="Sửa máy lạnh" />
 
             <TextView
-                android:id="@+id/distance"
+                android:id="@+id/ago"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
-                tools:text="1.2 km" />
+                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                tools:text="3 phút trước" />
         </LinearLayout>
 
         <TextView
@@ -41,38 +42,54 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_xs"
-            android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
-            tools:text="Máy lạnh phòng ngủ chảy nước" />
+            android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+            tools:text="Máy lạnh chảy nước, kém lạnh" />
 
         <TextView
             android:id="@+id/area"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_xs"
-            android:drawablePadding="@dimen/space_xs"
-            android:gravity="center_vertical"
-            android:textAppearance="@style/TextAppearance.Servio.Caption"
-            app:drawableStartCompat="@drawable/ic_location"
-            app:drawableTint="@color/servio_text_secondary"
-            tools:text="Linh Chiểu, Thủ Đức" />
+            style="@style/Widget.Servio.InfoLine"
+            app:drawableStartCompat="@drawable/ic_location_pin"
+            tools:text="P. Linh Chiểu, TP. Thủ Đức · 1,2 km" />
+
+        <TextView
+            android:id="@+id/schedule"
+            style="@style/Widget.Servio.InfoLine"
+            app:drawableStartCompat="@drawable/ic_calendar"
+            tools:text="T7 17/10 · 14:00–16:00" />
 
         <TextView
             android:id="@+id/budget"
+            style="@style/Widget.Servio.InfoLine"
+            app:drawableStartCompat="@drawable/ic_cash"
+            tools:text="300.000 đ – 500.000 đ" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/space_m"
+            android:background="@color/servio_divider" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_xs"
-            android:textAppearance="@style/TextAppearance.Servio.Body"
-            tools:text="Ngân sách 200.000 đ – 400.000 đ" />
+            android:layout_marginTop="@dimen/space_s"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/quotes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_m"
-            android:background="@drawable/bg_chip_code"
-            android:paddingHorizontal="@dimen/space_m"
-            android:paddingVertical="@dimen/space_xs"
-            android:textAppearance="@style/TextAppearance.Servio.Accent"
-            tools:text="3 báo giá" />
+            <TextView
+                android:id="@+id/quotes"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                tools:text="2 đối tác đã báo giá" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/quoteButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="44dp"
+                android:text="@string/feed_quote" />
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

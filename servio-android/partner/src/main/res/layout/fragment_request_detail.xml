@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PS-10 Chi tiết bài đăng: photos, description, area (no exact address), time, budget, customer, own quote. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationContentDescription="@string/action_back"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="@string/request_detail_title" />
+
+    <include
+        android:id="@+id/status"
+        layout="@layout/view_load_status" />
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/space_xl">
+
+                <HorizontalScrollView
+                    android:id="@+id/imagesScroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="@dimen/screen_padding"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:id="@+id/images"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="@dimen/screen_padding">
+
+                    <TextView
+                        android:id="@+id/category"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_l"
+                        android:textAppearance="@style/TextAppearance.Servio.Accent"
+                        tools:text="Sửa máy lạnh · Đăng 3 phút trước" />
+
+                    <TextView
+                        android:id="@+id/title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xs"
+                        android:textAppearance="@style/TextAppearance.Servio.ScreenTitle"
+                        tools:text="Máy lạnh chảy nước, kém lạnh" />
+
+                    <TextView
+                        android:id="@+id/description"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:textAppearance="@style/TextAppearance.Servio.Body"
+                        tools:text="Máy lạnh 1,5 HP ở phòng ngủ, dùng khoảng 4 năm." />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_l">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="@dimen/space_l"
+                            android:paddingBottom="@dimen/space_m">
+
+                            <TextView
+                                android:id="@+id/area"
+                                style="@style/Widget.Servio.InfoLine"
+                                app:drawableStartCompat="@drawable/ic_location_pin"
+                                tools:text="P. Linh Chiểu, TP. Thủ Đức · cách 1,2 km" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="26dp"
+                                android:text="@string/request_address_hidden"
+                                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/schedule"
+                                style="@style/Widget.Servio.InfoLine"
+                                app:drawableStartCompat="@drawable/ic_calendar"
+                                tools:text="T7 17/10 · 14:00–16:00" />
+
+                            <TextView
+                                android:id="@+id/budget"
+                                style="@style/Widget.Servio.InfoLine"
+                                app:drawableStartCompat="@drawable/ic_cash"
+                                tools:text="Ngân sách 300.000 đ – 500.000 đ" />
+
+                            <TextView
+                                android:id="@+id/requirements"
+                                style="@style/Widget.Servio.InfoLine"
+                                app:drawableStartCompat="@drawable/ic_shield"
+                                tools:text="Yêu cầu từ 3 năm kinh nghiệm" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_l"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/customerInitial"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="@drawable/bg_icon_circle"
+                            android:gravity="center"
+                            android:importantForAccessibility="no"
+                            android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                            tools:text="MA" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_m"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/customerName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                                tools:text="Minh Anh" />
+
+                            <TextView
+                                android:id="@+id/customerStats"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                                tools:text="★ 4,9 · 7 đơn" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/quoteCount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_l"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        tools:text="2 đối tác đã báo giá" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/ownQuoteCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:visibility="gone"
+                        app:cardBackgroundColor="@color/servio_primary_container">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/space_l">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/request_own_quote"
+                                android:textAppearance="@style/TextAppearance.Servio.Accent" />
+
+                            <TextView
+                                android:id="@+id/ownQuoteAmount"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_xs"
+                                android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                                tools:text="450.000 đ · Chờ khách chọn" />
+
+                            <TextView
+                                android:id="@+id/ownQuoteTime"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                                tools:text="Có mặt 14:00, T7 17/10 · 60 phút" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/withdrawButton"
+                                style="@style/Widget.Servio.Button.Text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_xs"
+                                android:text="@string/quote_withdraw"
+                                android:textColor="@color/servio_error" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:id="@+id/actionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/servio_surface"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/servio_divider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/screen_padding"
+            android:paddingVertical="@dimen/space_m">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chatButton"
+                style="@style/Widget.Servio.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/space_m"
+                android:layout_weight="1"
+                android:text="@string/action_chat" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/quoteButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.4"
+                android:text="@string/quote_send" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
