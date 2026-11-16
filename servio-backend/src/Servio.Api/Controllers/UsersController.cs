@@ -5,11 +5,39 @@ using Servio.Api.Services.Users;
 
 namespace Servio.Api.Controllers;
 
-/// <summary>M1 — current user: profile (#9, #10), address book (#12–#15), push device (#16).</summary>
+/// <summary>M1 — current user: profile (#9, #10), address book (#12–#15), push device (#16), consents, account deletion.</summary>
 [Route("api/v1/users/me")]
 [Authorize]
-public sealed class UsersController(UserService users, AddressService addresses) : ApiControllerBase
+public sealed class UsersController(UserService users, AddressService addresses, ConsentService consents,
+    AccountDeletionService deletion) : ApiControllerBase
 {
+    /// <summary>Current consent per purpose (TERMS_AND_PRIVACY, KYC_IDENTITY, LOCATION_SHARING).</summary>
+    [HttpGet("consents")]
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<ConsentDto>>>> ListConsents(CancellationToken ct) =>
+        OkEnvelope(await consents.ListAsync(CurrentUserId, ct));
+
+    /// <summary>
+    /// Record a consent the user just gave or withdrew on an explicit, unticked checkbox (Điều 9, 10 Luật 91/2025).
+    /// policyVersion from GET /api/v1/legal. Needed before: posting (TERMS_AND_PRIVACY), KYC photos (KYC_IDENTITY),
+    /// going online / moving (LOCATION_SHARING); otherwise those calls answer 422 CONSENT_REQUIRED.
+    /// </summary>
+    [HttpPost("consents")]
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<ConsentDto>>>> RecordConsent(ConsentRequest request, CancellationToken ct) =>
+        OkEnvelope(await consents.RecordAsync(CurrentUserId, CurrentAppFlavor, request,
+            HttpContext.Connection.RemoteIpAddress?.ToString(), Request.Headers.UserAgent.ToString(), ct));
+
+    /// <summary>
+    /// Delete the account and personal data (Điều 14 Luật 91/2025). 409 ACCOUNT_DELETION_BLOCKED with the reason while an
+    /// order, open request, pending quote or debt is unfinished. Order and payment records are kept anonymised.
+    /// </summary>
+    [HttpDelete]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteMe(CancellationToken ct)
+    {
+        await deletion.DeleteAsync(CurrentUserId, CurrentAppFlavor, ct);
+        return NoContent();
+    }
+
     /// <summary>#9 Current user with roles and profiles.</summary>
     [HttpGet]
     public async Task<ActionResult<ApiResponse<MeDto>>> GetMe(CancellationToken ct) =>

@@ -61,6 +61,10 @@ public static class ErrorCodes
     public const string DisputeAlreadyOpen = "DISPUTE_ALREADY_OPEN";
     public const string UnpaidReportWindowClosed = "UNPAID_REPORT_WINDOW_CLOSED";
 
+    // Personal data (Luật 91/2025)
+    public const string ConsentRequired = "CONSENT_REQUIRED";
+    public const string AccountDeletionBlocked = "ACCOUNT_DELETION_BLOCKED";
+
     // Files (POST /files)
     public const string FileNotReady = "FILE_NOT_READY";
     public const string FileTooLarge = "FILE_TOO_LARGE";

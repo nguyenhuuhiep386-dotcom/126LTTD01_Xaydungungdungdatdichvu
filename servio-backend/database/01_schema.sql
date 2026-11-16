@@ -195,6 +195,19 @@ CREATE TABLE dbo.UserDevices (
     CONSTRAINT UQ_UserDevices_User_Device_Flavor UNIQUE (UserId, DeviceId, AppFlavor)
 );
 
+CREATE TABLE dbo.UserConsents (                               -- append-only proof of consent (Luật 91/2025 Điều 9, NĐ 356/2025 Điều 6)
+    Id            uniqueidentifier NOT NULL CONSTRAINT PK_UserConsents PRIMARY KEY,
+    UserId        uniqueidentifier NOT NULL CONSTRAINT FK_UserConsents_Users REFERENCES dbo.Users (Id),
+    Purpose       tinyint          NOT NULL,                 -- 1=TERMS_AND_PRIVACY, 2=KYC_IDENTITY, 3=LOCATION_SHARING
+    Granted       bit              NOT NULL,                 -- 0 = withdrawn; the newest row per (UserId, Purpose) is the current choice
+    PolicyVersion varchar(20)      NOT NULL,
+    AppFlavor     tinyint          NOT NULL,                 -- 1=CUSTOMER, 2=PARTNER
+    IpAddress     varchar(45)      NULL,
+    UserAgent     nvarchar(300)    NULL,
+    CreatedAt     datetimeoffset   NOT NULL CONSTRAINT DF_UserConsents_CreatedAt DEFAULT SYSUTCDATETIME()
+);
+CREATE INDEX IX_UserConsents_User_Purpose ON dbo.UserConsents (UserId, Purpose, CreatedAt);
+
 CREATE TABLE dbo.RefreshTokens (
     Id                uniqueidentifier NOT NULL CONSTRAINT PK_RefreshTokens PRIMARY KEY,
     UserId            uniqueidentifier NOT NULL CONSTRAINT FK_RefreshTokens_Users REFERENCES dbo.Users (Id),
@@ -235,7 +248,7 @@ CREATE TABLE dbo.UploadedFiles (
     SizeBytes   bigint           NOT NULL,
     Width       int              NULL,
     Height      int              NULL,
-    Status      tinyint          NOT NULL CONSTRAINT DF_UploadedFiles_Status DEFAULT 3, -- 3=READY, 4=REJECTED
+    Status      tinyint          NOT NULL CONSTRAINT DF_UploadedFiles_Status DEFAULT 3, -- 3=READY, 4=REJECTED, 5=DELETED (account deletion)
     IsPrivate   bit              NOT NULL CONSTRAINT DF_UploadedFiles_IsPrivate DEFAULT 0,
     CreatedAt   datetimeoffset   NOT NULL CONSTRAINT DF_UploadedFiles_CreatedAt DEFAULT SYSUTCDATETIME()
 );

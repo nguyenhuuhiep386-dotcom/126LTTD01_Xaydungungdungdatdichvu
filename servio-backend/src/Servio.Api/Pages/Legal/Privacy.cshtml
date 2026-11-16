@@ -1,0 +1,99 @@
+@page "/chinh-sach-bao-mat"
+@model Servio.Api.Pages.Legal.PrivacyModel
+@{
+    Layout = "_PublicLayout";
+    ViewData["Title"] = "Chính sách bảo vệ dữ liệu cá nhân";
+}
+@*
+  BẢN NHÁP tạo từ mã nguồn ngày 15/11/2026 theo skill vn-law-check (references/10-generate-policy.md).
+  Mỗi dòng dữ liệu, mỗi bên nhận đều truy được về code (ghi trong docs/phap-ly/ra-soat-phap-ly-backend.md).
+  Trước khi phát hành thật: điền các chỗ [ĐIỀN: ...], xác nhận các chỗ [KIỂM TRA: ...], nhờ người làm luật xem lại,
+  rồi tăng privacy.policy_version (AW-15) để app hỏi lại sự đồng ý.
+*@
+<h1>Chính sách bảo vệ dữ liệu cá nhân</h1>
+<p class="meta">Phiên bản @Model.Version · áp dụng cho ứng dụng Servio (khách hàng) và ServioPartner (đối tác)</p>
+<p class="draft">Bản nháp đang được hoàn thiện. Các chỗ trong ngoặc vuông sẽ được điền trước khi phát hành chính thức.</p>
+
+<h2>1. Chúng tôi là ai</h2>
+<p>[ĐIỀN: tên đơn vị vận hành Servio] (gọi là "chúng tôi") là bên kiểm soát dữ liệu cá nhân thu thập qua hai ứng dụng Servio và ServioPartner.</p>
+<ul>
+    <li>Mã số doanh nghiệp: [ĐIỀN]</li>
+    <li>Địa chỉ: [ĐIỀN]</li>
+    <li>Email tiếp nhận yêu cầu về dữ liệu cá nhân: [ĐIỀN]</li>
+</ul>
+@* Căn cứ: điểm b khoản 2 Điều 9 Luật 91/2025/QH15. *@
+
+<h2>2. Dữ liệu chúng tôi thu thập và mục đích</h2>
+<div class="table">
+<table>
+    <thead><tr><th>Dữ liệu</th><th>Khi nào thu</th><th>Dùng để làm gì</th></tr></thead>
+    <tbody>
+    <tr><td>Số điện thoại, mã OTP</td><td>Khi bạn đăng nhập</td><td>Xác thực tài khoản. Mã OTP chỉ lưu dạng băm, hết hạn sau vài phút.</td></tr>
+    <tr><td>Họ tên; ảnh đại diện, email, ngày sinh, giới tính (không bắt buộc)</td><td>Khi bạn cập nhật hồ sơ</td><td>Hiển thị cho bên kia của đơn hàng, liên hệ về đơn.</td></tr>
+    <tr><td>Mã cài đặt ứng dụng, mã nhận thông báo, phiên bản ứng dụng</td><td>Khi bạn đăng nhập</td><td>Quản lý phiên đăng nhập, gửi thông báo về đơn hàng.</td></tr>
+    <tr><td>Khách hàng: địa chỉ và vị trí ghim trên bản đồ, mô tả và ảnh công việc, thời gian hẹn</td><td>Khi bạn lưu địa chỉ, đăng yêu cầu</td><td>Cho đối tác ở gần xem và báo giá, để đối tác đến đúng nơi. Trước khi đối tác xác nhận nhận đơn, họ chỉ thấy khu vực, không thấy địa chỉ chính xác và số điện thoại.</td></tr>
+    <tr><td>Đối tác: ảnh CCCD hai mặt, ảnh chân dung cầm CCCD, chứng chỉ nghề, kỹ năng, số năm kinh nghiệm, giới thiệu</td><td>Khi bạn đăng ký làm đối tác</td><td>Xác minh danh tính và tay nghề trước khi cho nhận việc.</td></tr>
+    <tr><td>Đối tác: vị trí</td><td>Khi bạn bật Online; khi đang di chuyển tới khách; khi bấm "Đã đến"</td><td>Tìm việc gần bạn; cho khách của đơn đó theo dõi đường đi; kiểm tra bạn đã đến đúng địa chỉ.</td></tr>
+    <tr><td>Tin nhắn và ảnh trong chat; báo giá, đơn hàng, ảnh trước và sau khi làm, phát sinh, đánh giá, khiếu nại và ảnh bằng chứng</td><td>Khi bạn sử dụng dịch vụ</td><td>Thực hiện đơn hàng, giải quyết khiếu nại, hiển thị đánh giá.</td></tr>
+    <tr><td>Giao dịch tiền mặt được ghi nhận, công nợ, mã giao dịch chuyển khoản và ảnh chứng từ</td><td>Khi đơn hoàn tất, khi bạn khai báo trả nợ</td><td>Tính hoa hồng, phí huỷ, xác nhận khoản đã trả.</td></tr>
+    </tbody>
+</table>
+</div>
+<p>Số điện thoại của bạn chỉ hiện cho bên kia từ lúc đối tác xác nhận nhận đơn đến khi xong việc. Chúng tôi không dùng dữ liệu cho mục đích khác ngoài bảng trên nếu chưa hỏi ý kiến bạn, và không dùng dữ liệu để quảng cáo.</p>
+@* Căn cứ: điểm a khoản 2 và điểm a khoản 4 Điều 9 Luật 91/2025. *@
+
+<h2>3. Dữ liệu nhạy cảm</h2>
+<p>Ảnh CCCD và ảnh chân dung cầm CCCD là <strong>dữ liệu cá nhân nhạy cảm</strong>. Chúng tôi chỉ nhận các ảnh này sau khi bạn đồng ý riêng cho mục đích xác minh hồ sơ đối tác. Ảnh được lưu riêng, không có đường dẫn công khai; chỉ nhân viên quản trị có quyền duyệt hồ sơ được xem, và mỗi lần xem đều được ghi nhật ký.</p>
+<p>Vị trí của đối tác cũng được chúng tôi xử lý như dữ liệu nhạy cảm và chỉ thu khi bạn đồng ý riêng cho việc chia sẻ vị trí. Vị trí theo thời gian thực bị xoá khi chuyến đi kết thúc; vị trí dùng để tìm việc bị xoá khi bạn tắt Online; chỉ điểm check-in "Đã đến" được giữ cùng đơn hàng làm bằng chứng.</p>
+@* Căn cứ: khoản 1 Điều 4 và khoản 4 Điều 6 NĐ 356/2025/NĐ-CP. Vị trí có thuộc danh mục nhạy cảm hay không: CHƯA XÁC MINH, xử lý như nhạy cảm cho an toàn. *@
+
+<h2>4. Ai nhận dữ liệu của bạn</h2>
+<div class="table">
+<table>
+    <thead><tr><th>Bên nhận</th><th>Dữ liệu</th><th>Lý do</th></tr></thead>
+    <tbody>
+    <tr><td>Bên kia của đơn hàng (khách hoặc đối tác)</td><td>Tên, ảnh đại diện, đánh giá; sau khi nhận đơn: số điện thoại, địa chỉ chính xác; vị trí đối tác khi đang di chuyển</td><td>Thực hiện đơn hàng</td></tr>
+    <tr><td>Google LLC (dịch vụ Firebase Cloud Messaging)</td><td>Mã nhận thông báo của thiết bị, tiêu đề và nội dung ngắn của thông báo (ví dụ mã đơn, trạng thái đơn)</td><td>Gửi thông báo đến điện thoại</td></tr>
+    <tr><td>OpenStreetMap Foundation (ảnh bản đồ trong ứng dụng)</td><td>Địa chỉ IP và khu vực bản đồ bạn đang xem</td><td>Hiển thị bản đồ</td></tr>
+    <tr><td>Nhân viên quản trị Servio</td><td>Dữ liệu cần cho việc duyệt hồ sơ, xử lý khiếu nại, xác nhận thanh toán</td><td>Vận hành nền tảng</td></tr>
+    </tbody>
+</table>
+</div>
+<p>Chúng tôi không bán dữ liệu cá nhân của bạn.</p>
+@* Căn cứ: khoản 6 Điều 7 Luật 91/2025. *@
+
+<h2>5. Lưu trữ và chuyển dữ liệu ra nước ngoài</h2>
+<p>Dữ liệu được lưu trên máy chủ đặt tại Việt Nam [KIỂM TRA: nơi đặt máy chủ khi triển khai]. Riêng thông báo đẩy được gửi qua dịch vụ của Google đặt ở nước ngoài; việc này là chuyển dữ liệu cá nhân xuyên biên giới.</p>
+<p>Chúng tôi lưu dữ liệu tài khoản cho đến khi bạn xoá tài khoản. Hồ sơ đơn hàng, giao dịch và khiếu nại được giữ [ĐIỀN: thời hạn lưu hồ sơ giao dịch theo pháp luật kế toán, thuế] dưới dạng đã ẩn danh tên và số điện thoại sau khi bạn xoá tài khoản.</p>
+@* Căn cứ: khoản 1 Điều 20 Luật 91/2025; điểm b khoản 1 Điều 14. Hồ sơ đánh giá tác động chuyển dữ liệu xuyên biên giới: khoản 2 Điều 20 (việc của đơn vị vận hành). *@
+
+<h2>6. Cookie và công cụ theo dõi</h2>
+<p>Hai ứng dụng và trang này không dùng cookie, không gắn công cụ thống kê hay quảng cáo [KIỂM TRA: xác nhận khi rà soát ứng dụng].</p>
+
+<h2>7. Sự đồng ý và quyền của bạn</h2>
+<p>Chúng tôi xin đồng ý riêng cho từng mục đích bằng ô đánh dấu không được chọn sẵn: (1) điều khoản sử dụng và chính sách này; (2) ảnh CCCD để xác minh đối tác; (3) chia sẻ vị trí của đối tác. Việc bạn tiếp tục sử dụng ứng dụng không được coi là đồng ý. Mỗi lần đồng ý hoặc rút lại đều được lưu kèm thời điểm và phiên bản chính sách.</p>
+<p>Bạn có quyền:</p>
+<ul>
+    <li>biết chúng tôi đang xử lý dữ liệu nào của bạn;</li>
+    <li>đồng ý, không đồng ý hoặc rút lại sự đồng ý;</li>
+    <li>xem, chỉnh sửa dữ liệu (trong mục Tài khoản của ứng dụng);</li>
+    <li>yêu cầu cung cấp, xoá, hạn chế xử lý dữ liệu, phản đối việc xử lý;</li>
+    <li>khiếu nại, tố cáo, khởi kiện, yêu cầu bồi thường theo quy định của pháp luật.</li>
+</ul>
+<p><strong>Xoá tài khoản:</strong> bạn tự xoá trong ứng dụng, có hiệu lực ngay. Nếu còn đơn đang thực hiện, yêu cầu đang mở, báo giá đang chờ hoặc khoản tiền chưa thanh toán, ứng dụng sẽ báo cần hoàn tất việc đó trước. Khi xoá, chúng tôi xoá hồ sơ, địa chỉ, thiết bị, thông báo, ảnh CCCD, chứng chỉ, ảnh đại diện và vị trí; hồ sơ các đơn đã xong được giữ dưới tên "Người dùng đã xoá" như mục 5.</p>
+<p><strong>Yêu cầu khác:</strong> gửi email tới [ĐIỀN]. Chúng tôi:</p>
+<ul>
+    <li>xác nhận đã nhận yêu cầu và hướng dẫn thủ tục trong 2 ngày làm việc;</li>
+    <li>cho xem, chỉnh sửa, cung cấp dữ liệu trong 10 ngày (15 ngày nếu cần bên xử lý dữ liệu hoặc bên thứ ba cùng thực hiện);</li>
+    <li>xử lý yêu cầu rút đồng ý, hạn chế, phản đối trong 15 ngày (20 ngày nếu cần bên xử lý hoặc bên thứ ba ngừng xử lý);</li>
+    <li>xoá dữ liệu trong 20 ngày (30 ngày nếu cần bên xử lý hoặc bên thứ ba cùng xoá).</li>
+</ul>
+<p>Yêu cầu phức tạp có thể được gia hạn một lần, chúng tôi sẽ báo lý do cho bạn.</p>
+@* Căn cứ: khoản 1 Điều 4, Điều 9, khoản 2 Điều 10, Điều 14 Luật 91/2025; khoản 3 Điều 6, khoản 2, 3, 4 Điều 5 NĐ 356/2025. *@
+
+<h2>8. Khi có sự cố</h2>
+<p>Nếu xảy ra lộ, mất dữ liệu cá nhân, chúng tôi thông báo cho cơ quan chuyên trách bảo vệ dữ liệu cá nhân chậm nhất 72 giờ kể từ khi phát hiện. Nếu sự cố ảnh hưởng đến dữ liệu vị trí của bạn, chúng tôi cũng báo cho bạn trong 72 giờ.</p>
+@* Căn cứ: khoản 1 Điều 23 Luật 91/2025; điểm a khoản 1 Điều 29 NĐ 356/2025 (vị trí, sinh trắc học). *@
+
+<h2>9. Thay đổi chính sách</h2>
+<p>Khi thay đổi mục đích hoặc loại dữ liệu xử lý, chúng tôi cập nhật phiên bản ở đầu trang và ứng dụng sẽ hỏi lại sự đồng ý của bạn trước khi tiếp tục thu dữ liệu.</p>

@@ -110,6 +110,7 @@ IP của laptop nằm sẵn trong APK (`servio.baseUrl`), nên phải chốt m�
 
 - [ ] Chạy backend `dotnet run --project servio-backend/src/Servio.Api --launch-profile Demo`, để cửa sổ này mở suốt buổi.
 - [ ] Trang quản trị: đăng nhập; Dashboard có dữ liệu seed (1 khiếu nại chờ xử lý, 1 khai báo trả nợ chờ xác nhận).
+- [ ] Hỏi Nguyên, Hiệp: hai app đã gửi sự đồng ý (`POST /users/me/consents`) chưa? Chưa thì AW-15 đặt `privacy.require_consent` = false trước giờ demo.
 - [ ] **Không chạy `demo_smoke.py` sau khi seed** (sẽ thêm dữ liệu thử vào CSDL demo).
 
 **T − 30 phút (cả nhóm)**
@@ -151,6 +152,7 @@ Thời gian dự kiến: bước 1–2 khoảng 4 phút, 3–6 khoảng 6 phút,
 | Check-in GPS bị chặn | Dùng "Nhờ khách xác nhận" (tối đa 3 lần cho một đơn) |
 | Đối tác không nhận được việc mới, báo nợ hoa hồng | Nợ > 200.000 đ bị chặn. Laptop: AW-18 xác nhận một khoản trả nợ, hoặc dùng đối tác khác |
 | Khách không đăng bài được, báo còn nợ | Còn phí huỷ > 100.000 đ hoặc đơn chờ thanh toán. Dùng khách khác hoặc xác nhận trả nợ ở AW-18 |
+| App báo "Bạn cần đồng ý…" (`CONSENT_REQUIRED`) | App chưa gửi sự đồng ý. Nếu app chưa có màn hình đồng ý: AW-15 đặt `privacy.require_consent` = false cho buổi demo, đặt lại true sau đó |
 | Cần đơn tự hoàn tất nhanh | AW-15: đặt `order.auto_confirm_hours` = 0, đơn chờ khách xác nhận tự hoàn tất trong ~30 giây; đặt lại 24 sau buổi demo |
 | Backend dừng hoặc treo | Chạy lại lệnh `dotnet run ... --launch-profile Demo`; dữ liệu vẫn còn trong SQL Server |
 | Dữ liệu demo bị rối | Tạo lại CSDL (01, 02) và seed lại: khoảng 2 phút. Hai app phải đăng nhập lại |

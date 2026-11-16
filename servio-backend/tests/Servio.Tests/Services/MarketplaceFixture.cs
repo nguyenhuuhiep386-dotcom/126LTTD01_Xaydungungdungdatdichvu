@@ -142,7 +142,7 @@ public sealed class MarketplaceFixture : IDisposable
     public FeedService Feed() => new(Ctx.Db, Configs(), Ctx.Clock);
 
     public ServiceRequestService Requests() =>
-        new(Ctx.Db, Ctx.Files(), Feed(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Notifier, Ctx.Clock);
+        new(Ctx.Db, Ctx.Files(), Feed(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Notifier, Ctx.Consents(), Ctx.Clock);
 
     public QuoteService Quotes() => new(Ctx.Db, Feed(), Configs(), Notifier, Notifications(), Ctx.Clock);
 
@@ -160,7 +160,7 @@ public sealed class MarketplaceFixture : IDisposable
 
     public ExtraChargeService ExtraCharges() => new(Ctx.Db, Workflow(), Ctx.Files(), Notifier, Ctx.Clock);
 
-    public TrackingService Tracking() => new(Ctx.Db, Workflow(), Notifier, Configs(), Ctx.Clock);
+    public TrackingService Tracking() => new(Ctx.Db, Workflow(), Notifier, Configs(), Ctx.Consents(), Ctx.Clock);
 
     public WalletService Wallets() => new(Ctx.Db, Ctx.Files(), new CodeGenerator(Ctx.Db, Ctx.Clock), Configs(), Notifications(), Ctx.Clock);
 

@@ -4,6 +4,7 @@ using Servio.Api.Common;
 using Servio.Api.Data;
 using Servio.Api.Data.Entities;
 using Servio.Api.Hubs;
+using Servio.Api.Services.Users;
 
 namespace Servio.Api.Services.Orders;
 
@@ -17,6 +18,7 @@ public sealed class TrackingService(
     OrderWorkflow workflow,
     IRealtimeNotifier notifier,
     SystemConfigService configs,
+    ConsentService consents,
     TimeProvider clock)
 {
     /// <summary>Older fixes are shown as "Chưa cập nhật" (0.2.7 ý 5).</summary>
@@ -29,6 +31,7 @@ public sealed class TrackingService(
     public async Task<OrderStatusChangedDto> StartMovingAsync(Guid userId, Guid orderId, Guid assignmentId, StartMovingRequest input, CancellationToken ct)
     {
         var (lat, lng) = Geo.Require(input.Latitude, input.Longitude);
+        await consents.EnsureAsync(userId, ConsentPurpose.LocationSharing, ct); // the customer will see this partner's position
         var (order, assignment) = await workflow.FindPartnerPartAsync(userId, orderId, assignmentId, ct);
         var change = await workflow.MoveAsync(order, assignment, OrderStatus.OnTheWay, ActorType.Partner, userId, null, ct);
         SetLocation(assignment, lat, lng, input.Accuracy, change.ChangedAt);
@@ -46,6 +49,7 @@ public sealed class TrackingService(
         int? accuracy, DateTimeOffset capturedAt, CancellationToken ct)
     {
         var (lat, lng) = Geo.Require(latitude, longitude);
+        await consents.EnsureAsync(userId, ConsentPurpose.LocationSharing, ct); // withdrawn mid-trip → stop sharing
         var assignment = await db.OrderAssignments
             .Include(a => a.Order).ThenInclude(o => o.Customer)
             .Include(a => a.Order).ThenInclude(o => o.ServiceRequest)

@@ -24,6 +24,7 @@ public sealed class IndexModel(ServioDbContext db, SystemConfigService configs) 
         "PAYMENT" => "Tiền và công nợ",
         "MATCHING" => "Ghép đối tác",
         "APP" => "Ứng dụng",
+        "PRIVACY" => "Dữ liệu cá nhân",
         _ => group,
     };
 
