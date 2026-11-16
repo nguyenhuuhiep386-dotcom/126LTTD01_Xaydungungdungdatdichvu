@@ -61,6 +61,40 @@ Tài liệu này giúp mỗi thành viên clone repo, chạy được demo trên
 
 Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở trình duyệt; dùng khi demo trên lớp.
 
+### Chạy thử luồng demo 10 bước
+
+Checklist chuẩn bị và kịch bản cho ngày demo: [`checklist-demo.md`](checklist-demo.md).
+
+
+Trước buổi demo, khi backend đã chạy (Development hoặc Demo), chạy script sau từ thư mục gốc repo. Script dùng thư viện chuẩn của Python 3, tự tạo một khách và một đối tác mới, rồi gọi API và trang quản trị đúng như hai app: đăng ký và duyệt KYC, đăng bài, feed, báo giá, chọn, di chuyển, check-in, phát sinh, hoàn tất 630.000 đ, công nợ 94.500 đ, đánh giá, huỷ có phí, khiếu nại và xác nhận trả nợ.
+
+```bash
+python servio-backend/tools/demo_smoke.py http://localhost:5080
+```
+
+Đạt thì in `ĐẠT cả 10 bước`; lỗi thì in bước hỏng và JSON lỗi của server. Script ghi thêm dữ liệu thử vào CSDL, nên chạy trước khi seed demo hoặc tạo lại CSDL sau đó. Tài khoản admin lấy từ `SeedAdmin`; đổi bằng biến môi trường `SERVIO_ADMIN_EMAIL`, `SERVIO_ADMIN_PASSWORD`.
+
+### Dữ liệu demo (buổi báo cáo cuối)
+
+Chạy **một lần** trên CSDL vừa tạo bằng script 01 và 02, nên chạy vào sáng ngày demo vì bài đang mở hết hạn sau 24 giờ và đơn chờ khách xác nhận tự hoàn tất sau `order.auto_confirm_hours`:
+
+```bash
+dotnet run --project servio-backend/src/Servio.Api --launch-profile Development -- --seed-demo
+```
+
+Lệnh tạo dữ liệu rồi thoát; chạy lại khi dữ liệu đã có thì không làm gì. Dữ liệu được tạo qua đúng luồng nghiệp vụ nên tiền, công nợ, timeline, chat và thông báo đều khớp. Mọi tài khoản đăng nhập bằng OTP `123456`.
+
+| Tài khoản | SĐT | Có sẵn |
+|---|---|---|
+| Khách Nguyễn Thị Lan | 0901000001 | Địa chỉ tại trường (1 Võ Văn Ngân) nên check-in GPS chạy được trong lớp; 1 đơn hoàn tất đã đánh giá, 1 đơn đã nhận, 1 bài đang mở có báo giá |
+| Khách Trần Văn Minh | 0901000002 | Đơn hoàn tất 450.000 + phát sinh 180.000 (ví dụ 2.6.1); 1 đơn đang khiếu nại; 1 bài đang mở chưa có báo giá |
+| Khách Lê Thu Hà | 0901000003 | Phí huỷ 20.000 đ chưa trả (CS-30); 1 đơn chờ khách xác nhận hoàn thành (CS-23) |
+| Đối tác Phạm Văn Hùng (điện lạnh) | 0902000001 | Rating 4,5; nợ hoa hồng 139.500 đ, đã khai báo chuyển khoản chờ admin xác nhận (AW-18) |
+| Đối tác Võ Thanh Tâm (điện nước) | 0902000002 | Nợ hoa hồng 37.500 đ; bị khách khiếu nại một đơn (AW-08) |
+| Đối tác Đỗ Quốc Bảo (máy tính, mạng) | 0902000003 | 1 đơn chờ khách xác nhận, 1 đơn đã nhận |
+
+Các đối tác để Offline sau khi seed; bật Online trong app khi demo. Ảnh trong dữ liệu seed là ảnh 1×1 điểm ảnh, ảnh thật chụp trực tiếp khi demo. Icon danh mục do app hiển thị theo `slug`, không cần seed.
+
 ## 4. Chạy app Android
 
 1. Mở thư mục `servio-android` bằng Android Studio.
@@ -99,16 +133,28 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 | API #1, #2, #5, #6, #9, #10, #29, #30 | Xong, có trên Swagger |
 | BE-1: `POST /files`, `GET /files/{id}`, #12–#16 (địa chỉ, thiết bị), #17–#23, #25–#28 (hồ sơ, KYC, kỹ năng, online, hồ sơ công khai) | Xong, có trên Swagger |
 | Envelope, mã lỗi, validation, rate limit OTP | Xong |
-| Admin: AW-01 đăng nhập, layout, AW-02 số liệu cơ bản | Xong |
+| Admin: AW-01 đăng nhập, layout; AW-15 tham số hệ thống (chỉ SUPER_ADMIN, ghi AuditLog) | Xong |
 | QT-1: AW-04 duyệt KYC + kỹ năng (xem ảnh riêng tư, AuditLog, thông báo), AW-11 thêm/sửa/ẩn danh mục | Xong; chỉ SUPER_ADMIN và OPERATOR |
+| QT-2: AW-02 dashboard (hàng đợi, GMV, hoa hồng, công nợ, 7 ngày); AW-03 người dùng (tìm, khoá/mở); AW-06 bài đăng (ẩn bài vi phạm); AW-07 đơn hàng + chi tiết và timeline; AW-08 khiếu nại (xem bằng chứng, chat, chốt kết quả); AW-18 công nợ (xác nhận/từ chối chuyển khoản) | Xong; AW-08 cho SUPER_ADMIN/OPERATOR/SUPPORT, AW-18 cho SUPER_ADMIN/FINANCE, mọi thao tác ghi AuditLog. cấu hình ở AW-15 |
 | BE-2: #36–#38, #40 bài đăng; #46 newsfeed; #42, #50, #52, #53 báo giá; job tự hết hạn bài 30 giây/lần | Xong, có trên Swagger |
-| SignalR server: `/hubs/feed` (NewPost), `/hubs/orders` (NewQuote, QuoteWithdrawn), `/hubs/chat` | Xong; client Android chưa có (mục 5.1, hạ tầng của Nguyên) |
+| SignalR server: `/hubs/feed` (NewPost), `/hubs/orders` (báo giá và đơn hàng), `/hubs/chat` | Xong; client Android chưa có (mục 5.1, hạ tầng của Nguyên) |
 | BE-3: chat #54–#59, #61; hội thoại chỉ đọc khi bài bị huỷ/hết hạn | Xong, có trên Swagger |
+| BE-4: #43 chọn báo giá tạo đơn; #62–#64 danh sách, chi tiết, lịch sử đơn; #65, #66 đối tác nhận/từ chối; #69, #70 bắt đầu/hoàn thành; #73, #74 phát sinh; job tự huỷ đơn quá 10 phút chưa xác nhận | Xong, có trên Swagger |
+| BE-5: #67 bắt đầu di chuyển; hub method `UpdateLocation`; #76, #77 vị trí và ETA (Haversine ÷ 25 km/h); #68 check-in GPS chặn cứng; #178, #179 nhờ khách xác nhận đã đến | Xong, có trên Swagger; chưa kiểm Play Integrity (demo tắt) và không lưu các lần check-in bị từ chối (bảng CheckInAttempts ngoài phạm vi) |
+| BE-6: #71 khách xác nhận hoàn thành COD (ghi giao dịch tiền mặt và công nợ hoa hồng) + job tự xác nhận; #151, #72 khách huỷ có phí; #152 đối tác huỷ; #180 khách không có mặt; #87, #88, #155, #156 ví, công nợ và khai báo chuyển khoản; hàm xác nhận/từ chối trả nợ cho AW-18 (cấn trừ tự động) | Xong, có trên Swagger |
+| BE-7: #95, #96, #100 đánh giá hai chiều (rating trung bình); #146–#148 khiếu nại (đơn DISPUTED, tạm dừng tự xác nhận) + hàm admin chốt khiếu nại cho AW-08; #101–#104 thông báo; gửi FCM HTTP v1 cho báo giá mới, đơn đổi trạng thái, phát sinh, xác nhận đã đến, đánh giá, kết quả KYC, kết quả trả nợ | Xong, có trên Swagger; chưa gửi thông báo cho bài mới (NEW_POST_MATCH) và tin nhắn chat (đã có SignalR) |
+| #177 "Khách chưa thanh toán": đối tác báo trong lúc chờ khách xác nhận hoặc ≤ 24 giờ sau khi hoàn tất → khiếu nại UNPAID_CASH; admin xác nhận chưa trả thì đảo giao dịch tiền mặt và nợ hoa hồng, đơn chuyển AWAITING_PAYMENT, khách bị chặn đăng bài; khách trả xong thì FINANCE xác nhận ở AW-07 | Xong, có trên Swagger |
 | Android `:core`: design system, Retrofit, token + tự refresh, xử lý mất mạng | Xong |
 | Màn CS-01, CS-03, CS-04, CS-05 (dùng chung, gọi API thật) | Xong |
 | CS-06 Trang chủ (API thật), CS-14 Yêu cầu của tôi (dữ liệu giả), PS-07 Newsfeed (dữ liệu giả) | Xong, làm mẫu |
 | Các màn còn lại của 2 app | Fragment giữ chỗ, đã nối đủ điều hướng |
 | SignalR client Android, FCM, osmdroid | Chưa có, thuộc các luồng ở mục 5 của kế hoạch |
+
+### Thông báo (FCM)
+
+- Mỗi sự kiện ghi vào bảng `Notifications` (#101–#104 đọc từ đây) rồi mới gửi FCM; FCM lỗi thì inbox vẫn đúng. Thông báo chỉ gửi cho bên không thực hiện thao tác, đúng app (`appFlavor`) của thiết bị.
+- App gửi `fcmToken` khi đăng nhập (#2) hoặc qua #16. Payload FCM có `notification { title, body }` và `data { notificationId, type, payload, deepLink }`; `deepLink` dạng `orders/{id}`, `service-requests/{id}`, `wallet`, `profile`.
+- Bật gửi FCM trên laptop chạy backend: Firebase Console → Project settings → Service accounts → Generate new private key, lưu file JSON **ngoài repo** rồi đặt đường dẫn vào `Fcm:ServiceAccountFile` trong `appsettings.Development.json` / `appsettings.Demo.json`, hoặc biến môi trường `Fcm__ServiceAccountFile=D:/keys/servio-firebase.json`. Không commit file khoá (`.gitignore` đã chặn tên mặc định `*firebase-adminsdk*.json`). Để trống thì backend chỉ ghi inbox, không gửi push.
 
 ### Realtime (SignalR)
 
@@ -117,6 +163,14 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 | `/hubs/feed` | Đối tác | `NewPost` | `FeedItemDto`, giống một phần tử của `GET /feed` |
 | `/hubs/orders` | Khách | `NewQuote` | `CustomerQuoteDto`, giống một phần tử của `GET /service-requests/{id}/quotes` |
 | `/hubs/orders` | Khách | `QuoteWithdrawn` | `{ serviceRequestId, quoteId }` |
+| `/hubs/orders` | Đối tác | `QuoteAccepted` | `{ quoteId, orderId }`: khách đã chọn báo giá, đơn chờ xác nhận (#65) |
+| `/hubs/orders` | Đối tác | `QuoteRejected` | `{ quoteId, orderId: null }`: khách đã chọn người khác |
+| `/hubs/orders` | Cả hai | `OrderStatusChanged` | `OrderStatusChangedDto` `{ orderId, assignmentId, status, assignmentStatus, changedAt }`, giống kết quả của #65, #69, #70 |
+| `/hubs/orders` | Khách | `ExtraChargeRequested` | `{ orderId, extraChargeId, amount, description }` (mở CS-22) |
+| `/hubs/orders` | Đối tác | `ExtraChargeResponded` | `ExtraChargeDto`: khách đã duyệt hoặc từ chối phát sinh |
+| `/hubs/orders` | Khách | `PartnerLocationUpdated` | `TrackingDto` `{ orderId, assignmentId, location, distanceKm, etaMinutes, isStale }`, giống một phần tử của #76 |
+| `/hubs/orders` | Khách | `ArrivalConfirmationRequested` | `ArrivalConfirmationDto` `{ orderId, assignmentId, requestId, status, expiresAt }`: mở hộp thoại "Thợ báo đã đến, đúng không?" |
+| `/hubs/orders` | Đối tác | `ArrivalConfirmationResolved` | `ArrivalConfirmationDto`, `status` là `CONFIRMED` hoặc `DENIED` |
 | `/hubs/chat` | Cả hai | `ReceiveMessage` | `MessageDto`, tới cả hai bên (gồm các máy khác của người gửi) |
 | `/hubs/chat` | Cả hai | `MessageAck` | `{ clientMessageId, messageId, sentAt }`, chỉ gửi cho kết nối vừa gửi tin: tin chuyển từ SENDING sang SENT |
 | `/hubs/chat` | Cả hai | `MessageRead` | `{ conversationId, userId, lastReadMessageId }`, gửi khi một bên đã đọc |
@@ -126,6 +180,21 @@ Profile `Demo` (`--launch-profile Demo`) giống Development nhưng không mở 
 - **Chỉ đối tác Online mới nhận NewPost:** phải gọi #25 trước và gửi heartbeat #26 mỗi 30 giây.
 - **Chat:** client gọi hub method `SendMessage({ conversationId, clientMessageId, type, content, attachmentUrl })` và `MarkRead(conversationId, messageId)`. `clientMessageId` là UUID do app tạo trước khi gửi; gửi lại cùng UUID (khi mất mạng) không tạo tin trùng. Khi hub mất kết nối, gửi qua `POST /conversations/{id}/messages`. Lỗi nghiệp vụ trả về dạng `HubException` có nội dung `MÃ_LỖI: thông báo`.
 - **Sau khi kết nối lại:** gọi `GET /conversations/{id}/messages?after=<syncCursor>` để lấy các tin bị lỡ.
+- **Đơn hàng:**
+  - #43 gửi `{ quoteIds: [id], quoteVersions: { id: rowVersion }, paymentMethod: "CASH" }`, `rowVersion` lấy từ #42. Kết quả là chi tiết đơn (#63). Gửi lại cùng báo giá thì nhận lại đúng đơn đã tạo.
+  - Khi nhận `OrderStatusChanged`, gọi lại #63 để lấy dữ liệu mới. Mỗi thao tác cũng ghi một tin hệ thống vào chat của hai bên.
+  - Số điện thoại và địa chỉ chính xác chỉ có trong #63 từ khi đối tác xác nhận (ACCEPTED) đến khi báo hoàn thành.
+  - **Di chuyển (DT-4):** sau #67, foreground service gọi hub method `UpdateLocation(assignmentId, latitude, longitude, accuracy, capturedAt)` trên `/hubs/orders` mỗi 10 giây. Trả `false` khi điểm cũ hơn điểm đã lưu (bỏ qua). Nhận `HubException` bắt đầu bằng `INVALID_STATUS_TRANSITION` thì dừng service (đã đến, đơn bị huỷ hoặc đang khiếu nại).
+  - **Theo dõi (CS-21):** gọi #76 khi mở màn, sau đó cập nhật marker theo `PartnerLocationUpdated`. `location` chỉ có khi đối tác đang ON_THE_WAY. `isStale = true` (điểm cũ hơn 30 giây) thì hiện "Chưa cập nhật" và không đếm ngược ETA.
+  - **Đã đến (#68):** gửi `{ latitude, longitude, accuracy, capturedAt, isMock }`. Lỗi 422 `TOO_FAR_FROM_ADDRESS` hoặc `GPS_NOT_RELIABLE` thì hiện nút "Nhờ khách xác nhận" (#178). Lỗi `MOCK_LOCATION_DETECTED` thì không hiện nút này.
+  - **Hoàn tất (CS-23, #71):** gửi `{ expectedRowVersion }` lấy `rowVersion` từ #63. Đơn chuyển COMPLETED ngay (tiền mặt), công nợ hoa hồng của đối tác tăng K (ví dụ 630.000 → 94.500). Không bấm thì job tự xác nhận lúc `autoConfirmAt` (rút ngắn khi demo bằng `order.auto_confirm_hours` trong SystemConfigs).
+  - **Huỷ (khách):** gọi #151 để hiện phí, rồi #72 với `{ reason, expectedRowVersion: rowVersion của #151 }`. Phí: 0 đ khi chưa di chuyển, 20.000 đ khi đang di chuyển, max(30.000 đ, 20% giá) khi đã đến; từ lúc bắt đầu làm thì 422 `ORDER_NOT_CANCELLABLE`.
+  - **Huỷ (đối tác) #152** từ ACCEPTED đến ARRIVED, không thu phí khách. **Khách không có mặt #180:** đến bằng GPS, chờ 15 phút và đã nhắn tin cho khách sau khi đến; sai điều kiện trả 422 `NO_SHOW_NOT_ALLOWED` kèm lý do.
+  - **Công nợ (CS-30, PS-21):** #87 số dư, #155 danh sách khoản nợ, #156 khai báo chuyển khoản `{ debtIds, bankTransferReference, evidenceUrl }` (ảnh tải lên với purpose `DISPUTE_EVIDENCE`; đối tác không gửi `debtIds`). Admin xác nhận trên AW-18 thì khoản nợ mới giảm.
+  - **Đánh giá (CS-26, PS-27):** sau khi đơn COMPLETED, trong 5 ngày. Khách gửi `rating` và 4 tiêu chí; đối tác gửi `rating` và `tags` (ví dụ `PAID_ON_TIME`, `ACCURATE_DESCRIPTION`, `FRIENDLY`). #100 trả danh sách đơn chờ đánh giá để hiện nhắc nhở.
+  - **Khiếu nại (CS-33):** #146 `{ reason, description, evidenceUrls }` (ảnh purpose `DISPUTE_EVIDENCE`). Đơn chuyển DISPUTED, mọi thao tác trả 409 `ORDER_DISPUTED` cho tới khi admin xử lý trên AW-08; sau đó đơn về trạng thái cũ.
+  - **Khách chưa trả tiền (#177, PS-14):** đối tác gọi `POST /orders/{id}/assignments/{aid}/report-unpaid` `{ note, evidenceUrls }` từ lúc báo hoàn thành tới 24 giờ sau khi đơn hoàn tất; quá hạn 422 `UNPAID_REPORT_WINDOW_CLOSED`, đang có khiếu nại 409 `DISPUTE_ALREADY_OPEN`. Đơn ở `AWAITING_PAYMENT` nghĩa là khách còn nợ đối tác: app khách nên hiện nhắc thanh toán.
+  - **Khách xác nhận (#178, #179):** mỗi lần chờ tối đa 300 giây, tối đa 3 lần cho một phần việc. Khi demo trong lớp, dùng đường này vì điện thoại đối tác không ở gần địa chỉ đơn.
 
 ## 6. Quy ước
 

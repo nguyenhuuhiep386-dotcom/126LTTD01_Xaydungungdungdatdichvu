@@ -7,8 +7,10 @@ using Servio.Api.Services.Files;
 
 namespace Servio.Api.Pages.Admin;
 
-/// <summary>/admin/files/{id}: serves uploaded files (incl. private KYC images) to SUPER_ADMIN/OPERATOR, audited.</summary>
-[Authorize(Policy = AuthPolicies.AdminOperator)]
+/// <summary>
+/// /admin/files/{id}: serves uploaded files to admins, private ones audited. KYC and certificates only to
+/// SUPER_ADMIN/OPERATOR (F-PROF-04); dispute evidence and transfer receipts also to SUPPORT/FINANCE.
+/// </summary>
 public sealed class FilesModel(PartnerVerificationService verifications, FileService files) : PageModel
 {
     public async Task<IActionResult> OnGetAsync(Guid id, CancellationToken ct)
@@ -16,6 +18,11 @@ public sealed class FilesModel(PartnerVerificationService verifications, FileSer
         try
         {
             var file = await verifications.GetFileForReviewAsync(AdminActor.From(HttpContext), id, ct);
+            var kyc = file.Purpose is (byte)FilePurpose.Kyc or (byte)FilePurpose.Certificate;
+            if (kyc && !User.IsInRole(nameof(AdminRole.SuperAdmin)) && !User.IsInRole(nameof(AdminRole.Operator)))
+            {
+                return Forbid();
+            }
             var path = files.PhysicalPath(file);
             Response.Headers.CacheControl = "private, no-store";
             return System.IO.File.Exists(path) ? PhysicalFile(path, file.MimeType) : NotFound();

@@ -35,7 +35,7 @@
 **Việc cần làm:**
 - [ ] Đọc mục 0.1–0.2 bản v1.4, thống nhất phạm vi, stack và phân công — hạn 26/09 (cả nhóm)
 - [ ] Tạo bảng Trello gồm các cột Backlog / Đang làm / Chờ review / Xong; nhập việc của Giai đoạn 1–2 từ README này — hạn 27/09 (Hiệp)
-- [ ] Tạo repo GitHub gồm `servio-backend/`, `servio-android/`, `docs/` (chứa v1.4 và README), nhánh `main`/`develop`, `.gitignore` cho .NET và Android — hạn 27/09 (Hoàng)
+- [x] Tạo repo GitHub gồm `servio-backend/`, `servio-android/`, `docs/` (chứa v1.4 và README), nhánh `main`/`develop`, `.gitignore` cho .NET và Android — hạn 27/09 (Hoàng)
 - [ ] Cài môi trường: Android Studio, .NET 10 SDK, SQL Server 2022 Developer/Express + SSMS, Git — hạn 27/09 (mỗi người)
 - [ ] Tạo Firebase project (gói Spark) dùng cho FCM; đăng ký 2 app `vn.servio.customer` và `vn.servio.partner`; tải `google-services.json` — hạn 28/09 (Nguyên)
 - [ ] Chuẩn bị nội dung kỹ thuật cho slide BC1:
@@ -56,15 +56,15 @@
 ## Giai đoạn 2: Thiết kế màn hình, CSDL và khung dự án (hạn: 13/10 — BC2)
 **Mục tiêu:** 2 app chạy được toàn bộ flow màn hình bằng dữ liệu giả; CSDL và API xác thực chạy được trên laptop.
 **Việc cần làm:**
-- [ ] Viết script SQL `CREATE TABLE` cho 33 bảng thuộc phạm vi (mục 0.2.5) gồm khóa chính và khóa ngoại; chạy trên SSMS và dựng Database Diagram — hạn 03/10 (Hoàng)
-- [ ] Tạo solution .NET 10 `Servio.Api` + `Servio.Tests` — hạn 05/10 (Hoàng):
+- [ ] Viết script SQL `CREATE TABLE` cho 33 bảng thuộc phạm vi (mục 0.2.5) gồm khóa chính và khóa ngoại; chạy trên SSMS và dựng Database Diagram — hạn 03/10 (Hoàng) — script xong; Database Diagram dựng trong SSMS khi làm slide
+- [x] Tạo solution .NET 10 `Servio.Api` + `Servio.Tests` — hạn 05/10 (Hoàng):
   - Scaffold EF Core từ CSDL (Database-First).
   - Swagger; envelope response và mã lỗi theo mục 6.1.
   - Cấu hình `appsettings.Demo.json`.
-- [ ] Làm API xác thực #1, #2 (OTP cố định `123456` ở Development/Demo), #5, #6, #9, #10; JWT access 15 phút, refresh 30 ngày — hạn 08/10 (Hoàng)
-- [ ] Làm API danh mục #29, #30; seed 7 danh mục cấp 1 kèm danh mục cấp 2, SystemConfigs và 1 tài khoản admin — hạn 09/10 (Hoàng)
-- [ ] Trang quản trị: đăng nhập cookie (AW-01) và layout chung — hạn 11/10 (Hoàng)
-- [ ] Chốt hợp đồng API của Giai đoạn 3 trên Swagger, có JSON mẫu, để Android làm song song — hạn 12/10 (Hoàng)
+- [x] Làm API xác thực #1, #2 (OTP cố định `123456` ở Development/Demo), #5, #6, #9, #10; JWT access 15 phút, refresh 30 ngày — hạn 08/10 (Hoàng)
+- [x] Làm API danh mục #29, #30; seed 7 danh mục cấp 1 kèm danh mục cấp 2, SystemConfigs và 1 tài khoản admin — hạn 09/10 (Hoàng)
+- [x] Trang quản trị: đăng nhập cookie (AW-01) và layout chung — hạn 11/10 (Hoàng)
+- [x] Chốt hợp đồng API của Giai đoạn 3 trên Swagger, có JSON mẫu, để Android làm song song — hạn 12/10 (Hoàng)
 - [ ] Tạo project `servio-android` gồm 3 module `:core`, `:customer`, `:partner`; cài Hilt, Retrofit, Navigation Component, ViewBinding và osmdroid — hạn 02/10 (Nguyên)
 - [ ] Design system trong `:core`, theo mục 7.1 — hạn 03/10 (Hiệp):
   - Màu và font Be Vietnam Pro.
@@ -98,18 +98,18 @@
 ## Giai đoạn 3: Tích hợp luồng đăng bài → báo giá → chat (hạn: 27/10 — mốc nội bộ)
 **Mục tiêu:** 2 điện thoại thật chạy được luồng từ đăng ký, duyệt KYC, đăng bài, newsfeed, báo giá đến chat, dùng dữ liệu thật qua backend.
 **Việc cần làm:**
-- [ ] Làm `POST /files` (multipart) — hạn 15/10 (Hoàng):
+- [x] Làm `POST /files` (multipart) — hạn 15/10 (Hoàng):
   - Kiểm tra MIME bằng magic bytes và giới hạn kích thước.
   - Ảnh thường lưu `wwwroot/uploads`. Ảnh KYC lưu thư mục riêng, tải qua endpoint có kiểm quyền.
-- [ ] Làm API hồ sơ, địa chỉ và thiết bị FCM #12–#16; API đối tác #17–#23, #25–#28 — hạn 17/10 (Hoàng)
-- [ ] Trang quản trị: AW-04 duyệt KYC và kỹ năng (ghi AuditLog), AW-11 danh mục — hạn 19/10 (Hoàng)
-- [ ] Làm API yêu cầu dịch vụ #36–#38, #40; chặn SĐT/URL trong nội dung; `BackgroundService` tự hết hạn bài — hạn 21/10 (Hoàng)
-- [ ] Làm feed và báo giá — hạn 24/10 (Hoàng):
+- [x] Làm API hồ sơ, địa chỉ và thiết bị FCM #12–#16; API đối tác #17–#23, #25–#28 — hạn 17/10 (Hoàng)
+- [x] Trang quản trị: AW-04 duyệt KYC và kỹ năng (ghi AuditLog), AW-11 danh mục — hạn 19/10 (Hoàng)
+- [x] Làm API yêu cầu dịch vụ #36–#38, #40; chặn SĐT/URL trong nội dung; `BackgroundService` tự hết hạn bài — hạn 21/10 (Hoàng)
+- [x] Làm feed và báo giá — hạn 24/10 (Hoàng):
   - Feed #46: lọc kỹ năng APPROVED và khoảng cách Haversine.
   - Báo giá #42, #50, #52, #53.
   - Hub `/hubs/feed` phát `NewPost`; hub `/hubs/orders` phát `NewQuote`.
-- [ ] Làm chat #54–#59, #61 và hub `/hubs/chat`; lưu bảng `Messages`; hội thoại người không được chọn chuyển READ_ONLY — hạn 26/10 (Hoàng)
-- [ ] Viết unit test cho điều kiện matching và giới hạn 5 quote PENDING — hạn 26/10 (Hoàng)
+- [x] Làm chat #54–#59, #61 và hub `/hubs/chat`; lưu bảng `Messages`; hội thoại người không được chọn chuyển READ_ONLY — hạn 26/10 (Hoàng)
+- [x] Viết unit test cho điều kiện matching và giới hạn 5 quote PENDING — hạn 26/10 (Hoàng)
 - [ ] App khách: nối API xác thực, lưu token, tự refresh token khi hết hạn — hạn 17/10 (Nguyên)
 - [ ] App khách: hồ sơ, sổ địa chỉ, chọn vị trí trên osmdroid (User-Agent riêng, ghi công OSM) — hạn 19/10 (Nguyên)
 - [ ] App khách: tạo yêu cầu 3 bước có upload ảnh; Yêu cầu của tôi; huỷ bài — hạn 23/10 (Nguyên)
@@ -129,25 +129,25 @@
 ## Giai đoạn 4: Đơn hàng, theo dõi vị trí, hoàn tất COD (hạn: 10/11 — BC3)
 **Mục tiêu:** toàn bộ giao diện chạy được (đúng yêu cầu BC3) và luồng đơn hàng đã nối backend. Không để việc nối API dồn sang tuần cuối.
 **Việc cần làm:**
-- [ ] Chọn báo giá tạo đơn #43 — hạn 30/10 (Hoàng):
+- [x] Chọn báo giá tạo đơn #43 — hạn 30/10 (Hoàng):
   - Một transaction; kiểm tra slot ≤ 3, không tính assignment UNPAID_CASH.
   - Kiểm tra không chồng lịch.
   - Job hết hạn xác nhận sau 10 phút.
-- [ ] State machine và lịch sử đơn — hạn 02/11 (Hoàng):
+- [x] State machine và lịch sử đơn — hạn 02/11 (Hoàng):
   - #62–#66.
   - #69, #70 kèm ảnh trước/sau.
   - Phát sinh chi phí #73, #74.
-- [ ] Di chuyển, vị trí và check-in — hạn 04/11 (Hoàng):
+- [x] Di chuyển, vị trí và check-in — hạn 04/11 (Hoàng):
   - #67; hub method `UpdateLocation` nhận vị trí 10 giây/lần; #76, #77 tính ETA bằng Haversine.
   - Check-in #68: ≤ 200 m, accuracy ≤ 100 m, từ chối `isMock`.
   - Nhờ khách xác nhận đã đến #178, #179.
-- [ ] COD, huỷ và công nợ — hạn 06/11 (Hoàng):
+- [x] COD, huỷ và công nợ — hạn 06/11 (Hoàng):
   - Hoàn tất COD #71 và auto-confirm: ghi Transaction CASH và công nợ hoa hồng; chặn nhận việc khi nợ > 200.000 đ; cấn trừ tự động.
   - Huỷ #72, #151, #152 và khách không có mặt #180, ghi CancellationCharges.
   - Trả nợ #155, #156.
-- [ ] Đánh giá #95, #96, #100; khiếu nại #146–#148; thông báo FCM và #101–#104 — hạn 08/11 (Hoàng)
-- [ ] Trang quản trị: AW-02 dashboard, AW-03 người dùng, AW-06 bài đăng, AW-07 đơn hàng, AW-08 khiếu nại, AW-18 công nợ — hạn 09/11 (Hoàng)
-- [ ] Viết unit test cho state machine và công thức tiền: báo giá 450.000 + phát sinh 180.000 → hoa hồng 94.500, đối tác thực nhận 535.500, cấn trừ nợ — hạn 09/11 (Hoàng)
+- [x] Đánh giá #95, #96, #100; khiếu nại #146–#148; thông báo FCM và #101–#104 — hạn 08/11 (Hoàng)
+- [x] Trang quản trị: AW-02 dashboard, AW-03 người dùng, AW-06 bài đăng, AW-07 đơn hàng, AW-08 khiếu nại, AW-18 công nợ — hạn 09/11 (Hoàng)
+- [x] Viết unit test cho state machine và công thức tiền: báo giá 450.000 + phát sinh 180.000 → hoa hồng 94.500, đối tác thực nhận 535.500, cấn trừ nợ — hạn 09/11 (Hoàng)
 - [ ] App khách: CS-18 xác nhận chọn đối tác; CS-19, CS-20 đơn hàng, chi tiết và timeline; nút theo dõi đơn ở Trang chủ — hạn 01/11 (Nguyên)
 - [ ] App khách: CS-21 bản đồ theo dõi (marker cập nhật qua SignalR, nhãn "Chưa cập nhật" khi dữ liệu cũ); hộp thoại xác nhận "thợ đã đến" — hạn 04/11 (Nguyên)
 - [ ] App khách: duyệt phát sinh CS-22; xác nhận hoàn thành COD CS-23; huỷ có xem trước phí — hạn 06/11 (Nguyên)
@@ -168,12 +168,12 @@
 ## Giai đoạn 5: Kiểm thử, hoàn thiện và demo cuối (hạn: 17/11 — BC cuối)
 **Mục tiêu:** chạy app hoàn chỉnh, ổn định trên 2 điện thoại thật theo tiêu chí nghiệm thu ở mục 0.2.8.
 **Việc cần làm:**
-- [ ] Chạy trọn luồng demo 10 bước ở mục 0.2.8, ghi lỗi lên Trello kèm mức độ — hạn 12/11 (cả nhóm)
+- [ ] Chạy trọn luồng demo 10 bước ở mục 0.2.8, ghi lỗi lên Trello kèm mức độ — hạn 12/11 (cả nhóm) — phía backend + admin đạt cả 10 bước qua HTTP ngày 14/11 (`servio-backend/tools/demo_smoke.py`); còn chạy trên 2 điện thoại
 - [ ] Sửa lỗi. Ưu tiên lỗi chặn luồng demo, sau đó đến lỗi hiển thị — hạn 14/11 (người phụ trách từng phần)
-- [ ] Seed dữ liệu demo: 3 khách, 3 đối tác đã duyệt, danh mục có icon, vài bài và đơn mẫu ở các trạng thái — hạn 14/11 (Hoàng)
-- [ ] Nếu còn thời gian: #177 "Khách chưa thanh toán", CS-02 onboarding, PS-26, AW-15 cấu hình — chỉ làm sau khi luồng 0.2.8 chạy trọn (người phụ trách từng phần)
+- [x] Seed dữ liệu demo: 3 khách, 3 đối tác đã duyệt, danh mục có icon, vài bài và đơn mẫu ở các trạng thái — hạn 14/11 (Hoàng) — xong 11/11, lệnh `--seed-demo` (xem `docs/huong-dan-phat-trien.md`)
+- [ ] Nếu còn thời gian: #177 "Khách chưa thanh toán", CS-02 onboarding, PS-26, AW-15 cấu hình — chỉ làm sau khi luồng 0.2.8 chạy trọn (người phụ trách từng phần) — AW-15 và #177 xong 14/11
 - [ ] Code freeze (đóng băng code): từ ngày này chỉ sửa lỗi chặn — 15/11 (cả nhóm)
-- [ ] Viết kịch bản demo từng bước, phân vai người cầm máy khách, máy đối tác và laptop admin — hạn 15/11 (Hiệp)
+- [ ] Viết kịch bản demo từng bước, phân vai người cầm máy khách, máy đối tác và laptop admin — hạn 15/11 (Hiệp) — bản nháp checklist và kịch bản: [`docs/checklist-demo.md`](docs/checklist-demo.md)
 - [ ] Cài APK lên 2 điện thoại; chuẩn bị hotspot dự phòng; ghi sẵn IP backend; tắt tối ưu pin — hạn 16/11 (Nguyên, Hiệp)
 - [ ] Soạn slide BC cuối và quay video demo dự phòng — hạn 16/11 (Hiệp)
 - [ ] Tập demo toàn bộ, bấm giờ — 16/11 (cả nhóm)
@@ -187,4 +187,5 @@
 | Ngày | Thay đổi |
 |---|---|
 | 25/09 | Tạo kế hoạch theo 4 mốc báo cáo của môn học; phạm vi và stack theo `servio-ke-hoach-phat-trien-v1.4.md` mục 0.2 |
+| 14/11 | Backend và trang quản trị xong BE-1 → BE-7, QT-1, QT-2, AW-15 và seed demo; `servio-backend/tools/demo_smoke.py` chạy đạt 10 bước 0.2.8 trên SQL Server |
 | 01/10 | Dựng nền móng (backend, 2 app, trang quản trị) và chia việc theo luồng tác nhân: xem `docs/ke-hoach-giai-doan.md`. Việc dựng khung ở Giai đoạn 2 đã xong |

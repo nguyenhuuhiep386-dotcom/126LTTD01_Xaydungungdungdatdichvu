@@ -41,6 +41,26 @@ public static class ErrorCodes
     // M4 chat (BE-3)
     public const string ConversationReadOnly = "CONVERSATION_READ_ONLY";
 
+    // M5 orders (BE-4)
+    public const string PartnerCapacityExceeded = "PARTNER_CAPACITY_EXCEEDED";
+    public const string ScheduleConflict = "SCHEDULE_CONFLICT";
+    public const string ExtraChargePending = "EXTRA_CHARGE_PENDING";
+    public const string OrderDisputed = "ORDER_DISPUTED";
+
+    // M5 tracking and check-in (BE-5). TOO_FAR_FROM_ADDRESS / GPS_NOT_RELIABLE mean the partner may ask the customer (#178).
+    public const string GpsNotReliable = "GPS_NOT_RELIABLE";
+    public const string ArrivalConfirmationNotAllowed = "ARRIVAL_CONFIRMATION_NOT_ALLOWED";
+
+    // M5/M6 COD, cancel, debts (BE-6)
+    public const string NoShowNotAllowed = "NO_SHOW_NOT_ALLOWED";
+    public const string NothingToPay = "NOTHING_TO_PAY";
+
+    // M7 reviews, disputes (BE-7)
+    public const string ReviewWindowClosed = "REVIEW_WINDOW_CLOSED";
+    public const string DisputeNotAllowed = "DISPUTE_NOT_ALLOWED";
+    public const string DisputeAlreadyOpen = "DISPUTE_ALREADY_OPEN";
+    public const string UnpaidReportWindowClosed = "UNPAID_REPORT_WINDOW_CLOSED";
+
     // Files (POST /files)
     public const string FileNotReady = "FILE_NOT_READY";
     public const string FileTooLarge = "FILE_TOO_LARGE";

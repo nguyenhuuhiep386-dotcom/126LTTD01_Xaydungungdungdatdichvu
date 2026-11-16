@@ -20,6 +20,9 @@ public interface IRealtimeNotifier
     Task MessageReceivedAsync(Guid customerUserId, Guid partnerUserId, MessageDto message, CancellationToken ct);
 
     Task MessageReadAsync(Guid customerUserId, Guid partnerUserId, MessageRead read, CancellationToken ct);
+
+    /// <summary>/hubs/orders event (QuoteAccepted, OrderStatusChanged, ExtraCharge*) to each recipient in the app of its role.</summary>
+    Task OrderEventAsync(IReadOnlyList<(AppFlavor Flavor, Guid UserId)> recipients, string eventName, object payload, CancellationToken ct);
 }
 
 public sealed class SignalRNotifier(
@@ -46,6 +49,10 @@ public sealed class SignalRNotifier(
 
     public Task MessageReadAsync(Guid customerUserId, Guid partnerUserId, MessageRead read, CancellationToken ct) =>
         SafeAsync(ChatHub.MessageReadEvent, () => ToMembers(customerUserId, partnerUserId).SendAsync(ChatHub.MessageReadEvent, read, ct));
+
+    public Task OrderEventAsync(IReadOnlyList<(AppFlavor Flavor, Guid UserId)> recipients, string eventName, object payload, CancellationToken ct) =>
+        SafeAsync(eventName, () =>
+            orders.Clients.Groups(recipients.Select(r => RealtimeGroups.For(r.Flavor, r.UserId)).ToList()).SendAsync(eventName, payload, ct));
 
     private IClientProxy ToMembers(Guid customerUserId, Guid partnerUserId) =>
         chat.Clients.Groups(RealtimeGroups.For(AppFlavor.Customer, customerUserId), RealtimeGroups.For(AppFlavor.Partner, partnerUserId));

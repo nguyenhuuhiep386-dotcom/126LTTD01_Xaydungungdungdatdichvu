@@ -1,0 +1,44 @@
+@page
+@model Servio.Api.Pages.Admin.Orders.IndexModel
+@using Servio.Api.Pages.Admin
+@{
+    ViewData["Title"] = "Đơn hàng";
+}
+<nav class="tabs" aria-label="Trạng thái đơn">
+    @foreach (var tab in Servio.Api.Pages.Admin.Orders.IndexModel.Tabs)
+    {
+        <a class="tab @(tab.Status == Model.Status ? "active" : "")" href="?status=@(tab.Status?.ToString() ?? "")">@tab.Label</a>
+    }
+</nav>
+<form method="get" class="toolbar filters">
+    <input type="hidden" name="status" value="@Model.Status" />
+    <input type="search" name="q" value="@Model.Q" placeholder="Mã đơn hoặc SĐT khách/đối tác" aria-label="Tìm đơn" />
+    <button class="btn btn-ghost" type="submit">Tìm</button>
+    <span class="muted">@Model.Total đơn</span>
+</form>
+
+@if (Model.Rows.Count == 0)
+{
+    <div class="card empty"><h2>Không có đơn nào</h2></div>
+}
+else
+{
+    <table class="table">
+        <thead><tr><th>Mã đơn</th><th>Công việc</th><th>Khách</th><th>Đối tác</th><th>Tổng tiền</th><th>Trạng thái</th><th>Cập nhật</th></tr></thead>
+        <tbody>
+        @foreach (var o in Model.Rows)
+        {
+            <tr>
+                <td><a href="/admin/orders/@o.Id"><strong>@o.Code</strong></a></td>
+                <td>@o.Title</td>
+                <td>@o.Customer</td>
+                <td>@(o.Partner ?? "—")</td>
+                <td>@AdminText.Vnd(o.Total)</td>
+                <td>@AdminText.Badge(o.Status)</td>
+                <td class="muted">@AdminText.Time(o.UpdatedAt)</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <partial name="_Pager" model="(Model.PageNumber, (int)Math.Ceiling(Model.Total / (double)Servio.Api.Pages.Admin.Orders.IndexModel.PageSize))" />
+}

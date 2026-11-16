@@ -4,6 +4,7 @@ using Servio.Api.Data;
 using Servio.Api.Data.Entities;
 using Servio.Api.Hubs;
 using Servio.Api.Services.Feed;
+using Servio.Api.Services.Admin;
 using Servio.Api.Services.Files;
 using Servio.Api.Services.Users;
 
@@ -184,7 +185,37 @@ public sealed class ServiceRequestService(
     }
 
     /// <summary>
-    /// Called by RequestExpiryJob every 30 s: OPEN posts past ExpiresAt → EXPIRED and their pending quotes → EXPIRED.
+    /// AW-06: an admin hides an OPEN post that breaks the rules (0.2.7 ý 1) → REJECTED_BY_MODERATION; pending quotes
+    /// expire and the pre-order chats become read-only, like a cancelled post. Audited.
+    /// </summary>
+    public async Task HideAsync(AdminActor actor, Guid requestId, string reason, CancellationToken ct)
+    {
+        reason = reason.Trim();
+        if (reason.Length < 3)
+        {
+            throw Invalid("Hãy ghi lý do ẩn bài", "reason");
+        }
+        var request = await db.ServiceRequests
+                          .Include(r => r.Quotes.Where(q => q.Status == (byte)QuoteStatus.Pending))
+                          .FirstOrDefaultAsync(r => r.Id == requestId, ct)
+                      ?? throw ApiException.NotFound("Không tìm thấy bài đăng");
+        if (request.Status != (byte)ServiceRequestStatus.Open)
+        {
+            throw new ApiException(StatusCodes.Status409Conflict, ErrorCodes.InvalidStatusTransition, "Chỉ ẩn được bài đang mở");
+        }
+        var now = clock.GetUtcNow();
+        request.Status = (byte)ServiceRequestStatus.RejectedByModeration;
+        request.ModerationNote = reason;
+        request.UpdatedAt = now;
+        ExpireQuotes(request.Quotes, now);
+        await FreezeConversationsAsync([request.Id], now, ct);
+        db.AddAudit(actor, "SERVICE_REQUEST_HIDDEN", nameof(ServiceRequest), request.Id,
+            new { Status = nameof(ServiceRequestStatus.Open) }, new { Status = "REJECTED_BY_MODERATION", Reason = reason }, now);
+        await db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
+    /// Called by ExpiryJob every 30 s: OPEN posts past ExpiresAt → EXPIRED and their pending quotes → EXPIRED.
     /// Returns how many posts expired.
     /// </summary>
     public async Task<int> ExpireDueAsync(CancellationToken ct)
@@ -219,13 +250,22 @@ public sealed class ServiceRequestService(
                 $"Bạn huỷ bài quá nhiều lần, có thể đăng lại sau {customer.User.PostingRestrictedUntil.Value.ToOffset(TimeSpan.FromHours(7)):HH:mm dd/MM}");
         }
 
+        // #177: an order the admin confirmed as unpaid blocks new posts until the partner is paid (2.5.3).
+        var unpaid = await db.Orders.Where(o => o.CustomerId == customer.Id && o.Status == (byte)OrderStatus.AwaitingPayment)
+            .Select(o => o.Code).FirstOrDefaultAsync(ct);
+        if (unpaid is not null)
+        {
+            throw new ApiException(StatusCodes.Status422UnprocessableEntity, ErrorCodes.OutstandingDebt,
+                $"Đơn {unpaid} chưa thanh toán cho đối tác, hãy thanh toán để đăng yêu cầu mới");
+        }
+
         // Spec 0.2.7 ý 8: unpaid cancellation fees above the limit block new posts.
         var maxDebt = await configs.GetDecimalAsync("cancellation.max_outstanding_amount", 100_000, ct);
         var due = await db.CancellationCharges.Where(c => c.CustomerId == customer.Id && c.Status == 1).SumAsync(c => (decimal?)c.Amount, ct) ?? 0;
         if (due > maxDebt)
         {
             throw new ApiException(StatusCodes.Status422UnprocessableEntity, ErrorCodes.OutstandingDebt,
-                $"Bạn còn {due:N0} đ phí huỷ chưa thanh toán, hãy thanh toán để đăng yêu cầu mới");
+                $"Bạn còn {Money.Vnd(due)} phí huỷ chưa thanh toán, hãy thanh toán để đăng yêu cầu mới");
         }
     }
 

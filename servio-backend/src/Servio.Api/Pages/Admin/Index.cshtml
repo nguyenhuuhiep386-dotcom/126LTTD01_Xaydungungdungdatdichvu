@@ -1,28 +1,101 @@
 @page
 @model Servio.Api.Pages.Admin.IndexModel
+@using Servio.Api.Pages.Admin
 @{
     ViewData["Title"] = "Dashboard";
+    var maxGmv = Math.Max(1m, Model.Days.Max(d => d.Gmv));
 }
-<section class="kpis" aria-label="Số liệu tổng quan">
-    <a class="card kpi highlight" href="/admin/partners/verifications">
+<h2 class="section-title">Cần xử lý</h2>
+<section class="kpis" aria-label="Hàng đợi">
+    <a class="card kpi @(Model.PendingKyc > 0 ? "highlight" : "")" href="/admin/partners/verifications">
         <div class="label">Đối tác chờ duyệt KYC</div>
         <div class="value">@Model.PendingKyc</div>
     </a>
-    <div class="card kpi">
+    <a class="card kpi @(Model.OpenDisputes > 0 ? "highlight" : "")" href="/admin/disputes">
+        <div class="label">Khiếu nại chờ xử lý</div>
+        <div class="value">@Model.OpenDisputes</div>
+    </a>
+    <a class="card kpi @(Model.PendingPayments > 0 ? "highlight" : "")" href="/admin/debts">
+        <div class="label">Khai báo trả nợ chờ xác nhận</div>
+        <div class="value">@Model.PendingPayments</div>
+    </a>
+    <a class="card kpi" href="/admin/requests">
         <div class="label">Bài đăng đang mở</div>
         <div class="value">@Model.OpenRequests</div>
+    </a>
+</section>
+
+<h2 class="section-title">Tiền</h2>
+<section class="kpis" aria-label="Số liệu tiền">
+    <div class="card kpi">
+        <div class="label">GMV đơn hoàn tất</div>
+        <div class="value">@AdminText.Vnd(Model.Gmv)</div>
     </div>
     <div class="card kpi">
-        <div class="label">Đơn đang xử lý</div>
-        <div class="value">@Model.ActiveOrders</div>
+        <div class="label">Hoa hồng</div>
+        <div class="value">@AdminText.Vnd(Model.Commission)</div>
     </div>
     <div class="card kpi">
-        <div class="label">Khách hàng</div>
-        <div class="value">@Model.Customers</div>
+        <div class="label">Nợ hoa hồng đối tác</div>
+        <div class="value">@AdminText.Vnd(Model.CommissionDebt)</div>
     </div>
     <div class="card kpi">
-        <div class="label">Đối tác</div>
-        <div class="value">@Model.Partners</div>
+        <div class="label">Phí huỷ khách chưa trả</div>
+        <div class="value">@AdminText.Vnd(Model.CancellationFeesDue)</div>
     </div>
 </section>
-<p class="muted">Biểu đồ và số liệu theo ngày sẽ được bổ sung ở luồng QT-2.</p>
+
+<h2 class="section-title">Người dùng và đơn hàng</h2>
+<section class="kpis" aria-label="Người dùng">
+    <div class="card kpi"><div class="label">Khách hàng</div><div class="value">@Model.Customers</div></div>
+    <div class="card kpi"><div class="label">Đối tác đã duyệt</div><div class="value">@Model.Partners</div></div>
+    <div class="card kpi"><div class="label">Đối tác đang online</div><div class="value">@Model.PartnersOnline</div></div>
+    <div class="card kpi"><div class="label">Tỷ lệ hoàn thành</div><div class="value">@Model.CompletionRate.ToString("0")%</div></div>
+</section>
+
+<div class="split">
+    <section>
+        <h2 class="section-title">7 ngày gần nhất</h2>
+        <table class="table">
+            <thead><tr><th>Ngày</th><th>Đơn mới</th><th>Hoàn tất</th><th>GMV</th></tr></thead>
+            <tbody>
+            @foreach (var d in Model.Days)
+            {
+                <tr>
+                    <td>@d.Day.ToString("dd/MM")</td>
+                    <td>@d.Created</td>
+                    <td>@d.Completed</td>
+                    <td>
+                        <div class="bar-cell">
+                            <span class="bar" style="width:@((int)(d.Gmv / maxGmv * 100))%"></span>
+                            <span>@AdminText.Vnd(d.Gmv)</span>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </section>
+    <section>
+        <h2 class="section-title">Đơn theo trạng thái</h2>
+        @if (Model.OrdersByStatus.Count == 0)
+        {
+            <p class="muted">Chưa có đơn hàng.</p>
+        }
+        else
+        {
+            <table class="table">
+                <thead><tr><th>Trạng thái</th><th>Số đơn</th></tr></thead>
+                <tbody>
+                @foreach (var (status, count) in Model.OrdersByStatus)
+                {
+                    <tr>
+                        <td><a href="/admin/orders?status=@status">@AdminText.Badge(status)</a></td>
+                        <td>@count</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </section>
+</div>

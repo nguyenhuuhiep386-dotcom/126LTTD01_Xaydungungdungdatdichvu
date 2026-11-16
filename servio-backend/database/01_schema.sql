@@ -560,7 +560,7 @@ CREATE TABLE dbo.Transactions (
     Code                  varchar(30)      NOT NULL,
     OrderId               uniqueidentifier NULL CONSTRAINT FK_Transactions_Orders REFERENCES dbo.Orders (Id),
     UserId                uniqueidentifier NOT NULL CONSTRAINT FK_Transactions_Users REFERENCES dbo.Users (Id),
-    Type                  tinyint          NOT NULL,         -- 1=PAYMENT, 5=DEBT_PAYMENT
+    Type                  tinyint          NOT NULL,         -- 1=PAYMENT, 5=DEBT_PAYMENT, 6=PAYMENT_REVERSAL (#177)
     Provider              tinyint          NOT NULL,         -- 1=CASH, 6=BANK_TRANSFER, 7=INTERNAL_OFFSET
     Amount                decimal(18, 2)   NOT NULL,
     Currency              char(3)          NOT NULL CONSTRAINT DF_Transactions_Currency DEFAULT 'VND',
@@ -591,7 +591,7 @@ CREATE TABLE dbo.WalletTransactions (                          -- append-only le
     OrderAssignmentId    uniqueidentifier NULL CONSTRAINT FK_WalletTransactions_OrderAssignments REFERENCES dbo.OrderAssignments (Id),
     TransactionId        uniqueidentifier NULL CONSTRAINT FK_WalletTransactions_Transactions REFERENCES dbo.Transactions (Id),
     CancellationChargeId uniqueidentifier NULL CONSTRAINT FK_WalletTransactions_CancellationCharges REFERENCES dbo.CancellationCharges (Id),
-    Type                 tinyint          NOT NULL,          -- 3=ORDER_EARNING, 4=COMMISSION, 7=CANCELLATION_FEE, 8=ADJUSTMENT
+    Type                 tinyint          NOT NULL,          -- 3=ORDER_EARNING, 4=COMMISSION, 5=DEBT_PAYMENT, 7=CANCELLATION_FEE, 8=ADJUSTMENT
     Direction            tinyint          NOT NULL,          -- 1=CREDIT, 2=DEBIT
     Bucket               tinyint          NOT NULL,          -- 1=AVAILABLE, 3=DEBT
     LiabilityRole        tinyint          NOT NULL,          -- 1=CUSTOMER, 2=PARTNER

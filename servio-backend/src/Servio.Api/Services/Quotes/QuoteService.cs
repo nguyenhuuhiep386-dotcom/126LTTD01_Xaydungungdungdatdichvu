@@ -4,6 +4,7 @@ using Servio.Api.Data;
 using Servio.Api.Data.Entities;
 using Servio.Api.Hubs;
 using Servio.Api.Services.Feed;
+using Servio.Api.Services.Notifications;
 using Servio.Api.Services.Requests;
 using Servio.Api.Services.Users;
 
@@ -18,6 +19,7 @@ public sealed class QuoteService(
     FeedService feed,
     SystemConfigService configs,
     IRealtimeNotifier notifier,
+    NotificationService notifications,
     TimeProvider clock)
 {
     public const int MaxPageSize = 50;
@@ -82,7 +84,7 @@ public sealed class QuoteService(
         {
             await db.SaveChangesAsync(ct);
         }
-        catch (DbUpdateException e) when (e is not DbUpdateConcurrencyException)
+        catch (DbUpdateException e) when (e.IsUniqueViolation())
         {
             // Unique (ServiceRequestId, PartnerProfileId, RequestRevision): a double tap that slipped past the check above.
             throw new ApiException(StatusCodes.Status409Conflict, ErrorCodes.QuoteAlreadyExists, "Bạn đã báo giá cho bài này");
@@ -91,6 +93,9 @@ public sealed class QuoteService(
         var skillYears = partner.Skills[request.ServiceCategoryId].YearsOfExperience;
         await notifier.NewQuoteAsync(request.Customer.UserId,
             ToCustomerDto(quote, conversation.Id, partner.Profile, skillYears, Matching.RoundKm(distance)), ct);
+        await notifications.SendAsync([(AppFlavor.Customer, request.Customer.UserId)], NotificationType.NewQuote, "Có báo giá mới",
+            $"{request.Title}: báo giá {Money.Vnd(quote.Amount)}", new { serviceRequestId = request.Id, quoteId = quote.Id },
+            $"service-requests/{request.Id}", ct);
         return ToPartnerDto(quote, request, conversation.Id);
     }
 
@@ -220,7 +225,7 @@ public sealed class QuoteService(
         if (debt > maxDebt)
         {
             throw new ApiException(StatusCodes.Status422UnprocessableEntity, ErrorCodes.OutstandingDebt,
-                $"Nợ hoa hồng vượt {maxDebt:N0} đ, hãy thanh toán để tiếp tục nhận việc");
+                $"Nợ hoa hồng vượt {Money.Vnd(maxDebt)}, hãy thanh toán để tiếp tục nhận việc");
         }
     }
 
