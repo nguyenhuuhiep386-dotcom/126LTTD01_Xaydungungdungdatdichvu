@@ -14,6 +14,9 @@ import vn.servio.core.utils.AuthRouter
 import vn.servio.partner.BuildConfig
 import vn.servio.partner.R
 import vn.servio.partner.data.remote.FeedApi
+import vn.servio.partner.data.repository.AccountApi
+import vn.servio.partner.data.repository.AccountRepository
+import vn.servio.partner.data.repository.RemoteAccountRepository
 import vn.servio.partner.data.remote.FileApi
 import vn.servio.partner.data.remote.OrderApi
 import vn.servio.partner.data.remote.PartnerApi
@@ -67,6 +70,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideOrderApi(retrofit: Retrofit): OrderApi = retrofit.create(OrderApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAccountApi(retrofit: Retrofit): AccountApi = retrofit.create(AccountApi::class.java)
 }
 
 /** Partner repositories. Swap Fake → Remote here once the endpoint is ready on Swagger. */
@@ -88,4 +95,7 @@ abstract class RepositoryBindings {
 
     @Binds
     abstract fun bindOrderRepository(impl: RemoteOrderRepository): OrderRepository
+
+    @Binds
+    abstract fun bindAccountRepository(impl: RemoteAccountRepository): AccountRepository
 }

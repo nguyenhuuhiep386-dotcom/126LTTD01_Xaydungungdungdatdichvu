@@ -315,4 +315,45 @@
     <string name="cash_note">Ứng dụng không thu tiền thay bạn. Hoa hồng được cấn trừ hoặc trả bằng chuyển khoản ở mục Thu nhập.</string>
     <string name="cash_rate_customer">Đánh giá khách</string>
     <string name="cash_back_to_orders">Về danh sách đơn</string>
+
+    <!-- PS-21 Thu nhập, PS-23 Hồ sơ, PS-27 Đánh giá khách, PS-28 Thông báo -->
+    <string name="earnings_title">Thu nhập</string>
+    <string name="earnings_today">Hôm nay bạn nhận</string>
+    <string name="earnings_today_detail">%1$d đơn hoàn thành · Tuần này %2$s</string>
+    <string name="earnings_debt_title">Công nợ hoa hồng</string>
+    <string name="earnings_debt_amount">%1$s / %2$s</string>
+    <string name="earnings_debt_note">Vượt %1$s sẽ tạm dừng nhận việc mới. Hoa hồng được cấn trừ tự động khi có khoản bù.</string>
+    <string name="earnings_blocked">Công nợ đã vượt mức cho phép: bạn tạm thời không nhận được việc mới. Hãy khai báo trả nợ.</string>
+    <string name="earnings_pending">Đã khai báo chuyển khoản %1$s, đang chờ quản trị viên xác nhận.</string>
+    <string name="earnings_declare">Khai báo trả nợ</string>
+    <string name="earnings_declare_title">Khai báo chuyển khoản</string>
+    <string name="earnings_declare_hint">Chuyển %1$s vào tài khoản Servio, rồi nhập mã giao dịch và ảnh chứng từ.</string>
+    <string name="earnings_reference">Mã giao dịch chuyển khoản</string>
+    <string name="earnings_reference_invalid">Mã giao dịch ít nhất 3 ký tự</string>
+    <string name="earnings_evidence">Ảnh chứng từ chuyển khoản</string>
+    <string name="earnings_evidence_missing">Hãy đính kèm ảnh chứng từ chuyển khoản.</string>
+    <string name="earnings_declare_send">Gửi khai báo</string>
+    <string name="earnings_declared">Đã gửi khai báo. Quản trị viên sẽ xác nhận trong ngày.</string>
+    <string name="earnings_ledger">Lịch sử giao dịch</string>
+    <string name="earnings_ledger_empty">Chưa có giao dịch.</string>
+    <string name="earnings_ledger_line">%1$s\n%2$s</string>
+    <string name="profile_title">Hồ sơ đối tác</string>
+    <string name="profile_rating">★ %1$.1f · %2$d đánh giá</string>
+    <string name="profile_no_rating">Chưa có đánh giá</string>
+    <string name="profile_stats">%1$d đơn hoàn thành · %2$d năm kinh nghiệm</string>
+    <string name="profile_skills_value">%1$d/%2$d đã duyệt</string>
+    <string name="profile_area_value">Bán kính %1$d km</string>
+    <string name="profile_logout_title">Đăng xuất khỏi ServioPartner?</string>
+    <string name="review_title">Đánh giá khách hàng</string>
+    <string name="review_customer_line">%1$s · Đơn #%2$s</string>
+    <string name="review_hint">Đánh giá giúp đối tác khác biết khách có đúng hẹn, mô tả đúng việc không.</string>
+    <string name="review_tag_paid">Thanh toán đúng hẹn</string>
+    <string name="review_tag_accurate">Mô tả đúng việc</string>
+    <string name="review_tag_friendly">Thân thiện</string>
+    <string name="review_comment">Nhận xét (không bắt buộc)</string>
+    <string name="review_send">Gửi đánh giá</string>
+    <string name="review_sent">Đã gửi đánh giá. Cảm ơn bạn!</string>
+    <string name="notifications_title">Thông báo</string>
+    <string name="notifications_empty">Chưa có thông báo.</string>
+    <string name="notifications_read_all">Đọc hết</string>
 </resources>

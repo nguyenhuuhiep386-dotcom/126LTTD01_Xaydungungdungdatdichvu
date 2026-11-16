@@ -117,7 +117,9 @@ class CashFragment : Fragment(R.layout.fragment_cash) {
             }
         } else {
             primary.setText(R.string.cash_back_to_orders)
-            primary.setOnClickListener { findNavController().popBackStack(R.id.ps13, false) }
+            primary.setOnClickListener {
+                if (!findNavController().popBackStack(R.id.ps13, false)) findNavController().navigateUp()
+            }
         }
     }
 

@@ -3,7 +3,7 @@
   ServioPartner navigation. Bottom tabs: ps07, ps12, ps13, ps20, ps21.
   Signup/KYC screens (PS-02..PS-06, ui/signup) sit outside main_graph; AppModule.destinationAfterLogin decides where to land.
   Generated from the screen list in docs/ke-hoach-giai-doan.md (spec 7.2/7.4/7.6). Edit by hand from now on.
-  Placeholder screens use PlaceholderFragment; to build a screen, change android:name only (keep the id).
+  Every partner screen is built (DT-1 → DT-6); keep the ids, other screens and notifications navigate by them.
 -->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -177,116 +177,38 @@
 
         <fragment
             android:id="@+id/ps21"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="PS-21 Thu nhập">
-            <argument
-                android:name="code"
-                android:defaultValue="PS-21"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Thu nhập"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Thu nhập + công nợ hoa hồng (ngưỡng 200.000 đ), trả nợ (#87, #155, #156)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="ps23|Hồ sơ đối tác;ps24|Quản lý kỹ năng;ps28|Thông báo"
-                app:argType="string" />
-        </fragment>
+            android:name="vn.servio.partner.ui.earnings.EarningsFragment"
+            android:label="PS-21 Thu nhập" />
 
         <fragment
             android:id="@+id/ps23"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="PS-23 Hồ sơ đối tác">
+            android:name="vn.servio.partner.ui.profile.ProfileFragment"
+            android:label="PS-23 Hồ sơ đối tác" />
+
+        <fragment
+            android:id="@+id/ps24"
+            android:name="vn.servio.partner.ui.signup.SignupSkillsFragment"
+            android:label="PS-24 Quản lý kỹ năng">
             <argument
-                android:name="code"
-                android:defaultValue="PS-23"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Hồ sơ đối tác"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Sửa hồ sơ, bán kính nhận việc (#17, #18)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
-            <argument
-                android:name="showLogout"
+                android:name="manage"
                 android:defaultValue="true"
                 app:argType="boolean" />
         </fragment>
 
         <fragment
-            android:id="@+id/ps24"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="PS-24 Quản lý kỹ năng">
-            <argument
-                android:name="code"
-                android:defaultValue="PS-24"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Quản lý kỹ năng"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Danh sách kỹ năng + trạng thái duyệt (#21–#23)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
-        </fragment>
-
-        <fragment
             android:id="@+id/ps27"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.partner.ui.profile.ReviewCustomerFragment"
             android:label="PS-27 Đánh giá khách hàng">
             <argument
-                android:name="code"
-                android:defaultValue="PS-27"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Đánh giá khách hàng"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Sao + nhận xét (#95)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
+                android:name="orderId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
         </fragment>
 
         <fragment
             android:id="@+id/ps28"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="PS-28 Thông báo">
-            <argument
-                android:name="code"
-                android:defaultValue="PS-28"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Thông báo"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Danh sách thông báo (#101–#104)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
-        </fragment>
+            android:name="vn.servio.partner.ui.profile.NotificationsFragment"
+            android:label="PS-28 Thông báo" />
     </navigation>
 </navigation>
