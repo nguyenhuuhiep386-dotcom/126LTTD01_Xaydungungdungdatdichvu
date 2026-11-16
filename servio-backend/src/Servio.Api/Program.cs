@@ -168,7 +168,9 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy(AuthPolicies.AdminSupport, p => p.AddAuthenticationSchemes(AuthPolicies.AdminScheme)
         .RequireRole(nameof(AdminRole.SuperAdmin), nameof(AdminRole.Operator), nameof(AdminRole.Support)))
     .AddPolicy(AuthPolicies.AdminFinance, p => p.AddAuthenticationSchemes(AuthPolicies.AdminScheme)
-        .RequireRole(nameof(AdminRole.SuperAdmin), nameof(AdminRole.Finance)));
+        .RequireRole(nameof(AdminRole.SuperAdmin), nameof(AdminRole.Finance)))
+    .AddPolicy(AuthPolicies.AdminSuper, p => p.AddAuthenticationSchemes(AuthPolicies.AdminScheme)
+        .RequireRole(nameof(AdminRole.SuperAdmin)));
 
 // ---------- Rate limiting ----------
 builder.Services.AddRateLimiter(options =>

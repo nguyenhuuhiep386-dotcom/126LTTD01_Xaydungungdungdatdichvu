@@ -16,6 +16,9 @@ public static class AuthPolicies
     /// <summary>AW-18 debt payments: SUPER_ADMIN and FINANCE.</summary>
     public const string AdminFinance = "AdminFinance";
 
+    /// <summary>AW-15 system configuration: SUPER_ADMIN only.</summary>
+    public const string AdminSuper = "AdminSuper";
+
     /// <summary>Cookie scheme of the admin Razor Pages (separate from the apps' JWT).</summary>
     public const string AdminScheme = "AdminCookie";
 }
