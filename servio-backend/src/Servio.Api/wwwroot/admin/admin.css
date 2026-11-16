@@ -161,7 +161,3 @@ a:hover { text-decoration: underline; }
     .content { padding: 20px 16px 40px; }
     .table { display: block; overflow-x: auto; }
 }
-
-/* AW-15 */
-.config-form { display: flex; gap: 8px; align-items: center; }
-.config-form input, .config-form select { font: inherit; padding: 7px 10px; border: 1px solid var(--divider); border-radius: 10px; background: var(--surface); width: 140px; }

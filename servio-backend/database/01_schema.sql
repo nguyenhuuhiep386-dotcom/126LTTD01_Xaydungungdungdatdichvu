@@ -560,7 +560,7 @@ CREATE TABLE dbo.Transactions (
     Code                  varchar(30)      NOT NULL,
     OrderId               uniqueidentifier NULL CONSTRAINT FK_Transactions_Orders REFERENCES dbo.Orders (Id),
     UserId                uniqueidentifier NOT NULL CONSTRAINT FK_Transactions_Users REFERENCES dbo.Users (Id),
-    Type                  tinyint          NOT NULL,         -- 1=PAYMENT, 5=DEBT_PAYMENT, 6=PAYMENT_REVERSAL (#177)
+    Type                  tinyint          NOT NULL,         -- 1=PAYMENT, 5=DEBT_PAYMENT
     Provider              tinyint          NOT NULL,         -- 1=CASH, 6=BANK_TRANSFER, 7=INTERNAL_OFFSET
     Amount                decimal(18, 2)   NOT NULL,
     Currency              char(3)          NOT NULL CONSTRAINT DF_Transactions_Currency DEFAULT 'VND',

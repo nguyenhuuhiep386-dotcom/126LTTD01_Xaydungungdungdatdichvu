@@ -250,15 +250,6 @@ public sealed class ServiceRequestService(
                 $"Bạn huỷ bài quá nhiều lần, có thể đăng lại sau {customer.User.PostingRestrictedUntil.Value.ToOffset(TimeSpan.FromHours(7)):HH:mm dd/MM}");
         }
 
-        // #177: an order the admin confirmed as unpaid blocks new posts until the partner is paid (2.5.3).
-        var unpaid = await db.Orders.Where(o => o.CustomerId == customer.Id && o.Status == (byte)OrderStatus.AwaitingPayment)
-            .Select(o => o.Code).FirstOrDefaultAsync(ct);
-        if (unpaid is not null)
-        {
-            throw new ApiException(StatusCodes.Status422UnprocessableEntity, ErrorCodes.OutstandingDebt,
-                $"Đơn {unpaid} chưa thanh toán cho đối tác, hãy thanh toán để đăng yêu cầu mới");
-        }
-
         // Spec 0.2.7 ý 8: unpaid cancellation fees above the limit block new posts.
         var maxDebt = await configs.GetDecimalAsync("cancellation.max_outstanding_amount", 100_000, ct);
         var due = await db.CancellationCharges.Where(c => c.CustomerId == customer.Id && c.Status == 1).SumAsync(c => (decimal?)c.Amount, ct) ?? 0;

@@ -3,7 +3,7 @@
     var path = Context.Request.Path.Value?.ToLowerInvariant() ?? "";
     bool IsActive(string href) => href == "/admin" ? path is "/admin" or "/admin/" or "/admin/index" : path.StartsWith(href.ToLowerInvariant());
 
-    // AW pages in scope (spec 0.2.6), plus the optional AW-15.
+    // AW pages in scope (spec 0.2.6). AW-15 (configuration) is optional and not built.
     var menu = new (string Group, string Code, string Title, string Href)[]
     {
         ("Tổng quan", "AW-02", "Dashboard", "/admin"),
@@ -14,7 +14,6 @@
         ("Vận hành", "AW-08", "Khiếu nại", "/admin/disputes"),
         ("Tài chính", "AW-18", "Công nợ & trả nợ", "/admin/debts"),
         ("Cấu hình", "AW-11", "Danh mục dịch vụ", "/admin/catalog/categories"),
-        ("Cấu hình", "AW-15", "Tham số hệ thống", "/admin/settings"),
     };
 }
 <!doctype html>

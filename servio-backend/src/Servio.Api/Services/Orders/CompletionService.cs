@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Servio.Api.Common;
 using Servio.Api.Data;
 using Servio.Api.Data.Entities;
-using Servio.Api.Services.Admin;
 using Servio.Api.Services.Wallets;
 
 namespace Servio.Api.Services.Orders;
@@ -77,25 +76,6 @@ public sealed class CompletionService(
         return done;
     }
 
-    /// <summary>
-    /// AW-07, after a confirmed UNPAID_CASH dispute (#177): the customer paid the partner directly and the admin checked the
-    /// proof. AWAITING_PAYMENT → COMPLETED with a real (not presumed) CASH transaction and the commission debt again;
-    /// CompletedAt is kept (2.5.3). Audited.
-    /// </summary>
-    public async Task ConfirmCollectedAsync(AdminActor actor, Guid orderId, CancellationToken ct)
-    {
-        var order = await workflow.FindAsync(orderId, ct) ?? throw ApiException.NotFound("Không tìm thấy đơn");
-        if (order.Status != (byte)OrderStatus.AwaitingPayment)
-        {
-            throw new ApiException(StatusCodes.Status409Conflict, ErrorCodes.InvalidStatusTransition, "Đơn không ở trạng thái chờ thanh toán");
-        }
-        var changes = await SettleAsync(order, ActorType.Admin, null, ct);
-        db.AddAudit(actor, "ORDER_PAYMENT_COLLECTED", nameof(Order), order.Id,
-            new { Status = nameof(OrderStatus.AwaitingPayment) }, new { Status = nameof(OrderStatus.Completed), order.TotalAmount }, clock.GetUtcNow());
-        await db.SaveChangesAsync(ct);
-        await PublishAsync(order, changes, "Bộ phận hỗ trợ đã xác nhận khách thanh toán cho đối tác. Đơn đã hoàn tất.", ct);
-    }
-
     public static void EnsureVersion(Order order, string expected)
     {
         if (Convert.ToBase64String(order.RowVersion) != expected)
@@ -109,24 +89,18 @@ public sealed class CompletionService(
     {
         var now = clock.GetUtcNow();
         var changes = new List<(OrderAssignment, OrderStatusChangedDto)>();
-        foreach (var a in order.OrderAssignments
-                     .Where(a => a.Status is (byte)OrderStatus.CompletedByPartner or (byte)OrderStatus.AwaitingPayment).ToList())
+        foreach (var a in order.OrderAssignments.Where(a => a.Status == (byte)OrderStatus.CompletedByPartner).ToList())
         {
-            // AWAITING_PAYMENT = collected after an UNPAID_CASH dispute: a real payment with its own event key.
-            var collected = a.Status == (byte)OrderStatus.AwaitingPayment;
             changes.Add((a, await workflow.MoveAsync(order, a, OrderStatus.Completed, by, userId, null, ct)));
-            var key = collected ? $"cod-collect:{a.Id}" : $"cod-settle:{a.Id}";
+            var key = $"cod-settle:{a.Id}";
             var cash = wallets.NewTransaction(order.Customer.UserId, TransactionType.Payment, TransactionProvider.Cash, a.CustomerPayable,
                 TransactionStatus.Success, await codes.NextAsync(CodeGenerator.Transaction, ct), now);
             cash.OrderId = order.Id;
-            cash.IsPresumed = !collected;
+            cash.IsPresumed = true;
             cash.BusinessEventKey = key;
             cash.PaidAt = now;
             a.PaymentStatus = (byte)PaymentStatus.Paid;
-            if (!collected)
-            {
-                a.PartnerProfile.CompletedOrders++; // counted once, at the first completion
-            }
+            a.PartnerProfile.CompletedOrders++;
             a.PaidAt = now;
             var debt = Settlement(a);
             if (debt > 0)
@@ -137,10 +111,7 @@ public sealed class CompletionService(
             }
         }
         order.PaymentStatus = (byte)PaymentStatus.Paid;
-        if (by == ActorType.Customer)
-        {
-            order.ConfirmedAt = now;
-        }
+        order.ConfirmedAt = by == ActorType.Customer ? now : null;
         order.CompletedAt ??= now;
         order.DisputeDeadlineAt = order.CompletedAt.Value.AddHours(72);
         order.UnpaidReportDeadlineAt = order.CompletedAt.Value.AddHours(await configs.GetIntAsync("order.unpaid_report_window_hours", 24, ct));

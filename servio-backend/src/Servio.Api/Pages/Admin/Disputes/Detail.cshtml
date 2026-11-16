@@ -6,7 +6,6 @@
     var o = d.Order;
     ViewData["Title"] = $"Khiếu nại {d.Code}";
     var isOpen = d.Status is (byte)DisputeStatus.Open or (byte)DisputeStatus.InReview;
-    var unpaid = d.Reason == (byte)DisputeReason.UnpaidCash;
 }
 <p><a href="/admin/disputes">← Hàng đợi khiếu nại</a></p>
 @if (Model.Flash is not null) { <p class="flash" role="status">@Model.Flash</p> }
@@ -76,25 +75,10 @@ else
             <span>Kết quả gửi cho hai bên (ghi cả khoản hoàn tiền mặt thoả thuận ngoài app, nếu có)</span>
             <textarea name="note" rows="4" required minlength="3"></textarea>
         </label>
-        @if (unpaid)
-        {
-            <p class="muted">
-                <strong>Khách chưa trả</strong>: đảo giao dịch tiền mặt và nợ hoa hồng đã ghi, đơn chuyển "Chờ thanh toán" và khách bị chặn đăng bài
-                cho tới khi trả đối tác; khi có chứng từ, xác nhận ở trang chi tiết đơn.
-                <strong>Khách đã trả</strong>: đơn về trạng thái trước khiếu nại, công nợ giữ nguyên.
-            </p>
-            <div class="toolbar">
-                <button class="btn btn-primary" type="submit" name="upheld" value="true">Xác nhận khách chưa trả</button>
-                <button class="btn btn-ghost btn-danger" type="submit" name="upheld" value="false">Khách đã trả, bác bỏ</button>
-            </div>
-        }
-        else
-        {
-            <p class="muted">Đơn sẽ về trạng thái trước khiếu nại; nếu đang chờ khách xác nhận, thời gian tự xác nhận chạy tiếp phần còn lại.</p>
-            <div class="toolbar">
-                <button class="btn btn-primary" type="submit" name="upheld" value="true">Chấp nhận khiếu nại</button>
-                <button class="btn btn-ghost btn-danger" type="submit" name="upheld" value="false">Bác bỏ</button>
-            </div>
-        }
+        <p class="muted">Đơn sẽ về trạng thái trước khiếu nại; nếu đang chờ khách xác nhận, thời gian tự xác nhận chạy tiếp phần còn lại.</p>
+        <div class="toolbar">
+            <button class="btn btn-primary" type="submit" name="upheld" value="true">Chấp nhận khiếu nại</button>
+            <button class="btn btn-ghost btn-danger" type="submit" name="upheld" value="false">Bác bỏ</button>
+        </div>
     </form>
 }

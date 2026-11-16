@@ -5,7 +5,7 @@ namespace Servio.Api.Services.Orders;
 /// <summary>
 /// Pure rules of spec 2.5.1 (state machine) and 2.6.1 (money). No database access, so every rule is unit-tested
 /// directly. Order and assignment share the OrderStatus codes; DISPUTED only exists on the order.
-/// Course scope (0.2.4): no SEARCHING; AWAITING_PAYMENT only after a confirmed UNPAID_CASH dispute (#177).
+/// Course scope (0.2.4): no SEARCHING, AWAITING_PAYMENT is not used for cash orders.
 /// </summary>
 public static class OrderStateMachine
 {
@@ -16,9 +16,7 @@ public static class OrderStateMachine
         [OrderStatus.OnTheWay] = [OrderStatus.Arrived, OrderStatus.Cancelled],
         [OrderStatus.Arrived] = [OrderStatus.InProgress, OrderStatus.Cancelled],
         [OrderStatus.InProgress] = [OrderStatus.CompletedByPartner],
-        // → AWAITING_PAYMENT only when the admin confirms an UNPAID_CASH dispute (#177, 2.5.3).
-        [OrderStatus.CompletedByPartner] = [OrderStatus.Completed, OrderStatus.AwaitingPayment],
-        [OrderStatus.Completed] = [OrderStatus.AwaitingPayment],
+        [OrderStatus.CompletedByPartner] = [OrderStatus.Completed],
         [OrderStatus.AwaitingPayment] = [OrderStatus.Completed],
     };
 

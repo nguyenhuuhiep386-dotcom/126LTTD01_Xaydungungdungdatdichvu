@@ -8,25 +8,6 @@
     static string ExtraLabel(byte s) => s switch { 1 => "Chờ khách duyệt", 2 => "Đã duyệt", _ => "Từ chối" };
 }
 <p><a href="/admin/orders">← Danh sách đơn</a></p>
-@if (Model.Flash is not null) { <p class="flash" role="status">@Model.Flash</p> }
-@if (Model.Error is not null) { <p class="alert" role="alert">@Model.Error</p> }
-@if (o.Status == (byte)OrderStatus.AwaitingPayment)
-{
-    <section class="card form-card">
-        <strong>Khách chưa thanh toán cho đối tác (khiếu nại "khách chưa trả" đã được xác nhận).</strong>
-        <p class="muted">Khi khách đã trả trực tiếp cho đối tác và có chứng từ trong khiếu nại, xác nhận để hoàn tất đơn và ghi lại nợ hoa hồng.</p>
-        @if (Model.CanConfirmCollected)
-        {
-            <form method="post" asp-page-handler="ConfirmCollected" asp-route-id="@o.Id">
-                <button class="btn btn-primary" type="submit">Xác nhận khách đã trả</button>
-            </form>
-        }
-        else
-        {
-            <p class="muted">Chỉ SUPER_ADMIN hoặc FINANCE xác nhận được.</p>
-        }
-    </section>
-}
 
 <section class="card profile-head">
     <div>

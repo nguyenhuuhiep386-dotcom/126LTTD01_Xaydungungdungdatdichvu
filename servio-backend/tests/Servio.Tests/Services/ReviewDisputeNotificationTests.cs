@@ -143,7 +143,7 @@ public sealed class ReviewDisputeNotificationTests : IAsyncLifetime
         Assert.StartsWith("DS", dispute.Code);
         Assert.Equal((DisputeStatus.Open, ActorType.Customer), (dispute.Status, dispute.RaisedByType));
         Assert.Single(dispute.EvidenceUrls);
-        Assert.Equal(ErrorCodes.DisputeAlreadyOpen, second.Code);
+        Assert.Equal(ErrorCodes.DisputeNotAllowed, second.Code);
         Assert.Equal(ErrorCodes.OrderDisputed, frozen.Code);
         Assert.Equal(0, autoConfirmed);
         Assert.Equal(((byte)OrderStatus.Disputed, (DateTimeOffset?)null), (paused.Status, paused.AutoConfirmAt));
