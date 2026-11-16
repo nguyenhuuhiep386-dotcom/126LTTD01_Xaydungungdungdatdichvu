@@ -13,6 +13,8 @@ data class ServiceRequestDetail(
     val status: ServiceRequestStatus,
     /** Sent back when accepting a quote (#43) so an edited request is not accepted with old quotes. */
     val revision: Int,
+    /** Level-2 category; its group name is not sent and is looked up in the category tree. */
+    val categoryId: String = "",
     val categoryName: String,
     val title: String,
     val description: String,

@@ -14,12 +14,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import vn.servio.core.data.repository.CategoryRepository
 import vn.servio.core.network.ApiResult
 import vn.servio.customer.data.model.CustomerQuote
 import vn.servio.customer.data.model.QuoteSort
 import vn.servio.customer.data.model.QuoteStatus
 import vn.servio.customer.data.model.ServiceRequestDetail
 import vn.servio.customer.data.model.ServiceRequestStatus
+import vn.servio.customer.data.repository.PartnerRepository
 import vn.servio.customer.data.repository.ServiceRequestRepository
 import javax.inject.Inject
 
@@ -34,6 +36,8 @@ import javax.inject.Inject
 class RequestDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: ServiceRequestRepository,
+    private val partnerRepository: PartnerRepository,
+    private val categoryRepository: CategoryRepository,
 ) : ViewModel() {
 
     val requestId: String = savedStateHandle.get<String>(ARG_REQUEST_ID).orEmpty()
@@ -50,6 +54,10 @@ class RequestDetailViewModel @Inject constructor(
         val loading: Boolean = true,
         val error: String? = null,
         val cancelling: Boolean = false,
+        /** Name of the level-1 group of the request's category; null until (or unless) the category tree answers. */
+        val categoryGroup: String? = null,
+        /** Approved skill names by partner id (#27), for the CS-16 chips. A partner is absent until its call succeeds. */
+        val partnerSkills: Map<String, List<String>> = emptyMap(),
     ) {
         val hasContent: Boolean get() = detail != null && quotes != null
 
@@ -80,6 +88,7 @@ class RequestDetailViewModel @Inject constructor(
 
     private var loadJob: Job? = null
     private var quotesJob: Job? = null
+    private val loadingPartners = mutableSetOf<String>()
 
     /** Request and quotes together. What is already on screen stays there if this fails. */
     fun load() {
@@ -102,6 +111,31 @@ class RequestDetailViewModel @Inject constructor(
                 )
             }
             if (failure != null && _state.value.hasContent) _events.send(Event.Message(failure.message))
+            loadCategoryGroup()
+        }
+    }
+
+    /** Best effort: #38 only names the level-2 category, the group comes from the (cached) category tree. */
+    private suspend fun loadCategoryGroup() {
+        val categoryId = _state.value.detail?.categoryId?.takeIf { it.isNotEmpty() } ?: return
+        if (_state.value.categoryGroup != null) return
+        val tree = (categoryRepository.getCategoryTree() as? ApiResult.Success)?.data ?: return
+        val group = tree.firstOrNull { group -> group.children.any { it.id == categoryId } } ?: return
+        _state.update { it.copy(categoryGroup = group.name) }
+    }
+
+    /**
+     * Skills of the partner shown by CS-16 (#42 does not carry them). Silent on failure: the sheet just has no chips,
+     * and opening it again retries.
+     */
+    fun loadPartnerSkills(partnerId: String) {
+        if (partnerId in _state.value.partnerSkills || !loadingPartners.add(partnerId)) return
+        viewModelScope.launch {
+            val result = partnerRepository.getPublicProfile(partnerId)
+            loadingPartners.remove(partnerId)
+            if (result is ApiResult.Success) {
+                _state.update { it.copy(partnerSkills = it.partnerSkills + (partnerId to result.data.skills)) }
+            }
         }
     }
 

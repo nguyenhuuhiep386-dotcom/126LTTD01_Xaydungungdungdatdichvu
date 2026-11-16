@@ -18,9 +18,12 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import vn.servio.core.data.model.Category
+import vn.servio.core.data.repository.CategoryRepository
 import vn.servio.core.network.ApiResult
 import vn.servio.core.network.PagedResult
 import vn.servio.customer.data.model.CustomerQuote
+import vn.servio.customer.data.model.PartnerPublic
 import vn.servio.customer.data.model.QuotePartner
 import vn.servio.customer.data.model.QuoteSort
 import vn.servio.customer.data.model.QuoteStatus
@@ -28,6 +31,7 @@ import vn.servio.customer.data.model.ScheduleType
 import vn.servio.customer.data.model.ServiceRequestDetail
 import vn.servio.customer.data.model.ServiceRequestStatus
 import vn.servio.customer.data.model.ServiceRequestSummary
+import vn.servio.customer.data.repository.PartnerRepository
 import vn.servio.customer.data.repository.ServiceRequestRepository
 import vn.servio.customer.ui.requestdetail.RequestDetailViewModel.Event
 
@@ -52,6 +56,25 @@ class RequestDetailViewModelTest {
         val quoteCalls = mutableListOf<QuoteSort>()
         val cancelReasons = mutableListOf<String?>()
         var detailCalls = 0
+
+        var partnerFailure: ApiResult.Failure? = null
+        val partnerCalls = mutableListOf<String>()
+        val partners = object : PartnerRepository {
+            override suspend fun getPublicProfile(partnerId: String): ApiResult<PartnerPublic> {
+                partnerCalls += partnerId
+                return partnerFailure ?: ApiResult.Success(PartnerPublic(id = partnerId, fullName = "Thợ", skills = listOf("Sửa điện dân dụng", "Sửa ống nước")))
+            }
+        }
+
+        var categoryFailure: ApiResult.Failure? = null
+        val categories = object : CategoryRepository {
+            override suspend fun getCategoryTree(): ApiResult<List<Category>> = categoryFailure ?: ApiResult.Success(
+                listOf(
+                    Category(id = "g1", name = "Điện lạnh", slug = "dien-lanh", children = listOf(Category(id = "c9", parentId = "g1", name = "Sửa máy lạnh", slug = "sua-may-lanh"))),
+                    Category(id = "g2", name = "Điện – Nước", slug = "dien-nuoc", children = listOf(Category(id = "c1", parentId = "g2", name = "Sửa điện dân dụng", slug = "sua-dien"))),
+                ),
+            )
+        }
 
         override suspend fun getDetail(requestId: String): ApiResult<ServiceRequestDetail> {
             detailCalls++
@@ -82,7 +105,7 @@ class RequestDetailViewModelTest {
     }
 
     private fun TestScope.viewModelWith(server: Server, events: MutableList<Event> = mutableListOf()): RequestDetailViewModel {
-        val viewModel = RequestDetailViewModel(SavedStateHandle(mapOf("requestId" to "r1")), server)
+        val viewModel = RequestDetailViewModel(SavedStateHandle(mapOf("requestId" to "r1")), server, server.partners, server.categories)
         // Unconfined: an event is recorded as soon as it is sent (advanceUntilIdle does not wait for background work).
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect { events += it } }
         return viewModel
@@ -296,9 +319,50 @@ class RequestDetailViewModelTest {
         assertEquals(listOf<Event>(Event.QuoteGone), events)
     }
 
+    @Test
+    fun categoryGroupComesFromTheCategoryTree() = runTest(dispatcher) {
+        val server = Server().apply { categoryFailure = offline }
+        val viewModel = viewModelWith(server)
+        viewModel.load()
+        advanceUntilIdle()
+        // The tree failed: the request is shown anyway, without its group.
+        assertTrue(viewModel.state.value.hasContent)
+        assertNull(viewModel.state.value.error)
+        assertNull(viewModel.state.value.categoryGroup)
+
+        server.categoryFailure = null
+        viewModel.load()
+        advanceUntilIdle()
+        assertEquals("Điện – Nước", viewModel.state.value.categoryGroup)
+    }
+
+    @Test
+    fun partnerSkillsAreLoadedOncePerPartnerAndRetriedAfterAFailure() = runTest(dispatcher) {
+        val server = Server().apply { partnerFailure = notFound }
+        val events = mutableListOf<Event>()
+        val viewModel = viewModelWith(server, events)
+
+        viewModel.loadPartnerSkills("p1")
+        viewModel.loadPartnerSkills("p1") // already running
+        advanceUntilIdle()
+        // Failed: no chips, no message; the sheet is not blocked.
+        assertNull(viewModel.state.value.partnerSkills["p1"])
+        assertTrue(events.isEmpty())
+        assertEquals(listOf("p1"), server.partnerCalls)
+
+        server.partnerFailure = null
+        viewModel.loadPartnerSkills("p1")
+        advanceUntilIdle()
+        assertEquals(listOf("Sửa điện dân dụng", "Sửa ống nước"), viewModel.state.value.partnerSkills["p1"])
+
+        viewModel.loadPartnerSkills("p1") // known: no call
+        advanceUntilIdle()
+        assertEquals(listOf("p1", "p1"), server.partnerCalls)
+    }
+
     private companion object {
         fun detail(status: ServiceRequestStatus) = ServiceRequestDetail(
-            id = "r1", code = "SR1", status = status, revision = 1, categoryName = "Sửa điện dân dụng",
+            id = "r1", code = "SR1", status = status, revision = 1, categoryId = "c1", categoryName = "Sửa điện dân dụng",
             title = "Ổ điện bị hỏng", description = "Ổ điện phòng khách bị lỏng", addressSnapshot = "Đà Nẵng",
             scheduleType = ScheduleType.NOW, createdAt = "2026-11-11T14:50:00+00:00",
         )

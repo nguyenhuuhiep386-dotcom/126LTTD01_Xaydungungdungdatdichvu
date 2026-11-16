@@ -2,6 +2,7 @@ package vn.servio.customer.ui.requestdetail
 
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -20,10 +21,9 @@ import vn.servio.customer.data.model.QuoteSort
 import vn.servio.customer.data.model.ScheduleType
 import vn.servio.customer.data.model.ServiceRequestDetail
 import vn.servio.customer.data.model.ServiceRequestStatus
-import vn.servio.customer.ui.common.RemoteImages
 import vn.servio.customer.databinding.DialogCancelRequestBinding
 import vn.servio.customer.databinding.FragmentRequestDetailBinding
-import vn.servio.customer.databinding.ItemReviewImageBinding
+import vn.servio.customer.ui.common.RemoteImages
 import vn.servio.customer.ui.request.MoneyInput
 import vn.servio.customer.ui.requestdetail.RequestDetailViewModel.Event
 import vn.servio.customer.ui.requestdetail.RequestDetailViewModel.State
@@ -41,6 +41,7 @@ internal fun Fragment.requestDetailViewModel(): Lazy<RequestDetailViewModel> = v
 /**
  * CS-15 Chi tiết yêu cầu & báo giá (#38, #42, #40). Reloads every time the screen is opened or returned to.
  * Menu: only "Huỷ yêu cầu"; "Nhắn tin" comes with KH-4; "Chọn" hands over to CS-18.
+ * The card follows Figma, so the description and the photos after the first one are not shown here.
  */
 @AndroidEntryPoint
 class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
@@ -62,9 +63,7 @@ class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
         }
         binding.swipeRefresh.setOnRefreshListener { viewModel.load() }
         binding.retryButton.setOnClickListener { viewModel.load() }
-        binding.sortGroup.setOnCheckedStateChangeListener { _, checkedIds ->
-            SORT_CHIPS.entries.firstOrNull { it.value == checkedIds.firstOrNull() }?.let { viewModel.setSort(it.key) }
-        }
+        binding.sortButton.setOnClickListener { showSortMenu(it) }
 
         collectWhenStarted(viewModel.state) { state -> binding.bind(state, adapter, images) }
         collectWhenStarted(viewModel.events) { event ->
@@ -100,61 +99,75 @@ class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
         toolbar.menu.findItem(R.id.action_cancel_request).isVisible = detail?.canCancel == true && !state.cancelling
         if (detail == null || quotes == null) return
 
-        bindRequest(detail, images)
+        bindRequest(detail, state.categoryGroup, images)
         quotesTitle.text = getString(R.string.request_detail_quotes_title, quotes.size)
         quotesEmpty.isVisible = quotes.isEmpty()
-        // Sorting one quote changes nothing.
-        sortGroup.isVisible = quotes.size > 1
-        SORT_CHIPS.getValue(state.sort).let { if (sortGroup.checkedChipId != it) sortGroup.check(it) }
+        sortButton.isVisible = quotes.isNotEmpty()
+        sortButton.setText(sortLabel(state.sort))
         adapter.submitList(quotes.map { QuoteAdapter.Row(it, state.canSelect(it)) })
     }
 
-    private fun FragmentRequestDetailBinding.bindRequest(detail: ServiceRequestDetail, images: RemoteImages) {
-        statusText.setText(statusLabel(detail.status))
-        val expiry = QuoteTexts.moment(detail.expiresAt).takeIf { detail.status == ServiceRequestStatus.OPEN }
-        expiryText.text = expiry?.let { getString(R.string.request_detail_expires, it) }
+    private fun FragmentRequestDetailBinding.bindRequest(detail: ServiceRequestDetail, categoryGroup: String?, images: RemoteImages) {
+        val weekdays = QuoteFormat.weekdays(requireContext())
+        // Loading again would restart a download that is still running, so only when the photo changes.
+        val photo = detail.images.firstOrNull()
+        if (thumbnail.getTag(R.id.thumbnail) != photo) {
+            thumbnail.setTag(R.id.thumbnail, photo)
+            images.load(photo, thumbnail)
+        }
         titleText.text = detail.title
-        categoryText.text = detail.categoryName
-        descriptionText.text = detail.description
-        addressText.text = detail.addressSnapshot
+        categoryText.text = categoryGroup
+            ?.let { getString(R.string.request_detail_category, it, detail.categoryName) }
+            ?: detail.categoryName
+        statusText.setText(statusLabel(detail.status))
+
         timeText.text = when (detail.scheduleType) {
-            ScheduleType.NOW -> QuoteTexts.moment(detail.scheduledEndAt)
+            ScheduleType.NOW -> QuoteTexts.moment(detail.scheduledEndAt, weekdays)
                 ?.let { getString(R.string.request_detail_time_now_until, it) }
                 ?: getString(R.string.request_detail_time_now)
-            ScheduleType.SCHEDULED -> QuoteTexts.window(detail.scheduledStartAt, detail.scheduledEndAt)
+            ScheduleType.SCHEDULED -> QuoteTexts.window(detail.scheduledStartAt, detail.scheduledEndAt, weekdays)
                 ?: getString(R.string.request_detail_time_unknown)
         }
+        addressText.text = detail.addressSnapshot
         val min = detail.budgetMin
         val max = detail.budgetMax
         budgetText.text = if (min != null && max != null) {
-            getString(R.string.create_request_review_budget_range, "${MoneyInput.format(min)} – ${MoneyInput.format(max)}")
+            getString(R.string.request_detail_budget, MoneyInput.format(min), MoneyInput.format(max))
         } else {
             getString(R.string.create_request_budget_quote)
         }
+        // Only an open request is still counting down; the others say what happened in the status chip.
+        val expiry = QuoteFormat.expiry(requireContext(), detail.expiresAt).takeIf { detail.status == ServiceRequestStatus.OPEN }
+        expiryText.isVisible = expiry != null
+        expiryText.text = expiry
         cancelReasonText.isVisible = !detail.cancelReason.isNullOrBlank()
         cancelReasonText.text = getString(R.string.request_detail_cancel_reason, detail.cancelReason.orEmpty())
-
-        if (imageRow.tag != detail.images) {
-            imageRow.tag = detail.images
-            imageRow.removeAllViews()
-            detail.images.forEachIndexed { index, url ->
-                val tile = ItemReviewImageBinding.inflate(layoutInflater, imageRow, false)
-                tile.label.text = getString(R.string.create_request_review_image, index + 1)
-                tile.root.contentDescription = tile.label.text
-                images.load(url, tile.thumbnail)
-                imageRow.addView(tile.root)
-            }
-        }
-        imageScroll.isVisible = detail.images.isNotEmpty()
     }
 
     private fun statusLabel(status: ServiceRequestStatus) = when (status) {
         ServiceRequestStatus.DRAFT -> R.string.requests_status_draft
-        ServiceRequestStatus.OPEN -> R.string.requests_status_open
+        ServiceRequestStatus.OPEN -> R.string.request_detail_status_open
         ServiceRequestStatus.MATCHED -> R.string.requests_status_matched
         ServiceRequestStatus.EXPIRED -> R.string.requests_status_expired
         ServiceRequestStatus.CANCELLED -> R.string.requests_status_cancelled
         ServiceRequestStatus.REJECTED_BY_MODERATION -> R.string.requests_status_rejected
+    }
+
+    /** The three orders #42 knows; there is no "newest first" on the server. */
+    private fun sortLabel(sort: QuoteSort) = when (sort) {
+        QuoteSort.TIME -> R.string.request_detail_sort_time
+        QuoteSort.PRICE -> R.string.request_detail_sort_price
+        QuoteSort.RATING -> R.string.request_detail_sort_rating
+    }
+
+    private fun showSortMenu(anchor: View) {
+        PopupMenu(requireContext(), anchor).apply {
+            QuoteSort.entries.forEachIndexed { index, sort -> menu.add(0, index, index, sortLabel(sort)) }
+            setOnMenuItemClickListener { item ->
+                viewModel.setSort(QuoteSort.entries[item.itemId])
+                true
+            }
+        }.show()
     }
 
     private fun openQuote(quote: CustomerQuote) {
@@ -184,12 +197,6 @@ class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
     }
 
     companion object {
-        private val SORT_CHIPS = mapOf(
-            QuoteSort.TIME to R.id.sortTime,
-            QuoteSort.PRICE to R.id.sortPrice,
-            QuoteSort.RATING to R.id.sortRating,
-        )
-
         /**
          * What CS-18 needs to call #43: the quote with its rowVersion and the request revision the customer saw.
          * "description" only feeds the CS-18 placeholder until that screen is built.

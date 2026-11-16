@@ -55,16 +55,33 @@
     <!-- CS-15 Request detail and quotes -->
     <string name="request_detail_title">Chi tiết yêu cầu</string>
     <string name="request_detail_not_found">Không tìm thấy yêu cầu</string>
-    <string name="request_detail_expires">Hết hạn lúc %1$s</string>
+    <!-- Monday first; used as "T7 17/10" -->
+    <string-array name="weekday_short">
+        <item>T2</item>
+        <item>T3</item>
+        <item>T4</item>
+        <item>T5</item>
+        <item>T6</item>
+        <item>T7</item>
+        <item>CN</item>
+    </string-array>
+    <!-- "Điện lạnh · Sửa máy lạnh" -->
+    <string name="request_detail_category">%1$s · %2$s</string>
+    <string name="request_detail_status_open">Đang nhận báo giá</string>
     <string name="request_detail_time_now">Càng sớm càng tốt</string>
     <string name="request_detail_time_now_until">Càng sớm càng tốt · trước %1$s</string>
     <string name="request_detail_time_unknown">Chưa có khung giờ</string>
+    <string name="request_detail_budget">Ngân sách %1$s – %2$s đ</string>
+    <string name="request_detail_expires_hours">Hết hạn sau %1$d giờ</string>
+    <string name="request_detail_expires_minutes">Hết hạn sau %1$d phút</string>
+    <string name="request_detail_expired">Đã hết hạn</string>
     <string name="request_detail_cancel_reason">Lý do huỷ: %1$s</string>
     <string name="request_detail_quotes_title">Báo giá (%1$d)</string>
     <string name="request_detail_quotes_empty">Chưa có báo giá</string>
-    <string name="request_detail_sort_time">Có mặt sớm nhất</string>
-    <string name="request_detail_sort_price">Giá thấp nhất</string>
-    <string name="request_detail_sort_rating">Đánh giá cao nhất</string>
+    <string name="request_detail_sort">Sắp xếp báo giá</string>
+    <string name="request_detail_sort_time">Sớm nhất</string>
+    <string name="request_detail_sort_price">Giá thấp</string>
+    <string name="request_detail_sort_rating">Đánh giá cao</string>
     <string name="request_detail_menu_cancel">Huỷ yêu cầu</string>
     <string name="request_detail_cancel_title">Huỷ yêu cầu này?</string>
     <string name="request_detail_cancel_message">Các báo giá đang chờ sẽ hết hiệu lực và yêu cầu không nhận thêm báo giá.</string>
@@ -74,26 +91,28 @@
     <string name="request_detail_cancel_conflict">Yêu cầu đã thay đổi trạng thái, vui lòng tải lại.</string>
 
     <!-- Quote card (CS-15) and CS-16 Quote detail -->
-    <string name="quote_detail_title">Chi tiết báo giá</string>
     <string name="quote_price">%1$s đ</string>
-    <!-- "4,8 · 12 đánh giá" -->
-    <string name="quote_rating">%1$s · %2$d đánh giá</string>
+    <string name="quote_price_caption">giá báo</string>
+    <string name="quote_price_label">Giá báo</string>
+    <string name="quote_price_note">Tiền công, chưa gồm chi phí phát sinh (nếu có, bạn duyệt trong app)</string>
+    <string name="quote_review_count">(%1$d đánh giá)</string>
     <string name="quote_no_reviews">Chưa có đánh giá</string>
     <string name="quote_experience">%1$d năm kinh nghiệm</string>
     <string name="quote_completed">%1$d đơn hoàn thành</string>
-    <string name="quote_distance">Cách bạn %1$s km</string>
-    <!-- Always an absolute time: "Có mặt lúc 14:30 · 11/11" -->
-    <string name="quote_available">Có mặt lúc %1$s</string>
+    <!-- Always an absolute time: "Có mặt 14:00, T7 17/10 · làm khoảng 90 phút" -->
+    <string name="quote_available">Có mặt %1$s · làm khoảng %2$s</string>
+    <string name="quote_available_label">Có mặt</string>
+    <string name="quote_duration_label">Thời gian làm</string>
+    <string name="quote_duration_about">Khoảng %1$s</string>
     <string name="quote_duration_minutes">%1$d phút</string>
     <string name="quote_duration_hours">%1$d giờ</string>
     <string name="quote_duration_hours_minutes">%1$d giờ %2$d phút</string>
-    <string name="quote_duration">Làm khoảng %1$s</string>
-    <string name="quote_duration_until">Làm khoảng %1$s · xong dự kiến %2$s</string>
-    <string name="quote_note_label">Ghi chú của người làm</string>
+    <string name="quote_note">“%1$s”</string>
     <string name="quote_status_accepted">Đã chọn</string>
+    <string name="quote_chat">Nhắn tin</string>
     <string name="quote_select">Chọn</string>
     <string name="quote_select_this">Chọn báo giá này</string>
-    <string name="quote_view_profile">Xem hồ sơ</string>
+    <string name="quote_view_profile">Xem hồ sơ đầy đủ</string>
     <string name="quote_gone">Báo giá này không còn nữa</string>
     <!-- CS-18 and CS-17 are still placeholders: they show what they were opened with. -->
     <string name="quote_selection_placeholder">requestId: %1$s\nquoteId: %2$s\nrowVersion: %3$s\nrevision: %4$d</string>

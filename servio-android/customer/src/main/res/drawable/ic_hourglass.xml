@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-15 request card: time left before the request expires. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M6,3h12M6,21h12M7,3v3.5c0,2 5,3.5 5,5.5s-5,3.5 -5,5.5V21M17,3v3.5c0,2 -5,3.5 -5,5.5s5,3.5 5,5.5V21"
+        android:strokeWidth="2"
+        android:strokeColor="@color/servio_text_primary"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>
