@@ -15,14 +15,17 @@ import vn.servio.partner.BuildConfig
 import vn.servio.partner.R
 import vn.servio.partner.data.remote.FeedApi
 import vn.servio.partner.data.remote.FileApi
+import vn.servio.partner.data.remote.OrderApi
 import vn.servio.partner.data.remote.PartnerApi
 import vn.servio.partner.data.remote.PresenceApi
 import vn.servio.partner.data.repository.FeedRepository
 import vn.servio.partner.data.repository.FileRepository
+import vn.servio.partner.data.repository.OrderRepository
 import vn.servio.partner.data.repository.PartnerProfileRepository
 import vn.servio.partner.data.repository.PresenceRepository
 import vn.servio.partner.data.repository.RemoteFeedRepository
 import vn.servio.partner.data.repository.RemoteFileRepository
+import vn.servio.partner.data.repository.RemoteOrderRepository
 import vn.servio.partner.data.repository.RemotePartnerProfileRepository
 import vn.servio.partner.data.repository.RemotePresenceRepository
 import javax.inject.Singleton
@@ -60,6 +63,10 @@ object AppModule {
     @Provides
     @Singleton
     fun providePresenceApi(retrofit: Retrofit): PresenceApi = retrofit.create(PresenceApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideOrderApi(retrofit: Retrofit): OrderApi = retrofit.create(OrderApi::class.java)
 }
 
 /** Partner repositories. Swap Fake → Remote here once the endpoint is ready on Swagger. */
@@ -78,4 +85,7 @@ abstract class RepositoryBindings {
 
     @Binds
     abstract fun bindFileRepository(impl: RemoteFileRepository): FileRepository
+
+    @Binds
+    abstract fun bindOrderRepository(impl: RemoteOrderRepository): OrderRepository
 }

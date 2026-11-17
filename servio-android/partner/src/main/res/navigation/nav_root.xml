@@ -85,68 +85,29 @@
 
         <fragment
             android:id="@+id/ps13"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="PS-13 Đơn hàng">
-            <argument
-                android:name="code"
-                android:defaultValue="PS-13"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Đơn hàng"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Tab: Sắp tới / Đang làm / Hoàn thành (#62)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="ps14|Mở một đơn"
-                app:argType="string" />
-        </fragment>
+            android:name="vn.servio.partner.ui.order.OrdersFragment"
+            android:label="PS-13 Đơn hàng" />
 
         <fragment
             android:id="@+id/ps14"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.partner.ui.order.OrderDetailFragment"
             android:label="PS-14 Chi tiết đơn (đối tác)">
             <argument
-                android:name="code"
-                android:defaultValue="PS-14"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Chi tiết đơn (đối tác)"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Nút hành động theo trạng thái; đếm ngược xác nhận 10 phút"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="ps15|Bắt đầu di chuyển;ps17|Thêm phát sinh;ps19|Thu tiền mặt;ps27|Đánh giá khách;chat|Chat"
-                app:argType="string" />
+                android:name="orderId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
         </fragment>
 
         <fragment
             android:id="@+id/ps15"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.partner.ui.order.NavigateFragment"
             android:label="PS-15 Điều hướng tới khách">
             <argument
-                android:name="code"
-                android:defaultValue="PS-15"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Điều hướng tới khách"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Bản đồ + &quot;Đã đến&quot; (#68) + &quot;Nhờ khách xác nhận&quot; (#178); foreground service vị trí"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="ps16|Đã đến → Thực hiện"
-                app:argType="string" />
+                android:name="orderId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
         </fragment>
 
         <fragment

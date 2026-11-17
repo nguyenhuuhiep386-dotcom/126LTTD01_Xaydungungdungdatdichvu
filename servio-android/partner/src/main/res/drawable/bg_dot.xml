@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Status dot (PS-07 Online); tinted from code. -->
+<!-- Status dot (PS-07 Online, PS-15 sharing); tinted from code or drawableTint. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
     <solid android:color="@color/servio_outline" />
+    <size android:width="10dp" android:height="10dp" />
 </shape>

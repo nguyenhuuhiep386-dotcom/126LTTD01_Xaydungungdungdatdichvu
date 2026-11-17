@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PS-14 Chi tiết đơn (đối tác): status/countdown, job, address, customer, money, timeline, actions by status. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationContentDescription="@string/action_back"
+        app:navigationIcon="@drawable/ic_back"
+        tools:title="Đơn #2087" />
+
+    <include
+        android:id="@+id/status"
+        layout="@layout/view_load_status" />
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/screen_padding"
+                android:paddingBottom="@dimen/space_xl">
+
+                <LinearLayout
+                    android:id="@+id/stateCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_s"
+                    android:background="@drawable/bg_warning_card"
+                    android:orientation="vertical"
+                    android:padding="@dimen/space_l">
+
+                    <TextView
+                        android:id="@+id/stateTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                        tools:text="Xác nhận nhận đơn trong" />
+
+                    <TextView
+                        android:id="@+id/countdown"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.ScreenTitle"
+                        android:textColor="@color/servio_text_accent"
+                        tools:text="08:42" />
+
+                    <TextView
+                        android:id="@+id/stateNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xs"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        tools:text="Quá hạn, đơn tự huỷ và khách có thể chọn người khác." />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                    tools:text="Máy lạnh chảy nước, kém lạnh" />
+
+                <TextView
+                    android:id="@+id/category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Servio.Accent"
+                    tools:text="Sửa máy lạnh" />
+
+                <TextView
+                    android:id="@+id/schedule"
+                    style="@style/Widget.Servio.InfoLine"
+                    app:drawableStartCompat="@drawable/ic_calendar"
+                    tools:text="14:00, T7 17/10" />
+
+                <TextView
+                    android:id="@+id/address"
+                    style="@style/Widget.Servio.InfoLine"
+                    app:drawableStartCompat="@drawable/ic_location_pin"
+                    tools:text="12 Võ Văn Ngân, P. Linh Chiểu, TP. Thủ Đức" />
+
+                <TextView
+                    android:id="@+id/addressNote"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="26dp"
+                    android:text="@string/order_address_hidden"
+                    android:textAppearance="@style/TextAppearance.Servio.Caption"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_m"
+                    android:textAppearance="@style/TextAppearance.Servio.Body"
+                    tools:text="Máy lạnh 1,5 HP ở phòng ngủ…" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_l">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/space_m">
+
+                        <TextView
+                            android:id="@+id/customerInitial"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="@drawable/bg_icon_circle"
+                            android:gravity="center"
+                            android:importantForAccessibility="no"
+                            android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                            tools:text="MA" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_m"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/customerName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                                tools:text="Nguyễn Minh Anh" />
+
+                            <TextView
+                                android:id="@+id/customerPhone"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                                tools:text="0912 345 678" />
+                        </LinearLayout>
+
+                        <ImageButton
+                            android:id="@+id/chatButton"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/action_chat"
+                            android:src="@drawable/ic_chat"
+                            app:tint="@color/servio_text_primary" />
+
+                        <ImageButton
+                            android:id="@+id/callButton"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/order_call"
+                            android:src="@drawable/ic_phone"
+                            app:tint="@color/servio_text_primary" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_m">
+
+                    <LinearLayout
+                        android:id="@+id/pricing"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/space_xs" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Filled by DT-5 (extra charges, photos); hidden when empty. -->
+                <LinearLayout
+                    android:id="@+id/extraSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:text="@string/order_timeline"
+                    android:textAppearance="@style/TextAppearance.Servio.BodyStrong" />
+
+                <LinearLayout
+                    android:id="@+id/timeline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:id="@+id/trackingNote"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:drawablePadding="@dimen/space_s"
+                    android:text="@string/order_tracking_note"
+                    android:textAppearance="@style/TextAppearance.Servio.Caption"
+                    android:visibility="gone"
+                    app:drawableStartCompat="@drawable/ic_location_pin"
+                    app:drawableTint="@color/servio_text_secondary" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:id="@+id/actionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/servio_surface"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/servio_divider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/screen_padding"
+            android:paddingVertical="@dimen/space_m">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/secondaryButton"
+                style="@style/Widget.Servio.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/space_m"
+                android:layout_weight="1"
+                tools:text="Từ chối" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/primaryButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.6"
+                tools:text="Xác nhận nhận đơn" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
