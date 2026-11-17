@@ -15,6 +15,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import okhttp3.OkHttpClient
+import vn.servio.core.ui.chat.ChatFragment
 import vn.servio.core.utils.Money
 import vn.servio.core.utils.UiState
 import vn.servio.core.utils.collectWhenStarted
@@ -53,6 +54,7 @@ class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
         binding.swipeRefresh.setOnRefreshListener { viewModel.load(showSpinner = false) }
         binding.quoteButton.setOnClickListener { openQuoteSheet() }
+        binding.chatButton.setOnClickListener { viewModel.openChat() }
 
         collectWhenStarted(viewModel.state) { state ->
             binding.swipeRefresh.isRefreshing = false
@@ -67,11 +69,16 @@ class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
                 }
             }
         }
-        collectWhenStarted(viewModel.busy) { busy -> binding.withdrawButton.isEnabled = !busy }
+        collectWhenStarted(viewModel.busy) { busy ->
+            binding.withdrawButton.isEnabled = !busy
+            binding.chatButton.isEnabled = !busy
+        }
         collectWhenStarted(viewModel.events) { event ->
             when (event) {
                 is Event.Message -> Snackbar.make(view, event.text, Snackbar.LENGTH_LONG).show()
                 Event.Withdrawn -> Snackbar.make(view, R.string.quote_withdrawn, Snackbar.LENGTH_LONG).show()
+                is Event.OpenChat ->
+                    findNavController().navigate(R.id.chat, bundleOf(ChatFragment.ARG_CONVERSATION_ID to event.conversationId))
             }
         }
     }
@@ -150,8 +157,8 @@ class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
                 else -> R.string.quote_not_allowed
             },
         )
-        // Chat before quoting arrives with DT-3.
-        binding.chatButton.isVisible = false
+        // The customer can be contacted while the post is open, or about an existing quote.
+        binding.chatButton.isVisible = request.canQuote || own?.conversationId != null
     }
 
     private fun openQuoteSheet() {

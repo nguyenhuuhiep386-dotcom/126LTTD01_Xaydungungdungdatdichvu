@@ -239,46 +239,18 @@
 
         <fragment
             android:id="@+id/ps20"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="PS-20 Tin nhắn">
-            <argument
-                android:name="code"
-                android:defaultValue="PS-20"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Tin nhắn"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Dùng giao diện chat chung CS-27"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="chat|Mở một hội thoại"
-                app:argType="string" />
-        </fragment>
+            android:name="vn.servio.core.ui.chat.ConversationListFragment"
+            android:label="PS-20 Tin nhắn" />
 
         <fragment
             android:id="@+id/chat"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.core.ui.chat.ChatFragment"
             android:label="CS-28 Phòng chat">
             <argument
-                android:name="code"
-                android:defaultValue="CS-28"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Phòng chat"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Giao diện chat chung, hub /hubs/chat"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
+                android:name="conversationId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
         </fragment>
 
         <fragment
