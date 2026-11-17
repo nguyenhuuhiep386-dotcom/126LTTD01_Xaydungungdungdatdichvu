@@ -27,6 +27,8 @@ import vn.servio.customer.data.repository.RemoteCreateRequestRepository
 import vn.servio.customer.data.repository.RemoteFileRepository
 import vn.servio.customer.data.repository.RemotePartnerRepository
 import vn.servio.customer.data.repository.RemoteProfileRepository
+import vn.servio.customer.data.repository.HubQuoteUpdates
+import vn.servio.customer.data.repository.QuoteUpdates
 import vn.servio.customer.data.repository.RemoteServiceRequestRepository
 import vn.servio.customer.data.repository.ServiceRequestRepository
 import javax.inject.Singleton
@@ -91,4 +93,7 @@ abstract class RepositoryBindings {
 
     @Binds
     abstract fun bindOrderRepository(impl: RemoteOrderRepository): OrderRepository
+
+    @Binds
+    abstract fun bindQuoteUpdates(impl: HubQuoteUpdates): QuoteUpdates
 }

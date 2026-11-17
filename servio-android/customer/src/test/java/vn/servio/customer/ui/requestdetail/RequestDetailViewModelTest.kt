@@ -1,14 +1,18 @@
 package vn.servio.customer.ui.requestdetail
 
 import androidx.lifecycle.SavedStateHandle
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -32,6 +36,7 @@ import vn.servio.customer.data.model.ServiceRequestDetail
 import vn.servio.customer.data.model.ServiceRequestStatus
 import vn.servio.customer.data.model.ServiceRequestSummary
 import vn.servio.customer.data.repository.PartnerRepository
+import vn.servio.customer.data.repository.QuoteUpdates
 import vn.servio.customer.data.repository.ServiceRequestRepository
 import vn.servio.customer.ui.requestdetail.RequestDetailViewModel.Event
 
@@ -83,8 +88,26 @@ class RequestDetailViewModelTest {
             return detailFailure ?: ApiResult.Success(detail!!)
         }
 
+        /** Live "quotes changed" signals of r1 (NewQuote, QuoteWithdrawn, reconnect), already filtered. */
+        val hub = MutableSharedFlow<Unit>(extraBufferCapacity = 16)
+        val updates = object : QuoteUpdates {
+            override fun changes(requestId: String) = hub
+        }
+
+        /** When set, #42 waits for it (a reload still running). */
+        var quotesGate: CompletableDeferred<Unit>? = null
+        private var quotesInFlight = 0
+        var maxQuotesInFlight = 0
+
         override suspend fun getQuotes(requestId: String, sort: QuoteSort): ApiResult<PagedResult<CustomerQuote>> {
             quoteCalls += sort
+            quotesInFlight++
+            maxQuotesInFlight = maxOf(maxQuotesInFlight, quotesInFlight)
+            try {
+                quotesGate?.await()
+            } finally {
+                quotesInFlight--
+            }
             quotesFailure?.let { return it }
             val sorted = when (sort) {
                 QuoteSort.TIME -> quotes.sortedBy { it.availableFrom }
@@ -107,7 +130,7 @@ class RequestDetailViewModelTest {
     }
 
     private fun TestScope.viewModelWith(server: Server, events: MutableList<Event> = mutableListOf()): RequestDetailViewModel {
-        val viewModel = RequestDetailViewModel(SavedStateHandle(mapOf("requestId" to "r1")), server, server.partners, server.categories)
+        val viewModel = RequestDetailViewModel(SavedStateHandle(mapOf("requestId" to "r1")), server, server.partners, server.categories, server.updates)
         // Unconfined: an event is recorded as soon as it is sent (advanceUntilIdle does not wait for background work).
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect { events += it } }
         return viewModel
@@ -361,6 +384,128 @@ class RequestDetailViewModelTest {
         advanceUntilIdle()
         assertEquals(listOf("p1", "p1"), server.partnerCalls)
     }
+
+    // region Live quotes (NewQuote / QuoteWithdrawn / reconnect)
+
+    @Test
+    fun liveEventsWithinTheWindowGiveOneReload() = runTest(dispatcher) {
+        val server = Server()
+        val viewModel = viewModelWith(server)
+        viewModel.load()
+        advanceUntilIdle()
+        server.quotes = server.quotes + quote("new", amount = 200_000, availableFrom = "2026-11-11T15:45:00+00:00", rating = null)
+
+        repeat(3) {
+            server.hub.tryEmit(Unit)
+            advanceTimeBy(100)
+        }
+        advanceTimeBy(RequestDetailViewModel.LIVE_RELOAD_WINDOW_MILLIS)
+        runCurrent()
+
+        assertEquals(2, server.quoteCalls.size) // first load + one live reload
+        assertEquals(3, viewModel.state.value.quotes?.size)
+        assertFalse(viewModel.state.value.loading) // silent: no spinner
+    }
+
+    @Test
+    fun liveReloadWaitsForTheWindow() = runTest(dispatcher) {
+        val server = Server()
+        val viewModel = viewModelWith(server)
+        viewModel.load()
+        advanceUntilIdle()
+
+        server.hub.tryEmit(Unit)
+        advanceTimeBy(RequestDetailViewModel.LIVE_RELOAD_WINDOW_MILLIS - 1)
+        runCurrent()
+        assertEquals(1, server.quoteCalls.size)
+
+        advanceTimeBy(2)
+        runCurrent()
+        assertEquals(2, server.quoteCalls.size)
+    }
+
+    @Test
+    fun eventsDuringAReloadGiveExactlyOneMoreAfterIt() = runTest(dispatcher) {
+        val server = Server()
+        val viewModel = viewModelWith(server)
+        viewModel.load()
+        advanceUntilIdle()
+
+        val gate = CompletableDeferred<Unit>()
+        server.quotesGate = gate
+        server.hub.tryEmit(Unit)
+        advanceTimeBy(RequestDetailViewModel.LIVE_RELOAD_WINDOW_MILLIS + 1)
+        runCurrent()
+        assertEquals(2, server.quoteCalls.size) // live reload running, held by the gate
+
+        repeat(4) {
+            server.hub.tryEmit(Unit)
+            advanceTimeBy(1_000)
+        }
+        assertEquals(2, server.quoteCalls.size) // nothing on top of the running call
+
+        server.quotesGate = null
+        gate.complete(Unit)
+        advanceUntilIdle()
+
+        assertEquals(3, server.quoteCalls.size) // exactly one more
+        assertEquals(1, server.maxQuotesInFlight)
+    }
+
+    @Test
+    fun liveReloadKeepsTheChosenSort() = runTest(dispatcher) {
+        val server = Server()
+        val viewModel = viewModelWith(server)
+        viewModel.load()
+        advanceUntilIdle()
+        viewModel.setSort(QuoteSort.PRICE)
+        advanceUntilIdle()
+
+        server.hub.tryEmit(Unit)
+        advanceUntilIdle()
+
+        assertEquals(QuoteSort.PRICE, server.quoteCalls.last())
+        assertEquals(QuoteSort.PRICE, viewModel.state.value.sort)
+        assertEquals(listOf("late-cheap", "early-dear"), viewModel.state.value.quotes?.map { it.id })
+    }
+
+    @Test
+    fun aWithdrawnQuoteLeavesTheListAndAFailedLiveReloadIsSilent() = runTest(dispatcher) {
+        val server = Server()
+        val events = mutableListOf<Event>()
+        val viewModel = viewModelWith(server, events)
+        viewModel.load()
+        advanceUntilIdle()
+
+        server.quotes = server.quotes.filter { it.id != "early-dear" }
+        server.hub.tryEmit(Unit)
+        advanceUntilIdle()
+        assertEquals(listOf("late-cheap"), viewModel.state.value.quotes?.map { it.id })
+
+        server.quotesFailure = offline
+        server.hub.tryEmit(Unit)
+        advanceUntilIdle()
+        assertEquals(listOf("late-cheap"), viewModel.state.value.quotes?.map { it.id })
+        assertTrue(events.isEmpty())
+    }
+
+    @Test
+    fun liveEventBeforeAnyContentRunsTheFullLoad() = runTest(dispatcher) {
+        val server = Server().apply { detailFailure = offline }
+        val viewModel = viewModelWith(server)
+        viewModel.load()
+        advanceUntilIdle()
+        assertFalse(viewModel.state.value.hasContent)
+
+        server.detailFailure = null
+        server.hub.tryEmit(Unit) // e.g. the hub reconnected after the network came back
+        advanceUntilIdle()
+
+        assertTrue(viewModel.state.value.hasContent)
+        assertNull(viewModel.state.value.error)
+    }
+
+    // endregion
 
     private companion object {
         fun detail(status: ServiceRequestStatus) = ServiceRequestDetail(
