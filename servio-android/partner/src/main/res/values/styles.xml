@@ -10,4 +10,16 @@
     <style name="ThemeOverlay.Servio.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
         <item name="colorSurfaceContainerLow">@color/servio_surface</item>
     </style>
+
+    <!-- One icon + text line on cards (area, time, budget): Figma "Row" with a 16dp icon. -->
+    <style name="Widget.Servio.InfoLine" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/space_s</item>
+        <item name="android:drawablePadding">@dimen/space_s</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textAppearance">@style/TextAppearance.Servio.Caption</item>
+        <item name="android:textColor">@color/servio_text_primary</item>
+        <item name="drawableTint">@color/servio_text_secondary</item>
+    </style>
 </resources>

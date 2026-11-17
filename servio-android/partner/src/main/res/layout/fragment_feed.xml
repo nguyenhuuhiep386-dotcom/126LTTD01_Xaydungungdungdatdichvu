@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- PS-07 Bảng tin: Online switch, filter summary, "N yêu cầu mới" banner, list of matching posts. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -6,33 +7,75 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:accessibilityHeading="true"
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:paddingTop="@dimen/space_l"
+        android:text="@string/feed_title"
+        android:textAppearance="@style/TextAppearance.Servio.ScreenTitle" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/onlineCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/screen_padding"
+        android:layout_marginTop="@dimen/space_m">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:minHeight="64dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/space_l"
+            android:paddingVertical="@dimen/space_s">
+
+            <View
+                android:id="@+id/onlineDot"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:background="@drawable/bg_dot"
+                android:importantForAccessibility="no" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_m"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/onlineTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                    tools:text="Đang hoạt động" />
+
+                <TextView
+                    android:id="@+id/onlineSubtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Servio.Caption"
+                    tools:text="Bạn nhận yêu cầu mới theo thời gian thực" />
+            </LinearLayout>
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/onlineSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/feed_online_switch" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_m"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:paddingTop="@dimen/space_l">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:accessibilityHeading="true"
-                android:text="@string/feed_title"
-                android:textAppearance="@style/TextAppearance.Servio.ScreenTitle" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/feed_fake_note"
-                android:textAppearance="@style/TextAppearance.Servio.Accent" />
-        </LinearLayout>
+        android:paddingHorizontal="@dimen/screen_padding">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/filterButton"
@@ -41,7 +84,30 @@
             android:layout_height="wrap_content"
             android:minHeight="44dp"
             android:text="@string/feed_filter" />
+
+        <TextView
+            android:id="@+id/filterSummary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_m"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            tools:text="Mọi kỹ năng · Gần nhất" />
     </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/newBanner"
+        style="@style/Widget.Servio.Button.Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"
+        app:icon="@drawable/ic_retry"
+        app:iconTint="@color/servio_text_accent"
+        tools:text="2 yêu cầu mới"
+        tools:visibility="visible" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
@@ -57,19 +123,37 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:padding="@dimen/space_l"
+                android:paddingHorizontal="@dimen/screen_padding"
+                android:paddingTop="@dimen/space_s"
+                android:paddingBottom="@dimen/space_l"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_feed" />
 
-            <TextView
-                android:id="@+id/message"
+            <LinearLayout
+                android:id="@+id/messageGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:gravity="center"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
                 android:padding="@dimen/screen_padding"
-                android:textAppearance="@style/TextAppearance.Servio.Caption"
-                android:visibility="gone" />
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textAppearance="@style/TextAppearance.Servio.Body" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/retryButton"
+                    style="@style/Widget.Servio.Button.Outlined"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:text="@string/action_retry" />
+            </LinearLayout>
         </FrameLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>
