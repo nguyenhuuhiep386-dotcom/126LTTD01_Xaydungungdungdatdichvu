@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Partner-only colours. Prefer the servio_* tokens of :core; add here only what the design system lacks. -->
+<resources>
+    <!-- Done segments of the signup step bar (Figma: accent brown). -->
+    <color name="signup_step_done">@color/servio_text_accent</color>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FileProvider paths: CS-08 camera captures, kept in the app cache until the draft is dropped. -->
+<paths>
+    <cache-path
+        name="camera"
+        path="camera/" />
+</paths>
