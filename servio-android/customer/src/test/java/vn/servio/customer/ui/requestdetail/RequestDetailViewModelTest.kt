@@ -64,6 +64,8 @@ class RequestDetailViewModelTest {
                 partnerCalls += partnerId
                 return partnerFailure ?: ApiResult.Success(PartnerPublic(id = partnerId, fullName = "Thợ", skills = listOf("Sửa điện dân dụng", "Sửa ống nước")))
             }
+
+            override suspend fun getReviews(partnerId: String, page: Int, pageSize: Int) = error("unused")
         }
 
         var categoryFailure: ApiResult.Failure? = null

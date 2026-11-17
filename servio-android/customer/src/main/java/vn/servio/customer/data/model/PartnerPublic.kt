@@ -20,3 +20,17 @@ data class PartnerPublic(
     val skills: List<String> = emptyList(),
     val memberSince: String? = null,
 )
+
+/**
+ * One row of GET /partners/{id}/reviews (#28): a published customer review, newest first. [reviewerName] is already
+ * shortened by the server ("Lan N."). [tags] are not shown on CS-17.
+ */
+@Serializable
+data class PartnerReview(
+    val id: String,
+    val rating: Int,
+    val comment: String? = null,
+    val tags: List<String> = emptyList(),
+    val reviewerName: String,
+    val createdAt: String,
+)

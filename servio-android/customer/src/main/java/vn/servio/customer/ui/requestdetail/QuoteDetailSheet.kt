@@ -4,10 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -21,7 +18,9 @@ import vn.servio.customer.data.model.CustomerQuote
 import vn.servio.customer.data.model.QuoteStatus
 import vn.servio.customer.databinding.SheetQuoteDetailBinding
 import vn.servio.customer.ui.common.RemoteImages
+import vn.servio.customer.ui.common.showSkills
 import vn.servio.customer.ui.confirmquote.ConfirmQuoteFragment
+import vn.servio.customer.ui.partner.PartnerProfileFragment
 import vn.servio.customer.ui.requestdetail.RequestDetailViewModel.State
 import javax.inject.Inject
 
@@ -110,11 +109,14 @@ class QuoteDetailSheet : BottomSheetDialogFragment() {
         noteText.text = getString(R.string.quote_note, quote.note.orEmpty().trim())
 
         profileRow.setOnClickListener {
+            // CS-17 shows "Chọn báo giá này" only for a quote that can be chosen; it checks again with #38/#42.
+            val bookable = state.canSelect(quote)
             leaveTo(
                 R.id.cs17,
-                bundleOf(
-                    ARG_PARTNER_ID to partner.id,
-                    "description" to getString(R.string.quote_partner_placeholder, partner.id),
+                PartnerProfileFragment.args(
+                    partner.id,
+                    requestId.takeIf { bookable },
+                    quote.id.takeIf { bookable },
                 ),
             )
         }
@@ -128,20 +130,7 @@ class QuoteDetailSheet : BottomSheetDialogFragment() {
         skillGroup.isVisible = !skills.isNullOrEmpty()
         if (skills == null || skills == shownSkills) return
         shownSkills = skills
-        skillGroup.removeAllViews()
-        val horizontal = resources.getDimensionPixelSize(vn.servio.core.R.dimen.space_m)
-        val vertical = resources.getDimensionPixelSize(vn.servio.core.R.dimen.space_xs)
-        skills.forEach { skill ->
-            skillGroup.addView(
-                TextView(requireContext()).apply {
-                    text = skill
-                    TextViewCompat.setTextAppearance(this, vn.servio.core.R.style.TextAppearance_Servio_Caption)
-                    setTextColor(requireContext().getColor(vn.servio.core.R.color.servio_text_primary))
-                    setBackgroundResource(R.drawable.bg_skill_chip)
-                    setPadding(horizontal, vertical, horizontal, vertical)
-                },
-            )
-        }
+        skillGroup.showSkills(skills)
     }
 
     /** Navigating to a full screen pops this sheet, so Back from there returns to CS-15. */
@@ -159,6 +148,5 @@ class QuoteDetailSheet : BottomSheetDialogFragment() {
 
     companion object {
         const val ARG_QUOTE_ID = "quoteId"
-        const val ARG_PARTNER_ID = "partnerId"
     }
 }
