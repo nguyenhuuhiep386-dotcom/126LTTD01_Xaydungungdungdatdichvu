@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-14 tab label: bold dark when selected, regular grey otherwise (set in MyRequestsFragment). -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:maxLines="1"
+    android:textAppearance="@style/TextAppearance.Servio.Body" />

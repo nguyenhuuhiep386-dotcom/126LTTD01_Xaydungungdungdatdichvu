@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-15 request status chip (Figma: pale yellow pill, no outline). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/servio_primary_container" />
+    <corners android:radius="999dp" />
+</shape>

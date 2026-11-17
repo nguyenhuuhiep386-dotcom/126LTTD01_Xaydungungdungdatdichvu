@@ -6,15 +6,24 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class ServiceRequestStatus { DRAFT, OPEN, MATCHED, EXPIRED, CANCELLED, REJECTED_BY_MODERATION }
 
-/** One row of GET /service-requests/me (#37). Field names follow the API contract on Swagger. */
+/**
+ * One row of GET /service-requests/me (#37), same fields as the backend's RequestSummaryDto.
+ * The server does not send broadcastCount or revision yet (spec 6 lists them), so they are not declared here.
+ * [quoteCount] counts pending quotes of the current revision only.
+ */
 @Serializable
 data class ServiceRequestSummary(
     val id: String,
     val code: String,
     val title: String,
+    val categoryId: String = "",
     val categoryName: String,
     val status: ServiceRequestStatus,
     val quoteCount: Int,
     val addressSnapshot: String,
+    val scheduleType: ScheduleType = ScheduleType.NOW,
+    val scheduledStartAt: String? = null,
+    val expiresAt: String? = null,
+    val thumbnailUrl: String? = null,
     val createdAt: String,
 )

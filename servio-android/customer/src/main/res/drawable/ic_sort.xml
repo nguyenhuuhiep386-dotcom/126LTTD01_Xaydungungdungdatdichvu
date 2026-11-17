@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-15 quote sort chip. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M7,4v16M7,20l-3,-3M7,20l3,-3M17,20V4M17,4l-3,3M17,4l3,3"
+        android:strokeWidth="2"
+        android:strokeColor="@color/servio_text_primary"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CS-15 quote card (Figma). Tap = CS-16. The server sends no skill name, so the line under the name is only the
+  years of experience. "Nhắn tin" stays hidden until chat (KH-4); "Chọn" then takes the whole row. An accepted quote
+  shows "Đã chọn" instead of the buttons.
+-->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/space_m"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/space_l">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="44dp"
+                android:layout_height="44dp">
+
+                <TextView
+                    android:id="@+id/avatarInitials"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_profile_avatar"
+                    android:gravity="center"
+                    android:importantForAccessibility="no"
+                    android:textAppearance="@style/TextAppearance.Servio.Accent"
+                    android:textStyle="bold"
+                    tools:text="VP" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/avatarImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearance="@style/ShapeAppearance.Servio.Circle" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_m"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/nameText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                    android:textStyle="bold"
+                    tools:text="Trần Văn Phúc" />
+
+                <TextView
+                    android:id="@+id/experienceText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Servio.Caption"
+                    tools:text="6 năm kinh nghiệm" />
+
+                <include
+                    android:id="@+id/rating"
+                    layout="@layout/view_quote_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_s"
+                android:gravity="end"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/priceText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                    android:textStyle="bold"
+                    tools:text="450.000 đ" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/quote_price_caption"
+                    android:textAppearance="@style/TextAppearance.Servio.Caption" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/availableText"
+            style="@style/Widget.Servio.RequestInfoRow"
+            android:layout_marginTop="@dimen/space_m"
+            app:drawableStartCompat="@drawable/ic_clock"
+            tools:text="Có mặt 14:00, T7 17/10 · làm khoảng 90 phút" />
+
+        <TextView
+            android:id="@+id/noteText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            tools:text="“Kiểm tra gas, vệ sinh dàn lạnh; nếu hỏng linh kiện sẽ báo phát sinh trong app.”" />
+
+        <TextView
+            android:id="@+id/acceptedText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:background="@drawable/bg_status_chip"
+            android:paddingHorizontal="@dimen/space_m"
+            android:paddingVertical="@dimen/space_xs"
+            android:text="@string/quote_status_accepted"
+            android:textAppearance="@style/TextAppearance.Servio.Accent"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chatButton"
+                style="@style/Widget.Servio.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/space_m"
+                android:layout_weight="1"
+                android:text="@string/quote_chat"
+                android:visibility="gone"
+                app:icon="@drawable/ic_nav_chat"
+                app:iconGravity="textStart"
+                app:iconTint="@color/servio_text_primary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/selectButton"
+                style="@style/Widget.Servio.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/quote_select" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

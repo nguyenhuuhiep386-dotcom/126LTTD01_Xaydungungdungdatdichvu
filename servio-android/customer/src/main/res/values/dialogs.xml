@@ -8,6 +8,8 @@
         <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.Servio.Body.Text</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.Servio.Button.Dialog</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.Servio.Button.Dialog</item>
+        <!-- CS-11 OUTSTANDING_DEBT "Xem phí" -->
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.Servio.Button.Dialog</item>
     </style>
 
     <!-- Confirmation of a destructive action: the positive button is red. -->

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-15 request card: budget. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M3,7h18v10H3zM12,10.5a1.5,1.5 0,1 0,0 3a1.5,1.5 0,1 0,0 -3M6.5,12h0.01M17.5,12h0.01"
+        android:strokeWidth="2"
+        android:strokeColor="@color/servio_text_primary"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>
