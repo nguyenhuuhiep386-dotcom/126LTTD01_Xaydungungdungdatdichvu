@@ -218,7 +218,7 @@
                 app:argType="string" />
             <argument
                 android:name="links"
-                android:defaultValue="cs21|Theo dõi bản đồ;cs22|Duyệt phát sinh;cs23|Xác nhận hoàn thành;cs33|Khiếu nại;cs28|Chat"
+                android:defaultValue="cs21|Theo dõi bản đồ;cs22|Duyệt phát sinh;cs23|Xác nhận hoàn thành;cs33|Khiếu nại"
                 app:argType="string" />
         </fragment>
 
@@ -310,48 +310,25 @@
                 app:argType="string" />
         </fragment>
 
+        <!-- CS-27 Tin nhắn (shared core screen, #54). Opens the `chat` destination below. -->
         <fragment
             android:id="@+id/cs27"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-27 Tin nhắn">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-27"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Tin nhắn"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Danh sách hội thoại (#54); giao diện chat chung của Hiệp"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs28|Mở một hội thoại"
-                app:argType="string" />
-        </fragment>
+            android:name="vn.servio.core.ui.chat.ConversationListFragment"
+            android:label="CS-27 Tin nhắn" />
 
+        <!--
+          CS-28 Phòng chat (shared core screen). The id must be `chat`: core navigates to R.id.chat. Opened from CS-27 and
+          from "Nhắn tin" on CS-15/CS-16 with the quote's conversationId. Not a tab, so the bottom nav is hidden.
+        -->
         <fragment
-            android:id="@+id/cs28"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:id="@+id/chat"
+            android:name="vn.servio.core.ui.chat.ChatFragment"
             android:label="CS-28 Phòng chat">
             <argument
-                android:name="code"
-                android:defaultValue="CS-28"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Phòng chat"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Hub /hubs/chat; giao diện chat chung"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
+                android:name="conversationId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
         </fragment>
 
         <fragment

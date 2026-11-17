@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -12,6 +13,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import okhttp3.OkHttpClient
+import vn.servio.core.ui.chat.ChatFragment
 import vn.servio.core.utils.collectWhenStarted
 import vn.servio.customer.R
 import vn.servio.customer.data.model.CustomerQuote
@@ -121,7 +123,15 @@ class QuoteDetailSheet : BottomSheetDialogFragment() {
             )
         }
         acceptedText.isVisible = quote.status == QuoteStatus.ACCEPTED
-        actions.isVisible = state.canSelect(quote)
+        val conversationId = quote.conversationId
+        val buttons = QuoteActions.of(state.canSelect(quote), conversationId)
+        chatButton.isVisible = buttons.chat
+        selectButton.isVisible = buttons.select
+        actions.isVisible = buttons.row
+        // The conversation was created with the quote (#42 carries it): no #56. The sheet closes on the way out.
+        chatButton.setOnClickListener {
+            conversationId?.let { leaveTo(R.id.chat, bundleOf(ChatFragment.ARG_CONVERSATION_ID to it)) }
+        }
         selectButton.setOnClickListener { leaveTo(R.id.cs18, ConfirmQuoteFragment.args(requestId, quote.id)) }
     }
 

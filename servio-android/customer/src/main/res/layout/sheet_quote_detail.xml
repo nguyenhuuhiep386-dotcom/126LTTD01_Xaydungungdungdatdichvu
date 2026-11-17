@@ -3,7 +3,7 @@
   CS-16 Chi tiết báo giá (Figma): bottom sheet with a handle. [progress] only while CS-15 is still loading the quotes
   (restored after the app was killed); if the quote is not in the list the sheet closes itself.
   Skill chips come from #27 and stay hidden until it answers. "Đã xác minh danh tính" is hidden: no API has that flag.
-  "Nhắn tin" stays hidden until chat (KH-4).
+  "Nhắn tin" (KH-4) only when the quote has a conversation; without "Chọn" it takes the whole row.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -257,7 +257,6 @@
                     style="@style/Widget.Servio.Button.Outlined"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/space_m"
                     android:layout_weight="1"
                     android:text="@string/quote_chat"
                     android:visibility="gone"
@@ -270,6 +269,7 @@
                     style="@style/Widget.Servio.Button"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_m"
                     android:layout_weight="1"
                     android:text="@string/quote_select_this" />
             </LinearLayout>

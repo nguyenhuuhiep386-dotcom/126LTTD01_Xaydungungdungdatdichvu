@@ -13,6 +13,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import okhttp3.OkHttpClient
+import vn.servio.core.ui.chat.ChatFragment
 import vn.servio.core.utils.collectWhenStarted
 import vn.servio.customer.R
 import vn.servio.customer.data.model.CancelRequestBody
@@ -54,7 +55,7 @@ class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentRequestDetailBinding.bind(view)
         val images = RemoteImages(httpClient, viewLifecycleOwner.lifecycleScope, (RemoteImages.IMAGE_EDGE_DP * resources.displayMetrics.density).toInt())
-        val adapter = QuoteAdapter(images, onOpen = ::openQuote, onSelect = ::selectQuote)
+        val adapter = QuoteAdapter(images, onOpen = ::openQuote, onSelect = ::selectQuote, onChat = ::openChat)
         binding.quoteList.adapter = adapter
 
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
@@ -165,6 +166,13 @@ class RequestDetailFragment : Fragment(R.layout.fragment_request_detail) {
         val navController = findNavController()
         if (navController.currentDestination?.id != R.id.cs15) return
         navController.navigate(R.id.cs18, ConfirmQuoteFragment.args(viewModel.requestId, quote.id))
+    }
+
+    /** CS-28 (core ChatFragment); Back returns here. */
+    private fun openChat(conversationId: String) {
+        val navController = findNavController()
+        if (navController.currentDestination?.id != R.id.cs15) return
+        navController.navigate(R.id.chat, bundleOf(ChatFragment.ARG_CONVERSATION_ID to conversationId))
     }
 
     private fun showCancelDialog() {
