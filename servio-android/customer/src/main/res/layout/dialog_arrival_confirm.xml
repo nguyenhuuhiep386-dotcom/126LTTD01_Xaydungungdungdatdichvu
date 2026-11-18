@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CS-20b "Thợ báo đã đến, đúng không?" (Figma 18:2389), the whole body of a MaterialAlertDialog (no dialog title or
+  buttons, so the dialog stays open while #179 runs). Pin in a light yellow circle, title, sentence with the partner's
+  name and the order's address, countdown to expiresAt, then "Chưa thấy" (outlined) and "Đúng, đã đến" side by side.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/space_xl"
+    android:paddingTop="@dimen/space_xl"
+    android:paddingBottom="@dimen/space_l">
+
+    <FrameLayout
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:background="@drawable/bg_timeline_dot"
+        android:backgroundTint="@color/servio_primary_container">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_pin"
+            android:tint="@color/servio_text_accent" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_l"
+        android:text="@string/arrival_title"
+        android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_s"
+        android:textAppearance="@style/TextAppearance.Servio.Body"
+        tools:text="Thợ Một báo đã có mặt tại 7 Bach Dang nhưng GPS trên máy đối tác chưa xác định được vị trí. Chỉ xác nhận khi bạn đã gặp đối tác." />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_m"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_clock"
+            android:tint="@color/servio_text_secondary" />
+
+        <TextView
+            android:id="@+id/countdown"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_s"
+            android:layout_weight="1"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            tools:text="Yêu cầu hết hạn sau 04:12" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_s"
+        android:textAppearance="@style/TextAppearance.Servio.Caption"
+        android:textColor="@color/servio_error"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xl"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/denyButton"
+            style="@style/Widget.Servio.Button.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/space_s"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingHorizontal="@dimen/space_s"
+            android:text="@string/arrival_deny"
+            android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/confirmButton"
+            style="@style/Widget.Servio.Button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingHorizontal="@dimen/space_s"
+            android:text="@string/arrival_confirm"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

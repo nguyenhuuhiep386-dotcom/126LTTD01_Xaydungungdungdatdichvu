@@ -127,6 +127,31 @@
                                 android:textStyle="bold"
                                 tools:text="Bắt đầu đi lúc 13:40" />
 
+                            <!-- ON_THE_WAY (Figma 18:2208): statusLine is "Khoảng N phút nữa", this is "Cập nhật lúc HH:mm · cách X km". -->
+                            <TextView
+                                android:id="@+id/etaLine"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_xs"
+                                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                                android:visibility="gone"
+                                tools:text="Cập nhật lúc 13:52 · cách 3,2 km"
+                                tools:visibility="visible" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/trackButton"
+                                style="@style/Widget.Servio.Button"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_l"
+                                android:text="@string/order_track"
+                                android:textStyle="bold"
+                                android:visibility="gone"
+                                app:icon="@drawable/ic_map"
+                                app:iconGravity="textStart"
+                                app:iconTint="@color/servio_text_primary"
+                                tools:visibility="visible" />
+
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/confirmButton"
                                 style="@style/Widget.Servio.Button"

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-21 address marker: dark circle with a yellow dot, centred on the order's latitude/longitude. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:width="28dp" android:height="28dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/servio_text_primary" />
+            <stroke android:width="2dp" android:color="@color/servio_surface" />
+        </shape>
+    </item>
+    <item android:width="10dp" android:height="10dp" android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="@color/servio_primary" />
+        </shape>
+    </item>
+</layer-list>

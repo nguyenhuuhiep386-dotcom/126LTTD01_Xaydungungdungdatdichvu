@@ -120,6 +120,9 @@ data class OrderDetail(
     val description: String = "",
     val categoryName: String = "",
     val address: String = "",
+    /** Where the job is (#63, the request's address); CS-21 puts the address marker here. Null: no marker. */
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     val scheduledStartAt: String? = null,
     val pricing: OrderPricing = OrderPricing(),
     val assignments: List<OrderAssignment> = emptyList(),
@@ -178,4 +181,57 @@ data class CustomerWallet(
     val debtBalance: Long = 0,
     val pendingPayment: Long = 0,
     val maxDebt: Long? = null,
+)
+
+/** Last fix of the partner (#76 location). [capturedAt] is the time of the GPS fix, never in the future. */
+@Serializable
+data class TrackingLocation(
+    val latitude: Double,
+    val longitude: Double,
+    val accuracy: Int? = null,
+    val capturedAt: String,
+)
+
+/**
+ * One assignment of GET /orders/{id}/tracking (#76), also the payload of PartnerLocationUpdated. [location] is only
+ * sent while the partner is ON_THE_WAY; [distanceKm] and [etaMinutes] come with it. [isStale] is the server's view at
+ * the time it answered; the screens decide again from [TrackingLocation.capturedAt] (see TrackingUi).
+ */
+@Serializable
+data class Tracking(
+    val orderId: String,
+    val assignmentId: String,
+    val partnerProfileId: String = "",
+    val assignmentStatus: OrderStatus = OrderStatus.UNKNOWN,
+    val location: TrackingLocation? = null,
+    val distanceKm: Double? = null,
+    val etaMinutes: Int? = null,
+    val isStale: Boolean = false,
+)
+
+/** Status of a "Thợ báo đã đến" request. An unexpected value becomes [UNKNOWN]. */
+@Serializable
+enum class ArrivalConfirmationStatus { PENDING, CONFIRMED, DENIED, EXPIRED, CANCELLED, UNKNOWN }
+
+/** Payload of ArrivalConfirmationRequested and answer of #179: the customer answers until [expiresAt]. */
+@Serializable
+data class ArrivalConfirmation(
+    val orderId: String,
+    val assignmentId: String,
+    val requestId: String,
+    val status: ArrivalConfirmationStatus = ArrivalConfirmationStatus.UNKNOWN,
+    val expiresAt: String,
+)
+
+/** #179 body. [confirmed] has no default on purpose: the app's Json does not encode defaults. */
+@Serializable
+data class RespondArrivalBody(val confirmed: Boolean)
+
+/** The part of OrderStatusChanged the arrival requests need (OrderStatusChangedDto). */
+@Serializable
+data class OrderStatusChange(
+    val orderId: String = "",
+    val assignmentId: String = "",
+    val status: OrderStatus = OrderStatus.UNKNOWN,
+    val assignmentStatus: OrderStatus = OrderStatus.UNKNOWN,
 )

@@ -18,15 +18,18 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import vn.servio.core.network.ApiResult
 import vn.servio.customer.data.model.OrderDetail
+import vn.servio.customer.data.model.OrderStatus
+import vn.servio.customer.data.model.Tracking
 import vn.servio.customer.data.repository.OrderRepository
 import vn.servio.customer.data.repository.OrderUpdates
 import vn.servio.customer.data.repository.PartnerRepository
 import vn.servio.customer.data.repository.reloadCoalesced
+import vn.servio.customer.ui.order.TrackingUi
 import javax.inject.Inject
 
 /**
  * CS-20 Chi tiết đơn hàng: #63, plus #27 for the number of reviews of the primary partner and #151 for the label of
- * the cancel button while the order can be cancelled. OrderStatusChanged of this order (and hub reconnects) reload it
+ * the cancel button while the order can be cancelled, and #76 (then PartnerLocationUpdated) while ON_THE_WAY. OrderStatusChanged of this order (and hub reconnects) reload it
  * silently, coalesced (see [reloadCoalesced]).
  */
 @HiltViewModel
@@ -50,6 +53,8 @@ class OrderDetailViewModel @Inject constructor(
         val notFound: Boolean = false,
         val reviewCount: Int? = null,
         val cancelFee: Long? = null,
+        /** #76 / PartnerLocationUpdated of the primary assignment while ON_THE_WAY; null while unknown. */
+        val tracking: Tracking? = null,
     )
 
     sealed interface Event {
@@ -77,6 +82,13 @@ class OrderDetailViewModel @Inject constructor(
                     .map { }
                     .reloadCoalesced { refresh(silent = true) }
             }
+            viewModelScope.launch {
+                orderUpdates.locations().collect { incoming ->
+                    val assignmentId = trackedAssignment(_state.value.detail) ?: return@collect
+                    if (!incoming.assignmentId.equals(assignmentId, ignoreCase = true)) return@collect
+                    _state.update { it.copy(tracking = TrackingUi.newer(it.tracking, incoming)) }
+                }
+            }
         }
     }
 
@@ -102,6 +114,7 @@ class OrderDetailViewModel @Inject constructor(
                 coroutineScope {
                     launch { loadReviewCount(detail) }
                     launch { loadCancelFee(detail) }
+                    launch { loadTracking(detail) }
                 }
             }
             is ApiResult.Failure -> when {
@@ -125,6 +138,23 @@ class OrderDetailViewModel @Inject constructor(
         val result = partnerRepository.getPublicProfile(partnerId)
         if (result is ApiResult.Success) _state.update { it.copy(reviewCount = result.data.totalReviews) }
     }
+
+    /** #76 each time #63 shows the order ON_THE_WAY (also after a reconnect); otherwise there is nothing to track. */
+    private suspend fun loadTracking(detail: OrderDetail) {
+        val assignmentId = trackedAssignment(detail)
+        if (assignmentId == null) {
+            _state.update { it.copy(tracking = null) }
+            return
+        }
+        val result = repository.getTracking(orderId, assignmentId)
+        if (result is ApiResult.Success) {
+            result.data?.let { fresh -> _state.update { it.copy(tracking = TrackingUi.newer(it.tracking, fresh)) } }
+        }
+    }
+
+    /** The primary assignment while the order is ON_THE_WAY. */
+    private fun trackedAssignment(detail: OrderDetail?): String? =
+        detail?.takeIf { it.status == OrderStatus.ON_THE_WAY }?.primary?.id
 
     /** #151 while the order can be cancelled; otherwise (or on failure) the fee is unknown and the label plain. */
     private suspend fun loadCancelFee(detail: OrderDetail) {

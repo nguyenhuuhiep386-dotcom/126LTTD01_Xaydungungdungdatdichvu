@@ -3,13 +3,10 @@ package vn.servio.customer.data.repository
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import vn.servio.core.realtime.HubClient
-import vn.servio.core.realtime.Realtime
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,8 +19,8 @@ interface QuoteUpdates {
     fun changes(requestId: String): Flow<Unit>
 
     companion object {
-        const val EVENT_NEW_QUOTE = "NewQuote"
-        const val EVENT_QUOTE_WITHDRAWN = "QuoteWithdrawn"
+        const val EVENT_NEW_QUOTE = OrdersHub.EVENT_NEW_QUOTE
+        const val EVENT_QUOTE_WITHDRAWN = OrdersHub.EVENT_QUOTE_WITHDRAWN
 
         /** Both payloads carry serviceRequestId; ids are GUIDs, compared without case. */
         fun isFor(payload: JsonObject, requestId: String): Boolean {
@@ -34,34 +31,24 @@ interface QuoteUpdates {
 }
 
 /**
- * Uses the app-wide orders hub of core. [Realtime.orders] start() is idempotent (does nothing while its loop runs),
- * so every CS-15 can call it; it is never stopped here because other screens share the connection.
- *
- * Order matters: the events are registered before start(). HubClient copies the registered names onto a new
- * connection before opening it but only keeps the connection once it is open, so a listen() that arrives while it
- * is opening is not attached until the next reconnect (core, not changed here). Collecting UNDISPATCHED runs the
- * registration synchronously, before start() below.
+ * Uses the app-wide orders hub through [OrdersHub], which registered both events before the hub was first started
+ * (see there why). Every change of the hub to CONNECTED counts as a reconnect.
  */
 @Singleton
 class HubQuoteUpdates @Inject constructor(
-    private val realtime: Realtime,
+    private val hub: OrdersHub,
 ) : QuoteUpdates {
 
     override fun changes(requestId: String): Flow<Unit> = channelFlow {
-        val hub = realtime.orders
         for (event in listOf(QuoteUpdates.EVENT_NEW_QUOTE, QuoteUpdates.EVENT_QUOTE_WITHDRAWN)) {
             launch(start = CoroutineStart.UNDISPATCHED) {
-                hub.listen(event, JsonObject.serializer())
+                hub.events(event, JsonObject.serializer())
                     .filter { QuoteUpdates.isFor(it, requestId) }
                     .collect { send(Unit) }
             }
         }
-        launch(start = CoroutineStart.UNDISPATCHED) { hub.reconnected.collect { send(Unit) } }
-        // reconnected skips the very first connect, but a quote sent between #42 and that connect is not replayed
-        // either: reload whenever the hub becomes CONNECTED after this point (repeats with reconnected are coalesced).
-        launch(start = CoroutineStart.UNDISPATCHED) {
-            hub.state.drop(1).filter { it == HubClient.State.CONNECTED }.collect { send(Unit) }
-        }
+        // A quote sent between #42 and the connect is not replayed: reload on every (re)connect after this point.
+        launch(start = CoroutineStart.UNDISPATCHED) { hub.connects().collect { send(Unit) } }
         hub.start()
     }
 }

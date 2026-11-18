@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter
 object OrderTexts {
     private val TIME: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     private val DAY: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM")
+    private val CLOCK: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
 
     private fun parse(iso: String?, zone: ZoneId): ZonedDateTime? =
         iso?.let { runCatching { OffsetDateTime.parse(it).atZoneSameInstant(zone) }.getOrNull() }
@@ -30,6 +31,9 @@ object OrderTexts {
     /** CS-19 card: "T7 17/10 · 14:00" in the phone's zone. Null when [iso] is missing or unreadable. */
     fun dayTime(iso: String?, weekdays: List<String>, zone: ZoneId = ZoneId.systemDefault()): String? =
         parse(iso, zone)?.let { "${day(it, weekdays)} · ${TIME.format(it)}" }
+
+    /** "14:00:05" (CS-21 "Cập nhật HH:mm:ss"). */
+    fun clock(iso: String?, zone: ZoneId = ZoneId.systemDefault()): String? = parse(iso, zone)?.let { CLOCK.format(it) }
 
     /** "14:00". */
     fun time(iso: String?, zone: ZoneId = ZoneId.systemDefault()): String? = parse(iso, zone)?.let { TIME.format(it) }

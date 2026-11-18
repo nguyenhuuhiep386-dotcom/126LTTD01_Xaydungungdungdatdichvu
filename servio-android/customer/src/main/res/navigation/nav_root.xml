@@ -195,22 +195,14 @@
 
         <fragment
             android:id="@+id/cs21"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.tracking.OrderTrackingFragment"
             android:label="CS-21 Theo dõi bản đồ">
             <argument
-                android:name="code"
-                android:defaultValue="CS-21"
+                android:name="orderId"
+                android:defaultValue=""
                 app:argType="string" />
             <argument
-                android:name="title"
-                android:defaultValue="Theo dõi bản đồ"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="osmdroid, marker cập nhật qua SignalR, nhãn &quot;Chưa cập nhật&quot;"
-                app:argType="string" />
-            <argument
-                android:name="links"
+                android:name="assignmentId"
                 android:defaultValue=""
                 app:argType="string" />
         </fragment>

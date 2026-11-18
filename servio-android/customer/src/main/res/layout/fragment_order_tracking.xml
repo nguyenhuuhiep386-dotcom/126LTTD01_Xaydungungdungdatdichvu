@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CS-21 Theo dõi bản đồ (Figma 18:2313): osmdroid map over the whole screen, a round back button (top left), the
+  "Cập nhật HH:mm:ss" pill (top right) and a fixed bottom sheet (handle only decorative). No route is drawn.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/servio_background">
+
+    <org.osmdroid.views.MapView
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="@dimen/space_l"
+        android:layout_marginTop="@dimen/space_xl"
+        android:background="@drawable/bg_tracking_pill"
+        android:contentDescription="@string/tracking_back"
+        android:elevation="4dp"
+        android:src="@drawable/ic_back" />
+
+    <LinearLayout
+        android:id="@+id/updatedPill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="@dimen/space_xl"
+        android:layout_marginEnd="@dimen/space_l"
+        android:background="@drawable/bg_tracking_pill"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:minHeight="40dp"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_m">
+
+        <ImageView
+            android:id="@+id/updatedIcon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_retry" />
+
+        <TextView
+            android:id="@+id/updatedText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_xs"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            android:textColor="@color/servio_text_primary"
+            android:textStyle="bold"
+            tools:text="Cập nhật 13:52:10" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/errorGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="@dimen/space_xl"
+        android:background="@drawable/bg_tracking_sheet"
+        android:orientation="vertical"
+        android:padding="@dimen/space_l"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/errorText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.Servio.Body" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/retryButton"
+            style="@style/Widget.Servio.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:text="@string/action_retry" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/attribution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/space_s"
+            android:background="@drawable/bg_map_attribution"
+            android:paddingHorizontal="@dimen/space_s"
+            android:paddingVertical="@dimen/space_xs"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            tools:text="@string/map_attribution" />
+
+        <LinearLayout
+            android:id="@+id/sheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_tracking_sheet"
+            android:clickable="true"
+            android:elevation="8dp"
+            android:focusable="false"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/space_xl"
+            android:paddingTop="@dimen/space_s"
+            android:paddingBottom="@dimen/space_l"
+            android:visibility="invisible"
+            tools:visibility="visible">
+
+            <View
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/bg_tracking_handle" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="48dp"
+                    android:layout_height="48dp">
+
+                    <TextView
+                        android:id="@+id/avatarInitials"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_profile_avatar"
+                        android:gravity="center"
+                        android:importantForAccessibility="no"
+                        android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                        android:textColor="@color/servio_text_accent"
+                        android:textStyle="bold"
+                        tools:text="VP" />
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/avatarImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:importantForAccessibility="no"
+                        android:scaleType="centerCrop"
+                        app:shapeAppearance="@style/ShapeAppearance.Servio.Circle" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_m"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/partnerName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                        android:textStyle="bold"
+                        tools:text="Trần Văn Phúc" />
+
+                    <include
+                        android:id="@+id/rating"
+                        layout="@layout/view_quote_rating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xs" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/statusChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_s"
+                    android:drawablePadding="@dimen/space_xs"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:paddingHorizontal="@dimen/space_m"
+                    android:paddingVertical="@dimen/space_xs"
+                    android:textAppearance="@style/TextAppearance.Servio.Accent"
+                    android:textStyle="bold"
+                    tools:background="@drawable/bg_status_chip"
+                    tools:text="Đang trên đường" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tracking_eta_label"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+                    <TextView
+                        android:id="@+id/etaValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                        android:textStyle="bold"
+                        tools:text="~8 phút" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tracking_distance_label"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+                    <TextView
+                        android:id="@+id/distanceValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                        android:textStyle="bold"
+                        tools:text="3,2 km" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                tools:text="@string/tracking_note" />
+
+            <LinearLayout
+                android:id="@+id/contactRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chatButton"
+                    style="@style/Widget.Servio.Button.Outlined"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:maxLines="1"
+                    android:text="@string/tracking_chat"
+                    app:icon="@drawable/ic_nav_chat"
+                    app:iconGravity="textStart"
+                    app:iconPadding="@dimen/space_xs"
+                    app:iconSize="20dp"
+                    app:iconTint="@color/servio_text_primary"
+                    android:textStyle="bold" />
+
+                <Space
+                    android:id="@+id/contactGap"
+                    android:layout_width="@dimen/space_s"
+                    android:layout_height="0dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/callButton"
+                    style="@style/Widget.Servio.Button.Outlined"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:maxLines="1"
+                    android:text="@string/tracking_call"
+                    app:icon="@drawable/ic_phone"
+                    app:iconGravity="textStart"
+                    app:iconPadding="@dimen/space_xs"
+                    app:iconSize="20dp"
+                    app:iconTint="@color/servio_text_primary"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancelButton"
+                style="@style/Widget.Servio.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/space_xs"
+                android:text="@string/order_cancel" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

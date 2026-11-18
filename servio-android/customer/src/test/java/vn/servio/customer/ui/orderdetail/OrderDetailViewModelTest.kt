@@ -27,6 +27,8 @@ import vn.servio.customer.data.model.OrderParty
 import vn.servio.customer.data.model.OrderStatus
 import vn.servio.customer.data.model.PartnerPublic
 import vn.servio.customer.data.model.PartnerReview
+import vn.servio.customer.data.model.Tracking
+import vn.servio.customer.data.model.TrackingLocation
 import vn.servio.customer.data.repository.FakeOrderRepository
 import vn.servio.customer.data.repository.FakeOrderUpdates
 import vn.servio.customer.data.repository.PartnerRepository
@@ -146,6 +148,40 @@ class OrderDetailViewModelTest {
         advanceUntilIdle()
         assertEquals(2, server.orderCalls)
         assertEquals(OrderStatus.ACCEPTED, vm.state.value.detail?.status)
+    }
+
+    @Test
+    fun `on the way asks 76 with each reload, then follows the fixes of its assignment`() = runTest(dispatcher) {
+        val fix = { assignment: String, at: String ->
+            Tracking(orderId, assignment, assignmentStatus = OrderStatus.ON_THE_WAY, location = TrackingLocation(10.85, 106.77, 10, at), distanceKm = 3.0, etaMinutes = 8)
+        }
+        val server = FakeOrderRepository().apply {
+            order = ApiResult.Success(order(OrderStatus.ON_THE_WAY))
+            previews += ApiResult.Success(CancelPreview(20_000, emptyList(), "v1", "x"))
+            tracking = ApiResult.Success(fix("a1", "2026-11-18T07:00:00Z"))
+        }
+        val updates = FakeOrderUpdates()
+        val vm = viewModel(server, updates = updates)
+        assertEquals(1, server.trackingCalls)
+        assertEquals(8, vm.state.value.tracking?.etaMinutes)
+
+        updates.locationEvents.emit(fix("other", "2026-11-18T07:00:30Z"))
+        updates.locationEvents.emit(fix("A1", "2026-11-18T07:00:10Z"))
+        runCurrent()
+        assertEquals("2026-11-18T07:00:10Z", vm.state.value.tracking?.location?.capturedAt)
+
+        updates.events.emit(null) // reconnect
+        advanceTimeBy(600)
+        runCurrent()
+        advanceUntilIdle()
+        assertEquals(2, server.trackingCalls)
+        assertEquals("2026-11-18T07:00:10Z", vm.state.value.tracking?.location?.capturedAt) // the older answer of 76 lost
+
+        server.order = ApiResult.Success(order(OrderStatus.ARRIVED))
+        vm.load()
+        advanceUntilIdle()
+        assertEquals(2, server.trackingCalls)
+        assertNull(vm.state.value.tracking)
     }
 
     @Test

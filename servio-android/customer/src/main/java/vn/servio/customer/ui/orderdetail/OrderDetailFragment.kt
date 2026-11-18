@@ -29,12 +29,16 @@ import vn.servio.core.utils.collectWhenStarted
 import vn.servio.customer.R
 import vn.servio.customer.data.model.OrderActor
 import vn.servio.customer.data.model.OrderDetail
+import vn.servio.customer.data.model.OrderStatus
+import vn.servio.customer.data.repository.OrderUpdates
 import vn.servio.customer.databinding.FragmentOrderDetailBinding
 import vn.servio.customer.databinding.ItemOrderStepBinding
 import vn.servio.customer.ui.common.RemoteImages
 import vn.servio.customer.ui.order.OrderFormat
 import vn.servio.customer.ui.order.OrderStatusChip
 import vn.servio.customer.ui.order.OrderTexts
+import vn.servio.customer.ui.order.TrackingUi
+import vn.servio.customer.ui.tracking.OrderTrackingViewModel
 import vn.servio.customer.ui.orderdetail.OrderDetailUi.Line
 import vn.servio.customer.ui.orderdetail.OrderDetailUi.Note
 import vn.servio.customer.ui.orderdetail.OrderDetailUi.StatusArea
@@ -45,7 +49,7 @@ import vn.servio.customer.ui.requestdetail.QuoteTexts
 import javax.inject.Inject
 
 /**
- * CS-20 Chi tiết đơn hàng (KH-5 part 1: every status, no ETA or map yet). What is shown per status is decided in
+ * CS-20 Chi tiết đơn hàng (every status; ETA while ON_THE_WAY, CS-21 behind "Theo dõi đường đi", CS-20b through [ArrivalPrompt]). What is shown per status is decided in
  * [OrderDetailUi]; this class only formats. "Huỷ đơn" opens [CancelOrderDialogFragment] (CS-20c), which answers
  * through a fragment result.
  */
@@ -54,9 +58,13 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
 
     @Inject lateinit var httpClient: OkHttpClient
 
+    @Inject lateinit var orderUpdates: OrderUpdates
+
     private val viewModel: OrderDetailViewModel by viewModels()
 
     private var countdownJob: Job? = null
+    private var etaJob: Job? = null
+    private var arrivalPrompt: ArrivalPrompt? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentOrderDetailBinding.bind(view)
@@ -71,6 +79,14 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         binding.addressRow.label.setText(R.string.order_detail_address)
         binding.priceRow.label.setText(R.string.order_detail_price)
         binding.paymentRow.label.setText(R.string.order_detail_payment)
+
+        arrivalPrompt = ArrivalPrompt(
+            host = this,
+            orderUpdates = orderUpdates,
+            orderId = { viewModel.orderId },
+            names = { viewModel.state.value.detail?.let { it.primary?.partner?.displayName to it.address } },
+            reload = { viewModel.load() },
+        ).also { it.attach() }
 
         childFragmentManager.setFragmentResultListener(CancelOrderDialogFragment.RESULT_KEY, viewLifecycleOwner) { _, result ->
             val message = when {
@@ -94,7 +110,13 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
             binding.content.isVisible = !state.notFound && detail != null
             binding.swipeRefresh.isEnabled = !state.notFound
             binding.toolbar.title = detail?.let { getString(R.string.order_detail_title, it.code) } ?: getString(R.string.order_detail_title_loading)
-            if (detail != null && !state.notFound) bind(binding, images, state) else stopCountdown()
+            if (detail != null && !state.notFound) {
+                bind(binding, images, state)
+                arrivalPrompt?.showIfPending()
+            } else {
+                stopCountdown()
+                stopEta()
+            }
         }
         collectWhenStarted(viewModel.events) { event ->
             when (event) {
@@ -109,7 +131,7 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         val order = state.detail ?: return
         val context = requireContext()
         val weekdays = QuoteFormat.weekdays(context)
-        bindStatus(binding, order)
+        bindStatus(binding, state)
 
         // Partner
         val partner = order.primary?.partner
@@ -157,7 +179,8 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         bindTimeline(binding, order)
     }
 
-    private fun bindStatus(binding: FragmentOrderDetailBinding, order: OrderDetail) {
+    private fun bindStatus(binding: FragmentOrderDetailBinding, state: OrderDetailViewModel.State) {
+        val order = state.detail ?: return
         val context = requireContext()
         val weekdays = QuoteFormat.weekdays(context)
         when (val area = OrderDetailUi.statusArea(order)) {
@@ -173,6 +196,7 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
             }
             StatusArea.Disputed -> {
                 stopCountdown()
+                stopEta()
                 binding.banner.isVisible = true
                 binding.statusCard.isVisible = false
                 binding.banner.backgroundTintList = ColorStateList.valueOf(context.getColor(vn.servio.core.R.color.servio_error_container))
@@ -187,9 +211,18 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
                 binding.banner.isVisible = false
                 binding.statusCard.isVisible = true
                 OrderStatusChip.bind(binding.statusChip, area.status)
-                val text = statusLine(area, weekdays)
-                binding.statusLine.text = text
-                binding.statusLine.isVisible = text != null
+                val tracked = area.status == OrderStatus.ON_THE_WAY
+                binding.etaLine.isVisible = false
+                binding.trackButton.isVisible = tracked && order.primary != null
+                binding.trackButton.setOnClickListener { order.primary?.id?.let(::openTracking) }
+                if (tracked) {
+                    startEta(binding)
+                } else {
+                    stopEta()
+                    val text = statusLine(area, weekdays)
+                    binding.statusLine.text = text
+                    binding.statusLine.isVisible = text != null
+                }
             }
         }
     }
@@ -209,6 +242,43 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
             Line.CANCELLED -> moment?.let { getString(R.string.order_detail_line_cancelled, it) }
             Line.NONE -> null
         }
+    }
+
+    /**
+     * ON_THE_WAY card: "Khoảng N phút nữa" + "Cập nhật lúc HH:mm · cách X km" from the last #76 / PartnerLocationUpdated.
+     * Re-checked every 5 s while started, so a fix older than 30 s turns into "Chưa cập nhật · vị trí lúc HH:mm".
+     */
+    private fun startEta(binding: FragmentOrderDetailBinding) {
+        bindEta(binding)
+        if (etaJob?.isActive == true) return
+        etaJob = viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) {
+                    bindEta(binding)
+                    delay(TrackingUi.CHECK_EVERY_MILLIS)
+                }
+            }
+        }
+    }
+
+    private fun bindEta(binding: FragmentOrderDetailBinding) {
+        val (title, line) = when (val view = TrackingUi.of(viewModel.state.value.tracking)) {
+            TrackingUi.View.Unknown -> getString(R.string.order_eta_unknown) to null
+            TrackingUi.View.NoLocation -> getString(R.string.order_eta_no_location) to null
+            is TrackingUi.View.Stale -> (OrderTexts.time(view.capturedAt)?.let { getString(R.string.order_eta_stale, it) } ?: getString(R.string.order_eta_unknown)) to null
+            is TrackingUi.View.Live -> getString(R.string.order_eta_minutes, view.etaMinutes) to OrderTexts.time(view.capturedAt)?.let {
+                getString(R.string.order_eta_updated, it, getString(R.string.order_distance_km, TrackingUi.distance(view.distanceKm)))
+            }
+        }
+        binding.statusLine.isVisible = true
+        binding.statusLine.text = title
+        binding.etaLine.isVisible = line != null
+        binding.etaLine.text = line
+    }
+
+    private fun stopEta() {
+        etaJob?.cancel()
+        etaJob = null
     }
 
     /** "Đối tác có N phút để xác nhận · còn mm:ss", ticking each second while the screen is started. */
@@ -340,6 +410,13 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         navController.navigate(R.id.chat, bundleOf(ChatFragment.ARG_CONVERSATION_ID to conversationId))
     }
 
+    /** CS-21 Theo dõi bản đồ; Back returns here. */
+    private fun openTracking(assignmentId: String) {
+        val navController = findNavController()
+        if (navController.currentDestination?.id != R.id.cs20) return
+        navController.navigate(R.id.cs21, bundleOf(OrderTrackingViewModel.ARG_ORDER_ID to viewModel.orderId, OrderTrackingViewModel.ARG_ASSIGNMENT_ID to assignmentId))
+    }
+
     /** CS-23 is still a placeholder (KH-6). */
     private fun openConfirm() {
         val navController = findNavController()
@@ -357,6 +434,8 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
 
     override fun onDestroyView() {
         stopCountdown()
+        stopEta()
+        arrivalPrompt = null
         super.onDestroyView()
     }
 

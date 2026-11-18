@@ -460,4 +460,38 @@
         <item>Lý do khác</item>
     </string-array>
     <!-- endregion -->
+
+    <!-- region Theo dõi đối tác (CS-20 ON_THE_WAY, CS-21) và CS-20b. Every ETA, distance and time comes from #76 / the hub. -->
+    <string name="order_distance_km">%1$s&#160;km</string>
+    <string name="order_eta_minutes">Khoảng %1$d phút nữa</string>
+    <string name="order_eta_updated">Cập nhật lúc %1$s · cách %2$s</string>
+    <string name="order_eta_unknown">Chưa cập nhật</string>
+    <string name="order_eta_stale">Chưa cập nhật · vị trí lúc %1$s</string>
+    <string name="order_eta_no_location">Chưa có vị trí của đối tác</string>
+    <string name="order_track">Theo dõi đường đi</string>
+    <string name="tracking_back">Quay lại đơn hàng</string>
+    <string name="tracking_updated">Cập nhật %1$s</string>
+    <string name="tracking_stale">Chưa cập nhật · %1$s</string>
+    <string name="tracking_no_location">Chưa có vị trí</string>
+    <string name="tracking_eta_label">Dự kiến đến</string>
+    <string name="tracking_distance_label">Khoảng cách</string>
+    <string name="tracking_eta_value">~%1$d&#160;phút</string>
+    <string name="tracking_missing">–</string>
+    <string name="tracking_note">Xác nhận %1$s · bắt đầu di chuyển %2$s. Thời gian dự kiến tính theo khoảng cách, có thể lệch khi kẹt xe.</string>
+    <string name="tracking_note_no_times">Thời gian dự kiến tính theo khoảng cách, có thể lệch khi kẹt xe.</string>
+    <string name="tracking_chat">Nhắn tin</string>
+    <string name="tracking_call">Gọi</string>
+    <string name="tracking_partner_marker">Vị trí đối tác</string>
+    <string name="tracking_address_marker">Địa chỉ làm việc</string>
+    <string name="arrival_title">Thợ báo đã đến, đúng không?</string>
+    <string name="arrival_body">%1$s báo đã có mặt tại %2$s nhưng GPS trên máy đối tác chưa xác định được vị trí. Chỉ xác nhận khi bạn đã gặp đối tác.</string>
+    <string name="arrival_partner_fallback">Đối tác</string>
+    <string name="arrival_address_fallback">địa chỉ của đơn</string>
+    <string name="arrival_expires_in">Yêu cầu hết hạn sau %1$s</string>
+    <string name="arrival_deny">Chưa thấy</string>
+    <string name="arrival_confirm">Đúng, đã đến</string>
+    <string name="arrival_expired">Yêu cầu xác nhận đã hết hạn</string>
+    <string name="arrival_conflict">Yêu cầu đã hết hạn hoặc đã được trả lời</string>
+    <string name="arrival_denied">Đã báo đối tác là bạn chưa thấy</string>
+    <!-- endregion -->
 </resources>

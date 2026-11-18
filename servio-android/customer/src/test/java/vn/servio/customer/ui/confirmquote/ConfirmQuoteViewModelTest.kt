@@ -89,6 +89,13 @@ class ConfirmQuoteViewModelTest {
         override suspend fun cancel(orderId: String, reason: String, rowVersion: String): ApiResult<CancelResult> = error("unused")
 
         override suspend fun cancelDebtLimit(): ApiResult<Long?> = error("unused")
+
+        override suspend fun getTracking(orderId: String, assignmentId: String): ApiResult<vn.servio.customer.data.model.Tracking?> = error("unused")
+
+        override suspend fun respondArrival(
+            confirmation: vn.servio.customer.data.model.ArrivalConfirmation,
+            confirmed: Boolean,
+        ): ApiResult<vn.servio.customer.data.model.ArrivalConfirmation> = error("unused")
     }
 
     private fun TestScope.viewModelWith(server: Server, events: MutableList<Event> = mutableListOf(), quoteId: String = "q1"): ConfirmQuoteViewModel {
