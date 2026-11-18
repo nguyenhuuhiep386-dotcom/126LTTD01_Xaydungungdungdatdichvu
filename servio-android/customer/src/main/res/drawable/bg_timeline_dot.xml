@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-20 timeline dot; the colour (done, current, to come) is set by backgroundTint in OrderDetailFragment. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="@color/servio_surface_variant" />
+</shape>

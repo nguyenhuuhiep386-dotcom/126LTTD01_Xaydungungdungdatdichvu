@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CS-20c Huỷ đơn (Figma 18:2807), the body of a MaterialAlertDialog (the title "Huỷ đơn #mã?" is the dialog's).
+  Lead sentence, the beige fee box and the debt sentence (only with a fee), "Lý do huỷ" and the two buttons.
+  The buttons are in the layout, not the dialog's, so the dialog stays open while #72 runs and on an error.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/space_xl"
+    android:paddingTop="@dimen/space_s"
+    android:paddingBottom="@dimen/space_l">
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginVertical="@dimen/space_l"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/loadErrorGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/loadError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Servio.Body"
+            android:textColor="@color/servio_error" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/retryButton"
+            style="@style/Widget.Servio.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:text="@string/action_retry" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/form"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/lead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Servio.Body"
+            tools:text="@string/order_cancel_lead_on_the_way" />
+
+        <LinearLayout
+            android:id="@+id/feeBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_l"
+            android:background="@drawable/bg_order_fee"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="@dimen/space_l">
+
+            <TextView
+                android:id="@+id/feeLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/space_m"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.Servio.Body"
+                tools:text="@string/order_cancel_fee_on_the_way" />
+
+            <TextView
+                android:id="@+id/feeAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                android:textStyle="bold"
+                tools:text="20.000 đ" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/debtNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            tools:text="@string/order_cancel_debt_note_no_limit" />
+
+        <TextView
+            android:id="@+id/feeChanged"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:text="@string/order_cancel_fee_changed"
+            android:textAppearance="@style/TextAppearance.Servio.Body"
+            android:textColor="@color/servio_error"
+            android:visibility="gone" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_l"
+            android:labelFor="@id/reason"
+            android:text="@string/order_cancel_reason_label"
+            android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+            android:textStyle="bold" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/reasonLayout"
+            style="@style/Widget.Servio.TextInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:hint="@string/order_cancel_reason_hint"
+            app:endIconMode="dropdown_menu"
+            app:endIconTint="@color/servio_text_primary"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/reason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/order_cancel_reason_hint"
+                android:inputType="none"
+                android:paddingHorizontal="@dimen/space_l"
+                android:paddingVertical="@dimen/space_l" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/sendError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            android:textColor="@color/servio_error"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/keepButton"
+        style="@style/Widget.Servio.Button"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xl"
+        android:text="@string/order_cancel_keep" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/confirmButton"
+        style="@style/Widget.Servio.Button.Outlined"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_s"
+        android:maxLines="1"
+        android:textColor="@color/servio_error"
+        app:strokeColor="@color/servio_error"
+        tools:text="Huỷ đơn, chịu phí 20.000 đ" />
+</LinearLayout>
