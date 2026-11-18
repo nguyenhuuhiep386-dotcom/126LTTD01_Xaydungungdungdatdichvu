@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   CS-15 quote card (Figma). Tap = CS-16. The server sends no skill name, so the line under the name is only the
-  years of experience. "Nhắn tin" stays hidden until chat (KH-4); "Chọn" then takes the whole row. An accepted quote
-  shows "Đã chọn" instead of the buttons.
+  years of experience. Buttons (Figma): "Nhắn tin" outlined + "Chọn" filled. "Nhắn tin" only when the quote has a
+  conversation (KH-4); a quote that cannot be chosen keeps only "Nhắn tin", which then takes the whole row (the gap
+  sits on "Chọn"). An accepted quote also shows "Đã chọn".
 -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -143,7 +144,6 @@
                 style="@style/Widget.Servio.Button.Outlined"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/space_m"
                 android:layout_weight="1"
                 android:text="@string/quote_chat"
                 android:visibility="gone"
@@ -156,6 +156,7 @@
                 style="@style/Widget.Servio.Button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_m"
                 android:layout_weight="1"
                 android:text="@string/quote_select" />
         </LinearLayout>

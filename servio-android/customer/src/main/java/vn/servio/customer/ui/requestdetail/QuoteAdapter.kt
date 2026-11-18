@@ -32,6 +32,7 @@ class QuoteAdapter(
     private val images: RemoteImages,
     private val onOpen: (CustomerQuote) -> Unit,
     private val onSelect: (CustomerQuote) -> Unit,
+    private val onChat: (conversationId: String) -> Unit,
 ) : ListAdapter<QuoteAdapter.Row, QuoteAdapter.ViewHolder>(Diff) {
 
     data class Row(val quote: CustomerQuote, val selectable: Boolean)
@@ -61,7 +62,13 @@ class QuoteAdapter(
             noteText.isVisible = !quote.note.isNullOrBlank()
             noteText.text = context.getString(R.string.quote_note, quote.note.orEmpty().trim())
             acceptedText.isVisible = quote.status == QuoteStatus.ACCEPTED
-            actions.isVisible = selectable
+            // "Nhắn tin" opens the conversation #42 already carries (created with the quote); no #56.
+            val conversationId = quote.conversationId
+            val buttons = QuoteActions.of(selectable, conversationId)
+            chatButton.isVisible = buttons.chat
+            selectButton.isVisible = buttons.select
+            actions.isVisible = buttons.row
+            chatButton.setOnClickListener { conversationId?.let(onChat) }
             selectButton.setOnClickListener { onSelect(quote) }
             root.setOnClickListener { onOpen(quote) }
         }
