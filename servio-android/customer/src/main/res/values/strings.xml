@@ -115,8 +115,23 @@
     <string name="quote_select_this">Chọn báo giá này</string>
     <string name="quote_view_profile">Xem hồ sơ đầy đủ</string>
     <string name="quote_gone">Báo giá này không còn nữa</string>
-    <!-- CS-17 is still a placeholder: it shows what it was opened with. -->
-    <string name="quote_partner_placeholder">partnerId: %1$s</string>
+
+    <!-- CS-17 Hồ sơ đối tác (#27, #28) -->
+    <string name="partner_profile_title">Hồ sơ đối tác</string>
+    <string name="partner_profile_review_count">%1$d đánh giá</string>
+    <string name="partner_profile_no_rating">–</string>
+    <string name="partner_profile_no_rating_label">Chưa có đánh giá</string>
+    <string name="partner_profile_completed_label">đơn hoàn thành</string>
+    <string name="partner_profile_years">%1$d năm</string>
+    <string name="partner_profile_years_new">&lt; 1 năm</string>
+    <string name="partner_profile_experience_label">kinh nghiệm</string>
+    <string name="partner_profile_about">Giới thiệu</string>
+    <string name="partner_profile_reviews">Đánh giá gần đây</string>
+    <string name="partner_profile_no_reviews">Chưa có đánh giá nào</string>
+    <string name="partner_profile_stars">%1$d trên 5 sao</string>
+    <string name="partner_profile_not_found_title">Không xem được hồ sơ</string>
+    <string name="partner_profile_not_found_message">Hồ sơ này không tồn tại hoặc bạn chưa có báo giá, tin nhắn hay đơn hàng nào với đối tác này.</string>
+    <string name="partner_profile_quote_for">Báo giá cho %1$s</string>
 
     <!-- CS-18 Xác nhận đặt dịch vụ (#43) -->
     <string name="confirm_quote_title">Xác nhận đặt dịch vụ</string>

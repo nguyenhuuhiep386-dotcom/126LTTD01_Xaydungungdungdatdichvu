@@ -141,27 +141,19 @@
 
         <fragment
             android:id="@+id/cs17"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.partner.PartnerProfileFragment"
             android:label="CS-17 Hồ sơ công khai đối tác">
-            <!-- Set by CS-16 "Xem hồ sơ". -->
+            <!-- Set by CS-16 "Xem hồ sơ đầy đủ". requestId + quoteId only when that quote can be chosen (bottom bar). -->
             <argument
                 android:name="partnerId"
                 android:defaultValue=""
                 app:argType="string" />
             <argument
-                android:name="code"
-                android:defaultValue="CS-17"
+                android:name="requestId"
+                android:defaultValue=""
                 app:argType="string" />
             <argument
-                android:name="title"
-                android:defaultValue="Hồ sơ công khai đối tác"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="GET /partners/{id} (#27), đánh giá (#28)"
-                app:argType="string" />
-            <argument
-                android:name="links"
+                android:name="quoteId"
                 android:defaultValue=""
                 app:argType="string" />
         </fragment>
