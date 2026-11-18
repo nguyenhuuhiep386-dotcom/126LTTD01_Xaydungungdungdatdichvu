@@ -429,6 +429,25 @@
     <string name="order_actor_system">Hệ thống</string>
     <string name="order_actor_admin">Quản trị viên</string>
     <string name="order_step_separator">" · "</string>
+    <string name="order_step_pending_charges">%1$d phát sinh chờ duyệt</string>
+    <string name="order_detail_pending_charges">Có %1$d chi phí phát sinh chờ bạn duyệt</string>
+
+    <!-- CS-22 Duyệt chi phí phát sinh -->
+    <string name="extra_charge_title">Đối tác đề xuất chi phí phát sinh</string>
+    <string name="extra_charge_order">Đơn #%1$s</string>
+    <string name="extra_charge_evidence">Ảnh chứng từ của khoản phát sinh</string>
+    <string name="extra_charge_quoted">Giá báo</string>
+    <string name="extra_charge_approved_extras">Phát sinh đã duyệt</string>
+    <string name="extra_charge_this">Phát sinh này</string>
+    <string name="extra_charge_plus">+%1$s</string>
+    <string name="extra_charge_new_total">Tổng mới</string>
+    <string name="extra_charge_note">Nếu từ chối, khoản này không được tính vào tổng tiền. Bạn có thể nhắn tin hỏi thêm trước khi quyết định.</string>
+    <string name="extra_charge_reject">Từ chối</string>
+    <string name="extra_charge_approve">Duyệt %1$s</string>
+    <string name="extra_charge_approved_done">Đã duyệt phát sinh %1$s</string>
+    <string name="extra_charge_rejected_done">Đã từ chối phát sinh</string>
+    <string name="extra_charge_handled">Khoản này đã được xử lý hoặc đơn đã đổi trạng thái</string>
+    <string name="extra_charge_disputed">Đơn đang khiếu nại nên chưa duyệt được</string>
     <string name="order_cancel_free">Huỷ đơn (miễn phí)</string>
     <string name="order_cancel">Huỷ đơn</string>
 

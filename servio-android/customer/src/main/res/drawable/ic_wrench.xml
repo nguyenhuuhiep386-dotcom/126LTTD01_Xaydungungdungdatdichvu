@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Order chip IN_PROGRESS (CS-19, CS-20): wrench, same 2 px stroke as ic_clock. Tinted by OrderStatusChip. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M14.7,6.3a1,1 0,0 0,0 1.4l1.6,1.6a1,1 0,0 0,1.4 0l3.77,-3.77a6,6 0,0 1,-7.94 7.94l-6.91,6.91a2.12,2.12 0,0 1,-3 -3l6.91,-6.91a6,6 0,0 1,7.94 -7.94l-3.76,3.76z"
+        android:strokeWidth="2"
+        android:strokeColor="@color/servio_text_primary"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

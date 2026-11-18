@@ -14,9 +14,11 @@ import vn.servio.customer.data.model.CancelPreview
 import vn.servio.customer.data.model.CancelResult
 import vn.servio.customer.data.model.CreatedOrder
 import vn.servio.customer.data.model.CustomerWallet
+import vn.servio.customer.data.model.ExtraCharge
 import vn.servio.customer.data.model.OrderDetail
 import vn.servio.customer.data.model.OrderSummary
 import vn.servio.customer.data.model.RespondArrivalBody
+import vn.servio.customer.data.model.RespondExtraChargeBody
 import vn.servio.customer.data.model.Tracking
 
 /** Orders of the signed-in customer (BE-4). Paths are relative to BASE_URL + "api/v1/". */
@@ -62,6 +64,17 @@ interface OrderApi {
         @Path("requestId") requestId: String,
         @Body body: RespondArrivalBody,
     ): ApiResponse<ArrivalConfirmation>
+
+    /**
+     * #74 approve or reject an extra charge. 409 INVALID_STATUS_TRANSITION when it was already answered or the work is
+     * no longer ARRIVED / IN_PROGRESS, 409 ORDER_DISPUTED, 409 CONFLICT on a concurrent answer, 404 NOT_FOUND.
+     */
+    @POST("orders/{id}/extra-charges/{ecId}/respond")
+    suspend fun respondExtraCharge(
+        @Path("id") orderId: String,
+        @Path("ecId") extraChargeId: String,
+        @Body body: RespondExtraChargeBody,
+    ): ApiResponse<ExtraCharge>
 
     @GET("wallet/me")
     suspend fun getWallet(): ApiResponse<CustomerWallet>

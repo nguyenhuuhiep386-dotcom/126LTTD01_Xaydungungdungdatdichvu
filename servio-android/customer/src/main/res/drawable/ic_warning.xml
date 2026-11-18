@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-20 "Có N chi phí phát sinh chờ bạn duyệt": warning triangle, same 2 px stroke as ic_clock. Tinted in code. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M10.29,3.86L1.82,18a2,2 0,0 0,1.71 3h16.94a2,2 0,0 0,1.71 -3L13.71,3.86a2,2 0,0 0,-3.42 0z"
+        android:strokeWidth="2"
+        android:strokeColor="@color/servio_text_primary"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M12,9v4M12,17h0.01"
+        android:strokeWidth="2"
+        android:strokeColor="@color/servio_text_primary"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

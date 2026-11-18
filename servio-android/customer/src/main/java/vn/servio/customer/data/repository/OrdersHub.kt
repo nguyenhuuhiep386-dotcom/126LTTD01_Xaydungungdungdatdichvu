@@ -73,6 +73,7 @@ class OrdersHub @Inject constructor(
         const val EVENT_ORDER_STATUS_CHANGED = "OrderStatusChanged"
         const val EVENT_PARTNER_LOCATION_UPDATED = "PartnerLocationUpdated"
         const val EVENT_ARRIVAL_CONFIRMATION_REQUESTED = "ArrivalConfirmationRequested"
+        const val EVENT_EXTRA_CHARGE_REQUESTED = "ExtraChargeRequested"
 
         /** Every event of /hubs/orders the customer app uses. A new one must be added here, never listened elsewhere. */
         val EVENTS = listOf(
@@ -81,6 +82,7 @@ class OrdersHub @Inject constructor(
             EVENT_ORDER_STATUS_CHANGED,
             EVENT_PARTNER_LOCATION_UPDATED,
             EVENT_ARRIVAL_CONFIRMATION_REQUESTED,
+            EVENT_EXTRA_CHARGE_REQUESTED,
         )
 
         private const val BUFFER = 64

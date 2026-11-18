@@ -20,7 +20,12 @@ import org.junit.Before
 import org.junit.Test
 import vn.servio.core.network.ApiResult
 import vn.servio.core.network.PagedResult
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import vn.servio.customer.data.model.CancelPreview
+import vn.servio.customer.data.model.ExtraCharge
+import vn.servio.customer.data.model.ExtraChargeStatus
+import vn.servio.customer.ui.orderdetail.OrderDetailViewModel.Event
 import vn.servio.customer.data.model.OrderAssignment
 import vn.servio.customer.data.model.OrderDetail
 import vn.servio.customer.data.model.OrderParty
@@ -182,6 +187,105 @@ class OrderDetailViewModelTest {
         advanceUntilIdle()
         assertEquals(2, server.trackingCalls)
         assertNull(vm.state.value.tracking)
+    }
+
+    private val charge = ExtraCharge(id = "ec1", assignmentId = "a1", description = "Thay tụ", amount = 120_000, status = ExtraChargeStatus.PENDING, createdAt = "2026-11-18T08:00:00Z")
+
+    private fun withCharge(vararg charges: ExtraCharge) = order(OrderStatus.IN_PROGRESS).copy(extraCharges = charges.toList())
+
+    private fun TestScope.collect(vm: OrderDetailViewModel): MutableList<Event> =
+        mutableListOf<Event>().also { events -> backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.events.collect { events += it } } }
+
+    @Test
+    fun `approving marks the charge at once, says so and reloads for the server totals`() = runTest(dispatcher) {
+        val server = FakeOrderRepository().apply {
+            order = ApiResult.Success(withCharge(charge))
+            chargeAnswers += ApiResult.Success(charge.copy(status = ExtraChargeStatus.APPROVED))
+        }
+        val vm = viewModel(server)
+        val events = collect(vm)
+        assertEquals("ec1", vm.state.value.chargeToOpen(includeClosed = false)?.id)
+
+        server.order = ApiResult.Success(withCharge(charge.copy(status = ExtraChargeStatus.APPROVED)))
+        vm.answerCharge("ec1", approved = true)
+        assertEquals("ec1", vm.state.value.answeringCharge)
+        vm.answerCharge("ec1", approved = false) // second tap while running: ignored
+        advanceUntilIdle()
+        assertEquals(listOf("ec1" to true), server.chargeCalls)
+        assertEquals(listOf<Event>(Event.ChargeAnswered(approved = true, amount = 120_000)), events)
+        assertNull(vm.state.value.answeringCharge)
+        assertNull(vm.state.value.chargeToOpen(includeClosed = true))
+        assertEquals(2, server.orderCalls)
+    }
+
+    @Test
+    fun `a 409 or 404 closes the sheet with its message and reloads, the charge held until then`() = runTest(dispatcher) {
+        listOf(
+            "INVALID_STATUS_TRANSITION" to OrderDetailUi.ChargeFailure.HANDLED,
+            "ORDER_DISPUTED" to OrderDetailUi.ChargeFailure.DISPUTED,
+            "NOT_FOUND" to OrderDetailUi.ChargeFailure.NOT_FOUND,
+        ).forEach { (code, failure) ->
+            val server = FakeOrderRepository().apply {
+                order = ApiResult.Success(withCharge(charge))
+                chargeAnswers += ApiResult.Failure(code, "x")
+            }
+            val vm = viewModel(server)
+            val events = collect(vm)
+            val states = mutableListOf<OrderDetailViewModel.State>()
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect { states += it } }
+            vm.answerCharge("ec1", approved = false)
+            advanceUntilIdle()
+            assertEquals(listOf<Event>(Event.ChargeFailed(failure)), events)
+            val held = states.single { it.heldCharge != null }
+            assertEquals("ec1", held.heldCharge)
+            assertNull(held.chargeToOpen(includeClosed = true)) // the sheet closes and does not reopen at once
+            assertEquals(2, server.orderCalls)
+            assertNull(vm.state.value.heldCharge) // the reload decides again
+        }
+    }
+
+    @Test
+    fun `another error keeps the sheet with the message and the buttons on`() = runTest(dispatcher) {
+        val server = FakeOrderRepository().apply {
+            order = ApiResult.Success(withCharge(charge))
+            chargeAnswers += ApiResult.Failure("NETWORK_ERROR", "Không có kết nối mạng")
+        }
+        val vm = viewModel(server)
+        val events = collect(vm)
+        vm.answerCharge("ec1", approved = true)
+        advanceUntilIdle()
+        assertTrue(events.isEmpty())
+        assertEquals("Không có kết nối mạng", vm.state.value.chargeError)
+        assertNull(vm.state.value.answeringCharge)
+        assertEquals("ec1", vm.state.value.chargeToOpen(includeClosed = false)?.id)
+        assertEquals(1, server.orderCalls)
+    }
+
+    @Test
+    fun `a closed charge is kept closed across a rotation and a reload`() = runTest(dispatcher) {
+        val second = charge.copy(id = "ec2", createdAt = "2026-11-18T08:05:00Z")
+        val server = FakeOrderRepository().apply { order = ApiResult.Success(withCharge(charge, second)) }
+        val handle = SavedStateHandle(mapOf("orderId" to orderId))
+        val vm = OrderDetailViewModel(handle, server, Partners(), FakeOrderUpdates()).also { it.load(); advanceUntilIdle() }
+        vm.chargeClosed("ec1")
+        assertEquals("ec2", vm.state.value.chargeToOpen(includeClosed = false)?.id)
+        assertEquals("ec1", vm.state.value.chargeToOpen(includeClosed = true)?.id)
+
+        val restored = OrderDetailViewModel(handle, server, Partners(), FakeOrderUpdates()).also { it.load(); advanceUntilIdle() }
+        assertEquals(setOf("ec1"), restored.state.value.closedCharges)
+        assertEquals("ec2", restored.state.value.chargeToOpen(includeClosed = false)?.id)
+    }
+
+    @Test
+    fun `an extra charge request of this order reloads it`() = runTest(dispatcher) {
+        val server = FakeOrderRepository().apply { order = ApiResult.Success(withCharge()) }
+        val updates = FakeOrderUpdates()
+        val vm = viewModel(server, updates = updates)
+        assertNull(vm.state.value.chargeToOpen(includeClosed = false))
+        server.order = ApiResult.Success(withCharge(charge))
+        updates.events.emit(orderId) // HubOrderUpdates.changes() also carries ExtraChargeRequested
+        advanceUntilIdle()
+        assertEquals("ec1", vm.state.value.chargeToOpen(includeClosed = false)?.id)
     }
 
     @Test

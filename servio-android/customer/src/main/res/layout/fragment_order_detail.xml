@@ -3,7 +3,8 @@
   CS-20 Chi tiết đơn hàng (Figma 18:2121 PENDING, 18:2208 ON_THE_WAY). Top: the yellow banner (PENDING, red for a
   dispute) or a white card with the status chip and one line. Then the partner row, "Thông tin công việc",
   "Tiến trình" and the cancel text button. The ⋮ of Figma has no action yet, so it is not shown.
-  KH-5 part 1: no ETA and no "Theo dõi đường đi" yet; no "Gửi khiếu nại" (KH-7).
+  ETA and "Theo dõi đường đi" while ON_THE_WAY; the pending extra charges line (CS-22) while ARRIVED / IN_PROGRESS;
+  no "Gửi khiếu nại" (KH-7).
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -136,6 +137,29 @@
                                 android:textAppearance="@style/TextAppearance.Servio.Caption"
                                 android:visibility="gone"
                                 tools:text="Cập nhật lúc 13:52 · cách 3,2 km"
+                                tools:visibility="visible" />
+
+                            <!-- ARRIVED / IN_PROGRESS with PENDING charges (Figma 18:2512): opens CS-22 on the oldest one. -->
+                            <TextView
+                                android:id="@+id/chargeWarning"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_m"
+                                android:background="@drawable/bg_order_banner"
+                                android:drawablePadding="@dimen/space_s"
+                                android:foreground="?attr/selectableItemBackground"
+                                android:gravity="center_vertical"
+                                android:minHeight="48dp"
+                                android:paddingHorizontal="@dimen/space_m"
+                                android:paddingVertical="@dimen/space_s"
+                                android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                                android:textColor="@color/servio_text_accent"
+                                android:textStyle="bold"
+                                android:visibility="gone"
+                                app:drawableEndCompat="@drawable/ic_chevron_right"
+                                app:drawableStartCompat="@drawable/ic_warning"
+                                app:drawableTint="@color/servio_text_accent"
+                                tools:text="Có 1 chi phí phát sinh chờ bạn duyệt"
                                 tools:visibility="visible" />
 
                             <com.google.android.material.button.MaterialButton

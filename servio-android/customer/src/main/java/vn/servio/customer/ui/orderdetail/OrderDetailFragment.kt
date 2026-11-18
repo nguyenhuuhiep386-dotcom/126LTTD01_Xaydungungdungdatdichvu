@@ -49,7 +49,8 @@ import vn.servio.customer.ui.requestdetail.QuoteTexts
 import javax.inject.Inject
 
 /**
- * CS-20 Chi tiết đơn hàng (every status; ETA while ON_THE_WAY, CS-21 behind "Theo dõi đường đi", CS-20b through [ArrivalPrompt]). What is shown per status is decided in
+ * CS-20 Chi tiết đơn hàng (every status; ETA while ON_THE_WAY, CS-21 behind "Theo dõi đường đi", CS-20b through [ArrivalPrompt],
+ * CS-22 [ExtraChargeSheet] for pending extra charges). What is shown per status is decided in
  * [OrderDetailUi]; this class only formats. "Huỷ đơn" opens [CancelOrderDialogFragment] (CS-20c), which answers
  * through a fragment result.
  */
@@ -119,8 +120,25 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
             }
         }
         collectWhenStarted(viewModel.events) { event ->
-            when (event) {
-                is OrderDetailViewModel.Event.Message -> Snackbar.make(binding.root, event.text, Snackbar.LENGTH_LONG).show()
+            val text = when (event) {
+                is OrderDetailViewModel.Event.Message -> event.text
+                is OrderDetailViewModel.Event.ChargeAnswered ->
+                    if (event.approved) getString(R.string.extra_charge_approved_done, OrderFormat.money(requireContext(), event.amount))
+                    else getString(R.string.extra_charge_rejected_done)
+                is OrderDetailViewModel.Event.ChargeFailed -> when (event.failure) {
+                    OrderDetailUi.ChargeFailure.HANDLED -> getString(R.string.extra_charge_handled)
+                    OrderDetailUi.ChargeFailure.DISPUTED -> getString(R.string.extra_charge_disputed)
+                    // 404: the reload shows where the order stands; OTHER never comes here (the sheet keeps it).
+                    OrderDetailUi.ChargeFailure.NOT_FOUND, OrderDetailUi.ChargeFailure.OTHER -> null
+                }
+            }
+            text?.let { Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show() }
+        }
+        // CS-22 opens by itself while CS-20 is resumed: on resume and after each #63 answer (ExtraChargeRequested
+        // reloads it), with the oldest pending charge the customer has not closed in this visit.
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.state.collect { showCharge(fromWarning = false) }
             }
         }
 
@@ -211,6 +229,10 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
                 binding.banner.isVisible = false
                 binding.statusCard.isVisible = true
                 OrderStatusChip.bind(binding.statusChip, area.status)
+                val pendingCharges = OrderDetailUi.pendingCharges(order).size
+                binding.chargeWarning.isVisible = pendingCharges > 0
+                binding.chargeWarning.text = getString(R.string.order_detail_pending_charges, pendingCharges)
+                binding.chargeWarning.setOnClickListener { showCharge(fromWarning = true) }
                 val tracked = area.status == OrderStatus.ON_THE_WAY
                 binding.etaLine.isVisible = false
                 binding.trackButton.isVisible = tracked && order.primary != null
@@ -374,7 +396,10 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
     }
 
     private fun stepNote(note: Note, weekdays: List<String>): String? = when (note) {
-        is Note.At -> OrderTexts.moment(note.at, weekdays)
+        is Note.At -> listOfNotNull(
+            OrderTexts.moment(note.at, weekdays),
+            note.pendingCharges.takeIf { it > 0 }?.let { getString(R.string.order_step_pending_charges, it) },
+        ).takeIf { it.isNotEmpty() }?.joinToString(getString(R.string.order_step_separator))
         is Note.ExpiresAt -> OrderTexts.time(note.at)?.let { getString(R.string.order_step_expires_at, it) }
         is Note.AwaitingConfirm -> OrderTexts.moment(note.autoConfirmAt, weekdays)
             ?.let { getString(R.string.order_step_awaiting_confirm, it) }
@@ -415,6 +440,23 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         val navController = findNavController()
         if (navController.currentDestination?.id != R.id.cs20) return
         navController.navigate(R.id.cs21, bundleOf(OrderTrackingViewModel.ARG_ORDER_ID to viewModel.orderId, OrderTrackingViewModel.ARG_ASSIGNMENT_ID to assignmentId))
+    }
+
+    /**
+     * CS-22 on the oldest pending charge: by itself only while resumed and skipping the charges closed in this visit;
+     * from the warning line also a closed one. Never two sheets, never over a saved state.
+     */
+    private fun showCharge(fromWarning: Boolean) {
+        if (!isResumed) return
+        val manager = childFragmentManager
+        if (manager.isStateSaved || manager.findFragmentByTag(ExtraChargeSheet.TAG) != null) return
+        val charge = viewModel.state.value.chargeToOpen(includeClosed = fromWarning) ?: return
+        ExtraChargeSheet.newInstance(charge.id).show(manager, ExtraChargeSheet.TAG)
+    }
+
+    /** The sheet went away (answered, closed, no longer pending): open the next pending charge if there is one. */
+    fun onChargeSheetGone() {
+        view?.post { showCharge(fromWarning = false) }
     }
 
     /** CS-23 is still a placeholder (KH-6). */

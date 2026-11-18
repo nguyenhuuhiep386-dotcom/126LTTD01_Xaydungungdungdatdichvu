@@ -26,7 +26,7 @@ object OrderStatusChip {
         OrderStatus.ACCEPTED -> Look(R.string.order_status_accepted, Tone.ACTIVE, R.drawable.ic_check)
         OrderStatus.ON_THE_WAY -> Look(R.string.order_status_on_the_way, Tone.ACTIVE, R.drawable.ic_navigation)
         OrderStatus.ARRIVED -> Look(R.string.order_status_arrived, Tone.ACTIVE, R.drawable.ic_pin)
-        OrderStatus.IN_PROGRESS -> Look(R.string.order_status_in_progress, Tone.ACTIVE, R.drawable.ic_clock)
+        OrderStatus.IN_PROGRESS -> Look(R.string.order_status_in_progress, Tone.ACTIVE, R.drawable.ic_wrench)
         OrderStatus.COMPLETED_BY_PARTNER -> Look(R.string.order_status_completed_by_partner, Tone.ACTIVE, R.drawable.ic_check)
         OrderStatus.COMPLETED -> Look(R.string.order_status_completed, Tone.CLOSED, R.drawable.ic_check)
         OrderStatus.CANCELLED -> Look(R.string.order_status_cancelled, Tone.CLOSED, null)

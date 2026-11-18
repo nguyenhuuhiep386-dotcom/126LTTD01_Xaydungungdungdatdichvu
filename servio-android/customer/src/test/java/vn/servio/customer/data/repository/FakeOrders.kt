@@ -9,6 +9,7 @@ import vn.servio.customer.data.model.ArrivalConfirmation
 import vn.servio.customer.data.model.CancelPreview
 import vn.servio.customer.data.model.CancelResult
 import vn.servio.customer.data.model.CreatedOrder
+import vn.servio.customer.data.model.ExtraCharge
 import vn.servio.customer.data.model.OrderDetail
 import vn.servio.customer.data.model.OrderListFilter
 import vn.servio.customer.data.model.OrderSummary
@@ -53,6 +54,15 @@ class FakeOrderRepository : OrderRepository {
     }
 
     override suspend fun cancelDebtLimit(): ApiResult<Long?> = debtLimit
+
+    /** Answers of #74 in order; the last one repeats. */
+    val chargeAnswers = ArrayDeque<ApiResult<ExtraCharge>>()
+    val chargeCalls = mutableListOf<Pair<String, Boolean>>()
+
+    override suspend fun respondExtraCharge(orderId: String, extraChargeId: String, approved: Boolean): ApiResult<ExtraCharge> {
+        chargeCalls += extraChargeId to approved
+        return if (chargeAnswers.size > 1) chargeAnswers.removeFirst() else chargeAnswers.first()
+    }
 
     /** Answer of #76 for any assignment. */
     var tracking: ApiResult<Tracking?> = ApiResult.Success(null)
