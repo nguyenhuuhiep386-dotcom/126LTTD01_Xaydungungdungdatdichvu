@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +23,7 @@ import vn.servio.customer.data.model.QuoteStatus
 import vn.servio.customer.data.model.ServiceRequestDetail
 import vn.servio.customer.data.model.ServiceRequestStatus
 import vn.servio.customer.data.repository.PartnerRepository
+import vn.servio.customer.data.repository.QuoteUpdates
 import vn.servio.customer.data.repository.ServiceRequestRepository
 import javax.inject.Inject
 
@@ -29,8 +31,10 @@ import javax.inject.Inject
  * CS-15 (request + quotes) and CS-16 (one quote, read from [State.quotes]). Scoped to the cs15 back stack entry so
  * the CS-16 sheet shares it.
  *
- * No SignalR client yet: quotes are reloaded over REST when the screen is opened, returned to, pulled down or
- * re-sorted. NewQuote / QuoteWithdrawn only have to call [reloadQuotes] later.
+ * Quotes are reloaded over REST when the screen is opened, returned to, pulled down or re-sorted, and live: NewQuote,
+ * QuoteWithdrawn of this request and hub reconnects ([QuoteUpdates]) reload #42 in the current sort, coalesced
+ * (see [refreshFromHub]). A withdrawn quote that CS-16 shows then leaves the list, so the sheet closes with
+ * [Event.QuoteGone] as before.
  */
 @HiltViewModel
 class RequestDetailViewModel @Inject constructor(
@@ -38,9 +42,15 @@ class RequestDetailViewModel @Inject constructor(
     private val repository: ServiceRequestRepository,
     private val partnerRepository: PartnerRepository,
     private val categoryRepository: CategoryRepository,
+    private val quoteUpdates: QuoteUpdates,
 ) : ViewModel() {
 
     val requestId: String = savedStateHandle.get<String>(ARG_REQUEST_ID).orEmpty()
+
+    /**
+     * Pending live reload. Conflated: any number of events while one is waiting or running leaves exactly one more.
+     */
+    private val hubSignals = Channel<Unit>(Channel.CONFLATED)
 
     /**
      * [detail] and [quotes] are null until their first successful load. [error] is set only while one of them is
@@ -89,6 +99,21 @@ class RequestDetailViewModel @Inject constructor(
     private var loadJob: Job? = null
     private var quotesJob: Job? = null
     private val loadingPartners = mutableSetOf<String>()
+
+    init {
+        if (requestId.isNotEmpty()) {
+            // The hub is shared with other screens: it is not stopped when this ViewModel goes away.
+            viewModelScope.launch { quoteUpdates.changes(requestId).collect { hubSignals.trySend(Unit) } }
+            viewModelScope.launch {
+                for (signal in hubSignals) {
+                    // Events within the window are answered by the same call.
+                    delay(LIVE_RELOAD_WINDOW_MILLIS)
+                    hubSignals.tryReceive()
+                    refreshFromHub()
+                }
+            }
+        }
+    }
 
     /** Request and quotes together. What is already on screen stays there if this fails. */
     fun load() {
@@ -160,6 +185,26 @@ class RequestDetailViewModel @Inject constructor(
         }
     }
 
+    /**
+     * One live reload of #42, never two at once (the loop above waits for it; an event during the call queues one
+     * more). Silent: no spinner, and a failure keeps the list (the next event or reconnect tries again). Without a
+     * first successful load it runs the full [load] instead. A result is dropped if the customer re-sorted or another
+     * reload started meanwhile, since that one answers with fresher data.
+     */
+    private suspend fun refreshFromHub() {
+        loadJob?.takeIf { it.isActive }?.join()
+        if (!_state.value.hasContent) {
+            load()
+            loadJob?.join()
+            return
+        }
+        val sort = _state.value.sort
+        val result = repository.getQuotes(requestId, sort)
+        if (result is ApiResult.Success && _state.value.sort == sort && quotesJob?.isActive != true && loadJob?.isActive != true) {
+            _state.update { it.copy(quotes = result.data.items) }
+        }
+    }
+
     fun setSort(sort: QuoteSort) {
         if (sort != _state.value.sort) reloadQuotes(sort)
     }
@@ -189,5 +234,8 @@ class RequestDetailViewModel @Inject constructor(
     companion object {
         const val ARG_REQUEST_ID = "requestId"
         const val INVALID_STATUS_TRANSITION = "INVALID_STATUS_TRANSITION"
+
+        /** Live events closer together than this give one #42 call. */
+        const val LIVE_RELOAD_WINDOW_MILLIS = 500L
     }
 }
