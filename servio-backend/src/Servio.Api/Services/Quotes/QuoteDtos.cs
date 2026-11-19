@@ -51,7 +51,10 @@ public sealed record CustomerQuoteDto(
     QuotePartnerDto Partner,
     DateTimeOffset CreatedAt);
 
-/// <summary>Partner info shown on a quote card (CS-15/CS-16). Phone and exact location are never included.</summary>
+/// <summary>
+/// Partner info shown on a quote card (CS-15/CS-16). Phone and exact location are never included. skillName and
+/// yearsOfExperience are for the category of the post; identityVerified = KYC approved by an admin.
+/// </summary>
 public sealed record QuotePartnerDto(
     Guid Id,
     string FullName,
@@ -59,7 +62,9 @@ public sealed record QuotePartnerDto(
     decimal? AverageRating,
     int TotalReviews,
     int CompletedOrders,
+    string SkillName,
     int YearsOfExperience,
+    bool IdentityVerified,
     double? DistanceKm);
 
 public enum QuoteSort { Time, Price, Rating }

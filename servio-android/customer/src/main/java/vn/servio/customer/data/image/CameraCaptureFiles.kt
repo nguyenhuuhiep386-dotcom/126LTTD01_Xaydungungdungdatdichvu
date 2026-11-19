@@ -8,26 +8,36 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/** The part of [CameraCaptureFiles] a screen with one photo needs (CS-30), as an interface so its ViewModel can be tested. */
+interface CaptureFiles {
+    fun create(): Uri
+
+    fun hasContent(uri: Uri): Boolean
+
+    fun delete(uri: Uri)
+}
+
 /**
- * Temporary photos taken with the camera on CS-08, in the app cache (`cache/camera/`, see res/xml/file_paths.xml).
- * The camera app writes through a FileProvider uri; the files are deleted with the image or when the draft is dropped.
+ * Temporary photos taken with the camera on CS-08 and CS-30, in the app cache (`cache/camera/`, see
+ * res/xml/file_paths.xml). The camera app writes through a FileProvider uri; the files are deleted with the image or
+ * when the draft is dropped.
  */
 @Singleton
 class CameraCaptureFiles @Inject constructor(
     @param:ApplicationContext private val context: Context,
-) {
+) : CaptureFiles {
     private val dir: File get() = File(context.cacheDir, DIR).apply { mkdirs() }
 
     /** A new empty file for TakePicture, as a content:// uri the camera app may write to. */
-    fun create(): Uri {
+    override fun create(): Uri {
         val file = File.createTempFile("capture_", ".jpg", dir)
         return FileProvider.getUriForFile(context, "${context.packageName}$AUTHORITY_SUFFIX", file)
     }
 
     /** False when the camera returned without writing anything. */
-    fun hasContent(uri: Uri): Boolean = fileOf(uri)?.let { it.length() > 0 } ?: false
+    override fun hasContent(uri: Uri): Boolean = fileOf(uri)?.let { it.length() > 0 } ?: false
 
-    fun delete(uri: Uri) {
+    override fun delete(uri: Uri) {
         fileOf(uri)?.delete()
     }
 

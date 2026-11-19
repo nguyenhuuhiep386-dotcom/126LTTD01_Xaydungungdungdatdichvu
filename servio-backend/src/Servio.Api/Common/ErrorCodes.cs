@@ -61,6 +61,10 @@ public static class ErrorCodes
     public const string DisputeAlreadyOpen = "DISPUTE_ALREADY_OPEN";
     public const string UnpaidReportWindowClosed = "UNPAID_REPORT_WINDOW_CLOSED";
 
+    // Personal data (Luật 91/2025)
+    public const string ConsentRequired = "CONSENT_REQUIRED";
+    public const string AccountDeletionBlocked = "ACCOUNT_DELETION_BLOCKED";
+
     // Files (POST /files)
     public const string FileNotReady = "FILE_NOT_READY";
     public const string FileTooLarge = "FILE_TOO_LARGE";
@@ -77,4 +81,6 @@ public static class ErrorCodes
     public const string OrderNotCancellable = "ORDER_NOT_CANCELLABLE";
     public const string ReviewAlreadySubmitted = "REVIEW_ALREADY_SUBMITTED";
     public const string OutstandingDebt = "OUTSTANDING_DEBT";
+    /// <summary>The customer has an order in AWAITING_PAYMENT (#177): pay the partner before posting again.</summary>
+    public const string UnpaidOrder = "UNPAID_ORDER";
 }

@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CS-15 Chi tiết yêu cầu & báo giá (Figma): the request card, then "Báo giá (N)" with one sort chip and the quote
+  cards (one #42 call, sorted by the server). The error group is only for the first load; later failures are a
+  snackbar over the content. Not in Figma, kept as built: the empty text, the cancel reason, the error group.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:menu="@menu/request_detail_actions"
+        app:navigationContentDescription="@string/action_back"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="@string/request_detail_title" />
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/screen_padding"
+                android:paddingTop="@dimen/space_s"
+                android:paddingBottom="@dimen/screen_padding">
+
+                <LinearLayout
+                    android:id="@+id/content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <!-- region Bài của tôi -->
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/space_l">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <!-- First photo of the request, or the icon when it has none. -->
+                                <com.google.android.material.card.MaterialCardView
+                                    android:layout_width="72dp"
+                                    android:layout_height="72dp"
+                                    app:cardBackgroundColor="@color/servio_surface_variant"
+                                    app:shapeAppearance="@style/ShapeAppearance.Servio.Medium"
+                                    app:strokeWidth="0dp">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:layout_gravity="center"
+                                        android:importantForAccessibility="no"
+                                        android:src="@drawable/ic_image"
+                                        app:tint="@color/servio_text_secondary" />
+
+                                    <ImageView
+                                        android:id="@+id/thumbnail"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:importantForAccessibility="no"
+                                        android:scaleType="centerCrop" />
+                                </com.google.android.material.card.MaterialCardView>
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="@dimen/space_m"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:id="@+id/titleText"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:ellipsize="end"
+                                        android:maxLines="2"
+                                        android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                                        android:textStyle="bold"
+                                        tools:text="Máy lạnh chảy nước, kém lạnh" />
+
+                                    <TextView
+                                        android:id="@+id/categoryText"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                                        tools:text="Điện lạnh · Sửa máy lạnh" />
+
+                                    <TextView
+                                        android:id="@+id/statusText"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/space_xs"
+                                        android:background="@drawable/bg_status_chip"
+                                        android:drawablePadding="@dimen/space_xs"
+                                        android:gravity="center_vertical"
+                                        android:paddingHorizontal="@dimen/space_m"
+                                        android:paddingVertical="@dimen/space_xs"
+                                        android:textAppearance="@style/TextAppearance.Servio.Accent"
+                                        android:textStyle="bold"
+                                        app:drawableStartCompat="@drawable/ic_clock_accent"
+                                        tools:text="Đang nhận báo giá" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/timeText"
+                                style="@style/Widget.Servio.RequestInfoRow"
+                                android:layout_marginTop="@dimen/space_m"
+                                app:drawableStartCompat="@drawable/ic_calendar"
+                                tools:text="T7 17/10 · 14:00–16:00" />
+
+                            <TextView
+                                android:id="@+id/addressText"
+                                style="@style/Widget.Servio.RequestInfoRow"
+                                app:drawableStartCompat="@drawable/ic_pin"
+                                tools:text="12 Võ Văn Ngân, P. Linh Chiểu" />
+
+                            <TextView
+                                android:id="@+id/budgetText"
+                                style="@style/Widget.Servio.RequestInfoRow"
+                                app:drawableStartCompat="@drawable/ic_money"
+                                tools:text="Ngân sách 300.000 – 500.000 đ" />
+
+                            <TextView
+                                android:id="@+id/expiryText"
+                                style="@style/Widget.Servio.RequestInfoRow"
+                                app:drawableStartCompat="@drawable/ic_hourglass"
+                                tools:text="Hết hạn sau 22 giờ" />
+
+                            <TextView
+                                android:id="@+id/cancelReasonText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_s"
+                                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                                android:visibility="gone"
+                                tools:text="Lý do huỷ: Đã tự sửa được" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- endregion -->
+
+                    <!-- region Báo giá -->
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_l"
+                        android:gravity="center_vertical"
+                        android:minHeight="48dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/quotesTitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:accessibilityHeading="true"
+                            android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                            tools:text="Báo giá (3)" />
+
+                        <!-- One chip: shows the current order, opens the list of the three server orders. -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/sortButton"
+                            style="@style/Widget.Servio.Button.Outlined"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/request_detail_sort"
+                            android:minHeight="40dp"
+                            android:textAppearance="@style/TextAppearance.Servio.Label"
+                            app:backgroundTint="@color/servio_surface"
+                            app:icon="@drawable/ic_sort"
+                            app:iconTint="@color/servio_text_primary"
+                            app:shapeAppearance="@style/ShapeAppearance.Servio.Circle"
+                            app:strokeColor="@color/servio_divider"
+                            tools:text="Sớm nhất" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/quotesEmpty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:paddingVertical="@dimen/space_xl"
+                        android:text="@string/request_detail_quotes_empty"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        android:visibility="gone" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/quoteList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:nestedScrollingEnabled="false"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        tools:itemCount="2"
+                        tools:listitem="@layout/item_quote" />
+
+                    <!-- endregion -->
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/errorGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/errorText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/retryButton"
+                        style="@style/Widget.Servio.Button.Outlined"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:text="@string/action_retry" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</LinearLayout>

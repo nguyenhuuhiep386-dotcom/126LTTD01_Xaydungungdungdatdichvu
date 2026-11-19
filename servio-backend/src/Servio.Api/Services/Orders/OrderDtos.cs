@@ -42,9 +42,9 @@ public enum OrderListStatus { Active = 1, Completed = 2, Cancelled = 3 }
 
 /// <summary>
 /// The other side of the order. Phone numbers are only shown from ACCEPTED until the work is done (F-ORD-06). Before the
-/// partner accepts, they see the customer as "An N." like in the feed.
+/// partner accepts, they see the customer as "An N." like in the feed. totalReviews is filled for a partner.
 /// </summary>
-public sealed record OrderPartyDto(Guid? PartnerProfileId, string DisplayName, string? AvatarUrl, decimal? Rating, string? PhoneNumber);
+public sealed record OrderPartyDto(Guid? PartnerProfileId, string DisplayName, string? AvatarUrl, decimal? Rating, string? PhoneNumber, int? TotalReviews = null);
 
 /// <summary>Row of #62 (CS-24 / PS-13 tabs). earning is only filled for the partner.</summary>
 public sealed record OrderSummaryDto(
@@ -84,7 +84,11 @@ public sealed record AssignmentDto(
     DateTimeOffset? CancelledAt,
     string? CancelReason,
     IReadOnlyList<string> BeforeImages,
-    IReadOnlyList<string> AfterImages);
+    IReadOnlyList<string> AfterImages,
+    PendingArrivalDto? PendingArrivalConfirmation);
+
+/// <summary>A #178 request still waiting for the customer: answer it with #179 before expiresAt.</summary>
+public sealed record PendingArrivalDto(Guid RequestId, DateTimeOffset ExpiresAt);
 
 public sealed record ExtraChargeDto(
     Guid Id,
@@ -163,8 +167,13 @@ public sealed record ArriveRequest(
 /// <summary>Result of #68. distanceMeters = distance to the address at check-in.</summary>
 public sealed record ArriveResultDto(Guid OrderId, Guid AssignmentId, OrderStatus Status, OrderStatus AssignmentStatus, int DistanceMeters, DateTimeOffset ChangedAt);
 
-/// <summary>#179 respond. confirmed is required: a missing field must not count as a denial.</summary>
-public sealed record RespondArrivalRequest([Required(ErrorMessage = "Hãy chọn xác nhận hoặc từ chối")] bool? Confirmed);
+/// <summary>
+/// #179 respond. confirmed is required: a missing field must not count as a denial. expectedRowVersion = rowVersion of #63;
+/// optional, when sent a changed order gives 409 RESOURCE_VERSION_CONFLICT.
+/// </summary>
+public sealed record RespondArrivalRequest(
+    [Required(ErrorMessage = "Hãy chọn xác nhận hoặc từ chối")] bool? Confirmed,
+    string? ExpectedRowVersion = null);
 
 /// <summary>
 /// #178 result and payload of ArrivalConfirmationRequested (to the customer) / ArrivalConfirmationResolved (to the partner).

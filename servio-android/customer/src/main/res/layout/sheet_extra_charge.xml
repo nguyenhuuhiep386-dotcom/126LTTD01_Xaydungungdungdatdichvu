@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CS-22 Duyệt chi phí phát sinh (Figma 18:2512), opened over CS-20. Everything comes from #63: the server has only a
+  description (no separate title) and one evidence photo without a caption, so neither is shown; no photo → no tile.
+  "Tổng mới" = totalAmount + this charge, a preview only. Buttons stay on one line and are both off while #74 runs.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/screen_padding"
+            android:paddingBottom="@dimen/space_l">
+
+            <TextView
+                android:id="@+id/titleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:text="@string/extra_charge_title"
+                android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/subtitleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                tools:text="Đơn #OD2611180010 · Trần Văn Phúc · 15:02" />
+
+            <!-- region Khoản phát sinh -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:id="@+id/evidenceFrame"
+                    android:layout_width="88dp"
+                    android:layout_height="88dp"
+                    android:layout_marginEnd="@dimen/space_m"
+                    android:background="@drawable/bg_quote_summary">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_image"
+                        app:tint="@color/servio_text_secondary" />
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/evidenceImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/extra_charge_evidence"
+                        android:scaleType="centerCrop"
+                        app:shapeAppearance="@style/ShapeAppearance.Servio.Medium" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/amountText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                        android:textStyle="bold"
+                        tools:text="120.000 đ" />
+
+                    <TextView
+                        android:id="@+id/descriptionText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xs"
+                        android:textAppearance="@style/TextAppearance.Servio.Body"
+                        tools:text="Thay tụ quạt dàn nóng (tụ cũ phồng, quạt quay yếu)" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- endregion -->
+
+            <!-- region Tính tiền -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:background="@drawable/bg_quote_summary"
+                android:orientation="vertical"
+                android:padding="@dimen/space_l">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/extra_charge_quoted"
+                        android:textAppearance="@style/TextAppearance.Servio.Body"
+                        android:textColor="@color/servio_text_secondary" />
+
+                    <TextView
+                        android:id="@+id/quotedText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.Body"
+                        tools:text="200.000 đ" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/approvedRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_s"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/extra_charge_approved_extras"
+                        android:textAppearance="@style/TextAppearance.Servio.Body"
+                        android:textColor="@color/servio_text_secondary" />
+
+                    <TextView
+                        android:id="@+id/approvedText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.Body"
+                        tools:text="+120.000 đ" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_s"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/extra_charge_this"
+                        android:textAppearance="@style/TextAppearance.Servio.Body"
+                        android:textColor="@color/servio_text_secondary" />
+
+                    <TextView
+                        android:id="@+id/thisText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.Body"
+                        android:textColor="@color/servio_text_accent"
+                        tools:text="+50.000 đ" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="@dimen/space_m"
+                    android:background="@color/servio_divider" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/extra_charge_new_total"
+                        android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/totalText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                        android:textStyle="bold"
+                        tools:text="250.000 đ" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- endregion -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:text="@string/extra_charge_note"
+                android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+            <TextView
+                android:id="@+id/errorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:accessibilityLiveRegion="polite"
+                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                android:textColor="@color/servio_error"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/rejectButton"
+                    style="@style/Widget.Servio.Button.Outlined"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:maxLines="1"
+                    android:text="@string/extra_charge_reject"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/approveButton"
+                    style="@style/Widget.Servio.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_m"
+                    android:layout_weight="1.4"
+                    android:maxLines="1"
+                    android:textStyle="bold"
+                    tools:text="Duyệt 120.000 đ" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CS-17 Hồ sơ đối tác (Figma): avatar 88dp and name centred, three figures in one row, "Giới thiệu" (bio + skill
+  chips), "Đánh giá gần đây". Not shown, because the server has no data for them: "Đã xác minh danh tính",
+  "Ảnh công việc", phone number, "Nhắn tin".
+  [bottomBar] ("Báo giá cho SR-… / amount / Chọn báo giá này") sits outside the scroll and only appears when the
+  screen was opened from a quote that can still be chosen.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationContentDescription="@string/action_back"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="@string/partner_profile_title" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/screen_padding"
+                android:paddingTop="@dimen/space_s"
+                android:paddingBottom="@dimen/space_xl">
+
+                <!-- region Đầu hồ sơ -->
+
+                <FrameLayout
+                    android:layout_width="88dp"
+                    android:layout_height="88dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <TextView
+                        android:id="@+id/avatarInitials"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_profile_avatar"
+                        android:gravity="center"
+                        android:importantForAccessibility="no"
+                        android:textAppearance="@style/TextAppearance.Servio.ScreenTitle"
+                        android:textColor="@color/servio_text_accent"
+                        android:textSize="32sp"
+                        android:textStyle="bold"
+                        tools:text="VP" />
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/avatarImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:importantForAccessibility="no"
+                        android:scaleType="centerCrop"
+                        app:shapeAppearance="@style/ShapeAppearance.Servio.Circle" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/nameText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_m"
+                    android:gravity="center"
+                    android:textAppearance="@style/TextAppearance.Servio.ScreenTitle"
+                    android:textStyle="bold"
+                    tools:text="Trần Văn Phúc" />
+
+                <!-- Three figures, equal width and height. -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xl"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/ratingCell"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="@dimen/space_s"
+                            android:paddingVertical="@dimen/space_l">
+
+                            <!-- Figures: one line, shrinking (24 → 14sp) on narrow screens or large system font. -->
+                            <TextView
+                                android:id="@+id/ratingValue"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:autoSizeMaxTextSize="24sp"
+                                android:autoSizeMinTextSize="14sp"
+                                android:autoSizeStepGranularity="1sp"
+                                android:autoSizeTextType="uniform"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:textAppearance="@style/TextAppearance.Servio.ScreenTitle"
+                                android:textStyle="bold"
+                                tools:text="4,8" />
+
+                            <TextView
+                                android:id="@+id/ratingLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                                android:textColor="@color/servio_text_secondary"
+                                tools:text="32 đánh giá" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/completedCell"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="@dimen/space_m"
+                        android:layout_weight="1">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="@dimen/space_s"
+                            android:paddingVertical="@dimen/space_l">
+
+                            <TextView
+                                android:id="@+id/completedValue"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:autoSizeMaxTextSize="24sp"
+                                android:autoSizeMinTextSize="14sp"
+                                android:autoSizeStepGranularity="1sp"
+                                android:autoSizeTextType="uniform"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:textAppearance="@style/TextAppearance.Servio.ScreenTitle"
+                                android:textStyle="bold"
+                                tools:text="128" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:text="@string/partner_profile_completed_label"
+                                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                                android:textColor="@color/servio_text_secondary" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/experienceCell"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="@dimen/space_m"
+                        android:layout_weight="1">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="@dimen/space_s"
+                            android:paddingVertical="@dimen/space_l">
+
+                            <TextView
+                                android:id="@+id/experienceValue"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:autoSizeMaxTextSize="24sp"
+                                android:autoSizeMinTextSize="14sp"
+                                android:autoSizeStepGranularity="1sp"
+                                android:autoSizeTextType="uniform"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:textAppearance="@style/TextAppearance.Servio.ScreenTitle"
+                                android:textStyle="bold"
+                                tools:text="6 năm" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:text="@string/partner_profile_experience_label"
+                                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                                android:textColor="@color/servio_text_secondary" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- endregion -->
+
+                <!-- region Giới thiệu: no bio → only the chips; neither → the whole section is hidden. -->
+
+                <LinearLayout
+                    android:id="@+id/aboutSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xl"
+                        android:accessibilityHeading="true"
+                        android:text="@string/partner_profile_about"
+                        android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/bioText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:textAppearance="@style/TextAppearance.Servio.Body"
+                        tools:text="6 năm sửa máy lạnh, tủ lạnh dân dụng tại Thủ Đức và Bình Thạnh." />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/skillGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        app:chipSpacingHorizontal="@dimen/space_s"
+                        app:chipSpacingVertical="@dimen/space_s" />
+                </LinearLayout>
+
+                <!-- endregion -->
+
+                <!-- region Đánh giá gần đây -->
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xl"
+                    android:accessibilityHeading="true"
+                    android:text="@string/partner_profile_reviews"
+                    android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                    android:textStyle="bold" />
+
+                <ProgressBar
+                    android:id="@+id/reviewsProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/space_m"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/reviewsMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_m"
+                    android:textAppearance="@style/TextAppearance.Servio.Body"
+                    android:textColor="@color/servio_text_secondary"
+                    android:visibility="gone"
+                    tools:text="@string/partner_profile_no_reviews" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/reviewsRetryButton"
+                    style="@style/Widget.Servio.Button.Outlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_m"
+                    android:text="@string/action_retry"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/reviewList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <!-- endregion -->
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/errorGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_padding"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/errorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/retryButton"
+                style="@style/Widget.Servio.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:text="@string/action_retry" />
+        </LinearLayout>
+
+        <!-- 404: no such partner, or no quote/chat/order with them (the server answers the same). -->
+        <LinearLayout
+            android:id="@+id/notFoundGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_padding"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:text="@string/partner_profile_not_found_title"
+                android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:text="@string/partner_profile_not_found_message"
+                android:textAppearance="@style/TextAppearance.Servio.Body"
+                android:textColor="@color/servio_text_secondary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/notFoundBackButton"
+                style="@style/Widget.Servio.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:text="@string/action_back" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/servio_surface"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/servio_divider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/screen_padding"
+            android:paddingVertical="@dimen/space_m">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/bookingLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="2"
+                    android:textAppearance="@style/TextAppearance.Servio.Caption"
+                    android:textColor="@color/servio_text_secondary"
+                    tools:text="Báo giá cho SR-1024" />
+
+                <TextView
+                    android:id="@+id/bookingAmount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.Servio.ScreenTitle"
+                    android:textStyle="bold"
+                    tools:text="450.000 đ" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/selectButton"
+                style="@style/Widget.Servio.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_m"
+                android:text="@string/quote_select_this" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

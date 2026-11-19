@@ -110,6 +110,8 @@ IP của laptop nằm sẵn trong APK (`servio.baseUrl`), nên phải chốt m�
 
 - [ ] Chạy backend `dotnet run --project servio-backend/src/Servio.Api --launch-profile Demo`, để cửa sổ này mở suốt buổi.
 - [ ] Trang quản trị: đăng nhập; Dashboard có dữ liệu seed (1 khiếu nại chờ xử lý, 1 khai báo trả nợ chờ xác nhận).
+- [ ] Hỏi Nguyên, Hiệp: hai app đã gửi sự đồng ý (`POST /users/me/consents`) chưa? Chưa thì AW-15 đặt `privacy.require_consent` = false trước giờ demo.
+- [ ] AW-15 điền `payment.bank_name`, `payment.bank_account_number`, `payment.bank_account_holder` (tài khoản nhận phí huỷ, CS-30) và `support.hotline` (CS-34). Để trống thì app ẩn các mục này.
 - [ ] **Không chạy `demo_smoke.py` sau khi seed** (sẽ thêm dữ liệu thử vào CSDL demo).
 
 **T − 30 phút (cả nhóm)**
@@ -148,9 +150,10 @@ Thời gian dự kiến: bước 1–2 khoảng 4 phút, 3–6 khoảng 6 phút,
 | IP laptop đổi so với APK | Đổi lại mạng đúng như lúc build. Không được thì build lại APK với IP mới (mất ~3 phút), hoặc chuyển sang video dự phòng |
 | Đăng nhập OTP báo sai mã | Backend phải chạy profile **Demo** hoặc Development (mã cố định `123456`) |
 | Màn hình không tự cập nhật (báo giá, trạng thái, vị trí) | Kéo làm mới / mở lại màn; dữ liệu đã đúng trên server, chỉ là sự kiện realtime bị lỡ |
-| Check-in GPS bị chặn | Dùng "Nhờ khách xác nhận" (tối đa 3 lần cho một đơn) |
+| Check-in GPS bị chặn | Dùng "Nhờ khách xác nhận" trong 10 phút sau lần bị chặn (tối đa 3 lần cho một đơn); quá 10 phút thì bấm *Đã đến* lại trước |
 | Đối tác không nhận được việc mới, báo nợ hoa hồng | Nợ > 200.000 đ bị chặn. Laptop: AW-18 xác nhận một khoản trả nợ, hoặc dùng đối tác khác |
 | Khách không đăng bài được, báo còn nợ | Còn phí huỷ > 100.000 đ hoặc đơn chờ thanh toán. Dùng khách khác hoặc xác nhận trả nợ ở AW-18 |
+| App báo "Bạn cần đồng ý…" (`CONSENT_REQUIRED`) | App chưa gửi sự đồng ý. Nếu app chưa có màn hình đồng ý: AW-15 đặt `privacy.require_consent` = false cho buổi demo, đặt lại true sau đó |
 | Cần đơn tự hoàn tất nhanh | AW-15: đặt `order.auto_confirm_hours` = 0, đơn chờ khách xác nhận tự hoàn tất trong ~30 giây; đặt lại 24 sau buổi demo |
 | Backend dừng hoặc treo | Chạy lại lệnh `dotnet run ... --launch-profile Demo`; dữ liệu vẫn còn trong SQL Server |
 | Dữ liệu demo bị rối | Tạo lại CSDL (01, 02) và seed lại: khoảng 2 phút. Hai app phải đăng nhập lại |

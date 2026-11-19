@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CS-23 Xác nhận hoàn thành (Figma 18:2653). Card "đã báo hoàn thành" with the time of autoConfirmAt, before/after
+  photos (urls only: no caption, no time), the partner's note of #64, "Thanh toán" from #63 (approved charges only) and
+  the yellow button with totalAmount. No "Gửi khiếu nại" yet (KH-7).
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationContentDescription="@string/action_back"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="@string/confirm_title" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/errorGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_padding"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/errorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/retryButton"
+                style="@style/Widget.Servio.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:text="@string/action_retry" />
+        </LinearLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/screen_padding"
+                android:paddingTop="@dimen/space_s"
+                android:paddingBottom="@dimen/space_xl">
+
+                <!-- region Đối tác đã báo hoàn thành -->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_order_banner"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/space_l">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_check_accent" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_m"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/doneText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                            android:textStyle="bold"
+                            tools:text="Đối tác đã báo hoàn thành lúc 15:10, T4 18/11" />
+
+                        <TextView
+                            android:id="@+id/autoText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_xs"
+                            android:textAppearance="@style/TextAppearance.Servio.Caption"
+                            tools:text="Đơn tự hoàn thành lúc 15:10, T5 19/11 nếu bạn không phản hồi." />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- endregion -->
+
+                <!-- region Ảnh trước và sau, ghi chú -->
+
+                <TextView
+                    android:id="@+id/photosTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xl"
+                    android:accessibilityHeading="true"
+                    android:text="@string/confirm_photos"
+                    android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                    android:textStyle="bold" />
+
+                <HorizontalScrollView
+                    android:id="@+id/photosScroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_m"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:id="@+id/photos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+
+                <TextView
+                    android:id="@+id/noteText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:textAppearance="@style/TextAppearance.Servio.Body"
+                    tools:text="“Đã thay bộ phát mới, kiểm tra sóng các phòng đều ổn.”" />
+
+                <!-- endregion -->
+
+                <!-- region Thanh toán -->
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xl"
+                    android:accessibilityHeading="true"
+                    android:text="@string/confirm_payment"
+                    android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_m"
+                    android:background="@drawable/bg_quote_summary"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="@dimen/space_l"
+                    android:paddingTop="@dimen/space_s"
+                    android:paddingBottom="@dimen/space_l">
+
+                    <LinearLayout
+                        android:id="@+id/paymentRows"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="@dimen/space_m"
+                        android:background="@color/servio_divider" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/space_l"
+                            android:layout_weight="1"
+                            android:text="@string/confirm_total"
+                            android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/totalText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                            android:textStyle="bold"
+                            tools:text="320.000 đ" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- endregion -->
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/servio_surface"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/servio_divider" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/confirmButton"
+            style="@style/Widget.Servio.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/screen_padding"
+            android:layout_marginVertical="@dimen/space_m"
+            android:gravity="center"
+            android:maxLines="2"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            tools:text="Xác nhận hoàn thành và đã trả tiền mặt 320.000 đ" />
+    </LinearLayout>
+</LinearLayout>

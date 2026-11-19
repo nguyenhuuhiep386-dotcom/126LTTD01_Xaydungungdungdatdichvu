@@ -51,6 +51,9 @@ public sealed class DisputeService(
     SystemConfigService configs,
     TimeProvider clock)
 {
+    /// <summary>Support answers a dispute within this many hours (SlaDueAt, AW-08 queue order).</summary>
+    public const string ResponseHoursKey = "dispute.response_hours";
+
     private static readonly OrderStatus[] OpenableStatuses =
     [
         OrderStatus.Accepted, OrderStatus.OnTheWay, OrderStatus.Arrived, OrderStatus.InProgress,
@@ -127,6 +130,7 @@ public sealed class DisputeService(
             evidence.Add(FileService.UrlOf(await files.ResolveOwnedAsync(userId, url, "evidenceUrls", ct, FilePurpose.DisputeEvidence)));
         }
 
+        var responseHours = await configs.GetIntAsync(ResponseHoursKey, 48, ct);
         var dispute = new Dispute
         {
             Id = Guid.CreateVersion7(),
@@ -139,7 +143,7 @@ public sealed class DisputeService(
             EvidenceUrls = evidence.Count == 0 ? null : JsonSerializer.Serialize(evidence),
             Status = (byte)DisputeStatus.Open,
             PreviousOrderStatus = order.Status,
-            SlaDueAt = now.AddHours(48),
+            SlaDueAt = now.AddHours(responseHours),
             CreatedAt = now,
             UpdatedAt = now,
         };
@@ -155,7 +159,7 @@ public sealed class DisputeService(
         var what = reason == DisputeReason.UnpaidCash
             ? $"Đối tác báo chưa nhận được tiền mặt (khiếu nại {dispute.Code})"
             : $"{(by == ActorType.Customer ? "Khách" : "Đối tác")} đã mở khiếu nại {dispute.Code}";
-        await workflow.PublishAsync(order, assignment, change, $"{what}. Đơn tạm dừng cho đến khi bộ phận hỗ trợ xử lý (trong 48 giờ).", ct);
+        await workflow.PublishAsync(order, assignment, change, $"{what}. Đơn tạm dừng cho đến khi bộ phận hỗ trợ xử lý (trong {responseHours} giờ).", ct);
         return ToDto(dispute);
     }
 

@@ -119,159 +119,90 @@
 
         <fragment
             android:id="@+id/cs15"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.requestdetail.RequestDetailFragment"
             android:label="CS-15 Chi tiết yêu cầu &amp; báo giá">
-            <!-- Set by CS-11 after #36 (empty when opened from a placeholder link). -->
+            <!-- Set by CS-14 and by CS-11 after #36 (empty when opened from a placeholder link). -->
+            <argument
+                android:name="requestId"
+                android:defaultValue=""
+                app:argType="string" />
+        </fragment>
+
+        <!-- Bottom sheet over CS-15; reads the quote from the CS-15 ViewModel (cs15 back stack entry). -->
+        <dialog
+            android:id="@+id/cs16"
+            android:name="vn.servio.customer.ui.requestdetail.QuoteDetailSheet"
+            android:label="CS-16 Chi tiết báo giá">
+            <argument
+                android:name="quoteId"
+                android:defaultValue=""
+                app:argType="string" />
+        </dialog>
+
+        <fragment
+            android:id="@+id/cs17"
+            android:name="vn.servio.customer.ui.partner.PartnerProfileFragment"
+            android:label="CS-17 Hồ sơ công khai đối tác">
+            <!-- Set by CS-16 "Xem hồ sơ đầy đủ". requestId + quoteId only when that quote can be chosen (bottom bar). -->
+            <argument
+                android:name="partnerId"
+                android:defaultValue=""
+                app:argType="string" />
             <argument
                 android:name="requestId"
                 android:defaultValue=""
                 app:argType="string" />
             <argument
-                android:name="code"
-                android:defaultValue="CS-15"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Chi tiết yêu cầu &amp; báo giá"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Trung tâm quyết định; báo giá realtime qua SignalR"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs16|Xem báo giá;cs28|Chat với đối tác;cs18|Chọn đối tác"
-                app:argType="string" />
-        </fragment>
-
-        <fragment
-            android:id="@+id/cs16"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-16 Chi tiết báo giá">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-16"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Chi tiết báo giá"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Bottom sheet: hồ sơ đối tác + Chat / Chọn"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs17|Hồ sơ đối tác;cs28|Chat;cs18|Chọn báo giá này"
-                app:argType="string" />
-        </fragment>
-
-        <fragment
-            android:id="@+id/cs17"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-17 Hồ sơ công khai đối tác">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-17"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Hồ sơ công khai đối tác"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="GET /partners/{id} (#27), đánh giá (#28)"
-                app:argType="string" />
-            <argument
-                android:name="links"
+                android:name="quoteId"
                 android:defaultValue=""
                 app:argType="string" />
         </fragment>
 
         <fragment
             android:id="@+id/cs18"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-18 Xác nhận chọn đối tác">
+            android:name="vn.servio.customer.ui.confirmquote.ConfirmQuoteFragment"
+            android:label="CS-18 Xác nhận đặt dịch vụ">
+            <!-- Set by "Chọn" on CS-15/CS-16. CS-18 reads the quote (and its rowVersion) from #42 itself. -->
             <argument
-                android:name="code"
-                android:defaultValue="CS-18"
+                android:name="requestId"
+                android:defaultValue=""
                 app:argType="string" />
             <argument
-                android:name="title"
-                android:defaultValue="Xác nhận chọn đối tác"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Tóm tắt giá, tiền mặt (CASH), POST accept-quotes (#43)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs20|Xác nhận → Chi tiết đơn"
+                android:name="quoteId"
+                android:defaultValue=""
                 app:argType="string" />
         </fragment>
 
+        <!-- KH-5 part 1: tabs Đang diễn ra / Đã hoàn thành / Đã huỷ (#62); a card opens CS-20. -->
         <fragment
             android:id="@+id/cs19"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-19 Đơn hàng">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-19"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Đơn hàng"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Tab: Đang xử lý / Hoàn thành / Đã huỷ (#62)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs20|Mở một đơn"
-                app:argType="string" />
-        </fragment>
+            android:name="vn.servio.customer.ui.order.MyOrdersFragment"
+            android:label="CS-19 Đơn hàng" />
 
+        <!--
+          KH-5 part 1. Opened from CS-19, and by CS-18 after #43 (201); CS-18 is popped, so Back returns to CS-15.
+          CS-20c (cancel) is a dialog of this screen. CS-21, CS-22, CS-23, CS-33 come in later parts.
+        -->
         <fragment
             android:id="@+id/cs20"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.orderdetail.OrderDetailFragment"
             android:label="CS-20 Chi tiết đơn hàng">
             <argument
-                android:name="code"
-                android:defaultValue="CS-20"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Chi tiết đơn hàng"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Timeline + hành động theo trạng thái; hộp thoại &quot;Thợ đã đến?&quot; (#179)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs21|Theo dõi bản đồ;cs22|Duyệt phát sinh;cs23|Xác nhận hoàn thành;cs33|Khiếu nại;cs28|Chat"
+                android:name="orderId"
+                android:defaultValue=""
                 app:argType="string" />
         </fragment>
 
         <fragment
             android:id="@+id/cs21"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.tracking.OrderTrackingFragment"
             android:label="CS-21 Theo dõi bản đồ">
             <argument
-                android:name="code"
-                android:defaultValue="CS-21"
+                android:name="orderId"
+                android:defaultValue=""
                 app:argType="string" />
             <argument
-                android:name="title"
-                android:defaultValue="Theo dõi bản đồ"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="osmdroid, marker cập nhật qua SignalR, nhãn &quot;Chưa cập nhật&quot;"
-                app:argType="string" />
-            <argument
-                android:name="links"
+                android:name="assignmentId"
                 android:defaultValue=""
                 app:argType="string" />
         </fragment>
@@ -300,90 +231,47 @@
 
         <fragment
             android:id="@+id/cs23"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.completion.ConfirmCompletionFragment"
             android:label="CS-23 Xác nhận hoàn thành">
             <argument
-                android:name="code"
-                android:defaultValue="CS-23"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Xác nhận hoàn thành"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Ảnh trước/sau, tổng tiền, &quot;Xác nhận và đã trả tiền mặt&quot; (#71)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs26|Đánh giá đối tác"
+                android:name="orderId"
+                android:defaultValue=""
                 app:argType="string" />
         </fragment>
 
         <fragment
             android:id="@+id/cs26"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.review.SubmitReviewFragment"
             android:label="CS-26 Đánh giá đối tác">
             <argument
-                android:name="code"
-                android:defaultValue="CS-26"
+                android:name="orderId"
+                android:defaultValue=""
                 app:argType="string" />
             <argument
-                android:name="title"
-                android:defaultValue="Đánh giá đối tác"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Sao + nhận xét (#95)"
-                app:argType="string" />
-            <argument
-                android:name="links"
+                android:name="assignmentId"
                 android:defaultValue=""
                 app:argType="string" />
         </fragment>
 
+        <!-- CS-27 Tin nhắn (shared core screen, #54). Opens the `chat` destination below. -->
         <fragment
             android:id="@+id/cs27"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-27 Tin nhắn">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-27"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Tin nhắn"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Danh sách hội thoại (#54); giao diện chat chung của Hiệp"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs28|Mở một hội thoại"
-                app:argType="string" />
-        </fragment>
+            android:name="vn.servio.core.ui.chat.ConversationListFragment"
+            android:label="CS-27 Tin nhắn" />
 
+        <!--
+          CS-28 Phòng chat (shared core screen). The id must be `chat`: core navigates to R.id.chat. Opened from CS-27 and
+          from "Nhắn tin" on CS-15/CS-16 with the quote's conversationId. Not a tab, so the bottom nav is hidden.
+        -->
         <fragment
-            android:id="@+id/cs28"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:id="@+id/chat"
+            android:name="vn.servio.core.ui.chat.ChatFragment"
             android:label="CS-28 Phòng chat">
             <argument
-                android:name="code"
-                android:defaultValue="CS-28"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Phòng chat"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Hub /hubs/chat; giao diện chat chung"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
+                android:name="conversationId"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
         </fragment>
 
         <fragment
@@ -392,27 +280,11 @@
             android:label="CS-29 Tài khoản">
         </fragment>
 
+        <!-- CS-30 Phí huỷ và giao dịch: from CS-29 and from "Xem phí huỷ" of CS-11 (posting blocked by the debt). -->
         <fragment
             android:id="@+id/cs30"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-30 Ví &amp; giao dịch">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-30"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Ví &amp; giao dịch"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Phí huỷ còn nợ + khai báo đã chuyển khoản (#155, #156)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
-        </fragment>
+            android:name="vn.servio.customer.ui.wallet.WalletFragment"
+            android:label="CS-30 Phí huỷ và giao dịch" />
 
         <fragment
             android:id="@+id/cs31"

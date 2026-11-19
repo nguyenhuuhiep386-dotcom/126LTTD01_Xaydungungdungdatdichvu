@@ -61,6 +61,10 @@ public partial class OrderAssignment
 
     public DateTimeOffset? CustomerConfirmedArrivalAt { get; set; }
 
+    public DateTimeOffset? ArrivalRejectedAt { get; set; }
+
+    public string? ArrivalRejectCode { get; set; }
+
     public decimal? LastLatitude { get; set; }
 
     public decimal? LastLongitude { get; set; }

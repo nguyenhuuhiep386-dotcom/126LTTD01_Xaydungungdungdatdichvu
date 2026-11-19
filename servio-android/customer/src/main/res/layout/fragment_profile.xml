@@ -76,12 +76,7 @@
                                 tools:text="+84 912 345 678" />
                         </LinearLayout>
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/editButton"
-                            style="@style/Widget.Servio.Button.Text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/account_edit" />
+                        <!-- No "Sửa" (Figma): hidden until profile editing (#10) is built. -->
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 

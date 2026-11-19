@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CS-20 Chi tiết đơn hàng (Figma 18:2121 PENDING, 18:2208 ON_THE_WAY). Top: the yellow banner (PENDING, red for a
+  dispute) or a white card with the status chip and one line. Then the partner row, "Thông tin công việc",
+  "Tiến trình" and the cancel text button. The ⋮ of Figma has no action yet, so it is not shown.
+  ETA and "Theo dõi đường đi" while ON_THE_WAY; the pending extra charges line (CS-22) while ARRIVED / IN_PROGRESS;
+  no "Gửi khiếu nại" (KH-7).
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationContentDescription="@string/action_back"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="@string/order_detail_title_loading"
+        tools:title="Đơn #OD2611180010" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="@dimen/screen_padding"
+                    android:paddingTop="@dimen/space_s"
+                    android:paddingBottom="@dimen/space_xl">
+
+                    <!-- region Trạng thái -->
+
+                    <!-- PENDING (countdown) and DISPUTED. -->
+                    <LinearLayout
+                        android:id="@+id/banner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_order_banner"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/space_l"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <ImageView
+                            android:id="@+id/bannerIcon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_hourglass" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_m"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/bannerTitle"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                                android:textStyle="bold"
+                                tools:text="Chờ đối tác xác nhận" />
+
+                            <TextView
+                                android:id="@+id/bannerText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_xs"
+                                android:accessibilityLiveRegion="none"
+                                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                                tools:text="Đối tác có 10 phút để xác nhận · còn 08:42" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Every other status: chip and one line; "Xem kết quả và xác nhận" for COMPLETED_BY_PARTNER. -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/statusCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/space_l">
+
+                            <TextView
+                                android:id="@+id/statusChip"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:drawablePadding="@dimen/space_xs"
+                                android:gravity="center_vertical"
+                                android:paddingHorizontal="@dimen/space_m"
+                                android:paddingVertical="@dimen/space_xs"
+                                android:textAppearance="@style/TextAppearance.Servio.Accent"
+                                android:textStyle="bold"
+                                tools:background="@drawable/bg_status_chip"
+                                tools:text="Đang trên đường" />
+
+                            <TextView
+                                android:id="@+id/statusLine"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_m"
+                                android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                                android:textStyle="bold"
+                                tools:text="Bắt đầu đi lúc 13:40" />
+
+                            <!-- ON_THE_WAY (Figma 18:2208): statusLine is "Khoảng N phút nữa", this is "Cập nhật lúc HH:mm · cách X km". -->
+                            <TextView
+                                android:id="@+id/etaLine"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_xs"
+                                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                                android:visibility="gone"
+                                tools:text="Cập nhật lúc 13:52 · cách 3,2 km"
+                                tools:visibility="visible" />
+
+                            <!-- ARRIVED / IN_PROGRESS with PENDING charges (Figma 18:2512): opens CS-22 on the oldest one. -->
+                            <TextView
+                                android:id="@+id/chargeWarning"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_m"
+                                android:background="@drawable/bg_order_banner"
+                                android:drawablePadding="@dimen/space_s"
+                                android:foreground="?attr/selectableItemBackground"
+                                android:gravity="center_vertical"
+                                android:minHeight="48dp"
+                                android:paddingHorizontal="@dimen/space_m"
+                                android:paddingVertical="@dimen/space_s"
+                                android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                                android:textColor="@color/servio_text_accent"
+                                android:textStyle="bold"
+                                android:visibility="gone"
+                                app:drawableEndCompat="@drawable/ic_chevron_right"
+                                app:drawableStartCompat="@drawable/ic_warning"
+                                app:drawableTint="@color/servio_text_accent"
+                                tools:text="Có 1 chi phí phát sinh chờ bạn duyệt"
+                                tools:visibility="visible" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/trackButton"
+                                style="@style/Widget.Servio.Button"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_l"
+                                android:text="@string/order_track"
+                                android:textStyle="bold"
+                                android:visibility="gone"
+                                app:icon="@drawable/ic_map"
+                                app:iconGravity="textStart"
+                                app:iconTint="@color/servio_text_primary"
+                                tools:visibility="visible" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/confirmButton"
+                                style="@style/Widget.Servio.Button"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_l"
+                                android:text="@string/order_detail_confirm_completion"
+                                android:visibility="gone" />
+
+                            <!-- COMPLETED and still in #100 for this assignment: opens CS-26. -->
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/reviewButton"
+                                style="@style/Widget.Servio.Button"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_l"
+                                android:text="@string/order_detail_review"
+                                android:textStyle="bold"
+                                android:visibility="gone"
+                                app:icon="@drawable/ic_star"
+                                app:iconGravity="textStart"
+                                app:iconTint="@color/servio_text_primary" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- endregion -->
+
+                    <!-- region Đối tác -->
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xl"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <FrameLayout
+                            android:layout_width="56dp"
+                            android:layout_height="56dp">
+
+                            <TextView
+                                android:id="@+id/avatarInitials"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/bg_profile_avatar"
+                                android:gravity="center"
+                                android:importantForAccessibility="no"
+                                android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                                android:textColor="@color/servio_text_accent"
+                                android:textStyle="bold"
+                                tools:text="VP" />
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/avatarImage"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:importantForAccessibility="no"
+                                android:scaleType="centerCrop"
+                                app:shapeAppearance="@style/ShapeAppearance.Servio.Circle" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_m"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/partnerName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                                android:textStyle="bold"
+                                tools:text="Trần Văn Phúc" />
+
+                            <include
+                                android:id="@+id/rating"
+                                layout="@layout/view_quote_rating"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_xs" />
+                        </LinearLayout>
+
+                        <!-- PENDING: the number only comes once the partner accepted (F-ORD-06). -->
+                        <TextView
+                            android:id="@+id/phoneNote"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_m"
+                            android:layout_weight="0.8"
+                            android:gravity="end"
+                            android:text="@string/order_detail_phone_later"
+                            android:textAppearance="@style/TextAppearance.Servio.Caption"
+                            android:visibility="gone" />
+
+                        <ImageButton
+                            android:id="@+id/chatButton"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/order_detail_chat"
+                            android:src="@drawable/ic_nav_chat"
+                            android:visibility="gone"
+                            app:tint="@color/servio_text_primary" />
+
+                        <ImageButton
+                            android:id="@+id/callButton"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_marginStart="@dimen/space_s"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/order_detail_call"
+                            android:src="@drawable/ic_phone"
+                            android:visibility="gone"
+                            app:tint="@color/servio_text_primary" />
+                    </LinearLayout>
+
+                    <!-- endregion -->
+
+                    <!-- region Thông tin công việc -->
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xl"
+                        android:accessibilityHeading="true"
+                        android:text="@string/order_detail_job_section"
+                        android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                        android:textStyle="bold" />
+
+                    <include
+                        android:id="@+id/serviceRow"
+                        layout="@layout/view_order_info_row" />
+
+                    <include
+                        android:id="@+id/scheduleRow"
+                        layout="@layout/view_order_info_row" />
+
+                    <include
+                        android:id="@+id/addressRow"
+                        layout="@layout/view_order_info_row" />
+
+                    <include
+                        android:id="@+id/priceRow"
+                        layout="@layout/view_order_info_row" />
+
+                    <!-- Only when pricing.extraChargeTotal > 0: "+X" and the server's totalAmount. -->
+                    <include
+                        android:id="@+id/extraRow"
+                        layout="@layout/view_order_info_row"
+                        android:visibility="gone" />
+
+                    <include
+                        android:id="@+id/totalRow"
+                        layout="@layout/view_order_info_row"
+                        android:visibility="gone" />
+
+                    <include
+                        android:id="@+id/paymentRow"
+                        layout="@layout/view_order_info_row" />
+
+                    <!-- endregion -->
+
+                    <!-- region Tiến trình -->
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xl"
+                        android:accessibilityHeading="true"
+                        android:text="@string/order_detail_progress_section"
+                        android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:id="@+id/timeline"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:orientation="vertical" />
+
+                    <!-- endregion -->
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/cancelButton"
+                        style="@style/Widget.Servio.Button.Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:visibility="gone"
+                        tools:text="Huỷ đơn (miễn phí)"
+                        tools:visibility="visible" />
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/errorGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_padding"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/errorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/retryButton"
+                style="@style/Widget.Servio.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:text="@string/action_retry" />
+        </LinearLayout>
+
+        <!-- 404/403: not an order of this customer (or no such order); the server answers the same. -->
+        <LinearLayout
+            android:id="@+id/notFoundGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_padding"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:text="@string/order_detail_not_found_title"
+                android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:text="@string/order_detail_not_found_message"
+                android:textAppearance="@style/TextAppearance.Servio.Body"
+                android:textColor="@color/servio_text_secondary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/notFoundBackButton"
+                style="@style/Widget.Servio.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:text="@string/action_back" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

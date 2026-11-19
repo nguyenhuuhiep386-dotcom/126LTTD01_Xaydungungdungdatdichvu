@@ -1,0 +1,80 @@
+@page "/dieu-khoan-su-dung"
+@model Servio.Api.Pages.Legal.TermsModel
+@using Servio.Api.Common
+@{
+    Layout = "_PublicLayout";
+    ViewData["Title"] = "Điều khoản sử dụng";
+    string Vnd(decimal v) => Money.Vnd(v);
+}
+@*
+  BẢN NHÁP từ mã nguồn ngày 15/11/2026 (skill vn-law-check). Các con số đọc trực tiếp từ SystemConfigs nên luôn khớp
+  với hệ thống. Servio là nền tảng trung gian (khoản 3 Điều 3 Luật 122/2025/QH15): văn bản này đóng vai trò quy chế
+  hoạt động, nêu quyền và nghĩa vụ các bên (khoản 1 Điều 11). Cần người làm luật xem lại trước khi phát hành.
+*@
+<h1>Điều khoản sử dụng</h1>
+<p class="meta">Phiên bản @Model.Version · áp dụng cho Servio (khách hàng) và ServioPartner (đối tác)</p>
+<p class="draft">Bản nháp đang được hoàn thiện. Các chỗ trong ngoặc vuông sẽ được điền trước khi phát hành chính thức.</p>
+
+<h2>1. Servio là gì</h2>
+<p>Servio là nền tảng trung gian kết nối khách hàng cần sửa chữa, chăm sóc tại nhà với đối tác cung cấp dịch vụ. [ĐIỀN: tên đơn vị vận hành, mã số doanh nghiệp, địa chỉ, email, số điện thoại]. Servio không trực tiếp thực hiện công việc; hợp đồng dịch vụ được giao kết giữa khách hàng và đối tác qua nền tảng.</p>
+
+<h2>2. Tài khoản</h2>
+<ul>
+    <li>Đăng nhập bằng số điện thoại và mã OTP. Bạn chịu trách nhiệm về hoạt động trên tài khoản của mình.</li>
+    <li>Đối tác phải nộp ảnh CCCD, ảnh chân dung cầm CCCD và kỹ năng; Servio duyệt hồ sơ trước khi cho nhận việc.</li>
+    <li>Tài khoản vi phạm điều khoản có thể bị khoá; bạn có thể xoá tài khoản trong ứng dụng theo <a href="/chinh-sach-bao-mat">Chính sách bảo vệ dữ liệu cá nhân</a>.</li>
+</ul>
+
+<h2>3. Đăng yêu cầu, báo giá và đặt dịch vụ</h2>
+<ul>
+    <li>Khách mô tả công việc, chọn địa chỉ và thời gian. Bài đăng tự hết hạn sau tối đa @Model.PostExpireHours giờ.</li>
+    <li>Không ghi số điện thoại hoặc đường link trong bài đăng, báo giá và chat trước khi có đơn; hai bên trao đổi qua chat trong ứng dụng.</li>
+    <li>Đối tác báo giá; khách xem giá, thời gian dự kiến, hồ sơ và đánh giá của đối tác trước khi chọn. Khi khách chọn, đối tác có @Model.AcceptMinutes phút để xác nhận, quá hạn đơn tự huỷ.</li>
+    <li>Chi phí phát sinh chỉ được tính khi khách bấm duyệt trong ứng dụng. Tổng tiền khách phải trả = giá báo + phát sinh đã duyệt, hiển thị trước khi xác nhận hoàn thành.</li>
+</ul>
+
+<h2>4. Thanh toán và hoa hồng</h2>
+<ul>
+    <li>Khách trả tiền mặt trực tiếp cho đối tác khi xong việc, rồi bấm "Xác nhận hoàn thành". Nếu khách không bấm, đơn tự hoàn tất sau @Model.AutoConfirmHours giờ kể từ khi đối tác báo hoàn thành.</li>
+    <li>Đối tác trả Servio hoa hồng @Model.CommissionRate.ToString("0.##")% trên tổng tiền công (giá báo + phát sinh). Khách không trả thêm phí nền tảng.</li>
+    <li>Khoản hoa hồng ghi vào công nợ của đối tác; nợ vượt @Vnd(Model.MaxCommissionDebt) thì tạm không nhận được việc mới cho đến khi thanh toán. Đối tác thanh toán bằng chuyển khoản và khai báo trong ứng dụng; Servio xác nhận khi nhận được tiền.</li>
+    <li>Nếu khách chưa trả tiền mặt, đối tác báo trong ứng dụng trong vòng @Model.UnpaidReportHours giờ sau khi đơn hoàn tất để Servio hỗ trợ xử lý.</li>
+</ul>
+
+<h2>5. Huỷ đơn</h2>
+<div class="table">
+<table>
+    <thead><tr><th>Ai huỷ, khi nào</th><th>Phí</th></tr></thead>
+    <tbody>
+    <tr><td>Khách huỷ khi đối tác chưa bắt đầu di chuyển</td><td>Miễn phí</td></tr>
+    <tr><td>Khách huỷ khi đối tác đang di chuyển</td><td>@Vnd(Model.FeeOnTheWay)</td></tr>
+    <tr><td>Khách huỷ khi đối tác đã đến nơi</td><td>@Model.FeeArrivedPercent.ToString("0.##")% giá báo, tối thiểu @Vnd(Model.FeeArrivedMin)</td></tr>
+    <tr><td>Khách không có mặt (đối tác đã đến bằng GPS, chờ @Model.NoShowMinutes phút và đã nhắn tin cho khách)</td><td>Như khi đã đến nơi</td></tr>
+    <tr><td>Đối tác huỷ trước khi bắt đầu làm</td><td>Khách không mất phí</td></tr>
+    <tr><td>Sau khi đối tác đã bắt đầu làm</td><td>Không tự huỷ được; mở khiếu nại</td></tr>
+    </tbody>
+</table>
+</div>
+<p>Ứng dụng luôn hiện phí huỷ trước khi khách xác nhận huỷ. Phí huỷ được chuyển cho đối tác sau khi khách thanh toán; tổng phí chưa trả vượt @Vnd(Model.MaxOutstandingFees) thì khách tạm không đăng được yêu cầu mới.</p>
+
+<h2>6. Khiếu nại</h2>
+<ul>
+    <li>Khách hoặc đối tác mở khiếu nại trong ứng dụng khi đang thực hiện đơn hoặc trong @Model.DisputeHours giờ sau khi đơn hoàn tất, kèm mô tả và ảnh bằng chứng.</li>
+    <li>Servio xác nhận đã nhận ngay khi bạn gửi, tạm dừng đơn và xử lý trong @Model.DisputeResponseHours giờ; kết quả được báo cho cả hai bên trong ứng dụng.</li>
+    <li>Khoản hoàn tiền mặt (nếu có) do hai bên thoả thuận và được ghi trong kết quả xử lý.</li>
+</ul>
+
+<h2>7. Đánh giá</h2>
+<p>Sau khi đơn hoàn tất, hai bên đánh giá nhau trong @Model.ReviewDays ngày. Đánh giá phải đúng sự thật, không xúc phạm.</p>
+
+<h2>8. Hành vi bị cấm</h2>
+<ul>
+    <li>Cung cấp thông tin giả, dùng giấy tờ của người khác.</li>
+    <li>Lôi kéo giao dịch ngoài nền tảng, đăng số điện thoại hoặc đường link khi chưa có đơn.</li>
+    <li>Dùng vị trí giả khi check-in, báo sai tình trạng thanh toán.</li>
+    <li>Đăng nội dung vi phạm pháp luật; Servio có thể ẩn bài đăng vi phạm.</li>
+</ul>
+
+<h2>9. Liên hệ và giải quyết tranh chấp</h2>
+<p>Liên hệ: [ĐIỀN: email, số điện thoại hỗ trợ]. Tranh chấp được ưu tiên giải quyết bằng thương lượng qua cơ chế khiếu nại ở mục 6; nếu không thành, các bên có quyền yêu cầu cơ quan có thẩm quyền giải quyết theo pháp luật Việt Nam.</p>
+@* Căn cứ: khoản 1, 2 Điều 11; khoản 6 Điều 5; Điều 17 Luật 122/2025/QH15; Điều 21, 25, 31 Luật 19/2023/QH15. *@

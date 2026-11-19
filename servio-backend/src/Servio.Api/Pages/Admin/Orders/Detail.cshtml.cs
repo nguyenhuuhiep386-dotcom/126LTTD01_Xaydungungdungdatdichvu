@@ -52,7 +52,9 @@ public sealed class DetailModel(ServioDbContext db, CompletionService completion
             .Include(o => o.CancellationCharges)
             .Include(o => o.Disputes)
             .Include(o => o.Reviews)
-            .FirstOrDefaultAsync(o => o.Id == id, ct);
+            .Where(o => o.Id == id)
+            .OrderBy(o => o.Id) // split queries need a stable order even for one row (EF warning 10102)
+            .FirstOrDefaultAsync(ct);
         if (order is null)
         {
             return NotFound();

@@ -6,6 +6,7 @@ using Servio.Api.Services.Files;
 using Servio.Api.Services.Orders;
 using Servio.Api.Services.Quotes;
 using Servio.Api.Services.Requests;
+using Servio.Api.Services.Users;
 using Servio.Api.Services.Reviews;
 using Servio.Api.Services.Wallets;
 
@@ -32,6 +33,7 @@ public sealed class DemoSeeder(
     ReviewService reviews,
     DisputeService disputes,
     WalletService wallets,
+    ConsentService consents,
     TimeProvider clock,
     ILogger<DemoSeeder> logger)
 {
@@ -145,6 +147,7 @@ public sealed class DemoSeeder(
         };
         db.Users.Add(user);
         db.Addresses.Add(home);
+        consents.Add(user.Id, AppFlavor.Customer, ConsentPurpose.TermsAndPrivacy, true, await consents.CurrentVersionAsync(ct));
         await db.SaveChangesAsync(ct);
         return new Person(user, home);
     }
@@ -169,6 +172,11 @@ public sealed class DemoSeeder(
             });
         }
         db.Users.Add(user);
+        var version = await consents.CurrentVersionAsync(ct);
+        foreach (var purpose in new[] { ConsentPurpose.TermsAndPrivacy, ConsentPurpose.KycIdentity, ConsentPurpose.LocationSharing })
+        {
+            consents.Add(user.Id, AppFlavor.Partner, purpose, true, version);
+        }
         await db.SaveChangesAsync(ct);
         return new Person(user, null);
     }

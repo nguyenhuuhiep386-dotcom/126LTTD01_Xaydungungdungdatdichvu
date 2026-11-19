@@ -37,7 +37,7 @@ public sealed class CompletionService(
         }
         var changes = await SettleAsync(order, ActorType.Customer, userId, ct);
         await db.SaveChangesAsync(ct);
-        await PublishAsync(order, changes, "Khách đã xác nhận hoàn thành và thanh toán tiền mặt. Cảm ơn hai bạn!", ct);
+        await PublishAsync(order, changes, "Khách đã xác nhận hoàn thành và thanh toán tiền mặt.", ct);
         return new CompletionResultDto(order.Id, (OrderStatus)order.Status, false, (long)order.TotalAmount,
             (long)order.OrderAssignments.Where(a => a.Status == (byte)OrderStatus.Completed).Sum(a => a.CustomerPayable));
     }
@@ -142,7 +142,7 @@ public sealed class CompletionService(
             order.ConfirmedAt = now;
         }
         order.CompletedAt ??= now;
-        order.DisputeDeadlineAt = order.CompletedAt.Value.AddHours(72);
+        order.DisputeDeadlineAt = order.CompletedAt.Value.AddHours(await configs.GetIntAsync("order.dispute_window_hours", 72, ct));
         order.UnpaidReportDeadlineAt = order.CompletedAt.Value.AddHours(await configs.GetIntAsync("order.unpaid_report_window_hours", 24, ct));
         return changes;
     }

@@ -90,6 +90,13 @@ INSERT INTO @Configs VALUES
  ('cancellation.fee_after_arrived_percent',     N'20',     'decimal', 'PAYMENT',   N'Phí huỷ theo % giá báo khi đối tác đã đến'),
  ('cancellation.max_outstanding_amount',        N'100000', 'decimal', 'PAYMENT',   N'Tổng phí huỷ DUE vượt mức này chặn đăng bài mới'),
  ('cancellation.no_show_wait_minutes',          N'15',     'int',     'ORDER',     N'Thời gian chờ trước khi báo khách không có mặt'),
+ ('dispute.response_hours',                     N'48',     'int',     'ORDER',     N'Bộ phận hỗ trợ xử lý khiếu nại trong N giờ'),
+ ('payment.bank_name',                          N'',       'string',  'PAYMENT',   N'Ngân hàng nhận phí huỷ (trống thì app ẩn)'),
+ ('payment.bank_account_number',                N'',       'string',  'PAYMENT',   N'Số tài khoản nhận phí huỷ'),
+ ('payment.bank_account_holder',                N'',       'string',  'PAYMENT',   N'Chủ tài khoản nhận phí huỷ'),
+ ('payment.transfer_note_template',             N'SERVIO {phone}', 'string', 'PAYMENT', N'Mẫu nội dung chuyển khoản; app thay {phone} bằng số điện thoại của khách'),
+ ('support.hotline',                            N'',       'string',  'APP',       N'Hotline hỗ trợ (trống thì app ẩn)'),
+ ('support.hours',                              N'8:00–21:00 hằng ngày', 'string', 'APP', N'Giờ hỗ trợ'),
  ('checkin.max_distance_meters',                N'200',    'int',     'ORDER',     N'Khoảng cách tối đa tới địa chỉ khi check-in'),
  ('checkin.max_accuracy_meters',                N'100',    'int',     'ORDER',     N'Độ chính xác GPS tối thiểu khi check-in'),
  ('checkin.max_fix_age_seconds',                N'60',     'int',     'ORDER',     N'Tuổi tối đa của điểm GPS khi check-in'),
@@ -98,7 +105,9 @@ INSERT INTO @Configs VALUES
  ('integrity.checkin_required',                 N'false',  'bool',    'ORDER',     N'Bắt buộc Play Integrity khi check-in (tắt khi demo)'),
  ('app.min_version_customer',                   N'1.0.0',  'string',  'APP',       N'Phiên bản tối thiểu app khách'),
  ('app.min_version_partner',                    N'1.0.0',  'string',  'APP',       N'Phiên bản tối thiểu app đối tác'),
- ('app.maintenance_mode',                       N'false',  'bool',    'APP',       N'Chế độ bảo trì');
+ ('app.maintenance_mode',                       N'false',  'bool',    'APP',       N'Chế độ bảo trì'),
+ ('privacy.policy_version',                     N'2026-11-15', 'string', 'PRIVACY', N'Phiên bản chính sách bảo mật và điều khoản; đổi khi sửa nội dung để hỏi lại sự đồng ý'),
+ ('privacy.require_consent',                    N'true',   'bool',    'PRIVACY',   N'Bắt buộc có sự đồng ý trước khi thu dữ liệu (chỉ tắt khi app chưa có màn hình đồng ý)');
 
 INSERT INTO dbo.SystemConfigs ([Key], Value, DataType, [Group], Description)
 SELECT c.[Key], c.Value, c.DataType, c.[Group], c.Description

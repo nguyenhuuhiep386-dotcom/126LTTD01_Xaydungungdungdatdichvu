@@ -84,6 +84,7 @@ public sealed record PartnerPublicDto(
     int TotalReviews,
     int CompletedOrders,
     IReadOnlyList<string> Skills,
+    bool IdentityVerified,
     DateTimeOffset MemberSince);
 
 // #28 GET /partners/{id}/reviews

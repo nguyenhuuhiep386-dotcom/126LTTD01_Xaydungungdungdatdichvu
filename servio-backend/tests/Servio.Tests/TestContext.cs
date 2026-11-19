@@ -28,7 +28,8 @@ public sealed class TestContext : IDisposable
     {
         Db = new ServioDbContext(new DbContextOptionsBuilder<ServioDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+            .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning)
+                .Throw(CoreEventId.RowLimitingOperationWithoutOrderByWarning)) // Skip/Take must be ordered (EF 10102)
             .AddInterceptors(new InMemoryRowVersionInterceptor())
             .Options);
         Directory.CreateDirectory(Path.Combine(RootPath, "wwwroot"));
@@ -40,8 +41,13 @@ public sealed class TestContext : IDisposable
 
     public SystemConfigService Configs() => new(Db, new MemoryCache(new MemoryCacheOptions()));
 
-    /// <summary>Adds a user with the given role and profile. Returns the user.</summary>
-    public async Task<User> AddUserAsync(UserRoleType role, string fullName = "Nguyễn Văn An", string phone = "+84901234567")
+    public ConsentService Consents() => new(Db, Configs(), Clock);
+
+    /// <summary>
+    /// Adds a user with the given role and profile. Returns the user. By default the user already agreed on the app's
+    /// consent screens (terms; partners also KYC and location), as every real user must before using the service.
+    /// </summary>
+    public async Task<User> AddUserAsync(UserRoleType role, string fullName = "Nguyễn Văn An", string phone = "+84901234567", bool consented = true)
     {
         var now = Clock.GetUtcNow();
         var user = new User { Id = Guid.NewGuid(), PhoneNumber = phone, FullName = fullName, Status = (byte)UserStatus.Active, CreatedAt = now, UpdatedAt = now };
@@ -55,6 +61,17 @@ public sealed class TestContext : IDisposable
             user.PartnerProfile = new PartnerProfile { Id = Guid.NewGuid(), ServiceRadiusKm = 10, CreatedAt = now, UpdatedAt = now };
         }
         Db.Users.Add(user);
+        if (consented)
+        {
+            var flavor = role == UserRoleType.Customer ? AppFlavor.Customer : AppFlavor.Partner;
+            var purposes = role == UserRoleType.Customer
+                ? new[] { ConsentPurpose.TermsAndPrivacy }
+                : new[] { ConsentPurpose.TermsAndPrivacy, ConsentPurpose.KycIdentity, ConsentPurpose.LocationSharing };
+            foreach (var purpose in purposes)
+            {
+                Consents().Add(user.Id, flavor, purpose, true, ConsentService.DefaultPolicyVersion);
+            }
+        }
         await Db.SaveChangesAsync();
         return user;
     }

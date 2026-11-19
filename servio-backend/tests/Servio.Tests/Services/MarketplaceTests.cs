@@ -125,7 +125,11 @@ public sealed class MarketplaceTests : IAsyncLifetime
         Assert.Equal("Trần Thợ", pushed.Quote.Partner.FullName);
         Assert.NotEmpty(pushed.Quote.RowVersion);
         var customerList = await quotes.ListForCustomerAsync(_f.Customer.Id, post.Id, QuoteSort.Time, 1, 20, default);
-        Assert.Equal(quote.Id, Assert.Single(customerList.Items).Id);
+        var card = Assert.Single(customerList.Items);
+        Assert.Equal(quote.Id, card.Id);
+        Assert.Equal((post.CategoryName, true), (card.Partner.SkillName, card.Partner.IdentityVerified));
+        var row = Assert.Single((await _f.Requests().ListMineAsync(_f.Customer.Id, [], 1, 20, default)).Items);
+        Assert.Equal((1, 1), (row.BroadcastCount, row.Revision)); // the partner was online when the post went out
         Assert.Equal(1, (await _f.Requests().GetForOwnerAsync(_f.Customer.Id, post.Id, default)).QuoteCount);
         var view = await _f.Feed().GetForPartnerAsync(partner.Id, post.Id, default);
         Assert.Equal(quote.Id, view.OwnQuote?.Id);

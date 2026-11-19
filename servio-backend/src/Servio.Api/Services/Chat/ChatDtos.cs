@@ -5,7 +5,8 @@ namespace Servio.Api.Services.Chat;
 
 public enum MessageType : byte { Text = 1, Image = 2, System = 3 }
 
-/// <summary>Row of #54 and result of #55/#56 (CS-27 / PS-20 list, CS-28 header).</summary>
+/// <summary>Row of #54 and result of #55/#56 (CS-27 / PS-20 list, CS-28 header). price = the price agreed with this partner
+/// once ordered, else their newest quote; null before any quote.</summary>
 public sealed record ConversationDto(
     Guid Id,
     ConversationStatus Status,
@@ -15,7 +16,9 @@ public sealed record ConversationDto(
     string RequestTitle,
     ServiceRequestStatus RequestStatus,
     Guid? OrderId,
+    string? OrderCode,
     OrderStatus? OrderStatus,
+    decimal? Price,
     CounterpartDto Counterpart,
     LastMessageDto? LastMessage,
     int UnreadCount,

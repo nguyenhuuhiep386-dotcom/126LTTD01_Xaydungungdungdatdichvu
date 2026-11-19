@@ -35,19 +35,146 @@
 
     <!-- CS-14 My requests -->
     <string name="requests_title">Yêu cầu của tôi</string>
-    <string name="requests_fake_note">Dữ liệu mẫu (FakeServiceRequestRepository)</string>
-    <string name="requests_empty">Bạn chưa có yêu cầu nào</string>
+    <string name="requests_tab_open">Đang mở</string>
+    <string name="requests_tab_matched">Đã ghép</string>
+    <string name="requests_tab_history">Lịch sử</string>
+    <string name="requests_tab_with_count">%1$s (%2$d)</string>
+    <string name="requests_empty_open">Bạn chưa có yêu cầu nào đang mở</string>
+    <string name="requests_empty_matched">Chưa có yêu cầu nào đã ghép với người làm</string>
+    <string name="requests_empty_history">Chưa có yêu cầu nào hết hạn hoặc đã huỷ</string>
+    <string name="requests_meta">%1$s · %2$s</string>
+    <string name="requests_new">Đăng yêu cầu mới</string>
+    <string name="requests_waiting_quotes">Chờ báo giá</string>
     <string name="requests_quotes">%1$d báo giá</string>
+    <string name="requests_status_draft">Đang kiểm duyệt</string>
+    <string name="requests_status_open">Đang mở</string>
+    <string name="requests_status_matched">Đã ghép</string>
+    <string name="requests_status_expired">Hết hạn</string>
+    <string name="requests_status_cancelled">Đã huỷ</string>
+    <string name="requests_status_rejected">Không được duyệt</string>
+
+    <!-- CS-15 Request detail and quotes -->
+    <string name="request_detail_title">Chi tiết yêu cầu</string>
+    <string name="request_detail_not_found">Không tìm thấy yêu cầu</string>
+    <!-- Monday first; used as "T7 17/10" -->
+    <string-array name="weekday_short">
+        <item>T2</item>
+        <item>T3</item>
+        <item>T4</item>
+        <item>T5</item>
+        <item>T6</item>
+        <item>T7</item>
+        <item>CN</item>
+    </string-array>
+    <!-- "Điện lạnh · Sửa máy lạnh" -->
+    <string name="request_detail_category">%1$s · %2$s</string>
+    <string name="request_detail_status_open">Đang nhận báo giá</string>
+    <string name="request_detail_time_now">Càng sớm càng tốt</string>
+    <string name="request_detail_time_now_until">Càng sớm càng tốt · trước %1$s</string>
+    <string name="request_detail_time_unknown">Chưa có khung giờ</string>
+    <string name="request_detail_budget">Ngân sách %1$s – %2$s đ</string>
+    <string name="request_detail_expires_hours">Hết hạn sau %1$d giờ</string>
+    <string name="request_detail_expires_minutes">Hết hạn sau %1$d phút</string>
+    <string name="request_detail_expired">Đã hết hạn</string>
+    <string name="request_detail_cancel_reason">Lý do huỷ: %1$s</string>
+    <string name="request_detail_quotes_title">Báo giá (%1$d)</string>
+    <string name="request_detail_quotes_empty">Chưa có báo giá</string>
+    <string name="request_detail_sort">Sắp xếp báo giá</string>
+    <string name="request_detail_sort_time">Sớm nhất</string>
+    <string name="request_detail_sort_price">Giá thấp</string>
+    <string name="request_detail_sort_rating">Đánh giá cao</string>
+    <string name="request_detail_menu_cancel">Huỷ yêu cầu</string>
+    <string name="request_detail_cancel_title">Huỷ yêu cầu này?</string>
+    <string name="request_detail_cancel_message">Các báo giá đang chờ sẽ hết hiệu lực và yêu cầu không nhận thêm báo giá.</string>
+    <string name="request_detail_cancel_reason_hint">Lý do (không bắt buộc)</string>
+    <string name="request_detail_cancelled">Đã huỷ yêu cầu</string>
+    <!-- #40 → 409 INVALID_STATUS_TRANSITION -->
+    <string name="request_detail_cancel_conflict">Yêu cầu đã thay đổi trạng thái, vui lòng tải lại.</string>
+
+    <!-- Quote card (CS-15) and CS-16 Quote detail -->
+    <string name="quote_price">%1$s đ</string>
+    <string name="quote_price_caption">giá báo</string>
+    <string name="quote_price_label">Giá báo</string>
+    <string name="quote_price_note">Tiền công, chưa gồm chi phí phát sinh (nếu có, bạn duyệt trong app)</string>
+    <string name="quote_review_count">(%1$d đánh giá)</string>
+    <string name="quote_no_reviews">Chưa có đánh giá</string>
+    <string name="quote_experience">%1$d năm kinh nghiệm</string>
+    <string name="quote_completed">%1$d đơn hoàn thành</string>
+    <!-- Always an absolute time: "Có mặt 14:00, T7 17/10 · làm khoảng 90 phút" -->
+    <string name="quote_available">Có mặt %1$s · làm khoảng %2$s</string>
+    <string name="quote_available_label">Có mặt</string>
+    <string name="quote_duration_label">Thời gian làm</string>
+    <string name="quote_duration_about">Khoảng %1$s</string>
+    <string name="quote_duration_minutes">%1$d phút</string>
+    <string name="quote_duration_hours">%1$d giờ</string>
+    <string name="quote_duration_hours_minutes">%1$d giờ %2$d phút</string>
+    <string name="quote_note">“%1$s”</string>
+    <string name="quote_status_accepted">Đã chọn</string>
+    <string name="quote_chat">Nhắn tin</string>
+    <string name="quote_select">Chọn</string>
+    <string name="quote_select_this">Chọn báo giá này</string>
+    <string name="quote_view_profile">Xem hồ sơ đầy đủ</string>
+    <string name="quote_gone">Báo giá này không còn nữa</string>
+
+    <!-- CS-17 Hồ sơ đối tác (#27, #28) -->
+    <string name="partner_profile_title">Hồ sơ đối tác</string>
+    <string name="partner_profile_review_count">%1$d đánh giá</string>
+    <string name="partner_profile_no_rating">–</string>
+    <string name="partner_profile_no_rating_label">Chưa có đánh giá</string>
+    <string name="partner_profile_completed_label">đơn hoàn thành</string>
+    <string name="partner_profile_years">%1$d năm</string>
+    <string name="partner_profile_years_new">&lt; 1 năm</string>
+    <string name="partner_profile_experience_label">kinh nghiệm</string>
+    <string name="partner_profile_about">Giới thiệu</string>
+    <string name="partner_profile_reviews">Đánh giá gần đây</string>
+    <string name="partner_profile_no_reviews">Chưa có đánh giá nào</string>
+    <string name="partner_profile_stars">%1$d trên 5 sao</string>
+    <string name="partner_profile_not_found_title">Không xem được hồ sơ</string>
+    <string name="partner_profile_not_found_message">Hồ sơ này không tồn tại hoặc bạn chưa có báo giá, tin nhắn hay đơn hàng nào với đối tác này.</string>
+    <string name="partner_profile_quote_for">Báo giá cho %1$s</string>
+
+    <!-- CS-18 Xác nhận đặt dịch vụ (#43) -->
+    <string name="confirm_quote_title">Xác nhận đặt dịch vụ</string>
+    <string name="confirm_quote_job">Công việc</string>
+    <!-- "Có mặt 14:00, Thứ Bảy 17/10": the time of the quote, weekday spelled out. -->
+    <string name="confirm_quote_arrival">Có mặt %1$s</string>
+    <string name="confirm_quote_price_title">Chi tiết giá</string>
+    <string name="confirm_quote_price_label">Giá báo (tiền công)</string>
+    <string name="confirm_quote_extra_label">Chi phí phát sinh</string>
+    <string name="confirm_quote_extra_value">Duyệt trong app</string>
+    <string name="confirm_quote_total_label">Tổng dự kiến</string>
+    <string name="confirm_quote_payment_title">Thanh toán</string>
+    <string name="confirm_quote_cash">Tiền mặt</string>
+    <string name="confirm_quote_cash_hint">Trả trực tiếp cho đối tác khi xác nhận hoàn thành</string>
+    <!-- Fixed as in Figma: 10 minutes and the fees are SystemConfigs on the server, and no API reads them. -->
+    <string name="confirm_quote_note_accept">Đối tác có 10 phút để xác nhận. Các báo giá khác sẽ tự đóng.</string>
+    <string name="confirm_quote_note_cancel">Huỷ miễn phí trước khi đối tác di chuyển. Đang di chuyển: 20.000 đ. Đã đến: 30.000 đ hoặc 20% giá báo.</string>
+    <string name="confirm_quote_confirm">Xác nhận đặt dịch vụ</string>
+    <string name="confirm_quote_sending">Đang đặt…</string>
+    <string name="confirm_quote_unavailable_title">Báo giá này không còn hiệu lực</string>
+    <string name="confirm_quote_unavailable_message">Đối tác đã rút báo giá, yêu cầu đã hết hạn, đã huỷ hoặc đã chọn được đối tác.</string>
+    <string name="confirm_quote_other_quotes">Xem báo giá khác</string>
+    <string name="confirm_quote_changed_title">Báo giá vừa thay đổi</string>
+    <string name="confirm_quote_changed_message">Đối tác vừa cập nhật báo giá. Hãy xem lại giá rồi xác nhận lần nữa.</string>
+    <string name="confirm_quote_matched_title">Yêu cầu đã chọn đối tác</string>
+    <string name="confirm_quote_matched_message">Yêu cầu này đã chọn được đối tác, không đặt thêm báo giá khác được.</string>
+    <string name="confirm_quote_partner_title">Không đặt được với đối tác này</string>
+    <string name="confirm_quote_closed_title">Yêu cầu không còn nhận báo giá</string>
+    <string name="confirm_quote_not_found_title">Không tìm thấy</string>
+    <string name="confirm_quote_not_found_message">Không tìm thấy yêu cầu hoặc báo giá này.</string>
+    <string name="confirm_quote_back_to_request">Về yêu cầu</string>
+    <string name="confirm_quote_got_it">Đã hiểu</string>
+    <!-- CS-20 is still a placeholder: it shows the order it was opened with. -->
+    <string name="confirm_quote_order_placeholder">orderId: %1$s\nMã đơn: %2$s</string>
 
     <!-- CS-29 Account -->
     <string name="account_title">Tài khoản</string>
-    <string name="account_edit">Sửa</string>
-    <string name="account_edit_coming_soon">Đang phát triển</string>
     <string name="account_fee_title">Phí huỷ và giao dịch</string>
     <string name="account_fee_outstanding">Còn %1$s cần thanh toán</string>
+    <string name="account_fee_pending">Đang chờ xác nhận %1$s</string>
     <string name="account_fee_none">Không có khoản cần thanh toán</string>
-    <!-- Shown while the counter has no API yet (fee #156, unread notifications #104). -->
-    <string name="account_value_unavailable">—</string>
+    <!-- Shown when the counter's call failed (fee #87, unread notifications #104). -->
+    <string name="account_value_unavailable">–</string>
     <string name="account_address_title">Sổ địa chỉ</string>
     <string name="account_address_none">Chưa có địa chỉ</string>
     <plurals name="account_address_count">
@@ -101,9 +228,30 @@
     <string name="settings_version_label">Phiên bản ứng dụng</string>
     <string name="settings_version_value">%1$s (demo)</string>
     <string name="settings_logout_confirm">Đăng xuất khỏi Servio?</string>
-    <string name="settings_logout_all_title">Đăng xuất khỏi mọi thiết bị</string>
-    <string name="settings_logout_all_subtitle">Thu hồi phiên đăng nhập ở các máy khác</string>
-    <string name="settings_coming_soon">Đang phát triển</string>
+
+    <!-- CS-30 Phí huỷ và giao dịch. Amounts, the limit and the dates come from #87 and #155; no bank details (no API). -->
+    <string name="wallet_title">Phí huỷ và giao dịch</string>
+    <string name="wallet_due_label">Phí huỷ cần thanh toán</string>
+    <string name="wallet_limit_note">Tổng phí chưa trả trên %1$s sẽ tạm khoá đăng yêu cầu mới.</string>
+    <string name="wallet_pending_note">Đang chờ quản trị viên xác nhận: %1$s</string>
+    <string name="wallet_debts_title">Khoản đang nợ</string>
+    <string name="wallet_debt_title">Đơn #%1$s · %2$s</string>
+    <string name="wallet_debt_unpaid">Chưa trả</string>
+    <string name="wallet_debt_pending">Đang chờ xác nhận</string>
+    <string name="wallet_no_debts">Bạn không có khoản phí nào cần thanh toán.</string>
+    <string name="wallet_declare_title">Khai báo đã chuyển khoản</string>
+    <string name="wallet_declare_hint">Sau khi chuyển khoản, nhập mã giao dịch ngân hàng và ảnh chứng từ để quản trị viên xác nhận.</string>
+    <string name="wallet_reference_label">Mã giao dịch ngân hàng</string>
+    <string name="wallet_reference_length">Mã giao dịch dài 3–100 ký tự</string>
+    <string name="wallet_evidence_title">Ảnh chứng từ</string>
+    <string name="wallet_evidence_add">Tải ảnh chụp màn hình chuyển khoản</string>
+    <string name="wallet_evidence_uploading">Đang tải ảnh lên…</string>
+    <string name="wallet_evidence_change">Đổi ảnh</string>
+    <string name="wallet_evidence_remove">Xoá ảnh</string>
+    <string name="wallet_evidence_preview">Ảnh chứng từ chuyển khoản</string>
+    <string name="wallet_submit">Gửi khai báo</string>
+    <string name="wallet_sent">Đã gửi khai báo %1$s, chờ quản trị viên xác nhận</string>
+    <string name="wallet_nothing_to_pay">Các khoản này đã được khai báo hoặc đã trả</string>
 
     <!-- KH-2 Tạo yêu cầu (CS-07 → CS-11) -->
     <string name="create_request_image_unreadable">Không đọc được ảnh này, vui lòng chọn ảnh khác.</string>
@@ -229,6 +377,209 @@
     <string name="create_request_post_restricted_title">Tạm thời chưa đăng được</string>
     <string name="create_request_post_view_fee">Xem phí huỷ</string>
     <string name="action_close">Đóng</string>
-    <!-- CS-15 is still a placeholder: shows the id it was opened with. -->
-    <string name="create_request_posted_placeholder">requestId: %1$s</string>
+
+    <!-- region Đơn hàng (CS-19, CS-20, CS-20c). Only labels: every name, time, amount and count comes from the API. -->
+    <string name="order_status_pending">Chờ đối tác xác nhận</string>
+    <string name="order_status_accepted">Đã nhận việc</string>
+    <string name="order_status_on_the_way">Đang trên đường</string>
+    <string name="order_status_arrived">Đối tác đã đến</string>
+    <string name="order_status_in_progress">Đang thực hiện</string>
+    <string name="order_status_completed_by_partner">Chờ bạn xác nhận</string>
+    <string name="order_status_completed">Hoàn thành</string>
+    <string name="order_status_cancelled">Đã huỷ</string>
+    <string name="order_status_disputed">Đang khiếu nại</string>
+    <string name="order_status_processing">Đang xử lý</string>
+
+    <string name="orders_title">Đơn hàng</string>
+    <string name="orders_tab_active">Đang diễn ra</string>
+    <string name="orders_tab_completed">Đã hoàn thành</string>
+    <string name="orders_tab_cancelled">Đã huỷ</string>
+    <string name="orders_tab_with_count">%1$s (%2$d)</string>
+    <string name="orders_empty_active">Chưa có đơn đang diễn ra</string>
+    <string name="orders_empty_completed">Chưa có đơn đã hoàn thành</string>
+    <string name="orders_empty_cancelled">Chưa có đơn đã huỷ</string>
+    <string name="orders_load_failed">Chưa tải được đơn hàng</string>
+    <string name="order_code">Đơn #%1$s</string>
+    <string name="order_missing_value">–</string>
+
+    <string name="order_detail_title">Đơn #%1$s</string>
+    <string name="order_detail_title_loading">Chi tiết đơn hàng</string>
+    <string name="order_detail_not_found_title">Không xem được đơn này</string>
+    <string name="order_detail_not_found_message">Đơn này không tồn tại hoặc không thuộc tài khoản của bạn.</string>
+    <string name="order_detail_pending_title">Chờ đối tác xác nhận</string>
+    <string name="order_detail_pending_window">Đối tác có %1$d phút để xác nhận · còn %2$s</string>
+    <string name="order_detail_pending_left">Còn %1$s để đối tác xác nhận</string>
+    <string name="order_detail_pending_expired">Đã hết thời gian xác nhận</string>
+    <string name="order_detail_line_scheduled">Hẹn %1$s</string>
+    <string name="order_detail_line_on_the_way">Bắt đầu đi lúc %1$s</string>
+    <string name="order_detail_line_arrived">Đã đến lúc %1$s</string>
+    <string name="order_detail_line_started">Bắt đầu làm lúc %1$s</string>
+    <string name="order_detail_line_auto_confirm">Đối tác báo đã xong · tự xác nhận lúc %1$s</string>
+    <string name="order_detail_line_done_by_partner">Đối tác báo đã xong</string>
+    <string name="order_detail_line_completed">Hoàn thành lúc %1$s</string>
+    <string name="order_detail_line_cancelled">Đã huỷ lúc %1$s</string>
+    <string name="order_detail_disputed">Khiếu nại đang được xử lý</string>
+    <string name="order_detail_confirm_completion">Xem kết quả và xác nhận</string>
+    <string name="order_detail_phone_later">Số điện thoại hiện sau khi đối tác nhận đơn</string>
+    <string name="order_detail_chat">Nhắn tin với đối tác</string>
+    <string name="order_detail_call">Gọi đối tác</string>
+    <string name="order_detail_job_section">Thông tin công việc</string>
+    <string name="order_detail_service">Dịch vụ</string>
+    <string name="order_detail_schedule">Lịch hẹn</string>
+    <string name="order_detail_address">Địa chỉ</string>
+    <string name="order_detail_price">Giá báo</string>
+    <string name="order_detail_payment">Thanh toán</string>
+    <string name="order_payment_cash">Tiền mặt</string>
+    <string name="order_detail_progress_section">Tiến trình</string>
+    <string name="order_step_created">Đã tạo đơn</string>
+    <string name="order_step_waiting_partner">Chờ đối tác xác nhận</string>
+    <string name="order_step_partner_confirmed">Đối tác xác nhận</string>
+    <string name="order_step_on_the_way">Đang trên đường</string>
+    <string name="order_step_arrived">Đã đến nơi</string>
+    <string name="order_step_in_progress">Đang thực hiện</string>
+    <string name="order_step_completed">Hoàn thành</string>
+    <string name="order_step_expires_at">Hết hạn lúc %1$s</string>
+    <string name="order_step_awaiting_confirm">Chờ bạn xác nhận · tự xác nhận lúc %1$s</string>
+    <string name="order_step_awaiting_confirm_no_time">Chờ bạn xác nhận</string>
+    <string name="order_step_cancelled">Đã huỷ</string>
+    <string name="order_step_cancelled_at">Đã huỷ %1$s</string>
+    <string name="order_step_cancelled_by">bởi %1$s</string>
+    <string name="order_actor_customer">Bạn</string>
+    <string name="order_actor_partner">Đối tác</string>
+    <string name="order_actor_system">Hệ thống</string>
+    <string name="order_actor_admin">Quản trị viên</string>
+    <string name="order_step_separator">" · "</string>
+    <string name="order_step_pending_charges">%1$d phát sinh chờ duyệt</string>
+    <string name="order_detail_pending_charges">Có %1$d chi phí phát sinh chờ bạn duyệt</string>
+
+    <!-- CS-22 Duyệt chi phí phát sinh -->
+    <string name="extra_charge_title">Đối tác đề xuất chi phí phát sinh</string>
+    <string name="extra_charge_order">Đơn #%1$s</string>
+    <string name="extra_charge_evidence">Ảnh chứng từ của khoản phát sinh</string>
+    <string name="extra_charge_quoted">Giá báo</string>
+    <string name="extra_charge_approved_extras">Phát sinh đã duyệt</string>
+    <string name="extra_charge_this">Phát sinh này</string>
+    <string name="extra_charge_plus">+%1$s</string>
+    <string name="extra_charge_new_total">Tổng mới</string>
+    <string name="extra_charge_note">Nếu từ chối, khoản này không được tính vào tổng tiền. Bạn có thể nhắn tin hỏi thêm trước khi quyết định.</string>
+    <string name="extra_charge_reject">Từ chối</string>
+    <string name="extra_charge_approve">Duyệt %1$s</string>
+    <string name="extra_charge_approved_done">Đã duyệt phát sinh %1$s</string>
+    <string name="extra_charge_rejected_done">Đã từ chối phát sinh</string>
+    <string name="extra_charge_handled">Khoản này đã được xử lý hoặc đơn đã đổi trạng thái</string>
+    <string name="extra_charge_disputed">Đơn đang khiếu nại nên chưa duyệt được</string>
+
+    <!-- CS-20 khi có phát sinh đã duyệt, đơn đã hoàn thành -->
+    <string name="order_detail_extra_approved">Phát sinh đã duyệt</string>
+    <string name="order_detail_total">Tổng tiền</string>
+    <string name="order_detail_review">Đánh giá đối tác</string>
+
+    <!-- CS-23 Xác nhận hoàn thành -->
+    <string name="confirm_title">Xác nhận hoàn thành</string>
+    <string name="confirm_done_at">Đối tác đã báo hoàn thành lúc %1$s</string>
+    <string name="confirm_done">Đối tác đã báo hoàn thành</string>
+    <string name="confirm_auto_at">Đơn tự hoàn thành lúc %1$s nếu bạn không phản hồi.</string>
+    <string name="confirm_auto_unknown">Đơn sẽ tự hoàn thành nếu bạn không phản hồi.</string>
+    <string name="confirm_photos">Ảnh trước và sau</string>
+    <string name="confirm_photo_before">Trước</string>
+    <string name="confirm_photo_after">Sau</string>
+    <string name="confirm_photo_before_desc">Ảnh trước khi làm %1$d</string>
+    <string name="confirm_photo_after_desc">Ảnh sau khi làm %1$d</string>
+    <string name="confirm_note">“%1$s”</string>
+    <string name="confirm_payment">Thanh toán</string>
+    <string name="confirm_quoted">Giá báo</string>
+    <string name="confirm_extra">Phát sinh đã duyệt · %1$s</string>
+    <string name="confirm_total">Tổng tiền mặt trả đối tác</string>
+    <string name="confirm_button">Xác nhận hoàn thành và đã trả tiền mặt %1$s</string>
+    <string name="confirm_not_waiting">Đơn không còn chờ xác nhận</string>
+    <string name="confirm_changed">Đơn vừa thay đổi, bạn kiểm tra lại số tiền rồi xác nhận</string>
+    <string name="confirm_disputed">Đơn đang khiếu nại nên chưa xác nhận được</string>
+
+    <!-- CS-26 Đánh giá đối tác -->
+    <string name="review_title">Đánh giá đối tác</string>
+    <string name="review_order">Đơn #%1$s</string>
+    <string name="review_rating_none">Chạm để chọn số sao</string>
+    <string name="review_rating_1">Rất tệ</string>
+    <string name="review_rating_2">Chưa hài lòng</string>
+    <string name="review_rating_3">Bình thường</string>
+    <string name="review_rating_4">Hài lòng</string>
+    <string name="review_rating_5">Rất hài lòng</string>
+    <string name="review_star">%1$d sao</string>
+    <string name="review_punctuality">Đúng giờ</string>
+    <string name="review_quality">Tay nghề</string>
+    <string name="review_attitude">Thái độ</string>
+    <string name="review_price">Giá cả</string>
+    <string name="review_comment">Nhận xét</string>
+    <string name="review_comment_hint">Không bắt buộc</string>
+    <string name="review_deadline">Bạn có thể đánh giá đến %1$s.</string>
+    <string name="review_submit">Gửi đánh giá</string>
+    <string name="review_sent">Đã gửi đánh giá</string>
+    <string name="review_window_closed">Đã quá hạn đánh giá đơn này</string>
+    <string name="review_already">Bạn đã đánh giá đơn này</string>
+    <string name="review_not_pending">Đơn này không còn chờ đánh giá</string>
+    <string name="order_cancel_free">Huỷ đơn (miễn phí)</string>
+    <string name="order_cancel">Huỷ đơn</string>
+
+    <string name="order_cancel_title">Huỷ đơn #%1$s?</string>
+    <string name="order_cancel_lead_free">Đối tác chưa lên đường nên huỷ đơn không mất phí.</string>
+    <string name="order_cancel_lead_on_the_way">Đối tác đang trên đường đến nên đơn này có phí huỷ.</string>
+    <string name="order_cancel_lead_arrived">Đối tác đã đến nơi nên đơn này có phí huỷ.</string>
+    <string name="order_cancel_lead_fee">Đơn này có phí huỷ.</string>
+    <string name="order_cancel_fee_on_the_way">Phí huỷ khi đối tác đang di chuyển</string>
+    <string name="order_cancel_fee_arrived">Phí huỷ khi đối tác đã đến</string>
+    <string name="order_cancel_fee">Phí huỷ</string>
+    <string name="order_cancel_debt_note">Phí được ghi vào mục Phí huỷ cần thanh toán. Bạn chuyển khoản, quản trị viên xác nhận. Tổng phí chưa trả trên %1$s sẽ tạm khoá đăng yêu cầu mới.</string>
+    <string name="order_cancel_debt_note_no_limit">Phí được ghi vào mục Phí huỷ cần thanh toán. Bạn chuyển khoản, quản trị viên xác nhận. Nợ phí huỷ vượt mức cho phép sẽ tạm khoá đăng yêu cầu mới.</string>
+    <string name="order_cancel_reason_label">Lý do huỷ</string>
+    <string name="order_cancel_reason_hint">Chọn lý do huỷ</string>
+    <string name="order_cancel_keep">Giữ đơn</string>
+    <string name="order_cancel_confirm">Huỷ đơn</string>
+    <string name="order_cancel_confirm_fee">Huỷ đơn, chịu phí %1$s</string>
+    <string name="order_cancel_fee_changed">Phí huỷ vừa thay đổi. Xem lại rồi bấm huỷ lần nữa.</string>
+    <string name="order_cancel_done">Đã huỷ đơn</string>
+    <string name="order_cancel_done_fee">Đã huỷ đơn · phí %1$s ghi vào Phí huỷ cần thanh toán</string>
+    <string name="order_cancel_not_cancellable">Đơn không còn huỷ được</string>
+    <!-- The customer's reason, sent to #72 exactly as written here. -->
+    <string-array name="order_cancel_reasons">
+        <item>Tôi đã tự xử lý được</item>
+        <item>Tôi muốn đổi lịch</item>
+        <item>Đối tác đến trễ</item>
+        <item>Tôi tìm được người khác</item>
+        <item>Lý do khác</item>
+    </string-array>
+    <!-- endregion -->
+
+    <!-- region Theo dõi đối tác (CS-20 ON_THE_WAY, CS-21) và CS-20b. Every ETA, distance and time comes from #76 / the hub. -->
+    <string name="order_distance_km">%1$s&#160;km</string>
+    <string name="order_eta_minutes">Khoảng %1$d phút nữa</string>
+    <string name="order_eta_updated">Cập nhật lúc %1$s · cách %2$s</string>
+    <string name="order_eta_unknown">Chưa cập nhật</string>
+    <string name="order_eta_stale">Chưa cập nhật · vị trí lúc %1$s</string>
+    <string name="order_eta_no_location">Chưa có vị trí của đối tác</string>
+    <string name="order_track">Theo dõi đường đi</string>
+    <string name="tracking_back">Quay lại đơn hàng</string>
+    <string name="tracking_updated">Cập nhật %1$s</string>
+    <string name="tracking_stale">Chưa cập nhật · %1$s</string>
+    <string name="tracking_no_location">Chưa có vị trí</string>
+    <string name="tracking_eta_label">Dự kiến đến</string>
+    <string name="tracking_distance_label">Khoảng cách</string>
+    <string name="tracking_eta_value">~%1$d&#160;phút</string>
+    <string name="tracking_missing">–</string>
+    <string name="tracking_note">Xác nhận %1$s · bắt đầu di chuyển %2$s. Thời gian dự kiến tính theo khoảng cách, có thể lệch khi kẹt xe.</string>
+    <string name="tracking_note_no_times">Thời gian dự kiến tính theo khoảng cách, có thể lệch khi kẹt xe.</string>
+    <string name="tracking_chat">Nhắn tin</string>
+    <string name="tracking_call">Gọi</string>
+    <string name="tracking_partner_marker">Vị trí đối tác</string>
+    <string name="tracking_address_marker">Địa chỉ làm việc</string>
+    <string name="arrival_title">Thợ báo đã đến, đúng không?</string>
+    <string name="arrival_body">%1$s báo đã có mặt tại %2$s nhưng GPS trên máy đối tác chưa xác định được vị trí. Chỉ xác nhận khi bạn đã gặp đối tác.</string>
+    <string name="arrival_partner_fallback">Đối tác</string>
+    <string name="arrival_address_fallback">địa chỉ của đơn</string>
+    <string name="arrival_expires_in">Yêu cầu hết hạn sau %1$s</string>
+    <string name="arrival_deny">Chưa thấy</string>
+    <string name="arrival_confirm">Đúng, đã đến</string>
+    <string name="arrival_expired">Yêu cầu xác nhận đã hết hạn</string>
+    <string name="arrival_conflict">Yêu cầu đã hết hạn hoặc đã được trả lời</string>
+    <string name="arrival_denied">Đã báo đối tác là bạn chưa thấy</string>
+    <!-- endregion -->
 </resources>

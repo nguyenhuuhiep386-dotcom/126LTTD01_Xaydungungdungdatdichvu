@@ -311,7 +311,7 @@ public sealed class ChatService(
 
     private sealed record ConversationRow(
         Guid Id, byte Status, Guid ServiceRequestId, string RequestCode, string RequestTitle, byte RequestStatus,
-        Guid? OrderId, byte? OrderStatus, string? LastMessagePreview, DateTimeOffset? LastMessageAt, Guid? LastMessageSenderId,
+        Guid? OrderId, string? OrderCode, byte? OrderStatus, decimal? Price, string? LastMessagePreview, DateTimeOffset? LastMessageAt, Guid? LastMessageSenderId,
         string CustomerName, string? CustomerAvatar, decimal? CustomerRating,
         Guid PartnerProfileId, string PartnerName, string? PartnerAvatar, decimal? PartnerRating,
         int Unread, DateTimeOffset CreatedAt);
@@ -319,7 +319,13 @@ public sealed class ChatService(
     private static IQueryable<ConversationRow> Project(IQueryable<Conversation> query, Guid userId) =>
         query.Select(c => new ConversationRow(
             c.Id, c.Status, c.ServiceRequestId, c.ServiceRequest.Code, c.ServiceRequest.Title, c.ServiceRequest.Status,
-            c.OrderId, c.Order == null ? null : c.Order.Status, c.LastMessagePreview, c.LastMessageAt, c.LastMessageSenderId,
+            c.OrderId, c.Order == null ? null : c.Order.Code, c.Order == null ? null : c.Order.Status,
+            // The price agreed with this partner once ordered, else their newest quote on the post.
+            c.Order != null && c.Order.OrderAssignments.Any(a => a.PartnerProfileId == c.PartnerProfileId)
+                ? c.Order.OrderAssignments.Where(a => a.PartnerProfileId == c.PartnerProfileId).Max(a => (decimal?)a.Amount)
+                : c.ServiceRequest.Quotes.Where(q => q.PartnerProfileId == c.PartnerProfileId)
+                    .OrderByDescending(q => q.CreatedAt).Select(q => (decimal?)q.Amount).FirstOrDefault(),
+            c.LastMessagePreview, c.LastMessageAt, c.LastMessageSenderId,
             c.Customer.User.FullName, c.Customer.User.AvatarUrl, c.Customer.AverageRating,
             c.PartnerProfileId, c.PartnerProfile.User.FullName, c.PartnerProfile.User.AvatarUrl, c.PartnerProfile.AverageRating,
             c.Messages.Count(m => m.SenderUserId != null && m.SenderUserId != userId && m.ReadAt == null),
@@ -334,7 +340,9 @@ public sealed class ChatService(
         r.RequestTitle,
         (ServiceRequestStatus)r.RequestStatus,
         r.OrderId,
+        r.OrderCode,
         (OrderStatus?)r.OrderStatus,
+        r.Price,
         flavor == AppFlavor.Customer
             ? new CounterpartDto(r.PartnerProfileId, r.PartnerName, r.PartnerAvatar, r.PartnerRating)
             : new CounterpartDto(null, PartnerPublicService.ShortName(r.CustomerName), r.CustomerAvatar, r.CustomerRating),

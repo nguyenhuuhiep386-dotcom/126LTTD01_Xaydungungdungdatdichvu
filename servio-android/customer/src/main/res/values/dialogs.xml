@@ -8,6 +8,8 @@
         <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.Servio.Body.Text</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.Servio.Button.Dialog</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.Servio.Button.Dialog</item>
+        <!-- CS-11 OUTSTANDING_DEBT "Xem phí" -->
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.Servio.Button.Dialog</item>
     </style>
 
     <!-- Confirmation of a destructive action: the positive button is red. -->
@@ -38,5 +40,16 @@
 
     <style name="Widget.Servio.Button.Dialog.Destructive">
         <item name="android:textColor">@color/servio_error</item>
+    </style>
+
+    <!-- CS-20c Huỷ đơn only: Figma has the title semibold. Its own overlay so the shared one above stays as it is. -->
+    <style name="ThemeOverlay.Servio.AlertDialog.CancelOrder">
+        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.Servio.Title.Text.Strong</item>
+    </style>
+
+    <!-- The theme's fontFamily wins over the textAppearance's, so the semibold face is set on the view itself. -->
+    <style name="MaterialAlertDialog.Servio.Title.Text.Strong">
+        <item name="fontFamily">@font/be_vietnam_pro_semibold</item>
+        <item name="android:fontFamily">@font/be_vietnam_pro_semibold</item>
     </style>
 </resources>
