@@ -111,6 +111,7 @@ IP của laptop nằm sẵn trong APK (`servio.baseUrl`), nên phải chốt m�
 - [ ] Chạy backend `dotnet run --project servio-backend/src/Servio.Api --launch-profile Demo`, để cửa sổ này mở suốt buổi.
 - [ ] Trang quản trị: đăng nhập; Dashboard có dữ liệu seed (1 khiếu nại chờ xử lý, 1 khai báo trả nợ chờ xác nhận).
 - [ ] Hỏi Nguyên, Hiệp: hai app đã gửi sự đồng ý (`POST /users/me/consents`) chưa? Chưa thì AW-15 đặt `privacy.require_consent` = false trước giờ demo.
+- [ ] AW-15 điền `payment.bank_name`, `payment.bank_account_number`, `payment.bank_account_holder` (tài khoản nhận phí huỷ, CS-30) và `support.hotline` (CS-34). Để trống thì app ẩn các mục này.
 - [ ] **Không chạy `demo_smoke.py` sau khi seed** (sẽ thêm dữ liệu thử vào CSDL demo).
 
 **T − 30 phút (cả nhóm)**
