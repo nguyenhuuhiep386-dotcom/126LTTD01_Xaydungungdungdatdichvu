@@ -95,6 +95,9 @@ data class OrderAssignment(
     val completedAt: String? = null,
     val cancelledAt: String? = null,
     val cancelReason: String? = null,
+    /** Photo urls sent with #69 / #70 (CS-23); the server gives no caption and no time. */
+    val beforeImages: List<String> = emptyList(),
+    val afterImages: List<String> = emptyList(),
 )
 
 /** Money of the order (#63 pricing). */

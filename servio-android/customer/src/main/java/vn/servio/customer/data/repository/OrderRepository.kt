@@ -9,7 +9,10 @@ import vn.servio.customer.data.model.ArrivalConfirmation
 import vn.servio.customer.data.model.CancelOrderBody
 import vn.servio.customer.data.model.CancelPreview
 import vn.servio.customer.data.model.CancelResult
+import vn.servio.customer.data.model.ConfirmCompletionBody
+import vn.servio.customer.data.model.ConfirmCompletionResult
 import vn.servio.customer.data.model.CreatedOrder
+import vn.servio.customer.data.model.TimelineEntry
 import vn.servio.customer.data.model.ExtraCharge
 import vn.servio.customer.data.model.OrderDetail
 import vn.servio.customer.data.model.OrderListFilter
@@ -44,6 +47,12 @@ interface OrderRepository {
     /** #179. */
     suspend fun respondArrival(confirmation: ArrivalConfirmation, confirmed: Boolean): ApiResult<ArrivalConfirmation>
 
+    /** #64. */
+    suspend fun getTimeline(orderId: String): ApiResult<List<TimelineEntry>>
+
+    /** #71 with the rowVersion of the #63 on screen. */
+    suspend fun confirmCompletion(orderId: String, rowVersion: String): ApiResult<ConfirmCompletionResult>
+
     /** #74 without a note. */
     suspend fun respondExtraCharge(orderId: String, extraChargeId: String, approved: Boolean): ApiResult<ExtraCharge>
 
@@ -77,6 +86,11 @@ class RemoteOrderRepository @Inject constructor(
 
     override suspend fun respondArrival(confirmation: ArrivalConfirmation, confirmed: Boolean): ApiResult<ArrivalConfirmation> =
         apiCall { api.respondArrival(confirmation.orderId, confirmation.assignmentId, confirmation.requestId, RespondArrivalBody(confirmed)) }
+
+    override suspend fun getTimeline(orderId: String): ApiResult<List<TimelineEntry>> = apiCall { api.getTimeline(orderId) }
+
+    override suspend fun confirmCompletion(orderId: String, rowVersion: String): ApiResult<ConfirmCompletionResult> =
+        apiCall { api.confirmCompletion(orderId, ConfirmCompletionBody(rowVersion)) }
 
     override suspend fun respondExtraCharge(orderId: String, extraChargeId: String, approved: Boolean): ApiResult<ExtraCharge> =
         apiCall { api.respondExtraCharge(orderId, extraChargeId, RespondExtraChargeBody(approved)) }

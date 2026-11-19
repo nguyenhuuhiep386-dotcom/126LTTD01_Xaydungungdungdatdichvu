@@ -12,6 +12,12 @@ import vn.servio.customer.data.model.ArrivalConfirmation
 import vn.servio.customer.data.model.CancelOrderBody
 import vn.servio.customer.data.model.CancelPreview
 import vn.servio.customer.data.model.CancelResult
+import vn.servio.customer.data.model.ConfirmCompletionBody
+import vn.servio.customer.data.model.ConfirmCompletionResult
+import vn.servio.customer.data.model.PendingReview
+import vn.servio.customer.data.model.ReviewBody
+import vn.servio.customer.data.model.SubmittedReview
+import vn.servio.customer.data.model.TimelineEntry
 import vn.servio.customer.data.model.CreatedOrder
 import vn.servio.customer.data.model.CustomerWallet
 import vn.servio.customer.data.model.ExtraCharge
@@ -75,6 +81,25 @@ interface OrderApi {
         @Path("ecId") extraChargeId: String,
         @Body body: RespondExtraChargeBody,
     ): ApiResponse<ExtraCharge>
+
+    /** #64 status history; CS-23 reads the partner's note of COMPLETED_BY_PARTNER from it. */
+    @GET("orders/{id}/timeline")
+    suspend fun getTimeline(@Path("id") orderId: String): ApiResponse<List<TimelineEntry>>
+
+    /**
+     * #71 the work is done and paid in cash. 409 RESOURCE_VERSION_CONFLICT (order changed), INVALID_STATUS_TRANSITION
+     * (not COMPLETED_BY_PARTNER any more), ORDER_DISPUTED; 404 NOT_FOUND.
+     */
+    @POST("orders/{id}/confirm-completion")
+    suspend fun confirmCompletion(@Path("id") orderId: String, @Body body: ConfirmCompletionBody): ApiResponse<ConfirmCompletionResult>
+
+    /** #95. 422 REVIEW_WINDOW_CLOSED, 409 REVIEW_ALREADY_SUBMITTED, 409 INVALID_STATUS_TRANSITION, 404. */
+    @POST("orders/{id}/reviews")
+    suspend fun submitReview(@Path("id") orderId: String, @Body body: ReviewBody): ApiResponse<SubmittedReview>
+
+    /** #100 assignments the signed-in customer can still review (not paged). */
+    @GET("reviews/pending")
+    suspend fun getPendingReviews(): ApiResponse<List<PendingReview>>
 
     @GET("wallet/me")
     suspend fun getWallet(): ApiResponse<CustomerWallet>

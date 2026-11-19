@@ -24,6 +24,7 @@ import vn.servio.customer.data.model.Tracking
 import vn.servio.customer.data.repository.OrderRepository
 import vn.servio.customer.data.repository.OrderUpdates
 import vn.servio.customer.data.repository.PartnerRepository
+import vn.servio.customer.data.repository.ReviewRepository
 import vn.servio.customer.data.repository.reloadCoalesced
 import vn.servio.customer.ui.order.TrackingUi
 import javax.inject.Inject
@@ -40,6 +41,7 @@ class OrderDetailViewModel @Inject constructor(
     private val repository: OrderRepository,
     private val partnerRepository: PartnerRepository,
     private val orderUpdates: OrderUpdates,
+    private val reviewRepository: ReviewRepository,
 ) : ViewModel() {
 
     val orderId: String = savedStateHandle.get<String>(ARG_ORDER_ID).orEmpty()
@@ -65,6 +67,8 @@ class OrderDetailViewModel @Inject constructor(
         val chargeError: String? = null,
         /** CS-22: a charge whose #74 failed with 409/404, kept closed until the next #63 answer. */
         val heldCharge: String? = null,
+        /** COMPLETED and still in #100: "Đánh giá đối tác" (asked again on each resume). */
+        val reviewable: Boolean = false,
     ) {
         /** The charge CS-22 should open now (see [OrderDetailUi.chargeToOpen]); null when none. */
         fun chargeToOpen(includeClosed: Boolean): ExtraCharge? =
@@ -174,6 +178,7 @@ class OrderDetailViewModel @Inject constructor(
                 val detail = result.data
                 _state.update { it.copy(detail = detail, loading = false, error = null, notFound = false, heldCharge = null) }
                 coroutineScope {
+                    launch { loadReviewable(detail) }
                     launch { loadReviewCount(detail) }
                     launch { loadCancelFee(detail) }
                     launch { loadTracking(detail) }
@@ -190,6 +195,27 @@ class OrderDetailViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    /**
+     * CS-20 resumed (back from CS-26 …) on a completed order: reload it silently, which asks #100 again (a sent review
+     * hides the button) and #27 again (the partner's score and count changed).
+     */
+    fun onResumed() {
+        val detail = _state.value.detail ?: return
+        if (detail.status != OrderStatus.COMPLETED) return
+        reviewsFor = null
+        viewModelScope.launch { refresh(silent = true) }
+    }
+
+    /** #100 for a COMPLETED order; on failure the button stays as it was. */
+    private suspend fun loadReviewable(detail: OrderDetail) {
+        if (detail.status != OrderStatus.COMPLETED) {
+            _state.update { it.copy(reviewable = false) }
+            return
+        }
+        val result = reviewRepository.pendingReviews()
+        if (result is ApiResult.Success) _state.update { it.copy(reviewable = OrderDetailUi.canReview(detail, result.data)) }
     }
 
     /** #27 once per partner; on failure the row shows the score of #63 without a count. */

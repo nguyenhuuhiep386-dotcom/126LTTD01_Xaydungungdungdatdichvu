@@ -20,6 +20,8 @@ import vn.servio.customer.data.repository.CreateRequestRepository
 import vn.servio.customer.data.repository.FileRepository
 import vn.servio.customer.data.repository.OrderRepository
 import vn.servio.customer.data.repository.RemoteOrderRepository
+import vn.servio.customer.data.repository.RemoteReviewRepository
+import vn.servio.customer.data.repository.ReviewRepository
 import vn.servio.customer.data.repository.PartnerRepository
 import vn.servio.customer.data.repository.ProfileRepository
 import vn.servio.customer.data.repository.RemoteAddressRepository
@@ -95,6 +97,9 @@ abstract class RepositoryBindings {
 
     @Binds
     abstract fun bindOrderRepository(impl: RemoteOrderRepository): OrderRepository
+
+    @Binds
+    abstract fun bindReviewRepository(impl: RemoteReviewRepository): ReviewRepository
 
     @Binds
     abstract fun bindQuoteUpdates(impl: HubQuoteUpdates): QuoteUpdates

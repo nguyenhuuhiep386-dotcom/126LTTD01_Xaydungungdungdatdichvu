@@ -32,10 +32,12 @@ import vn.servio.customer.data.model.OrderParty
 import vn.servio.customer.data.model.OrderStatus
 import vn.servio.customer.data.model.PartnerPublic
 import vn.servio.customer.data.model.PartnerReview
+import vn.servio.customer.data.model.PendingReview
 import vn.servio.customer.data.model.Tracking
 import vn.servio.customer.data.model.TrackingLocation
 import vn.servio.customer.data.repository.FakeOrderRepository
 import vn.servio.customer.data.repository.FakeOrderUpdates
+import vn.servio.customer.data.repository.FakeReviewRepository
 import vn.servio.customer.data.repository.PartnerRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -67,8 +69,8 @@ class OrderDetailViewModelTest {
 
     @After fun tearDown() = Dispatchers.resetMain()
 
-    private fun TestScope.viewModel(server: FakeOrderRepository, partners: Partners = Partners(), updates: FakeOrderUpdates = FakeOrderUpdates()) =
-        OrderDetailViewModel(SavedStateHandle(mapOf("orderId" to orderId)), server, partners, updates).also {
+    private fun TestScope.viewModel(server: FakeOrderRepository, partners: Partners = Partners(), updates: FakeOrderUpdates = FakeOrderUpdates(), reviews: FakeReviewRepository = FakeReviewRepository()) =
+        OrderDetailViewModel(SavedStateHandle(mapOf("orderId" to orderId)), server, partners, updates, reviews).also {
             it.load()
             advanceUntilIdle()
         }
@@ -266,12 +268,12 @@ class OrderDetailViewModelTest {
         val second = charge.copy(id = "ec2", createdAt = "2026-11-18T08:05:00Z")
         val server = FakeOrderRepository().apply { order = ApiResult.Success(withCharge(charge, second)) }
         val handle = SavedStateHandle(mapOf("orderId" to orderId))
-        val vm = OrderDetailViewModel(handle, server, Partners(), FakeOrderUpdates()).also { it.load(); advanceUntilIdle() }
+        val vm = OrderDetailViewModel(handle, server, Partners(), FakeOrderUpdates(), FakeReviewRepository()).also { it.load(); advanceUntilIdle() }
         vm.chargeClosed("ec1")
         assertEquals("ec2", vm.state.value.chargeToOpen(includeClosed = false)?.id)
         assertEquals("ec1", vm.state.value.chargeToOpen(includeClosed = true)?.id)
 
-        val restored = OrderDetailViewModel(handle, server, Partners(), FakeOrderUpdates()).also { it.load(); advanceUntilIdle() }
+        val restored = OrderDetailViewModel(handle, server, Partners(), FakeOrderUpdates(), FakeReviewRepository()).also { it.load(); advanceUntilIdle() }
         assertEquals(setOf("ec1"), restored.state.value.closedCharges)
         assertEquals("ec2", restored.state.value.chargeToOpen(includeClosed = false)?.id)
     }
@@ -298,5 +300,33 @@ class OrderDetailViewModelTest {
         vm.onDeadlinePassed()
         advanceUntilIdle()
         assertEquals(2, server.orderCalls)
+    }
+
+    @Test
+    fun `a completed order asks 100 and loses the review button once reviewed`() = runTest(dispatcher) {
+        val server = FakeOrderRepository().apply { order = ApiResult.Success(order(OrderStatus.COMPLETED)) }
+        val reviews = FakeReviewRepository().apply {
+            pending = ApiResult.Success(listOf(PendingReview(orderId, "A1", "OD2611180010", "Thợ Một", "x", "2026-11-23T08:00:00Z")))
+        }
+        val vm = viewModel(server, reviews = reviews)
+        assertTrue(vm.state.value.reviewable)
+        assertEquals(1, reviews.pendingCalls)
+
+        reviews.pending = ApiResult.Success(emptyList())
+        vm.onResumed()
+        advanceUntilIdle()
+        assertFalse(vm.state.value.reviewable)
+        assertEquals(2, reviews.pendingCalls)
+    }
+
+    @Test
+    fun `an order not completed never asks 100`() = runTest(dispatcher) {
+        val server = FakeOrderRepository().apply { order = ApiResult.Success(order(OrderStatus.IN_PROGRESS)) }
+        val reviews = FakeReviewRepository()
+        val vm = viewModel(server, reviews = reviews)
+        vm.onResumed()
+        advanceUntilIdle()
+        assertFalse(vm.state.value.reviewable)
+        assertEquals(0, reviews.pendingCalls)
     }
 }

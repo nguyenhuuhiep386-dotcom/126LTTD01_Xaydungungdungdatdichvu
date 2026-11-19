@@ -8,7 +8,12 @@ import vn.servio.core.network.PagedResult
 import vn.servio.customer.data.model.ArrivalConfirmation
 import vn.servio.customer.data.model.CancelPreview
 import vn.servio.customer.data.model.CancelResult
+import vn.servio.customer.data.model.ConfirmCompletionResult
 import vn.servio.customer.data.model.CreatedOrder
+import vn.servio.customer.data.model.PendingReview
+import vn.servio.customer.data.model.ReviewBody
+import vn.servio.customer.data.model.SubmittedReview
+import vn.servio.customer.data.model.TimelineEntry
 import vn.servio.customer.data.model.ExtraCharge
 import vn.servio.customer.data.model.OrderDetail
 import vn.servio.customer.data.model.OrderListFilter
@@ -55,6 +60,24 @@ class FakeOrderRepository : OrderRepository {
 
     override suspend fun cancelDebtLimit(): ApiResult<Long?> = debtLimit
 
+    /** Answer of #64. */
+    var timeline: ApiResult<List<TimelineEntry>> = ApiResult.Success(emptyList())
+    var timelineCalls = 0
+
+    override suspend fun getTimeline(orderId: String): ApiResult<List<TimelineEntry>> {
+        timelineCalls++
+        return timeline
+    }
+
+    /** Answers of #71 in order; the last one repeats. */
+    val confirms = ArrayDeque<ApiResult<ConfirmCompletionResult>>()
+    val confirmCalls = mutableListOf<String>()
+
+    override suspend fun confirmCompletion(orderId: String, rowVersion: String): ApiResult<ConfirmCompletionResult> {
+        confirmCalls += rowVersion
+        return if (confirms.size > 1) confirms.removeFirst() else confirms.first()
+    }
+
     /** Answers of #74 in order; the last one repeats. */
     val chargeAnswers = ArrayDeque<ApiResult<ExtraCharge>>()
     val chargeCalls = mutableListOf<Pair<String, Boolean>>()
@@ -80,6 +103,26 @@ class FakeOrderRepository : OrderRepository {
     override suspend fun respondArrival(confirmation: ArrivalConfirmation, confirmed: Boolean): ApiResult<ArrivalConfirmation> {
         respondCalls += confirmation.requestId to confirmed
         return if (responds.size > 1) responds.removeFirst() else responds.first()
+    }
+}
+
+/** Test server for #100 and #95. */
+class FakeReviewRepository : ReviewRepository {
+    var pending: ApiResult<List<PendingReview>> = ApiResult.Success(emptyList())
+    var pendingCalls = 0
+
+    /** Answers of #95 in order; the last one repeats. */
+    val submits = ArrayDeque<ApiResult<SubmittedReview>>()
+    val submitCalls = mutableListOf<ReviewBody>()
+
+    override suspend fun pendingReviews(): ApiResult<List<PendingReview>> {
+        pendingCalls++
+        return pending
+    }
+
+    override suspend fun submit(orderId: String, body: ReviewBody): ApiResult<SubmittedReview> {
+        submitCalls += body
+        return if (submits.size > 1) submits.removeFirst() else submits.first()
     }
 }
 

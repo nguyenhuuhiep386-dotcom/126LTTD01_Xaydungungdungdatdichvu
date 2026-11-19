@@ -184,6 +184,20 @@
                                 android:layout_marginTop="@dimen/space_l"
                                 android:text="@string/order_detail_confirm_completion"
                                 android:visibility="gone" />
+
+                            <!-- COMPLETED and still in #100 for this assignment: opens CS-26. -->
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/reviewButton"
+                                style="@style/Widget.Servio.Button"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_l"
+                                android:text="@string/order_detail_review"
+                                android:textStyle="bold"
+                                android:visibility="gone"
+                                app:icon="@drawable/ic_star"
+                                app:iconGravity="textStart"
+                                app:iconTint="@color/servio_text_primary" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -308,6 +322,17 @@
                     <include
                         android:id="@+id/priceRow"
                         layout="@layout/view_order_info_row" />
+
+                    <!-- Only when pricing.extraChargeTotal > 0: "+X" and the server's totalAmount. -->
+                    <include
+                        android:id="@+id/extraRow"
+                        layout="@layout/view_order_info_row"
+                        android:visibility="gone" />
+
+                    <include
+                        android:id="@+id/totalRow"
+                        layout="@layout/view_order_info_row"
+                        android:visibility="gone" />
 
                     <include
                         android:id="@+id/paymentRow"

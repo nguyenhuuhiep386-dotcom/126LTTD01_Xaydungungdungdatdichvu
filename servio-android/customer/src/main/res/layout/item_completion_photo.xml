@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-23 "Ảnh trước và sau": one photo with its "Trước" / "Sau" tag. The server sends no caption and no time. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="112dp"
+    android:layout_height="112dp"
+    android:layout_marginEnd="@dimen/space_s"
+    android:background="@drawable/bg_quote_summary">
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_image"
+        app:tint="@color/servio_text_secondary" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        app:shapeAppearance="@style/ShapeAppearance.Servio.Medium" />
+
+    <TextView
+        android:id="@+id/photoTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="@dimen/space_xs"
+        android:background="@drawable/bg_status_chip"
+        android:backgroundTint="@color/servio_surface"
+        android:importantForAccessibility="no"
+        android:paddingHorizontal="@dimen/space_s"
+        android:paddingVertical="2dp"
+        android:textAppearance="@style/TextAppearance.Servio.Accent"
+        android:textColor="@color/servio_text_primary"
+        android:textStyle="bold"
+        tools:text="Trước" />
+</FrameLayout>

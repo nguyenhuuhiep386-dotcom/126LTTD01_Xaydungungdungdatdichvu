@@ -92,6 +92,10 @@ class ConfirmQuoteViewModelTest {
 
         override suspend fun respondExtraCharge(orderId: String, extraChargeId: String, approved: Boolean): ApiResult<vn.servio.customer.data.model.ExtraCharge> = error("unused")
 
+        override suspend fun getTimeline(orderId: String): ApiResult<List<vn.servio.customer.data.model.TimelineEntry>> = error("unused")
+
+        override suspend fun confirmCompletion(orderId: String, rowVersion: String): ApiResult<vn.servio.customer.data.model.ConfirmCompletionResult> = error("unused")
+
         override suspend fun getTracking(orderId: String, assignmentId: String): ApiResult<vn.servio.customer.data.model.Tracking?> = error("unused")
 
         override suspend fun respondArrival(

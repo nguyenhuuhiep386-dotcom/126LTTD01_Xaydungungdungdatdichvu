@@ -34,7 +34,10 @@ import vn.servio.customer.data.repository.OrderUpdates
 import vn.servio.customer.databinding.FragmentOrderDetailBinding
 import vn.servio.customer.databinding.ItemOrderStepBinding
 import vn.servio.customer.ui.common.RemoteImages
+import vn.servio.customer.ui.completion.ConfirmCompletionViewModel
 import vn.servio.customer.ui.order.OrderFormat
+import vn.servio.customer.ui.order.OrderRoutes
+import vn.servio.customer.ui.review.SubmitReviewViewModel
 import vn.servio.customer.ui.order.OrderStatusChip
 import vn.servio.customer.ui.order.OrderTexts
 import vn.servio.customer.ui.order.TrackingUi
@@ -80,6 +83,11 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         binding.addressRow.label.setText(R.string.order_detail_address)
         binding.priceRow.label.setText(R.string.order_detail_price)
         binding.paymentRow.label.setText(R.string.order_detail_payment)
+        binding.extraRow.label.setText(R.string.order_detail_extra_approved)
+        binding.totalRow.label.setText(R.string.order_detail_total)
+        binding.totalRow.label.setTextColor(requireContext().getColor(vn.servio.core.R.color.servio_text_primary))
+        binding.totalRow.label.setTypeface(null, Typeface.BOLD)
+        OrderRoutes.listen(this, R.id.cs20) { view }
 
         arrivalPrompt = ArrivalPrompt(
             host = this,
@@ -182,6 +190,8 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         binding.callButton.setOnClickListener { partner?.phoneNumber?.let(::dial) }
         binding.confirmButton.isVisible = actions.confirm
         binding.confirmButton.setOnClickListener { openConfirm() }
+        binding.reviewButton.isVisible = state.reviewable
+        binding.reviewButton.setOnClickListener { order.primary?.id?.let(::openReview) }
         binding.cancelButton.isVisible = actions.cancel
         binding.cancelButton.setText(if (OrderDetailUi.cancelIsFree(state.cancelFee)) R.string.order_cancel_free else R.string.order_cancel)
         binding.cancelButton.setOnClickListener { openCancel() }
@@ -192,6 +202,11 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         binding.scheduleRow.value.text = OrderTexts.moment(order.scheduledStartAt, weekdays) ?: missing
         binding.addressRow.value.text = order.address.ifBlank { missing }
         binding.priceRow.value.text = order.primary?.let { OrderFormat.money(context, it.amount) } ?: missing
+        val showsTotal = OrderDetailUi.showsTotal(order)
+        binding.extraRow.root.isVisible = showsTotal
+        binding.totalRow.root.isVisible = showsTotal
+        binding.extraRow.value.text = getString(R.string.extra_charge_plus, OrderFormat.money(context, order.pricing.extraChargeTotal))
+        binding.totalRow.value.text = OrderFormat.money(context, order.pricing.totalAmount)
         binding.paymentRow.value.text = paymentLabel(order.paymentMethod)?.let(::getString) ?: missing
 
         bindTimeline(binding, order)
@@ -459,11 +474,23 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         view?.post { showCharge(fromWarning = false) }
     }
 
-    /** CS-23 is still a placeholder (KH-6). */
+    /** CS-23 Xác nhận hoàn thành; after #71 it becomes CS-26, whose Back returns here. */
     private fun openConfirm() {
         val navController = findNavController()
         if (navController.currentDestination?.id != R.id.cs20) return
-        navController.navigate(R.id.cs23)
+        navController.navigate(R.id.cs23, bundleOf(ConfirmCompletionViewModel.ARG_ORDER_ID to viewModel.orderId))
+    }
+
+    /** CS-26 Đánh giá đối tác; a sent review comes back as "Đã gửi đánh giá" (OrderRoutes) and the button goes. */
+    private fun openReview(assignmentId: String) {
+        val navController = findNavController()
+        if (navController.currentDestination?.id != R.id.cs20) return
+        navController.navigate(R.id.cs26, SubmitReviewViewModel.args(viewModel.orderId, assignmentId))
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.onResumed()
     }
 
     private fun dial(phone: String) {

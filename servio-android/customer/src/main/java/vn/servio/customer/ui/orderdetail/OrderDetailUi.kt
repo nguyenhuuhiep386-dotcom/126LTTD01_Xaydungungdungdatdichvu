@@ -5,6 +5,8 @@ import vn.servio.customer.data.model.ExtraChargeStatus
 import vn.servio.customer.data.model.OrderActor
 import vn.servio.customer.data.model.OrderDetail
 import vn.servio.customer.data.model.OrderStatus
+import vn.servio.customer.data.model.PendingReview
+import vn.servio.customer.ui.review.ReviewForm
 import vn.servio.customer.ui.order.OrderTexts
 
 /**
@@ -79,6 +81,17 @@ object OrderDetailUi {
             confirm = order.status == OrderStatus.COMPLETED_BY_PARTNER,
         )
     }
+
+    /**
+     * "Đánh giá đối tác" on a COMPLETED order: only while #100 still lists its primary assignment (not reviewed yet,
+     * before the deadline). [pending] null = #100 not answered or failed → no button.
+     */
+    fun canReview(order: OrderDetail, pending: List<PendingReview>?): Boolean =
+        order.status == OrderStatus.COMPLETED && pending != null &&
+            ReviewForm.pendingFor(pending, order.id, order.primary?.id) != null
+
+    /** "Phát sinh đã duyệt" and "Tổng tiền" rows of "Thông tin công việc", only when something was approved. */
+    fun showsTotal(order: OrderDetail): Boolean = order.pricing.extraChargeTotal > 0
 
     /** Label of the cancel button: "(miễn phí)" only when #151 said 0; unknown fee (not loaded, failed) → plain. */
     fun cancelIsFree(fee: Long?): Boolean = fee == 0L

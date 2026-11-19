@@ -19,6 +19,7 @@ import okhttp3.OkHttpClient
 import vn.servio.core.utils.collectWhenStarted
 import vn.servio.customer.R
 import vn.servio.customer.data.model.OrderListFilter
+import vn.servio.customer.data.model.OrderStatus
 import vn.servio.customer.databinding.FragmentMyOrdersBinding
 import vn.servio.customer.ui.common.RemoteImages
 import vn.servio.customer.ui.order.MyOrdersViewModel.State
@@ -39,7 +40,7 @@ class MyOrdersFragment : Fragment(R.layout.fragment_my_orders) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentMyOrdersBinding.bind(view)
         val images = RemoteImages(httpClient, viewLifecycleOwner.lifecycleScope, (RemoteImages.IMAGE_EDGE_DP * resources.displayMetrics.density).toInt())
-        val adapter = OrderAdapter(images) { order -> openOrder(order.id) }
+        val adapter = OrderAdapter(images) { order -> openOrder(order.id, order.status) }
         binding.list.adapter = adapter
         binding.list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -77,13 +78,15 @@ class MyOrdersFragment : Fragment(R.layout.fragment_my_orders) {
             binding.retryButton.isVisible = current.error != null
         }
 
+        OrderRoutes.listen(this, R.id.cs19) { view }
         viewModel.refresh()
     }
 
-    private fun openOrder(orderId: String) {
+    /** CS-20, or CS-23 directly for an order waiting for the confirmation (OrderRoutes). */
+    private fun openOrder(orderId: String, status: OrderStatus) {
         val navController = findNavController()
         if (navController.currentDestination?.id != R.id.cs19) return
-        navController.navigate(R.id.cs20, bundleOf(OrderDetailViewModel.ARG_ORDER_ID to orderId))
+        navController.navigate(OrderRoutes.cardDestination(status), bundleOf(OrderDetailViewModel.ARG_ORDER_ID to orderId))
     }
 
     /** Only "Đang diễn ra" carries its number, once #62 answered; the selected label is bold and dark. */
