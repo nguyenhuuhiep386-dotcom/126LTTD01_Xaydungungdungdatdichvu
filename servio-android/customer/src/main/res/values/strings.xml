@@ -235,7 +235,28 @@
     <string name="settings_version_value">%1$s (demo)</string>
     <string name="settings_logout_confirm">Đăng xuất khỏi Servio?</string>
 
-    <!-- CS-30 Phí huỷ và giao dịch. Amounts, the limit and the dates come from #87 and #155; no bank details (no API). -->
+    <!--
+      CS-34 Trung tâm hỗ trợ (Figma 18:3388). Hotline, hours and every figure of the answers come from GET /app-config
+      (#107); the fees are formatted by OrderFormat.money, the percent by PolicyTexts.percent.
+    -->
+    <string name="support_title">Trung tâm hỗ trợ</string>
+    <string name="support_hotline_label">Hotline hỗ trợ</string>
+    <string name="support_call">Gọi hotline</string>
+    <string name="support_dial_unavailable">Không mở được ứng dụng gọi điện</string>
+    <string name="support_faq_title">Câu hỏi thường gặp</string>
+    <string name="support_faq_fee_question">Phí huỷ đơn được tính thế nào?</string>
+    <string name="support_faq_fee_answer">Miễn phí trước khi đối tác di chuyển. Khi đối tác đang di chuyển: %1$s. Khi đối tác đã đến: %2$s hoặc %3$s%% giá báo, lấy mức cao hơn.</string>
+    <string name="support_faq_payment_question">Tôi thanh toán bằng cách nào?</string>
+    <string name="support_faq_payment_answer">Bạn trả tiền mặt trực tiếp cho đối tác rồi bấm xác nhận hoàn thành trong app.</string>
+    <string name="support_faq_auto_question">Khi nào đơn tự hoàn thành?</string>
+    <string name="support_faq_auto_answer">Nếu bạn không xác nhận hoặc khiếu nại trong %1$d&#160;giờ sau khi đối tác báo xong, đơn tự hoàn thành.</string>
+    <string name="support_faq_dispute_question">Tôi khiếu nại đến khi nào?</string>
+    <string name="support_faq_dispute_answer">Trong lúc đối tác đang làm và đến %1$d&#160;giờ sau khi đơn hoàn thành.</string>
+
+    <!--
+      CS-30 Phí huỷ và giao dịch. Amounts, the limit and the dates come from #87 and #155; the account to transfer to
+      from #107.
+    -->
     <string name="wallet_title">Phí huỷ và giao dịch</string>
     <string name="wallet_due_label">Phí huỷ cần thanh toán</string>
     <string name="wallet_limit_note">Tổng phí chưa trả trên %1$s sẽ tạm khoá đăng yêu cầu mới.</string>
@@ -258,6 +279,12 @@
     <string name="wallet_submit">Gửi khai báo</string>
     <string name="wallet_sent">Đã gửi khai báo %1$s, chờ quản trị viên xác nhận</string>
     <string name="wallet_nothing_to_pay">Các khoản này đã được khai báo hoặc đã trả</string>
+    <!-- Transfer card: the account comes from GET /app-config (#107); a tap on the number or the note copies it. -->
+    <string name="wallet_transfer_bank">Ngân hàng</string>
+    <string name="wallet_transfer_account">Số tài khoản</string>
+    <string name="wallet_transfer_holder">Chủ tài khoản</string>
+    <string name="wallet_transfer_note">Nội dung</string>
+    <string name="wallet_copied">Đã sao chép</string>
 
     <!-- KH-2 Tạo yêu cầu (CS-07 → CS-11) -->
     <string name="create_request_image_unreadable">Không đọc được ảnh này, vui lòng chọn ảnh khác.</string>
@@ -306,16 +333,21 @@
     <string name="create_request_address_not_ready">Chưa tải được địa chỉ. Bấm Thử lại để tải lại.</string>
     <string name="create_request_time_section">Thời gian</string>
     <string name="create_request_time_now">Càng sớm càng tốt</string>
-    <string name="create_request_time_now_hint">Trong vòng 2&#160;giờ</string>
+    <!-- Figures of CS-09 / CS-11 come from posting of GET /app-config (#107). -->
+    <string name="create_request_time_now_hint">Trong vòng %1$d&#160;giờ</string>
     <string name="create_request_time_scheduled">Hẹn lịch</string>
     <string name="create_request_time_scheduled_hint">Chọn ngày và khung giờ</string>
-    <string name="create_request_slot_helper">Khung 2&#160;giờ. Đặt trước tối đa 30&#160;ngày.</string>
+    <string name="create_request_time_loading">Đang tải quy định đặt lịch…</string>
+    <string name="create_request_time_error">Không tải được quy định đặt lịch</string>
+    <string name="create_request_slot_helper">Khung %1$d&#160;giờ. Đặt trước tối đa %2$d&#160;ngày.</string>
     <string name="create_request_slot_required">Chọn ngày và khung giờ còn đặt được.</string>
     <string name="create_request_slot_expired">Khung giờ bạn chọn đã qua, vui lòng chọn khung khác.</string>
     <!-- Day chip: "T5 30/10" (Monday = T2 … Saturday = T7), Sunday "CN 01/11". -->
     <string name="create_request_day_weekday">T%1$d %2$s</string>
     <string name="create_request_day_sunday">CN %1$s</string>
     <string name="create_request_slot_label">%1$02d:00 – %2$02d:00</string>
+    <!-- CS-11 while the window of #107 is unknown: the start of the slot only. -->
+    <string name="create_request_slot_start">%1$02d:00</string>
 
     <!-- CS-10 Tạo yêu cầu – Bước 3 Ngân sách và yêu cầu -->
     <string name="create_request_step_budget">Ngân sách và yêu cầu</string>
@@ -352,7 +384,7 @@
     <string name="create_request_review_service">%1$s · %2$s</string>
     <string name="create_request_review_image">Ảnh %1$d</string>
     <string name="create_request_review_images_lost">Ảnh đã chọn bị mất khi ứng dụng đóng. Bấm Sửa ở phần Mô tả để thêm lại.</string>
-    <string name="create_request_review_time_now">Càng sớm càng tốt · trong vòng 2&#160;giờ</string>
+    <string name="create_request_review_time_now">Càng sớm càng tốt · trong vòng %1$d&#160;giờ</string>
     <!-- "Thứ Bảy 17/10 · 14:00 – 16:00" -->
     <string name="create_request_review_time_scheduled">%1$s · %2$s</string>
     <string name="create_request_review_day">%1$s %2$s</string>
@@ -370,8 +402,8 @@
     <string name="create_request_review_experience">Từ %1$d&#160;năm kinh nghiệm</string>
     <string name="create_request_review_no_requirement">Không yêu cầu thêm</string>
     <string name="create_request_review_radius">bán kính %1$d&#160;km</string>
-    <string name="create_request_review_expiry_scheduled">Yêu cầu tự hết hạn sau 24&#160;giờ hoặc khi tới giờ hẹn, tuỳ mốc nào đến trước.</string>
-    <string name="create_request_review_expiry_now">Yêu cầu tự hết hạn sau 2&#160;giờ kể từ lúc đăng.</string>
+    <string name="create_request_review_expiry_scheduled">Yêu cầu tự hết hạn sau %1$d&#160;giờ hoặc khi tới giờ hẹn, tuỳ mốc nào đến trước.</string>
+    <string name="create_request_review_expiry_now">Yêu cầu tự hết hạn sau %1$d&#160;giờ kể từ lúc đăng.</string>
     <string name="create_request_post">Đăng yêu cầu</string>
     <string name="create_request_posting">Đang đăng…</string>
     <string name="create_request_post_not_ready">Đang tải lại thông tin yêu cầu. Đợi tải xong rồi bấm Đăng.</string>
@@ -382,10 +414,9 @@
     <string name="create_request_post_debt_title">Còn phí huỷ chưa thanh toán</string>
     <string name="create_request_post_restricted_title">Tạm thời chưa đăng được</string>
     <string name="create_request_post_view_fee">Xem phí huỷ</string>
-    <!-- OUTSTANDING_DEBT of #36 with no fee owed (#87): an order waits for payment. -->
+    <!-- UNPAID_ORDER of #36: an AWAITING_PAYMENT order (#177); the message is the server's, with the order code. -->
     <string name="create_request_post_unpaid_title">Còn đơn chưa thanh toán</string>
-    <string name="create_request_post_unpaid_message">Bạn còn đơn chưa thanh toán cho đối tác.</string>
-    <string name="create_request_post_view_orders">Xem đơn hàng</string>
+    <string name="create_request_post_view_order">Xem đơn</string>
     <string name="action_close">Đóng</string>
 
     <!-- region Đơn hàng (CS-19, CS-20, CS-20c). Only labels: every name, time, amount and count comes from the API. -->

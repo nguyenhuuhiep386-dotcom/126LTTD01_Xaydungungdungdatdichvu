@@ -1,7 +1,8 @@
 package vn.servio.customer.ui.request
 
+import vn.servio.customer.data.model.OrderStatus
+import vn.servio.customer.data.model.OrderSummary
 import vn.servio.customer.data.model.ScheduleType
-import vn.servio.customer.data.model.Wallet
 import vn.servio.customer.ui.request.CreateRequestViewModel.Step
 import java.time.LocalDate
 
@@ -10,7 +11,7 @@ import java.time.LocalDate
  */
 object ReviewTexts {
 
-    /** "Càng sớm càng tốt · trong vòng 2 giờ" or "Thứ Bảy 17/10 · 14:00 – 16:00". */
+    /** "Càng sớm càng tốt · trong vòng {windowHours} giờ" (#107) or "Thứ Bảy 17/10 · 14:00 – 16:00". */
     sealed interface TimeLine {
         data object Now : TimeLine
         data class Scheduled(val date: LocalDate, val startHour: Int) : TimeLine
@@ -49,11 +50,14 @@ object ReviewTexts {
     fun requirementsLine(labels: List<String>, none: String, radius: String): String =
         (labels.ifEmpty { listOf(none) } + radius).joinToString(SEPARATOR)
 
-    enum class ExpiryNote { NOW_TWO_HOURS, SCHEDULED_DAY_OR_START }
+    enum class ExpiryNote { NOW_WINDOW, SCHEDULED_DAY_OR_START }
 
-    /** F-REQ-11, as the server sets ExpiresAt: NOW ends with its 2-hour window, SCHEDULED at min(24 h, start). */
+    /**
+     * F-REQ-11, as the server sets ExpiresAt: NOW ends with its window (posting.windowHours), SCHEDULED at
+     * min(posting.expireHours, start).
+     */
     fun expiryNote(type: ScheduleType): ExpiryNote = when (type) {
-        ScheduleType.NOW -> ExpiryNote.NOW_TWO_HOURS
+        ScheduleType.NOW -> ExpiryNote.NOW_WINDOW
         ScheduleType.SCHEDULED -> ExpiryNote.SCHEDULED_DAY_OR_START
     }
 
@@ -65,15 +69,22 @@ sealed interface PostFailure {
     /** Back to [step] (its errors shown), with [notice] in a snackbar; [serverMessage] is used for [StepNotice.SERVER]. */
     data class BackToStep(val step: Step, val notice: StepNotice, val serverMessage: String) : PostFailure
 
-    /** Only "Đóng" ("Xem phí huỷ" too for [DialogKind.OUTSTANDING_DEBT]); [message] is the server's, with its details. */
-    data class Dialog(val kind: DialogKind, val message: String) : PostFailure
+    /**
+     * "Đóng", plus "Xem phí huỷ" for [DialogKind.OUTSTANDING_DEBT] and "Xem đơn" for [DialogKind.UNPAID_ORDER];
+     * [message] is the server's, with its details (the fee owed, the order code). [orderId]: the order "Xem đơn" opens
+     * (see [unpaidOrderId]); null opens CS-19.
+     */
+    data class Dialog(val kind: DialogKind, val message: String, val orderId: String? = null) : PostFailure
 
     /** Snackbar on CS-11; "Đăng yêu cầu" can be tapped again (same Idempotency-Key). */
     data class Message(val message: String) : PostFailure
 
     enum class StepNotice { CONTACT_INFO, IMAGES_NOT_READY, SERVER }
 
-    /** [UNPAID_ORDER]: OUTSTANDING_DEBT sent because an order waits for payment, not for cancellation fees ([debtKind]). */
+    /**
+     * [OUTSTANDING_DEBT]: unpaid cancellation fees above the limit. [UNPAID_ORDER]: an order the admin confirmed as
+     * unpaid (AWAITING_PAYMENT, #177) still waits for the customer to pay the partner.
+     */
     enum class DialogKind { PROFILE_INCOMPLETE, OUTSTANDING_DEBT, UNPAID_ORDER, POSTING_RESTRICTED }
 
     companion object {
@@ -81,6 +92,7 @@ sealed interface PostFailure {
         const val FILE_NOT_READY = "FILE_NOT_READY"
         const val PROFILE_INCOMPLETE = "PROFILE_INCOMPLETE"
         const val OUTSTANDING_DEBT = "OUTSTANDING_DEBT"
+        const val UNPAID_ORDER = "UNPAID_ORDER"
         const val POSTING_RESTRICTED = "POSTING_RESTRICTED"
         const val VALIDATION_ERROR = "VALIDATION_ERROR"
 
@@ -89,6 +101,7 @@ sealed interface PostFailure {
             FILE_NOT_READY -> BackToStep(Step.DESCRIBE, StepNotice.IMAGES_NOT_READY, message)
             PROFILE_INCOMPLETE -> Dialog(DialogKind.PROFILE_INCOMPLETE, message)
             OUTSTANDING_DEBT -> Dialog(DialogKind.OUTSTANDING_DEBT, message)
+            UNPAID_ORDER -> Dialog(DialogKind.UNPAID_ORDER, message)
             POSTING_RESTRICTED -> Dialog(DialogKind.POSTING_RESTRICTED, message)
             VALIDATION_ERROR -> stepOf(field)?.let { BackToStep(it, StepNotice.SERVER, message) } ?: Message(message)
             // NETWORK_ERROR (timeouts included), UNKNOWN and the rest: stay on CS-11.
@@ -96,14 +109,13 @@ sealed interface PostFailure {
         }
 
         /**
-         * OUTSTANDING_DEBT of #36 means unpaid cancellation fees above maxDebt or an AWAITING_PAYMENT order. Fees still
-         * owed (debtBalance − pendingPayment > 0, #87) keep the fee dialog; none owed means an unpaid order. [wallet]
-         * null (#87 failed) keeps the fee dialog.
+         * Where "Xem đơn" of UNPAID_ORDER goes: the id of the only AWAITING_PAYMENT order among [activeOrders] (#62
+         * status=ACTIVE), so CS-20 opens on it. Null — CS-19 "Đang diễn ra" — when there is none, more than one, or
+         * [complete] is false (more pages than the one read: another one may be there).
          */
-        fun debtKind(wallet: Wallet?): DialogKind = when {
-            wallet == null -> DialogKind.OUTSTANDING_DEBT
-            wallet.debtBalance - wallet.pendingPayment > 0 -> DialogKind.OUTSTANDING_DEBT
-            else -> DialogKind.UNPAID_ORDER
+        fun unpaidOrderId(activeOrders: List<OrderSummary>, complete: Boolean): String? {
+            val unpaid = activeOrders.filter { it.status == OrderStatus.AWAITING_PAYMENT }
+            return unpaid.singleOrNull()?.id?.takeIf { complete }
         }
 
         /** Maps a server field name of #36 to the step that edits it. */

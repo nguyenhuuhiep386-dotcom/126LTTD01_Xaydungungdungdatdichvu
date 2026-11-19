@@ -97,7 +97,7 @@ class ReviewTextsTest {
 
     @Test
     fun expiryNote() {
-        assertEquals(ExpiryNote.NOW_TWO_HOURS, ReviewTexts.expiryNote(ScheduleType.NOW))
+        assertEquals(ExpiryNote.NOW_WINDOW, ReviewTexts.expiryNote(ScheduleType.NOW))
         assertEquals(ExpiryNote.SCHEDULED_DAY_OR_START, ReviewTexts.expiryNote(ScheduleType.SCHEDULED))
     }
 }

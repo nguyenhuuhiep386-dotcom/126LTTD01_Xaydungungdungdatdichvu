@@ -151,158 +151,202 @@
                 android:text="@string/create_request_time_section"
                 android:textAppearance="@style/TextAppearance.Servio.SectionTitle" />
 
+            <!-- Until posting of #107 is known: loading, or the error with "Thử lại" (no figure is made up). -->
             <LinearLayout
+                android:id="@+id/timeStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_m"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/nowCard"
-                    style="@style/Widget.Servio.Card.Choice"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="@dimen/space_s"
-                    android:layout_weight="1">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="@dimen/space_l">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:id="@+id/nowCheck"
-                                android:layout_width="18dp"
-                                android:layout_height="18dp"
-                                android:layout_marginEnd="@dimen/space_s"
-                                android:importantForAccessibility="no"
-                                android:src="@drawable/ic_check"
-                                android:visibility="gone" />
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="@string/create_request_time_now"
-                                android:textAppearance="@style/TextAppearance.Servio.BodyStrong" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/space_xs"
-                            android:text="@string/create_request_time_now_hint"
-                            android:textAppearance="@style/TextAppearance.Servio.Caption" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/scheduledCard"
-                    style="@style/Widget.Servio.Card.Choice"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="@dimen/space_s"
-                    android:layout_weight="1">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="@dimen/space_l">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:id="@+id/scheduledCheck"
-                                android:layout_width="18dp"
-                                android:layout_height="18dp"
-                                android:layout_marginEnd="@dimen/space_s"
-                                android:importantForAccessibility="no"
-                                android:src="@drawable/ic_check"
-                                android:visibility="gone"
-                                tools:visibility="visible" />
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="@string/create_request_time_scheduled"
-                                android:textAppearance="@style/TextAppearance.Servio.BodyStrong" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/space_xs"
-                            android:text="@string/create_request_time_scheduled_hint"
-                            android:textAppearance="@style/TextAppearance.Servio.Caption" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-
-            <!-- Only with "Hẹn lịch". -->
-            <LinearLayout
-                android:id="@+id/scheduleGroup"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal"
                 android:visibility="gone"
                 tools:visibility="visible">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/dayList"
+                <ProgressBar
+                    android:id="@+id/timeProgress"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/space_m" />
+
+                <TextView
+                    android:id="@+id/timeStatusText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAppearance="@style/TextAppearance.Servio.Body"
+                    tools:text="@string/create_request_time_error" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/timeRetryButton"
+                    style="@style/Widget.Servio.Button.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/action_retry" />
+            </LinearLayout>
+
+            <!-- The two choices and the slot grid, shown once the rules are known. -->
+            <LinearLayout
+                android:id="@+id/timeContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="-4dp"
                     android:layout_marginTop="@dimen/space_m"
-                    android:clipToPadding="false"
-                    android:orientation="horizontal"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:itemCount="5"
-                    tools:listitem="@layout/item_schedule_choice" />
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/slotList"
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/nowCard"
+                        style="@style/Widget.Servio.Card.Choice"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="@dimen/space_s"
+                        android:layout_weight="1">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/space_l">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:id="@+id/nowCheck"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_marginEnd="@dimen/space_s"
+                                    android:importantForAccessibility="no"
+                                    android:src="@drawable/ic_check"
+                                    android:visibility="gone" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="@string/create_request_time_now"
+                                    android:textAppearance="@style/TextAppearance.Servio.BodyStrong" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/nowHint"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_xs"
+                                android:textAppearance="@style/TextAppearance.Servio.Caption"
+                                tools:text="Trong vòng 2 giờ" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/scheduledCard"
+                        style="@style/Widget.Servio.Card.Choice"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="@dimen/space_s"
+                        android:layout_weight="1">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/space_l">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:id="@+id/scheduledCheck"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_marginEnd="@dimen/space_s"
+                                    android:importantForAccessibility="no"
+                                    android:src="@drawable/ic_check"
+                                    android:visibility="gone"
+                                    tools:visibility="visible" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="@string/create_request_time_scheduled"
+                                    android:textAppearance="@style/TextAppearance.Servio.BodyStrong" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_xs"
+                                android:text="@string/create_request_time_scheduled_hint"
+                                android:textAppearance="@style/TextAppearance.Servio.Caption" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- Only with "Hẹn lịch". -->
+                <LinearLayout
+                    android:id="@+id/scheduleGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="-4dp"
-                    android:layout_marginTop="@dimen/space_s"
-                    android:nestedScrollingEnabled="false"
-                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                    app:spanCount="2"
-                    tools:itemCount="5"
-                    tools:listitem="@layout/item_schedule_choice" />
-
-                <TextView
-                    android:id="@+id/slotError"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_xs"
-                    android:text="@string/create_request_slot_required"
-                    android:textAppearance="@style/TextAppearance.Servio.Caption"
-                    android:textColor="@color/servio_error"
+                    android:orientation="vertical"
                     android:visibility="gone"
-                    tools:visibility="visible" />
+                    tools:visibility="visible">
 
-                <TextView
-                    android:id="@+id/slotHelper"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_s"
-                    android:text="@string/create_request_slot_helper"
-                    android:textAppearance="@style/TextAppearance.Servio.Caption" />
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/dayList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="-4dp"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:clipToPadding="false"
+                        android:orientation="horizontal"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        tools:itemCount="5"
+                        tools:listitem="@layout/item_schedule_choice" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/slotList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="-4dp"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:nestedScrollingEnabled="false"
+                        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                        app:spanCount="2"
+                        tools:itemCount="5"
+                        tools:listitem="@layout/item_schedule_choice" />
+
+                    <TextView
+                        android:id="@+id/slotError"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xs"
+                        android:text="@string/create_request_slot_required"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        android:textColor="@color/servio_error"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                    <TextView
+                        android:id="@+id/slotHelper"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        tools:text="Khung 2 giờ. Đặt trước tối đa 30 ngày." />
+                </LinearLayout>
             </LinearLayout>
 
             <!-- endregion -->
