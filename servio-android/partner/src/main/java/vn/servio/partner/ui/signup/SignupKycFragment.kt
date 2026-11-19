@@ -56,8 +56,9 @@ class SignupKycFragment : Fragment(R.layout.fragment_signup_kyc) {
         setupSignupToolbar(binding.toolbar, authRepository)
         SignupSteps.bind(binding.steps, 4, R.string.signup_step_kyc)
         binding.actionBar.primaryButton.setText(R.string.kyc_submit)
+        // TERMS_AND_PRIVACY is asked once in the shared post-OTP flow of :core; here only the KYC consent.
         binding.actionBar.primaryButton.setOnClickListener {
-            withConsent(consents, listOf(ConsentPurpose.TERMS_AND_PRIVACY, ConsentPurpose.KYC_IDENTITY)) { viewModel.submit() }
+            withConsent(consents, listOf(ConsentPurpose.KYC_IDENTITY)) { viewModel.submit() }
         }
 
         val views = mapOf(

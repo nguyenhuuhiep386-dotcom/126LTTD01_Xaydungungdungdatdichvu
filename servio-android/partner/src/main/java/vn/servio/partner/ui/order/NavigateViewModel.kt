@@ -112,7 +112,8 @@ class NavigateViewModel @Inject constructor(
             val fix = deviceLocation.current(maxAgeMillis = FRESH_FIX_MILLIS)
             if (fix == null) {
                 _busy.value = false
-                _problem.value = CheckInProblem(messageRes = R.string.navigate_no_fix, canAskCustomer = true)
+                // #178 needs a check-in refused by the server in the last 10 minutes: without a fix nothing was sent.
+                _problem.value = CheckInProblem(messageRes = R.string.navigate_no_fix, canAskCustomer = false)
                 return@launch
             }
             _me.value = fix

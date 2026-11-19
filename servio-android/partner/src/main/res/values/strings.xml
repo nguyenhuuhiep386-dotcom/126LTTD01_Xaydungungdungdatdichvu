@@ -259,7 +259,7 @@
     <string name="navigate_ask_customer">Nhờ khách xác nhận đã đến</string>
     <string name="navigate_problem_title">Chưa báo đến nơi được</string>
     <string name="navigate_waiting">Đang chờ khách xác nhận (tới %1$s)…</string>
-    <string name="navigate_no_fix">Chưa lấy được vị trí GPS. Hãy ra chỗ thoáng hoặc nhờ khách xác nhận.</string>
+    <string name="navigate_no_fix">Chưa lấy được vị trí GPS. Hãy ra chỗ thoáng rồi bấm "Đã đến nơi" lại.</string>
     <string name="navigate_denied">Khách báo bạn chưa tới nơi. Hãy liên hệ khách rồi thử lại.</string>
     <string name="navigate_expired">Khách chưa trả lời trong 5 phút. Bạn có thể gửi lại yêu cầu.</string>
 

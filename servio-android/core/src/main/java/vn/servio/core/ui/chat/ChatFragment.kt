@@ -67,8 +67,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
             val conversation = state.data.conversation
             binding.avatar.text = ChatTexts.initials(conversation.counterpart.displayName)
             binding.name.text = conversation.counterpart.displayName
-            binding.subtitle.text = listOf(conversation.requestCode, conversation.requestTitle)
-                .filter { it.isNotBlank() }.joinToString(" · ")
+            binding.subtitle.text = conversation.contextLine
             val readOnly = !conversation.canSend || conversation.status == ConversationStatus.READ_ONLY
             binding.composer.isVisible = !readOnly
             binding.readOnlyBanner.isVisible = readOnly

@@ -10,7 +10,10 @@ import vn.servio.core.network.apiCall
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** Consent purposes (Luật 91/2025): KYC photos, sharing the position, terms when submitting the profile. */
+/**
+ * Consent purposes (Luật 91/2025). The partner app asks KYC_IDENTITY and LOCATION_SHARING itself (ConsentGate);
+ * TERMS_AND_PRIVACY is asked once after OTP by the shared :core flow and is listed here only to read #consents.
+ */
 @Serializable
 enum class ConsentPurpose { TERMS_AND_PRIVACY, KYC_IDENTITY, LOCATION_SHARING }
 
@@ -35,8 +38,8 @@ interface ConsentApi {
 }
 
 /**
- * Consents the server may require before KYC upload/submit (KYC_IDENTITY, TERMS_AND_PRIVACY) and before going Online or
- * moving (LOCATION_SHARING): otherwise 422 CONSENT_REQUIRED. When the backend has no consent API yet (older build),
+ * Consents the server requires before KYC upload/submit (KYC_IDENTITY) and before going Online or moving
+ * (LOCATION_SHARING): otherwise 422 CONSENT_REQUIRED. When the backend has no consent API yet (older build),
  * [missing] returns an empty list so the app behaves as before.
  */
 interface ConsentRepository {
