@@ -33,7 +33,9 @@ public sealed class AccountDeletionService(
                        .Include(u => u.PartnerProfile).ThenInclude(p => p!.PartnerSkills)
                        .Include(u => u.Wallet)
                        .AsSplitQuery()
-                       .FirstOrDefaultAsync(u => u.Id == userId && u.Status != (byte)UserStatus.Deleted, ct)
+                       .Where(u => u.Id == userId && u.Status != (byte)UserStatus.Deleted)
+                       .OrderBy(u => u.Id) // split queries need a stable order even for one row (EF warning 10102)
+                       .FirstOrDefaultAsync(ct)
                    ?? throw ApiException.NotFound("Không tìm thấy tài khoản");
         await EnsureNothingOpenAsync(user.Id, user.CustomerProfile?.Id, user.PartnerProfile?.Id, user.Wallet, ct);
 

@@ -157,6 +157,8 @@ def main():
     api("GET", "/service-categories")  # fails fast when the backend is down
     services = {c["slug"]: c["id"] for g in api("GET", "/service-categories") for c in g.get("children", [])}
     service_id = services["ve-sinh-may-lanh"]
+    rules = api("GET", "/app-config")  # CS-18 numbers come from SystemConfigs
+    assert (rules["partnerAcceptTimeoutMinutes"], rules["cancellationFeeAfterOnTheWay"]) == (10, 20_000), rules
     admin = Admin()
     admin.login()
     for page in ("/chinh-sach-bao-mat", "/dieu-khoan-su-dung"):
@@ -210,9 +212,12 @@ def main():
         {"clientMessageId": str(uuid.uuid4()), "type": "TEXT", "content": "Chào anh/chị, em qua kiểm tra trong 30 phút nhé."})
     quotes = api("GET", f"/service-requests/{request['id']}/quotes", customer)["items"]
     chosen = next(q for q in quotes if q["id"] == quote["id"])
+    assert (chosen["partner"]["skillName"], chosen["partner"]["identityVerified"]) == ("Vệ sinh máy lạnh", True), chosen["partner"]
     order = api("POST", f"/service-requests/{request['id']}/accept-quotes", customer,
                 {"quoteIds": [chosen["id"]], "quoteVersions": {chosen["id"]: chosen["rowVersion"]}, "paymentMethod": "CASH"}, expect=201)
     order_id, assignment_id = order["id"], order["assignments"][0]["id"]
+    room = api("GET", f"/conversations/{quote['conversationId']}", customer)
+    assert (room["orderCode"], room["price"]) == (order["code"], 450_000), room
     ok(f"đơn {order['code']} tạo, chờ đối tác xác nhận")
 
     # ---------- (4) xác nhận, di chuyển, khách thấy vị trí ----------
@@ -229,6 +234,10 @@ def main():
     arrive_url = f"/orders/{order_id}/assignments/{assignment_id}/arrive"
     expect_error("TOO_FAR_FROM_ADDRESS", lambda: api("POST", arrive_url, partner, {
         "latitude": near[0], "longitude": near[1], "accuracy": 10, "capturedAt": iso(datetime.now(timezone.utc)), "isMock": False}))
+    # GPS refused just now, so the partner may ask the customer (#178); the customer sees it in #63 even if they missed the push.
+    ask = api("POST", f"/orders/{order_id}/assignments/{assignment_id}/arrival-confirmation-requests", partner, expect=201)
+    pending = api("GET", f"/orders/{order_id}", customer)["assignments"][0]["pendingArrivalConfirmation"]
+    assert pending and pending["requestId"] == ask["requestId"], pending
     arrived = api("POST", arrive_url, partner, {
         "latitude": UTE[0] + 0.0004, "longitude": UTE[1], "accuracy": 10, "capturedAt": iso(datetime.now(timezone.utc)), "isMock": False})
     ok(f"đã đến, cách địa chỉ {arrived['distanceMeters']} m")

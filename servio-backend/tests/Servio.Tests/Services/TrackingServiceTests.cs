@@ -48,6 +48,12 @@ public sealed class TrackingServiceTests : IAsyncLifetime
     private ArriveRequest Fix(decimal latOffset = 0.001m, int accuracy = 20, int ageSeconds = 5, bool mock = false) =>
         new(Lat + latOffset, Lng, accuracy, Now.AddSeconds(-ageSeconds), mock, null);
 
+    /// <summary>A #68 refused for distance (≈ 1.1 km away), which opens the 10-minute window of #178.</summary>
+    private Task RefusedCheckInAsync(bool mock = false) =>
+        Assert.ThrowsAsync<ApiException>(() => _f.Tracking().ArriveAsync(_partner.Id, _orderId, _assignmentId, Fix(0.01m, mock: mock), default));
+
+    private Task<ArrivalConfirmationDto> AskAsync() => _f.Tracking().RequestConfirmationAsync(_partner.Id, _orderId, _assignmentId, default);
+
     private async Task<OrderAssignment> AssignmentAsync() =>
         await _f.Ctx.Db.OrderAssignments.AsNoTracking().SingleAsync(a => a.Id == _assignmentId);
 
@@ -127,14 +133,21 @@ public sealed class TrackingServiceTests : IAsyncLifetime
     public async Task CustomerConfirmation_DenyThenConfirm_MovesToArrivedByCustomer()
     {
         await StartAsync();
+        await RefusedCheckInAsync();
         var first = await _f.Tracking().RequestConfirmationAsync(_partner.Id, _orderId, _assignmentId, default);
         var duplicate = await Assert.ThrowsAsync<ApiException>(() => _f.Tracking().RequestConfirmationAsync(_partner.Id, _orderId, _assignmentId, default));
 
+        var pendingInDetail = (await _f.Orders().GetAsync(_f.Customer.Id, AppFlavor.Customer, _orderId, default)).Assignments.Single().PendingArrivalConfirmation;
         var denied = await _f.Tracking().RespondConfirmationAsync(_f.Customer.Id, _orderId, _assignmentId, first.RequestId, new RespondArrivalRequest(false), default);
-        var second = await _f.Tracking().RequestConfirmationAsync(_partner.Id, _orderId, _assignmentId, default);
-        var confirmed = await _f.Tracking().RespondConfirmationAsync(_f.Customer.Id, _orderId, _assignmentId, second.RequestId, new RespondArrivalRequest(true), default);
+        var second = await AskAsync();
+        var stale = await Assert.ThrowsAsync<ApiException>(() => _f.Tracking().RespondConfirmationAsync(_f.Customer.Id, _orderId, _assignmentId,
+            second.RequestId, new RespondArrivalRequest(true, Convert.ToBase64String([1, 2, 3])), default));
+        var version = (await _f.Orders().GetAsync(_f.Customer.Id, AppFlavor.Customer, _orderId, default)).RowVersion;
+        var confirmed = await _f.Tracking().RespondConfirmationAsync(_f.Customer.Id, _orderId, _assignmentId, second.RequestId, new RespondArrivalRequest(true, version), default);
 
         Assert.Equal(Now.AddSeconds(300), first.ExpiresAt);
+        Assert.Equal(new PendingArrivalDto(first.RequestId, first.ExpiresAt), pendingInDetail); // #63: a late customer can still answer
+        Assert.Equal(ErrorCodes.ResourceVersionConflict, stale.Code);
         Assert.Equal(ErrorCodes.ArrivalConfirmationNotAllowed, duplicate.Code);
         Assert.Equal(ArrivalConfirmationStatus.Denied, denied.Status);
         Assert.Equal(ArrivalConfirmationStatus.Confirmed, confirmed.Status);
@@ -156,16 +169,18 @@ public sealed class TrackingServiceTests : IAsyncLifetime
     public async Task CustomerConfirmation_ExpiresAfterTtl_AndStopsAfterThreeRequests()
     {
         await StartAsync();
-        var first = await _f.Tracking().RequestConfirmationAsync(_partner.Id, _orderId, _assignmentId, default);
+        await RefusedCheckInAsync();
+        var first = await AskAsync();
         _f.Ctx.Clock.Advance(TimeSpan.FromSeconds(301));
 
         var expired = await Assert.ThrowsAsync<ApiException>(() =>
             _f.Tracking().RespondConfirmationAsync(_f.Customer.Id, _orderId, _assignmentId, first.RequestId, new RespondArrivalRequest(true), default));
-        await _f.Tracking().RequestConfirmationAsync(_partner.Id, _orderId, _assignmentId, default); // 2nd: the 1st expired
+        await AskAsync(); // 2nd: the 1st expired
         _f.Ctx.Clock.Advance(TimeSpan.FromSeconds(301));
-        await _f.Tracking().RequestConfirmationAsync(_partner.Id, _orderId, _assignmentId, default); // 3rd
+        await RefusedCheckInAsync(); // the first refusal is now over 10 minutes old
+        await AskAsync(); // 3rd
         _f.Ctx.Clock.Advance(TimeSpan.FromSeconds(301));
-        var fourth = await Assert.ThrowsAsync<ApiException>(() => _f.Tracking().RequestConfirmationAsync(_partner.Id, _orderId, _assignmentId, default));
+        var fourth = await Assert.ThrowsAsync<ApiException>(AskAsync);
 
         Assert.Equal(StatusCodes.Status409Conflict, expired.StatusCode);
         Assert.Equal(ErrorCodes.ArrivalConfirmationNotAllowed, fourth.Code);
@@ -176,12 +191,29 @@ public sealed class TrackingServiceTests : IAsyncLifetime
     public async Task ArriveByGps_CancelsAPendingConfirmation()
     {
         await StartAsync();
-        var pending = await _f.Tracking().RequestConfirmationAsync(_partner.Id, _orderId, _assignmentId, default);
+        await RefusedCheckInAsync();
+        var pending = await AskAsync();
 
         await _f.Tracking().ArriveAsync(_partner.Id, _orderId, _assignmentId, Fix(), default);
 
         var row = await _f.Ctx.Db.ArrivalConfirmationRequests.AsNoTracking().SingleAsync(r => r.Id == pending.RequestId);
         Assert.Equal((byte)ArrivalConfirmationStatus.Cancelled, row.Status);
+    }
+
+    [Fact]
+    public async Task CustomerConfirmation_NeedsAGpsRefusal_InTheLast10Minutes_AndNeverAfterAMockLocation()
+    {
+        await StartAsync();
+        var skipped = await Assert.ThrowsAsync<ApiException>(AskAsync);
+        await RefusedCheckInAsync(mock: true);
+        var mock = await Assert.ThrowsAsync<ApiException>(AskAsync);
+        await RefusedCheckInAsync();
+        _f.Ctx.Clock.Advance(TrackingService.AskCustomerWindow + TimeSpan.FromSeconds(1));
+        var late = await Assert.ThrowsAsync<ApiException>(AskAsync);
+
+        Assert.All([skipped, mock, late], e => Assert.Equal(ErrorCodes.ArrivalConfirmationNotAllowed, e.Code));
+        Assert.Contains("vị trí giả", mock.Message);
+        Assert.Equal(ErrorCodes.TooFarFromAddress, (await AssignmentAsync()).ArrivalRejectCode);
     }
 
     [Theory]

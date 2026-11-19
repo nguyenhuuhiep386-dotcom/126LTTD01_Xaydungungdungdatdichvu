@@ -149,7 +149,7 @@ Thời gian dự kiến: bước 1–2 khoảng 4 phút, 3–6 khoảng 6 phút,
 | IP laptop đổi so với APK | Đổi lại mạng đúng như lúc build. Không được thì build lại APK với IP mới (mất ~3 phút), hoặc chuyển sang video dự phòng |
 | Đăng nhập OTP báo sai mã | Backend phải chạy profile **Demo** hoặc Development (mã cố định `123456`) |
 | Màn hình không tự cập nhật (báo giá, trạng thái, vị trí) | Kéo làm mới / mở lại màn; dữ liệu đã đúng trên server, chỉ là sự kiện realtime bị lỡ |
-| Check-in GPS bị chặn | Dùng "Nhờ khách xác nhận" (tối đa 3 lần cho một đơn) |
+| Check-in GPS bị chặn | Dùng "Nhờ khách xác nhận" trong 10 phút sau lần bị chặn (tối đa 3 lần cho một đơn); quá 10 phút thì bấm *Đã đến* lại trước |
 | Đối tác không nhận được việc mới, báo nợ hoa hồng | Nợ > 200.000 đ bị chặn. Laptop: AW-18 xác nhận một khoản trả nợ, hoặc dùng đối tác khác |
 | Khách không đăng bài được, báo còn nợ | Còn phí huỷ > 100.000 đ hoặc đơn chờ thanh toán. Dùng khách khác hoặc xác nhận trả nợ ở AW-18 |
 | App báo "Bạn cần đồng ý…" (`CONSENT_REQUIRED`) | App chưa gửi sự đồng ý. Nếu app chưa có màn hình đồng ý: AW-15 đặt `privacy.require_consent` = false cho buổi demo, đặt lại true sau đó |

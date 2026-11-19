@@ -319,6 +319,7 @@ CREATE TABLE dbo.ServiceRequests (
     SearchRadiusKm         int              NOT NULL CONSTRAINT DF_ServiceRequests_SearchRadiusKm DEFAULT 10,
     Status                 tinyint          NOT NULL,        -- 1=DRAFT, 2=OPEN, 3=MATCHED, 4=EXPIRED, 5=CANCELLED, 6=REJECTED_BY_MODERATION
     QuoteCount             int              NOT NULL CONSTRAINT DF_ServiceRequests_QuoteCount DEFAULT 0,
+    BroadcastCount         int              NOT NULL CONSTRAINT DF_ServiceRequests_BroadcastCount DEFAULT 0, -- partners pushed the post when it was published
     ViewCount              int              NOT NULL CONSTRAINT DF_ServiceRequests_ViewCount DEFAULT 0,
     Revision               int              NOT NULL CONSTRAINT DF_ServiceRequests_Revision DEFAULT 1, -- always 1 in the course scope
     ExpiresAt              datetimeoffset   NULL,
@@ -430,6 +431,8 @@ CREATE TABLE dbo.OrderAssignments (
     ArrivalDistanceMeters      int              NULL,
     ArrivalAccuracyMeters      int              NULL,
     CustomerConfirmedArrivalAt datetimeoffset   NULL,
+    ArrivalRejectedAt          datetimeoffset   NULL,        -- last GPS check-in (#68) refused; #178 needs one within 10 minutes
+    ArrivalRejectCode          varchar(40)      NULL,        -- its error code: TOO_FAR_FROM_ADDRESS, GPS_NOT_RELIABLE, MOCK_LOCATION_DETECTED
     LastLatitude               decimal(9, 6)    NULL,        -- latest point from hub UpdateLocation (course scope)
     LastLongitude              decimal(9, 6)    NULL,
     LastLocationAccuracy       int              NULL,

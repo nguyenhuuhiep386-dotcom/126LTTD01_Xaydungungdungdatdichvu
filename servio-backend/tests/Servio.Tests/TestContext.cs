@@ -28,7 +28,8 @@ public sealed class TestContext : IDisposable
     {
         Db = new ServioDbContext(new DbContextOptionsBuilder<ServioDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+            .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning)
+                .Throw(CoreEventId.RowLimitingOperationWithoutOrderByWarning)) // Skip/Take must be ordered (EF 10102)
             .AddInterceptors(new InMemoryRowVersionInterceptor())
             .Options);
         Directory.CreateDirectory(Path.Combine(RootPath, "wwwroot"));

@@ -30,6 +30,7 @@ public sealed class PartnerPublicService(ServioDbContext db, TimeProvider clock)
             partner.TotalReviews,
             partner.CompletedOrders,
             partner.PartnerSkills.Where(s => s.Status == (byte)ApprovalStatus.Approved).Select(s => s.ServiceCategory.Name).Order().ToList(),
+            partner.VerificationStatus == (byte)PartnerVerificationStatus.Approved,
             partner.CreatedAt);
     }
 
