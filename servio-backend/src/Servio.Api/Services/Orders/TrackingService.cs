@@ -11,7 +11,8 @@ namespace Servio.Api.Services.Orders;
 /// <summary>
 /// BE-5 (0.2.7 ý 5–6): #67 start moving, hub UpdateLocation, #76/#77 tracking and ETA, #68 GPS check-in and the
 /// "customer confirms the partner arrived" path #178/#179. The live position is the Last* columns of OrderAssignments.
-/// Course scope: no CheckInAttempts table, so rejected check-ins are not stored and #178 only needs ON_THE_WAY.
+/// Course scope: no CheckInAttempts table; only the last refused check-in is kept (ArrivalRejectedAt/Code), which is
+/// what #178 needs.
 /// </summary>
 public sealed class TrackingService(
     ServioDbContext db,
@@ -21,6 +22,9 @@ public sealed class TrackingService(
     ConsentService consents,
     TimeProvider clock)
 {
+    /// <summary>#178 is allowed this long after a GPS check-in refused for distance or accuracy (D03).</summary>
+    public static readonly TimeSpan AskCustomerWindow = TimeSpan.FromMinutes(10);
+
     /// <summary>Older fixes are shown as "Chưa cập nhật" (0.2.7 ý 5).</summary>
     public static readonly TimeSpan StaleAfter = TimeSpan.FromSeconds(30);
 
@@ -36,7 +40,7 @@ public sealed class TrackingService(
         var change = await workflow.MoveAsync(order, assignment, OrderStatus.OnTheWay, ActorType.Partner, userId, null, ct);
         SetLocation(assignment, lat, lng, input.Accuracy, change.ChangedAt);
         await db.SaveChangesAsync(ct);
-        await workflow.PublishAsync(order, assignment, change, "Đối tác đang trên đường đến. Bạn có thể theo dõi vị trí trong màn hình đơn.", ct);
+        await workflow.PublishAsync(order, assignment, change, "Đối tác đang trên đường đến.", ct);
         return change;
     }
 
@@ -95,7 +99,18 @@ public sealed class TrackingService(
             await configs.GetIntAsync("checkin.max_accuracy_meters", 100, ct),
             await configs.GetIntAsync("checkin.max_fix_age_seconds", 60, ct));
         // ponytail: Play Integrity is not verified (integrity.checkin_required=false for sideloaded demo APKs, spec E06).
-        CheckIn(rules, input.IsMock, input.Accuracy!.Value, now - input.CapturedAt!.Value, distance);
+        try
+        {
+            CheckIn(rules, input.IsMock, input.Accuracy!.Value, now - input.CapturedAt!.Value, distance);
+        }
+        catch (ApiException e)
+        {
+            // Kept so #178 can tell "GPS really failed just now" from a partner skipping the check-in.
+            assignment.ArrivalRejectedAt = now;
+            assignment.ArrivalRejectCode = e.Code;
+            await db.SaveChangesAsync(ct);
+            throw;
+        }
 
         var change = await workflow.MoveAsync(order, assignment, OrderStatus.Arrived, ActorType.Partner, userId, null, ct);
         assignment.ArrivalMethod = (byte)ArrivalMethod.Gps;
@@ -132,7 +147,8 @@ public sealed class TrackingService(
     }
 
     /// <summary>
-    /// #178 the partner (ON_THE_WAY) asks the customer to confirm the arrival: one PENDING at a time, at most
+    /// #178 the partner (ON_THE_WAY) asks the customer to confirm the arrival. Needs a #68 refused for TOO_FAR_FROM_ADDRESS
+    /// or GPS_NOT_RELIABLE in the last 10 minutes (a mock location never qualifies); one PENDING at a time, at most
     /// checkin.customer_confirm_max_requests per assignment, expires after checkin.customer_confirm_ttl_seconds.
     /// </summary>
     public async Task<ArrivalConfirmationDto> RequestConfirmationAsync(Guid userId, Guid orderId, Guid assignmentId, CancellationToken ct)
@@ -143,6 +159,16 @@ public sealed class TrackingService(
             throw new ApiException(StatusCodes.Status409Conflict, ErrorCodes.InvalidStatusTransition, "Chỉ nhờ khách xác nhận khi đang trên đường đến");
         }
         var now = clock.GetUtcNow();
+        if (assignment.ArrivalRejectCode == ErrorCodes.MockLocationDetected)
+        {
+            throw new ApiException(StatusCodes.Status422UnprocessableEntity, ErrorCodes.ArrivalConfirmationNotAllowed,
+                "Lần check-in vừa rồi dùng vị trí giả nên không thể nhờ khách xác nhận. Hãy tắt vị trí giả và check-in lại");
+        }
+        if (assignment.ArrivalRejectedAt is not { } rejectedAt || now - rejectedAt > AskCustomerWindow)
+        {
+            throw new ApiException(StatusCodes.Status422UnprocessableEntity, ErrorCodes.ArrivalConfirmationNotAllowed,
+                "Hãy bấm \"Đã đến nơi\" để check-in GPS trước. Chỉ nhờ khách xác nhận khi GPS không đạt");
+        }
         var requests = await db.ArrivalConfirmationRequests.Where(r => r.OrderAssignmentId == assignment.Id).ToListAsync(ct);
         ExpireOverdue(requests, now);
         var max = await configs.GetIntAsync("checkin.customer_confirm_max_requests", 3, ct);
@@ -169,7 +195,7 @@ public sealed class TrackingService(
         var dto = ToDto(order.Id, request);
         await notifier.OrderEventAsync([(AppFlavor.Customer, order.Customer.UserId)], RealtimeEvents.ArrivalConfirmationRequested, dto, ct);
         await workflow.SystemMessageAsync(order.ServiceRequestId, assignment.PartnerProfileId,
-            "Đối tác báo đã đến nơi. Vui lòng xác nhận trong màn hình đơn.", ct);
+            "Đối tác báo đã đến nơi, chờ khách xác nhận.", ct);
         await workflow.NotifyOrderAsync(order, [(AppFlavor.Customer, order.Customer.UserId)], "Thợ báo đã đến nơi, bạn xác nhận giúp nhé.", ct);
         return dto;
     }
@@ -185,6 +211,10 @@ public sealed class TrackingService(
             throw ApiException.NotFound("Không tìm thấy đơn");
         }
         OrderWorkflow.EnsureNotDisputed(order);
+        if (input.ExpectedRowVersion is { } version)
+        {
+            CompletionService.EnsureVersion(order, version);
+        }
         var request = await db.ArrivalConfirmationRequests.FirstOrDefaultAsync(r => r.Id == requestId && r.OrderAssignmentId == assignmentId, ct)
                       ?? throw ApiException.NotFound("Không tìm thấy yêu cầu xác nhận");
         var now = clock.GetUtcNow();

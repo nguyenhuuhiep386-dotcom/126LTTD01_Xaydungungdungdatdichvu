@@ -29,7 +29,7 @@ public sealed record RequestImageInput([Required] string Url);
 /// <summary>#40 POST /service-requests/{id}/cancel</summary>
 public sealed record CancelRequestRequest([StringLength(500)] string? Reason);
 
-/// <summary>Row of #37 GET /service-requests/me.</summary>
+/// <summary>Row of #37 GET /service-requests/me. broadcastCount = partners the post was pushed to when published.</summary>
 public sealed record RequestSummaryDto(
     Guid Id,
     string Code,
@@ -38,9 +38,12 @@ public sealed record RequestSummaryDto(
     string CategoryName,
     ServiceRequestStatus Status,
     int QuoteCount,
+    int BroadcastCount,
+    int Revision,
     string AddressSnapshot,
     ScheduleType ScheduleType,
     DateTimeOffset? ScheduledStartAt,
+    DateTimeOffset? ScheduledEndAt,
     DateTimeOffset? ExpiresAt,
     string? ThumbnailUrl,
     DateTimeOffset CreatedAt);
@@ -70,6 +73,7 @@ public sealed record RequestDetailDto(
     decimal? RequireMinRating,
     int SearchRadiusKm,
     int QuoteCount,
+    int BroadcastCount,
     DateTimeOffset? PublishedAt,
     DateTimeOffset? ExpiresAt,
     string? CancelReason,

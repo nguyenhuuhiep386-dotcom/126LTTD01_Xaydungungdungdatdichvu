@@ -177,13 +177,15 @@ Các đối tác để Offline sau khi seed; bật Online trong app khi demo. �
 | `/hubs/chat` | Cả hai | `MessageRead` | `{ conversationId, userId, lastReadMessageId }`, gửi khi một bên đã đọc |
 
 - **Kết nối:** URL `BASE_URL + "hubs/feed"`, gửi JWT qua `accessTokenProvider` (thư viện SignalR Java client tự gắn `?access_token=`). Server tự đưa kết nối vào nhóm theo user và theo app, client không cần gọi hàm join nào.
-- **Khi kết nối lại:** gọi lại API danh sách (`GET /feed`, `GET .../quotes`), vì sự kiện phát ra lúc mất mạng sẽ không được gửi lại.
+- **Khi kết nối lại:** gọi lại API danh sách (`GET /feed`, `GET .../quotes`, #63), vì sự kiện phát ra lúc mất mạng sẽ không được gửi lại. Gọi lại **mỗi lần trạng thái hub chuyển sang CONNECTED**, kể cả lần kết nối đầu: `HubClient` không phát sự kiện "reconnected" cho lần đầu, và sự kiện phát ra trong lúc đang CONNECTING cũng bị lỡ. Màn hình nên đăng ký `listen()` trước rồi mới `start()`.
 - **Chỉ đối tác Online mới nhận NewPost:** phải gọi #25 trước và gửi heartbeat #26 mỗi 30 giây.
 - **Chat:** client gọi hub method `SendMessage({ conversationId, clientMessageId, type, content, attachmentUrl })` và `MarkRead(conversationId, messageId)`. `clientMessageId` là UUID do app tạo trước khi gửi; gửi lại cùng UUID (khi mất mạng) không tạo tin trùng. Khi hub mất kết nối, gửi qua `POST /conversations/{id}/messages`. Lỗi nghiệp vụ trả về dạng `HubException` có nội dung `MÃ_LỖI: thông báo`.
 - **Sau khi kết nối lại:** gọi `GET /conversations/{id}/messages?after=<syncCursor>` để lấy các tin bị lỡ.
 - **Đơn hàng:**
   - #43 gửi `{ quoteIds: [id], quoteVersions: { id: rowVersion }, paymentMethod: "CASH" }`, `rowVersion` lấy từ #42. Kết quả là chi tiết đơn (#63). Gửi lại cùng báo giá thì nhận lại đúng đơn đã tạo.
-  - Khi nhận `OrderStatusChanged`, gọi lại #63 để lấy dữ liệu mới. Mỗi thao tác cũng ghi một tin hệ thống vào chat của hai bên.
+  - Khi nhận `OrderStatusChanged`, gọi lại #63 để lấy dữ liệu mới. Mỗi thao tác cũng ghi một tin hệ thống vào chat của hai bên; tin hệ thống viết ở ngôi thứ ba ("Khách đã…", "Đối tác đã…"), cùng một câu cho cả hai bên. Lời nhắc riêng cho từng bên nằm ở thông báo đẩy.
+  - Danh sách và đầu màn chat (#54/#55) có `orderCode` (null khi chưa có đơn) và `price`: giá đã chốt với đối tác này khi đã có đơn, nếu chưa thì giá báo mới nhất của họ.
+  - Các con số CS-18 (hạn xác nhận đơn, phí huỷ 20.000 đ, max(30.000 đ, 20%), thời gian chờ khách) lấy từ `GET /api/v1/app-config` (không cần đăng nhập), không viết cứng trong app.
   - Số điện thoại và địa chỉ chính xác chỉ có trong #63 từ khi đối tác xác nhận (ACCEPTED) đến khi báo hoàn thành.
   - **Di chuyển (DT-4):** sau #67, foreground service gọi hub method `UpdateLocation(assignmentId, latitude, longitude, accuracy, capturedAt)` trên `/hubs/orders` mỗi 10 giây. Trả `false` khi điểm cũ hơn điểm đã lưu (bỏ qua). Nhận `HubException` bắt đầu bằng `INVALID_STATUS_TRANSITION` thì dừng service (đã đến, đơn bị huỷ hoặc đang khiếu nại).
   - **Theo dõi (CS-21):** gọi #76 khi mở màn, sau đó cập nhật marker theo `PartnerLocationUpdated`. `location` chỉ có khi đối tác đang ON_THE_WAY. `isStale = true` (điểm cũ hơn 30 giây) thì hiện "Chưa cập nhật" và không đếm ngược ETA.
@@ -199,9 +201,9 @@ Các đối tác để Offline sau khi seed; bật Online trong app khi demo. �
     - Khi người dùng tích ô: gọi `GET /api/v1/legal` lấy `policyVersion`, rồi `POST /api/v1/users/me/consents` `{ purpose, granted: true, policyVersion }`. Rút đồng ý: gửi `granted: false`. Xem lại: `GET /api/v1/users/me/consents`.
     - Mục đích và chỗ bị chặn khi thiếu (422 `CONSENT_REQUIRED`): `TERMS_AND_PRIVACY` (khách đăng bài; đối tác nộp hồ sơ), `KYC_IDENTITY` (chỉ app đối tác: tải ảnh CCCD, nộp hồ sơ; ô đồng ý phải ghi rõ đây là dữ liệu nhạy cảm), `LOCATION_SHARING` (chỉ app đối tác: bật Online, bắt đầu di chuyển, gửi vị trí).
     - Xoá tài khoản: `DELETE /api/v1/users/me` → 204; còn đơn, yêu cầu mở, báo giá chờ hoặc nợ thì 409 `ACCOUNT_DELETION_BLOCKED` kèm lý do để hiện cho người dùng.
-    - App chưa có màn hình đồng ý thì tạm đặt `privacy.require_consent = false` ở AW-15; bản nộp cuối phải để `true`. CSDL tạo trước 16/11 chạy thêm `database/03_privacy.sql`.
+    - App chưa có màn hình đồng ý thì tạm đặt `privacy.require_consent = false` ở AW-15; bản nộp cuối phải để `true`. CSDL tạo trước 16/11 chạy thêm `database/03_privacy.sql`; tạo trước 19/11 chạy thêm `database/04_phan_hoi_app.sql`.
   - **Khách chưa trả tiền (#177, PS-14):** đối tác gọi `POST /orders/{id}/assignments/{aid}/report-unpaid` `{ note, evidenceUrls }` từ lúc báo hoàn thành tới 24 giờ sau khi đơn hoàn tất; quá hạn 422 `UNPAID_REPORT_WINDOW_CLOSED`, đang có khiếu nại 409 `DISPUTE_ALREADY_OPEN`. Đơn ở `AWAITING_PAYMENT` nghĩa là khách còn nợ đối tác: app khách nên hiện nhắc thanh toán.
-  - **Khách xác nhận (#178, #179):** mỗi lần chờ tối đa 300 giây, tối đa 3 lần cho một phần việc. Khi demo trong lớp, dùng đường này vì điện thoại đối tác không ở gần địa chỉ đơn.
+  - **Khách xác nhận (#178, #179):** chỉ gọi được #178 trong 10 phút sau một lần #68 bị từ chối vì `TOO_FAR_FROM_ADDRESS` hoặc `GPS_NOT_RELIABLE`; chưa check-in, quá 10 phút hoặc lần gần nhất là vị trí giả thì 422 `ARRIVAL_CONFIRMATION_NOT_ALLOWED` (app đối tác nên bấm "Đã đến nơi" lại trước). Mỗi lần chờ tối đa 300 giây, tối đa 3 lần cho một phần việc. Yêu cầu đang chờ nằm trong #63 ở `assignments[].pendingArrivalConfirmation` `{ requestId, expiresAt }`, nên khách mở đơn muộn vẫn trả lời được. #179 gửi `{ confirmed, expectedRowVersion }` (`expectedRowVersion` không bắt buộc; gửi thì đơn đã đổi trả 409 `RESOURCE_VERSION_CONFLICT`). Khi demo trong lớp, dùng đường này vì điện thoại đối tác không ở gần địa chỉ đơn: bấm "Đã đến nơi" (bị chặn vì xa) rồi "Nhờ khách xác nhận".
 
 ## 6. Quy ước
 

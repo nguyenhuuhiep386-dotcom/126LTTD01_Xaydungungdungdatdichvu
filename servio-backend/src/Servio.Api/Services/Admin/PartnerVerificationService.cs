@@ -78,7 +78,9 @@ public sealed class PartnerVerificationService(ServioDbContext db, NotificationS
                     .Include(x => x.PartnerDocuments)
                     .Include(x => x.PartnerSkills).ThenInclude(s => s.ServiceCategory).ThenInclude(c => c.Parent)
                     .AsSplitQuery()
-                    .FirstOrDefaultAsync(x => x.Id == partnerId, ct)
+                    .Where(x => x.Id == partnerId)
+                    .OrderBy(x => x.Id) // split queries need a stable order even for one row (EF warning 10102)
+                    .FirstOrDefaultAsync(ct)
                 ?? throw ApiException.NotFound("Không tìm thấy đối tác");
 
         return new VerificationDetail(
@@ -201,7 +203,9 @@ public sealed class PartnerVerificationService(ServioDbContext db, NotificationS
                           .Include(p => p.PartnerDocuments)
                           .Include(p => p.PartnerSkills)
                           .AsSplitQuery()
-                          .FirstOrDefaultAsync(p => p.Id == partnerId, ct)
+                          .Where(p => p.Id == partnerId)
+                          .OrderBy(p => p.Id) // split queries need a stable order even for one row (EF warning 10102)
+                          .FirstOrDefaultAsync(ct)
                       ?? throw ApiException.NotFound("Không tìm thấy đối tác");
         if (partner.VerificationStatus != (byte)PartnerVerificationStatus.Pending)
         {

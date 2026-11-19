@@ -373,6 +373,7 @@ public partial class ServioDbContext : DbContext
             entity.Property(e => e.ArrivalLatitude).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.ArrivalLongitude).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.CancelReason).HasMaxLength(500);
+            entity.Property(e => e.ArrivalRejectCode).HasMaxLength(40).IsUnicode(false);
             entity.Property(e => e.CommissionAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CommissionRateSnapshot).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())", "DF_OrderAssignments_CreatedAt");
@@ -680,6 +681,7 @@ public partial class ServioDbContext : DbContext
             entity.Property(e => e.ModerationNote).HasMaxLength(500);
             entity.Property(e => e.RequireMinRating).HasColumnType("decimal(3, 2)");
             entity.Property(e => e.Revision).HasDefaultValue(1, "DF_ServiceRequests_Revision");
+            entity.Property(e => e.BroadcastCount).HasDefaultValue(0, "DF_ServiceRequests_BroadcastCount");
             entity.Property(e => e.RowVersion)
                 .IsRowVersion()
                 .IsConcurrencyToken();
