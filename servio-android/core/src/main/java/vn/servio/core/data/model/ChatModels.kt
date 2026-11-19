@@ -48,12 +48,15 @@ data class Conversation(
     val unreadCount: Int = 0,
     val createdAt: String? = null,
 ) {
-    /** "#SV-2087 · Máy lạnh chảy nước · 450.000 đ" once ordered, else the post code, title and quoted price. */
+    /**
+     * "#SV-2087 · 450.000 đ · Máy lạnh chảy nước" once ordered, else the post code, quoted price and title.
+     * Title goes last so a one-line ellipsis only ever cuts the title, never the code or the price.
+     */
     val contextLine: String
         get() = listOfNotNull(
             orderCode?.let { "#$it" } ?: requestCode.takeIf { it.isNotBlank() },
-            requestTitle.takeIf { it.isNotBlank() },
             price?.let { Money.format(it.toLong()) },
+            requestTitle.takeIf { it.isNotBlank() },
         ).joinToString(" · ")
 }
 
