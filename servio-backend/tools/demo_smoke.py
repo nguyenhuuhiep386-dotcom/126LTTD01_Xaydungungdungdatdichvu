@@ -159,6 +159,8 @@ def main():
     service_id = services["ve-sinh-may-lanh"]
     rules = api("GET", "/app-config")  # CS-18 numbers come from SystemConfigs
     assert (rules["partnerAcceptTimeoutMinutes"], rules["cancellationFeeAfterOnTheWay"]) == (10, 20_000), rules
+    assert (rules["posting"]["windowHours"], rules["posting"]["maxLeadDays"], rules["disputeResponseHours"]) == (2, 30, 48), rules
+    assert "{phone}" in rules["cancellationFeeBank"]["transferNoteTemplate"], rules
     admin = Admin()
     admin.login()
     for page in ("/chinh-sach-bao-mat", "/dieu-khoan-su-dung"):
@@ -313,7 +315,7 @@ def main():
                  {"note": "Khách hẹn chuyển khoản sau nhưng chưa thấy tiền về."}, expect=201)
     admin.post(f"/admin/disputes/{report['id']}?handler=Resolve", {"upheld": "true", "note": "Khách xác nhận chưa trả."})
     assert api("GET", f"/orders/{order_id}", customer)["status"] == "AWAITING_PAYMENT"
-    expect_error("OUTSTANDING_DEBT", lambda: post("Bài mới khi còn nợ"))
+    expect_error("UNPAID_ORDER", lambda: post("Bài mới khi còn đơn chưa trả"))
     admin.post(f"/admin/orders/{order_id}?handler=ConfirmCollected", {}, page=f"/admin/orders/{order_id}")
     assert api("GET", f"/orders/{order_id}", customer)["status"] == "COMPLETED"
     ok("đơn chờ thanh toán → khách trả → COMPLETED")

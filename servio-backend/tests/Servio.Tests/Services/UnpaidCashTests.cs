@@ -81,7 +81,7 @@ public sealed class UnpaidCashTests : IAsyncLifetime
         var reversal = await _f.Ctx.Db.Transactions.AsNoTracking().SingleAsync(t => t.Type == (byte)TransactionType.PaymentReversal);
         Assert.Equal(450_000m, reversal.Amount);
         var blocked = await Assert.ThrowsAsync<ApiException>(() => _f.Requests().CreateAsync(_f.Customer.Id, _f.Post(), default));
-        Assert.Equal(ErrorCodes.OutstandingDebt, blocked.Code);
+        Assert.Equal(ErrorCodes.UnpaidOrder, blocked.Code);
 
         await _f.Completion().ConfirmCollectedAsync(Admin, orderId, default);
 

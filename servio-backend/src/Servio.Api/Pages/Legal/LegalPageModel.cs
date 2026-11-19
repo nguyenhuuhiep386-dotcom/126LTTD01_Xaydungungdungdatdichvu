@@ -24,6 +24,7 @@ public class LegalPageModel(SystemConfigService configs, ConsentService consents
     public int ReviewDays { get; private set; }
     public int NoShowMinutes { get; private set; }
     public int PostExpireHours { get; private set; }
+    public int DisputeResponseHours { get; private set; }
 
     public async Task OnGetAsync(CancellationToken ct)
     {
@@ -41,6 +42,7 @@ public class LegalPageModel(SystemConfigService configs, ConsentService consents
         ReviewDays = await configs.GetIntAsync("review.window_days", 5, ct);
         NoShowMinutes = await configs.GetIntAsync("cancellation.no_show_wait_minutes", 15, ct);
         PostExpireHours = await configs.GetIntAsync("post.expire_hours", 24, ct);
+        DisputeResponseHours = await configs.GetIntAsync(Services.Orders.DisputeService.ResponseHoursKey, 48, ct);
     }
 }
 

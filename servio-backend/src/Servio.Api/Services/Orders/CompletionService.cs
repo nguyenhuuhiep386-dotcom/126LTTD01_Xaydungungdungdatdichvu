@@ -142,7 +142,7 @@ public sealed class CompletionService(
             order.ConfirmedAt = now;
         }
         order.CompletedAt ??= now;
-        order.DisputeDeadlineAt = order.CompletedAt.Value.AddHours(72);
+        order.DisputeDeadlineAt = order.CompletedAt.Value.AddHours(await configs.GetIntAsync("order.dispute_window_hours", 72, ct));
         order.UnpaidReportDeadlineAt = order.CompletedAt.Value.AddHours(await configs.GetIntAsync("order.unpaid_report_window_hours", 24, ct));
         return changes;
     }
