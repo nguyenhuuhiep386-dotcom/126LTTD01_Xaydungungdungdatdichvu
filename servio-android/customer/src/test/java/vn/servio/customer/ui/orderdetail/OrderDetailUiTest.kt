@@ -9,6 +9,7 @@ import vn.servio.customer.data.model.OrderActor
 import vn.servio.customer.data.model.OrderAssignment
 import vn.servio.customer.data.model.OrderDetail
 import vn.servio.customer.data.model.OrderParty
+import vn.servio.customer.data.model.OrderPricing
 import vn.servio.customer.data.model.OrderStatus
 import vn.servio.customer.ui.orderdetail.OrderDetailUi.Actions
 import vn.servio.customer.ui.orderdetail.OrderDetailUi.Line
@@ -197,6 +198,32 @@ class OrderDetailUiTest {
         val disputed = order(OrderStatus.DISPUTED, part(OrderStatus.IN_PROGRESS))
         assertEquals(listOf(StepState.DONE, StepState.DONE, StepState.DONE, StepState.DONE, StepState.CURRENT, StepState.TODO), states(OrderStatus.DISPUTED, disputed))
         assertNull(OrderDetailUi.timeline(disputed).cancelled)
+    }
+
+    // endregion
+
+    // region AWAITING_PAYMENT
+
+    private val unpaid = order(OrderStatus.AWAITING_PAYMENT).copy(pricing = OrderPricing(subTotal = 450_000, extraChargeTotal = 50_000, totalAmount = 500_000))
+
+    @Test
+    fun `an unpaid order shows the red banner with the total of 63`() {
+        assertEquals(StatusArea.AwaitingPayment(500_000), OrderDetailUi.statusArea(unpaid))
+    }
+
+    @Test
+    fun `an unpaid order keeps chat and call but cannot be cancelled`() {
+        assertEquals(Actions(phoneNote = false, chat = true, call = true, cancel = false, confirm = false), OrderDetailUi.actions(unpaid))
+        val noData = unpaid.copy(conversationId = null, assignments = listOf(part(OrderStatus.AWAITING_PAYMENT, phone = null)))
+        assertEquals(Actions(phoneNote = false, chat = false, call = false, cancel = false, confirm = false), OrderDetailUi.actions(noData))
+    }
+
+    @Test
+    fun `an unpaid order has step 5 done and step 6 current with Chua thanh toan`() {
+        val steps = OrderDetailUi.timeline(unpaid).steps
+        assertEquals(List(5) { StepState.DONE } + StepState.CURRENT, steps.map { it.state })
+        assertEquals(StepKind.COMPLETED, steps.last().kind)
+        assertEquals(Note.Unpaid, steps.last().note)
     }
 
     // endregion

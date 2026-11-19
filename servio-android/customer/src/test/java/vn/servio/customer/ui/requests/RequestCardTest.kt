@@ -1,14 +1,11 @@
 package vn.servio.customer.ui.requests
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import vn.servio.customer.data.model.ScheduleType
 import vn.servio.customer.data.model.ServiceRequestStatus
 import vn.servio.customer.data.model.ServiceRequestSummary
-import java.time.OffsetDateTime
 
 class RequestCardTest {
 
@@ -17,11 +14,13 @@ class RequestCardTest {
         quotes: Int = 0,
         type: ScheduleType = ScheduleType.NOW,
         start: String? = null,
+        end: String? = null,
         expires: String? = null,
+        broadcast: Int = 0,
     ) = ServiceRequestSummary(
         id = "r1", code = "SR1", title = "Ổ điện hỏng", categoryId = "c1", categoryName = "Sửa điện dân dụng", status = status,
-        quoteCount = quotes, addressSnapshot = "Đà Nẵng", scheduleType = type, scheduledStartAt = start, expiresAt = expires,
-        createdAt = "2026-11-17T01:00:00+00:00",
+        quoteCount = quotes, broadcastCount = broadcast, addressSnapshot = "Đà Nẵng", scheduleType = type,
+        scheduledStartAt = start, scheduledEndAt = end, expiresAt = expires, createdAt = "2026-11-17T01:00:00+00:00",
     )
 
     @Test
@@ -34,25 +33,28 @@ class RequestCardTest {
     }
 
     @Test
-    fun aNowRequestEndsWhenItExpires() {
-        // The server sets ExpiresAt = ScheduledEndAt for NOW.
-        val card = RequestCard(request(start = "2026-11-17T01:00:00+00:00", expires = "2026-11-17T03:00:00+00:00"), null)
-        assertEquals("2026-11-17T03:00:00+00:00", card.scheduledEndAt)
+    fun theEndIsTheServersScheduledEndAt() {
+        val booked = request(type = ScheduleType.SCHEDULED, start = "2026-10-17T07:00:00+00:00", end = "2026-10-17T09:00:00+00:00")
+        assertEquals("2026-10-17T09:00:00+00:00", RequestCard(booked, null).scheduledEndAt)
+        // No end from the server: nothing is computed, the card shows the start only.
+        assertNull(RequestCard(request(type = ScheduleType.SCHEDULED, start = "2026-10-17T07:00:00+00:00"), null).scheduledEndAt)
     }
 
     @Test
-    fun aBookedSlotEndsTwoHoursAfterItsStart() {
-        val card = RequestCard(request(type = ScheduleType.SCHEDULED, start = "2026-10-17T07:00:00.0000000+00:00", expires = "2026-10-16T09:00:00+00:00"), null)
-        assertEquals(OffsetDateTime.parse("2026-10-17T09:00:00Z"), OffsetDateTime.parse(card.scheduledEndAt))
-        assertNull(RequestCard(request(type = ScheduleType.SCHEDULED, start = null), null).scheduledEndAt)
-        assertNull(RequestCard(request(type = ScheduleType.SCHEDULED, start = "17/10"), null).scheduledEndAt)
+    fun anOpenRequestWithoutQuotesSaysWhoItWasSentTo() {
+        assertEquals(RequestFooter.SentTo(7), RequestCard(request(broadcast = 7), null).footer)
     }
 
     @Test
-    fun onlyAnOpenRequestCountsDown() {
-        assertTrue(RequestCard(request(ServiceRequestStatus.OPEN), null).showsExpiry)
+    fun quotesOrNoBroadcastCountKeepTheCountdown() {
+        assertEquals(RequestFooter.Expiry, RequestCard(request(quotes = 2, broadcast = 7), null).footer)
+        assertEquals(RequestFooter.Expiry, RequestCard(request(broadcast = 0), null).footer)
+    }
+
+    @Test
+    fun onlyAnOpenRequestHasALastLine() {
         listOf(ServiceRequestStatus.DRAFT, ServiceRequestStatus.MATCHED, ServiceRequestStatus.EXPIRED, ServiceRequestStatus.CANCELLED)
-            .forEach { assertFalse(RequestCard(request(it), null).showsExpiry) }
+            .forEach { assertEquals(RequestFooter.None, RequestCard(request(it, broadcast = 7), null).footer) }
     }
 
     @Test

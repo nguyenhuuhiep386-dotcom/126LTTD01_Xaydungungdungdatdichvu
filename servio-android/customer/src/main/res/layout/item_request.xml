@@ -62,7 +62,7 @@
             app:drawableStartCompat="@drawable/ic_calendar"
             tools:text="T7 17/10 · 14:00–16:00" />
 
-        <!-- "Hết hạn sau N giờ": open requests only. #37 has no broadcastCount, so no "Đã gửi tới N người làm". -->
+        <!-- Open requests only: "Đã gửi tới N người làm phù hợp" while no quote came (#37 broadcastCount > 0), else "Hết hạn sau N giờ". -->
         <TextView
             android:id="@+id/footer"
             android:layout_width="match_parent"

@@ -12,8 +12,8 @@ import vn.servio.customer.data.model.OrderStatus
 
 /**
  * Status chip of an order (CS-19 cards, CS-20). Same pill as the request chip ([R.drawable.bg_status_chip]), tinted:
- * pale yellow while the order moves on, grey once it is over or unclear, red for a dispute (the red of the cancel
- * button). Icons are the 2 px stroke set, drawn at 16 dp in the colour of the text.
+ * pale yellow while the order moves on, grey once it is over or unclear, red for a dispute or an unpaid order (the
+ * red of the cancel button). Icons are the 2 px stroke set, drawn at 16 dp in the colour of the text.
  */
 object OrderStatusChip {
 
@@ -31,8 +31,10 @@ object OrderStatusChip {
         OrderStatus.COMPLETED -> Look(R.string.order_status_completed, Tone.CLOSED, R.drawable.ic_check)
         OrderStatus.CANCELLED -> Look(R.string.order_status_cancelled, Tone.CLOSED, null)
         OrderStatus.DISPUTED -> Look(R.string.order_status_disputed, Tone.ALERT, R.drawable.ic_flag)
-        // Not used in the course scope (AWAITING_PAYMENT without #177, REFUNDED, SEARCHING) or unknown to this app.
-        OrderStatus.AWAITING_PAYMENT, OrderStatus.REFUNDED, OrderStatus.SEARCHING, OrderStatus.UNKNOWN ->
+        // Work done, the customer has not paid the partner yet: the red of "Chưa trả" on CS-30.
+        OrderStatus.AWAITING_PAYMENT -> Look(R.string.order_status_unpaid, Tone.ALERT, R.drawable.ic_warning)
+        // Not used in the course scope (REFUNDED, SEARCHING) or unknown to this app.
+        OrderStatus.REFUNDED, OrderStatus.SEARCHING, OrderStatus.UNKNOWN ->
             Look(R.string.order_status_processing, Tone.CLOSED, null)
     }
 

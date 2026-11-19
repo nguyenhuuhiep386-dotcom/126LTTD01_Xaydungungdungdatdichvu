@@ -1,10 +1,7 @@
 package vn.servio.customer.ui.requests
 
-import vn.servio.customer.data.model.ScheduleType
 import vn.servio.customer.data.model.ServiceRequestStatus
 import vn.servio.customer.data.model.ServiceRequestSummary
-import vn.servio.customer.ui.request.ScheduleSlots
-import java.time.OffsetDateTime
 
 /** The chip on a CS-14 card: the quote count while the request is open, otherwise its status (RequestStatusChip). */
 sealed interface RequestChip {
@@ -24,6 +21,18 @@ sealed interface RequestChip {
     }
 }
 
+/** Last line of a CS-14 card (Figma 18:1417). */
+sealed interface RequestFooter {
+    /** An open request without quotes yet: "Đã gửi tới N người làm phù hợp" (#37 broadcastCount). */
+    data class SentTo(val partners: Int) : RequestFooter
+
+    /** An open request otherwise (quotes came, or broadcastCount 0 as on posts made before it existed): the countdown. */
+    data object Expiry : RequestFooter
+
+    /** Matched, expired, cancelled … : no last line. */
+    data object None : RequestFooter
+}
+
 /** One CS-14 card: the #37 row and the name of its level-1 category group once the category tree has answered. */
 data class RequestCard(val request: ServiceRequestSummary, val categoryGroup: String?) {
 
@@ -32,22 +41,12 @@ data class RequestCard(val request: ServiceRequestSummary, val categoryGroup: St
 
     val chip: RequestChip get() = RequestChip.of(request.status, request.quoteCount)
 
-    /** The countdown is only for a request still taking quotes. */
-    val showsExpiry: Boolean get() = request.status == ServiceRequestStatus.OPEN
-
-    /**
-     * #37 has no scheduledEndAt (CS-15 has it from #38). The server sets it to start + the 2-hour window, and for a
-     * NOW request the expiry is that same end, so the card can show the same line as CS-15.
-     */
-    val scheduledEndAt: String? get() = scheduledEnd(request)
-
-    companion object {
-        fun scheduledEnd(request: ServiceRequestSummary): String? = when (request.scheduleType) {
-            ScheduleType.NOW -> request.expiresAt
-            ScheduleType.SCHEDULED -> request.scheduledStartAt
-                ?.let { runCatching { OffsetDateTime.parse(it) }.getOrNull() }
-                ?.plusHours(ScheduleSlots.WINDOW_HOURS)
-                ?.toString()
-        }
+    val footer: RequestFooter get() = when {
+        request.status != ServiceRequestStatus.OPEN -> RequestFooter.None
+        request.quoteCount == 0 && request.broadcastCount > 0 -> RequestFooter.SentTo(request.broadcastCount)
+        else -> RequestFooter.Expiry
     }
+
+    /** End of the time window as the server set it (#37); null: the card shows the start only. */
+    val scheduledEndAt: String? get() = request.scheduledEndAt
 }

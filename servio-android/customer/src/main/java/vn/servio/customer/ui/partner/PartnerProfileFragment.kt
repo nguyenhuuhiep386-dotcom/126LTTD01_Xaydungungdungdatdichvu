@@ -85,6 +85,7 @@ class PartnerProfileFragment : Fragment(R.layout.fragment_partner_profile) {
             images.load(profile.avatarUrl, avatarImage)
         }
         nameText.text = profile.fullName
+        verifiedText.isVisible = profile.identityVerified
 
         // Same "4,5" as the quote card (CS-15), the sheet (CS-16) and CS-18; no review → "–" / "Chưa có đánh giá", never 0,0.
         val score = QuoteTexts.rating(profile.averageRating, profile.totalReviews)
@@ -95,10 +96,8 @@ class PartnerProfileFragment : Fragment(R.layout.fragment_partner_profile) {
             getString(R.string.partner_profile_no_rating_label)
         }
         completedValue.text = profile.completedOrders.toString()
-        experienceValue.text = when (val experience = PartnerTexts.experience(profile.yearsOfExperience)) {
-            is PartnerTexts.Experience.Years -> getString(R.string.partner_profile_years, experience.years)
-            PartnerTexts.Experience.LessThanOneYear -> getString(R.string.partner_profile_years_new)
-        }
+        experienceValue.text = PartnerTexts.experience(profile.yearsOfExperience)
+            .text(getString(R.string.partner_years_unit), getString(R.string.partner_years_less_than_one))
 
         val bio = profile.bio?.trim().orEmpty()
         bioText.isVisible = bio.isNotEmpty()

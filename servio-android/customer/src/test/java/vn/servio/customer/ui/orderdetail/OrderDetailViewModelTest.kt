@@ -19,7 +19,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import vn.servio.core.network.ApiResult
-import vn.servio.core.network.PagedResult
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import vn.servio.customer.data.model.CancelPreview
@@ -30,33 +29,20 @@ import vn.servio.customer.data.model.OrderAssignment
 import vn.servio.customer.data.model.OrderDetail
 import vn.servio.customer.data.model.OrderParty
 import vn.servio.customer.data.model.OrderStatus
-import vn.servio.customer.data.model.PartnerPublic
-import vn.servio.customer.data.model.PartnerReview
+import vn.servio.customer.data.model.PendingArrival
 import vn.servio.customer.data.model.PendingReview
 import vn.servio.customer.data.model.Tracking
 import vn.servio.customer.data.model.TrackingLocation
 import vn.servio.customer.data.repository.FakeOrderRepository
 import vn.servio.customer.data.repository.FakeOrderUpdates
 import vn.servio.customer.data.repository.FakeReviewRepository
-import vn.servio.customer.data.repository.PartnerRepository
+import vn.servio.customer.ui.order.OrderTexts
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OrderDetailViewModelTest {
 
     private val dispatcher = StandardTestDispatcher()
     private val orderId = "01a1eab3-5bdc-75d2-8704-e48663625f6a"
-
-    private class Partners : PartnerRepository {
-        var profile: ApiResult<PartnerPublic> = ApiResult.Success(PartnerPublic(id = "p1", fullName = "Thợ Một", averageRating = 4.8, totalReviews = 32))
-        var calls = 0
-
-        override suspend fun getPublicProfile(partnerId: String): ApiResult<PartnerPublic> {
-            calls++
-            return profile
-        }
-
-        override suspend fun getReviews(partnerId: String, page: Int, pageSize: Int): ApiResult<PagedResult<PartnerReview>> = error("unused")
-    }
 
     private fun order(status: OrderStatus) = OrderDetail(
         id = orderId,
@@ -69,33 +55,52 @@ class OrderDetailViewModelTest {
 
     @After fun tearDown() = Dispatchers.resetMain()
 
-    private fun TestScope.viewModel(server: FakeOrderRepository, partners: Partners = Partners(), updates: FakeOrderUpdates = FakeOrderUpdates(), reviews: FakeReviewRepository = FakeReviewRepository()) =
-        OrderDetailViewModel(SavedStateHandle(mapOf("orderId" to orderId)), server, partners, updates, reviews).also {
+    private fun TestScope.viewModel(server: FakeOrderRepository, updates: FakeOrderUpdates = FakeOrderUpdates(), reviews: FakeReviewRepository = FakeReviewRepository()) =
+        OrderDetailViewModel(SavedStateHandle(mapOf("orderId" to orderId)), server, updates, reviews).also {
             it.load()
             advanceUntilIdle()
         }
 
     @Test
-    fun `a cancellable order loads the review count and the cancel fee`() = runTest(dispatcher) {
+    fun `a cancellable order loads the cancel fee and takes the review count from 63`() = runTest(dispatcher) {
+        val withCount = order(OrderStatus.ON_THE_WAY).let { o ->
+            o.copy(assignments = o.assignments.map { it.copy(partner = it.partner!!.copy(totalReviews = 32)) })
+        }
         val server = FakeOrderRepository().apply {
-            order = ApiResult.Success(order(OrderStatus.ON_THE_WAY))
+            order = ApiResult.Success(withCount)
             previews += ApiResult.Success(CancelPreview(20_000, emptyList(), "v1", "2026-11-18T03:01:00Z"))
         }
         val state = viewModel(server).state.value
         assertEquals(OrderStatus.ON_THE_WAY, state.detail?.status)
-        assertEquals(32, state.reviewCount)
+        val partner = state.detail?.primary?.partner
+        assertEquals(OrderTexts.Rating("4,8", 32), OrderTexts.rating(partner?.rating, partner?.totalReviews))
         assertEquals(20_000L, state.cancelFee)
         assertFalse(state.loading)
     }
 
     @Test
-    fun `a finished order does not ask 151 and a failed 27 leaves the count unknown`() = runTest(dispatcher) {
+    fun `a finished order does not ask 151 and a 63 without totalReviews shows the score alone`() = runTest(dispatcher) {
         val server = FakeOrderRepository().apply { order = ApiResult.Success(order(OrderStatus.COMPLETED)) }
-        val partners = Partners().apply { profile = ApiResult.Failure("NETWORK_ERROR", "Không có kết nối mạng") }
-        val state = viewModel(server, partners).state.value
+        val state = viewModel(server).state.value
         assertEquals(0, server.previewCalls)
         assertNull(state.cancelFee)
-        assertNull(state.reviewCount)
+        val partner = state.detail?.primary?.partner
+        assertNull(OrderTexts.rating(partner?.rating, partner?.totalReviews).reviewCount)
+    }
+
+    @Test
+    fun `a waiting arrival request of 63 comes back after the app was killed`() = runTest(dispatcher) {
+        val waiting = order(OrderStatus.ON_THE_WAY).let { o ->
+            o.copy(assignments = o.assignments.map { it.copy(pendingArrivalConfirmation = PendingArrival("r1", "2999-01-01T00:00:00Z")) })
+        }
+        val server = FakeOrderRepository().apply {
+            order = ApiResult.Success(waiting)
+            previews += ApiResult.Success(CancelPreview(20_000, emptyList(), "v1", "2026-11-18T03:01:00Z"))
+        }
+        val updates = FakeOrderUpdates()
+        viewModel(server, updates = updates)
+        assertEquals("r1", updates.pendingArrival(orderId)?.requestId)
+        assertEquals("a1", updates.pendingArrival(orderId)?.assignmentId)
     }
 
     @Test
@@ -268,12 +273,12 @@ class OrderDetailViewModelTest {
         val second = charge.copy(id = "ec2", createdAt = "2026-11-18T08:05:00Z")
         val server = FakeOrderRepository().apply { order = ApiResult.Success(withCharge(charge, second)) }
         val handle = SavedStateHandle(mapOf("orderId" to orderId))
-        val vm = OrderDetailViewModel(handle, server, Partners(), FakeOrderUpdates(), FakeReviewRepository()).also { it.load(); advanceUntilIdle() }
+        val vm = OrderDetailViewModel(handle, server, FakeOrderUpdates(), FakeReviewRepository()).also { it.load(); advanceUntilIdle() }
         vm.chargeClosed("ec1")
         assertEquals("ec2", vm.state.value.chargeToOpen(includeClosed = false)?.id)
         assertEquals("ec1", vm.state.value.chargeToOpen(includeClosed = true)?.id)
 
-        val restored = OrderDetailViewModel(handle, server, Partners(), FakeOrderUpdates(), FakeReviewRepository()).also { it.load(); advanceUntilIdle() }
+        val restored = OrderDetailViewModel(handle, server, FakeOrderUpdates(), FakeReviewRepository()).also { it.load(); advanceUntilIdle() }
         assertEquals(setOf("ec1"), restored.state.value.closedCharges)
         assertEquals("ec2", restored.state.value.chargeToOpen(includeClosed = false)?.id)
     }

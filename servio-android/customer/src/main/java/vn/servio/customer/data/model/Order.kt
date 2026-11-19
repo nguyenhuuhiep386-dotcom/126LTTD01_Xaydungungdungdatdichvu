@@ -47,7 +47,8 @@ enum class OrderListFilter { ACTIVE, COMPLETED, CANCELLED }
 
 /**
  * The other side of an order (OrderPartyDto). For the customer it is the partner: [partnerProfileId] opens #27,
- * [phoneNumber] is only sent from ACCEPTED until the work is done (F-ORD-06), [rating] comes without a review count.
+ * [phoneNumber] is only sent from ACCEPTED until the work is done (F-ORD-06). [totalReviews] is the partner's review
+ * count, filled by #63 (assignments[].partner); null when the server did not send it.
  */
 @Serializable
 data class OrderParty(
@@ -56,6 +57,7 @@ data class OrderParty(
     val avatarUrl: String? = null,
     val rating: Double? = null,
     val phoneNumber: String? = null,
+    val totalReviews: Int? = null,
 )
 
 /** One row of GET /orders/me (#62), as the backend's OrderSummaryDto. */
@@ -98,6 +100,15 @@ data class OrderAssignment(
     /** Photo urls sent with #69 / #70 (CS-23); the server gives no caption and no time. */
     val beforeImages: List<String> = emptyList(),
     val afterImages: List<String> = emptyList(),
+    /** A "Thợ báo đã đến" request (#178) still waiting for the customer; null when there is none. */
+    val pendingArrivalConfirmation: PendingArrival? = null,
+)
+
+/** #63 assignments[].pendingArrivalConfirmation: answer [requestId] with #179 before [expiresAt]. */
+@Serializable
+data class PendingArrival(
+    val requestId: String,
+    val expiresAt: String,
 )
 
 /** Money of the order (#63 pricing). */

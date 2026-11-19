@@ -21,31 +21,21 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import vn.servio.core.network.ApiResult
-import vn.servio.core.network.PagedResult
 import vn.servio.customer.data.model.OrderAssignment
 import vn.servio.customer.data.model.OrderDetail
 import vn.servio.customer.data.model.OrderParty
 import vn.servio.customer.data.model.OrderStatus
-import vn.servio.customer.data.model.PartnerPublic
-import vn.servio.customer.data.model.PartnerReview
+import vn.servio.customer.data.model.PendingArrival
 import vn.servio.customer.data.model.Tracking
 import vn.servio.customer.data.model.TrackingLocation
 import vn.servio.customer.data.repository.FakeOrderRepository
 import vn.servio.customer.data.repository.FakeOrderUpdates
-import vn.servio.customer.data.repository.PartnerRepository
 import vn.servio.customer.ui.tracking.OrderTrackingViewModel.Event
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OrderTrackingViewModelTest {
 
     private val dispatcher = StandardTestDispatcher()
-
-    private class Partners : PartnerRepository {
-        override suspend fun getPublicProfile(partnerId: String): ApiResult<PartnerPublic> =
-            ApiResult.Success(PartnerPublic(id = partnerId, fullName = "Thợ Một", averageRating = 4.5, totalReviews = 2))
-
-        override suspend fun getReviews(partnerId: String, page: Int, pageSize: Int): ApiResult<PagedResult<PartnerReview>> = error("unused")
-    }
 
     private fun order(status: OrderStatus) = OrderDetail(
         id = "o1",
@@ -64,20 +54,27 @@ class OrderTrackingViewModelTest {
     @After fun tearDown() = Dispatchers.resetMain()
 
     private fun TestScope.viewModel(server: FakeOrderRepository, updates: FakeOrderUpdates, events: MutableList<Event>) =
-        OrderTrackingViewModel(SavedStateHandle(mapOf("orderId" to "o1", "assignmentId" to "a1")), server, Partners(), updates).also { vm ->
+        OrderTrackingViewModel(SavedStateHandle(mapOf("orderId" to "o1", "assignmentId" to "a1")), server, updates).also { vm ->
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.events.collect { events += it } }
             advanceUntilIdle()
         }
 
     @Test
-    fun `opening on the way loads 63, 27 and 76`() = runTest(dispatcher) {
+    fun `opening on the way loads 63 and 76 and restores a waiting arrival request`() = runTest(dispatcher) {
+        val waiting = order(OrderStatus.ON_THE_WAY).let { o ->
+            o.copy(assignments = o.assignments.map {
+                it.copy(partner = it.partner!!.copy(totalReviews = 2), pendingArrivalConfirmation = PendingArrival("r1", "2999-01-01T00:00:00Z"))
+            })
+        }
         val server = FakeOrderRepository().apply {
-            order = ApiResult.Success(order(OrderStatus.ON_THE_WAY))
+            order = ApiResult.Success(waiting)
             tracking = ApiResult.Success(fix("a1", "2026-11-18T07:00:00Z"))
         }
         val events = mutableListOf<Event>()
-        val state = viewModel(server, FakeOrderUpdates(), events).state.value
-        assertEquals(2, state.reviewCount)
+        val updates = FakeOrderUpdates()
+        val state = viewModel(server, updates, events).state.value
+        assertEquals(2, state.detail?.primary?.partner?.totalReviews)
+        assertEquals("r1", updates.pendingArrival("o1")?.requestId)
         assertEquals(6, state.tracking?.etaMinutes)
         assertTrue(events.isEmpty())
     }

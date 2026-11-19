@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   CS-17 Hồ sơ đối tác (Figma): avatar 88dp and name centred, three figures in one row, "Giới thiệu" (bio + skill
-  chips), "Đánh giá gần đây". Not shown, because the server has no data for them: "Đã xác minh danh tính",
-  "Ảnh công việc", phone number, "Nhắn tin".
+  chips), "Đánh giá gần đây"; "Đã xác minh danh tính" under the name when #27 says identityVerified. Not shown,
+  because the server has no data for them: "Ảnh công việc", phone number, "Nhắn tin".
   [bottomBar] ("Báo giá cho SR-… / amount / Chọn báo giá này") sits outside the scroll and only appears when the
   screen was opened from a quote that can still be chosen.
 -->
@@ -79,6 +79,14 @@
                     android:textAppearance="@style/TextAppearance.Servio.ScreenTitle"
                     android:textStyle="bold"
                     tools:text="Trần Văn Phúc" />
+
+                <TextView
+                    android:id="@+id/verifiedText"
+                    style="@style/Widget.Servio.VerifiedBadge"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
 
                 <!-- Three figures, equal width and height. -->
                 <LinearLayout

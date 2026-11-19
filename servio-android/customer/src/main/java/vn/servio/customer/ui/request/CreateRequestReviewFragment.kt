@@ -7,6 +7,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import androidx.navigation.navOptions
@@ -219,17 +220,40 @@ class CreateRequestReviewFragment : Fragment(R.layout.fragment_create_request_re
         val title = when (failure.kind) {
             PostFailure.DialogKind.PROFILE_INCOMPLETE -> R.string.create_request_post_profile_title
             PostFailure.DialogKind.OUTSTANDING_DEBT -> R.string.create_request_post_debt_title
+            PostFailure.DialogKind.UNPAID_ORDER -> R.string.create_request_post_unpaid_title
             PostFailure.DialogKind.POSTING_RESTRICTED -> R.string.create_request_post_restricted_title
         }
+        // The server's message speaks of cancellation fees: an unpaid order gets the app's own sentence.
+        val message = if (failure.kind == PostFailure.DialogKind.UNPAID_ORDER) getString(R.string.create_request_post_unpaid_message) else failure.message
         val builder = MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Servio_AlertDialog)
             .setTitle(title)
-            .setMessage(failure.message)
+            .setMessage(message)
             .setPositiveButton(R.string.action_close, null)
-        if (failure.kind == PostFailure.DialogKind.OUTSTANDING_DEBT) {
+        when (failure.kind) {
             // CS-30 "Phí huỷ và giao dịch" opens on top: the draft is kept.
-            builder.setNeutralButton(R.string.create_request_post_view_fee) { _, _ -> findNavController().navigate(R.id.cs30) }
+            PostFailure.DialogKind.OUTSTANDING_DEBT ->
+                builder.setNeutralButton(R.string.create_request_post_view_fee) { _, _ -> findNavController().navigate(R.id.cs30) }
+            PostFailure.DialogKind.UNPAID_ORDER ->
+                builder.setNeutralButton(R.string.create_request_post_view_orders) { _, _ -> openOrders() }
+            else -> Unit
         }
         builder.show()
+    }
+
+    /**
+     * CS-19 as if its bottom tab was tapped: this tab's stack (the draft with it) is saved, and CS-19 opens fresh, on
+     * "Đang diễn ra" (its first tab).
+     */
+    private fun openOrders() {
+        val navController = findNavController()
+        navController.navigate(
+            R.id.cs19,
+            null,
+            navOptions {
+                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                launchSingleTop = true
+            },
+        )
     }
 
     // endregion

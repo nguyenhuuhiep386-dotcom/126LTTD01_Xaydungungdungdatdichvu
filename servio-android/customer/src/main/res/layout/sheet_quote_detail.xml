@@ -2,7 +2,8 @@
 <!--
   CS-16 Chi tiết báo giá (Figma): bottom sheet with a handle. [progress] only while CS-15 is still loading the quotes
   (restored after the app was killed); if the quote is not in the list the sheet closes itself.
-  Skill chips come from #27 and stay hidden until it answers. "Đã xác minh danh tính" is hidden: no API has that flag.
+  Skill chips come from #27 and stay hidden until it answers. "Đã xác minh danh tính" only when #42 says
+  identityVerified (KYC approved by an admin).
   "Nhắn tin" (KH-4) only when the quote has a conversation; without "Chọn" it takes the whole row.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -100,6 +101,13 @@
                         android:layout_marginTop="@dimen/space_xs"
                         android:textAppearance="@style/TextAppearance.Servio.Caption"
                         tools:text="128 đơn hoàn thành" />
+
+                    <TextView
+                        android:id="@+id/verifiedText"
+                        style="@style/Widget.Servio.VerifiedBadge"
+                        android:layout_marginTop="@dimen/space_xs"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
                 </LinearLayout>
 
                 <ImageButton
@@ -245,6 +253,8 @@
                 android:textStyle="bold"
                 android:visibility="gone" />
 
+            <!-- 2 : 3 so "Chọn báo giá này" (Figma 18:1662) fits on one line at 1080 px next to "Nhắn tin"; padding 16dp
+                 on these two only. A button left alone still takes the whole row. -->
             <LinearLayout
                 android:id="@+id/actions"
                 android:layout_width="match_parent"
@@ -257,7 +267,8 @@
                     style="@style/Widget.Servio.Button.Outlined"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
+                    android:paddingHorizontal="@dimen/space_l"
                     android:text="@string/quote_chat"
                     android:visibility="gone"
                     app:icon="@drawable/ic_nav_chat"
@@ -270,7 +281,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/space_m"
-                    android:layout_weight="1"
+                    android:layout_weight="3"
+                    android:paddingHorizontal="@dimen/space_l"
                     android:text="@string/quote_select_this" />
             </LinearLayout>
         </LinearLayout>

@@ -1,6 +1,7 @@
 package vn.servio.customer.ui.partner
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Test
 import vn.servio.customer.ui.requestdetail.QuoteTexts
@@ -46,5 +47,12 @@ class PartnerTextsTest {
     fun `reviewer initials come from the shortened name`() {
         assertEquals("LN", QuoteTexts.initials("Lan N."))
         assertEquals("TH", QuoteTexts.initials("Thị Hồng"))
+    }
+
+    @Test
+    fun `the years stay on one line with no-break spaces`() {
+        assertEquals("5 năm", PartnerTexts.experience(5).text("năm", "< 1"))
+        assertEquals("< 1 năm", PartnerTexts.experience(0).text("năm", "< 1"))
+        assertFalse(PartnerTexts.experience(0).text("năm", "< 1").contains(' '))
     }
 }

@@ -23,23 +23,23 @@ import vn.servio.customer.data.model.OrderStatus
 import vn.servio.customer.data.model.Tracking
 import vn.servio.customer.data.repository.OrderRepository
 import vn.servio.customer.data.repository.OrderUpdates
-import vn.servio.customer.data.repository.PartnerRepository
 import vn.servio.customer.data.repository.ReviewRepository
 import vn.servio.customer.data.repository.reloadCoalesced
 import vn.servio.customer.ui.order.TrackingUi
 import javax.inject.Inject
 
 /**
- * CS-20 Chi tiết đơn hàng: #63, plus #27 for the number of reviews of the primary partner and #151 for the label of
- * the cancel button while the order can be cancelled, and #76 (then PartnerLocationUpdated) while ON_THE_WAY. OrderStatusChanged of this order (and hub reconnects) reload it
- * silently, coalesced (see [reloadCoalesced]); so does ExtraChargeRequested, whose new PENDING charge CS-22 then shows.
+ * CS-20 Chi tiết đơn hàng: #63 (with the partner's review count), plus #151 for the label of the cancel button while
+ * the order can be cancelled, and #76 (then PartnerLocationUpdated) while ON_THE_WAY. Each #63 answer also hands its
+ * waiting "Thợ báo đã đến" requests to [OrderUpdates.restoreArrival], so CS-20b comes back after the app was killed.
+ * OrderStatusChanged of this order (and hub reconnects) reload it silently, coalesced (see [reloadCoalesced]); so does
+ * ExtraChargeRequested, whose new PENDING charge CS-22 then shows.
  * It also holds CS-22's state (the sheet shares this view model): the charges closed in this visit and the #74 call.
  */
 @HiltViewModel
 class OrderDetailViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repository: OrderRepository,
-    private val partnerRepository: PartnerRepository,
     private val orderUpdates: OrderUpdates,
     private val reviewRepository: ReviewRepository,
 ) : ViewModel() {
@@ -48,14 +48,13 @@ class OrderDetailViewModel @Inject constructor(
 
     /**
      * [detail] null until the first answer. [error]: first load failed (full-screen retry); [notFound]: 404/403.
-     * [reviewCount]: from #27, null while unknown or when it failed. [cancelFee]: from #151, null while unknown.
+     * [cancelFee]: from #151, null while unknown.
      */
     data class State(
         val detail: OrderDetail? = null,
         val loading: Boolean = true,
         val error: String? = null,
         val notFound: Boolean = false,
-        val reviewCount: Int? = null,
         val cancelFee: Long? = null,
         /** #76 / PartnerLocationUpdated of the primary assignment while ON_THE_WAY; null while unknown. */
         val tracking: Tracking? = null,
@@ -93,7 +92,6 @@ class OrderDetailViewModel @Inject constructor(
     val events: Flow<Event> = _events.receiveAsFlow()
 
     private var loadJob: Job? = null
-    private var reviewsFor: String? = null
 
     /** Deadline already answered by a reload (the countdown reached 0). */
     private var reloadedDeadline: String? = null
@@ -177,9 +175,9 @@ class OrderDetailViewModel @Inject constructor(
             is ApiResult.Success -> {
                 val detail = result.data
                 _state.update { it.copy(detail = detail, loading = false, error = null, notFound = false, heldCharge = null) }
+                orderUpdates.restoreArrival(detail)
                 coroutineScope {
                     launch { loadReviewable(detail) }
-                    launch { loadReviewCount(detail) }
                     launch { loadCancelFee(detail) }
                     launch { loadTracking(detail) }
                 }
@@ -199,12 +197,11 @@ class OrderDetailViewModel @Inject constructor(
 
     /**
      * CS-20 resumed (back from CS-26 …) on a completed order: reload it silently, which asks #100 again (a sent review
-     * hides the button) and #27 again (the partner's score and count changed).
+     * hides the button) and brings the partner's new score and count with #63.
      */
     fun onResumed() {
         val detail = _state.value.detail ?: return
         if (detail.status != OrderStatus.COMPLETED) return
-        reviewsFor = null
         viewModelScope.launch { refresh(silent = true) }
     }
 
@@ -216,15 +213,6 @@ class OrderDetailViewModel @Inject constructor(
         }
         val result = reviewRepository.pendingReviews()
         if (result is ApiResult.Success) _state.update { it.copy(reviewable = OrderDetailUi.canReview(detail, result.data)) }
-    }
-
-    /** #27 once per partner; on failure the row shows the score of #63 without a count. */
-    private suspend fun loadReviewCount(detail: OrderDetail) {
-        val partnerId = detail.primary?.partner?.partnerProfileId ?: return
-        if (partnerId == reviewsFor && _state.value.reviewCount != null) return
-        reviewsFor = partnerId
-        val result = partnerRepository.getPublicProfile(partnerId)
-        if (result is ApiResult.Success) _state.update { it.copy(reviewCount = result.data.totalReviews) }
     }
 
     /** #76 each time #63 shows the order ON_THE_WAY (also after a reconnect); otherwise there is nothing to track. */

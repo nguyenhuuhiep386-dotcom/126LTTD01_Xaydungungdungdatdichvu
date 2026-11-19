@@ -13,6 +13,7 @@ import vn.servio.customer.BuildConfig
 import vn.servio.customer.data.image.CameraCaptureFiles
 import vn.servio.customer.data.image.CaptureFiles
 import vn.servio.customer.data.remote.AddressApi
+import vn.servio.customer.data.remote.AppConfigApi
 import vn.servio.customer.data.remote.FileApi
 import vn.servio.customer.data.remote.NotificationApi
 import vn.servio.customer.data.remote.OrderApi
@@ -20,6 +21,8 @@ import vn.servio.customer.data.remote.PartnerApi
 import vn.servio.customer.data.remote.ServiceRequestApi
 import vn.servio.customer.data.remote.WalletApi
 import vn.servio.customer.data.repository.AddressRepository
+import vn.servio.customer.data.repository.AppConfigRepository
+import vn.servio.customer.data.repository.RemoteAppConfigRepository
 import vn.servio.customer.data.repository.CreateRequestRepository
 import vn.servio.customer.data.repository.FileRepository
 import vn.servio.customer.data.repository.OrderRepository
@@ -88,6 +91,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideNotificationApi(retrofit: Retrofit): NotificationApi = retrofit.create(NotificationApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAppConfigApi(retrofit: Retrofit): AppConfigApi = retrofit.create(AppConfigApi::class.java)
 }
 
 /** Customer repositories. All of them call the real API. */
@@ -100,6 +107,9 @@ abstract class RepositoryBindings {
 
     @Binds
     abstract fun bindNotificationRepository(impl: RemoteNotificationRepository): NotificationRepository
+
+    @Binds
+    abstract fun bindAppConfigRepository(impl: RemoteAppConfigRepository): AppConfigRepository
 
     @Binds
     abstract fun bindSessionCleanup(impl: CustomerSessionCleanup): SessionCleanup

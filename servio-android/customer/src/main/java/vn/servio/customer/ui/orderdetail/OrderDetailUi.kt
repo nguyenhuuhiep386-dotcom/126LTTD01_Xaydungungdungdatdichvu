@@ -29,6 +29,9 @@ object OrderDetailUi {
         /** White card: chip of [status] and one line "[line] [at]". */
         data class Card(val status: OrderStatus, val line: Line, val at: String?) : StatusArea
 
+        /** AWAITING_PAYMENT: red banner "Bạn chưa thanh toán [amount] cho đối tác…" ([amount] = pricing.totalAmount). */
+        data class AwaitingPayment(val amount: Long) : StatusArea
+
         /** "Khiếu nại đang được xử lý". */
         data object Disputed : StatusArea
     }
@@ -51,6 +54,7 @@ object OrderDetailUi {
             OrderStatus.COMPLETED -> StatusArea.Card(order.status, Line.COMPLETED, order.completedAt)
             OrderStatus.CANCELLED -> StatusArea.Card(order.status, Line.CANCELLED, order.cancelledAt ?: primary?.cancelledAt)
             OrderStatus.DISPUTED -> StatusArea.Disputed
+            OrderStatus.AWAITING_PAYMENT -> StatusArea.AwaitingPayment(order.pricing.totalAmount)
             else -> StatusArea.Card(order.status, Line.NONE, null)
         }
     }
@@ -115,6 +119,9 @@ object OrderDetailUi {
         /** COMPLETED_BY_PARTNER, step 6: "Chờ bạn xác nhận · tự xác nhận lúc …". */
         data class AwaitingConfirm(val autoConfirmAt: String?) : Note
 
+        /** AWAITING_PAYMENT, step 6: "Chưa thanh toán". */
+        data object Unpaid : Note
+
         data object None : Note
     }
 
@@ -178,7 +185,7 @@ object OrderDetailUi {
                 state == StepState.TODO -> Note.None
                 progress == OrderStatus.PENDING && kind == StepKind.PARTNER -> Note.ExpiresAt(primary?.acceptanceDeadlineAt)
                 progress == OrderStatus.COMPLETED_BY_PARTNER && kind == StepKind.COMPLETED -> Note.AwaitingConfirm(order.autoConfirmAt)
-                progress == OrderStatus.AWAITING_PAYMENT && kind == StepKind.COMPLETED -> Note.None
+                progress == OrderStatus.AWAITING_PAYMENT && kind == StepKind.COMPLETED -> Note.Unpaid
                 kind == StepKind.IN_PROGRESS && state == StepState.CURRENT -> Note.At(times[index], pendingCharges(order).size)
                 else -> Note.At(times[index])
             }

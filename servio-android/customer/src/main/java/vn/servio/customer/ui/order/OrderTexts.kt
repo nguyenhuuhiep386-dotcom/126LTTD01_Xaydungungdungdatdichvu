@@ -69,8 +69,9 @@ object OrderTexts {
     fun isPast(iso: String?, now: Instant = Instant.now()): Boolean = instant(iso)?.let { !it.isAfter(now) } ?: true
 
     /**
-     * Partner rating of CS-20: [score] "4,8" or null ("Chưa có đánh giá"); [reviewCount] only when #27 answered.
-     * #63 gives the score, #27 the number of reviews: when #27 failed the score stays alone, no invented count.
+     * Partner rating of CS-20 and CS-21: [score] "4,8" or null ("Chưa có đánh giá"); [reviewCount] only when known.
+     * Both come from #63 (assignments[].partner rating and totalReviews): without a count the score stays alone, no
+     * invented count.
      */
     data class Rating(val score: String?, val reviewCount: Int?)
 

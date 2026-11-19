@@ -61,7 +61,8 @@ class ConfirmCompletionUiTest {
     @Test
     fun `the button names the cash total with a no-break space before đ`() {
         val strings = File("src/main/res/values/strings.xml").readText()
-        fun template(name: String) = Regex("<string name=\"$name\">(.*?)</string>").find(strings)!!.groupValues[1]
+        fun template(name: String) = Regex("<string name=\"$name\">(.*?)</string>").find(strings)!!.groupValues[1] // &#160; decoded as aapt does
+            .replace("&#160;", OrderTexts.NBSP.toString())
         val money = OrderTexts.keepTogether(template("quote_price").replace("%1\$s", MoneyInput.format(ConfirmCompletionUi.payment(order()).total)))
         assertEquals("Xác nhận hoàn thành và đã trả tiền mặt 320.000 đ", template("confirm_button").replace("%1\$s", money))
     }

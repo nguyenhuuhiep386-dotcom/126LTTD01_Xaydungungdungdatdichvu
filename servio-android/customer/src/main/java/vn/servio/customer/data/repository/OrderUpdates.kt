@@ -17,6 +17,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import vn.servio.customer.data.model.ArrivalConfirmation
 import vn.servio.customer.data.model.ArrivalConfirmationStatus
+import vn.servio.customer.data.model.OrderDetail
 import vn.servio.customer.data.model.OrderStatus
 import vn.servio.customer.data.model.OrderStatusChange
 import vn.servio.customer.data.model.Tracking
@@ -50,11 +51,31 @@ interface OrderUpdates {
     /** The customer answered [requestId] (or the server said it no longer can be answered): drop it. */
     fun arrivalAnswered(requestId: String)
 
+    /**
+     * A #63 answer: keep each request it still shows waiting ([pendingArrivals]), so CS-20b comes back after the app was
+     * killed (the hub does not replay ArrivalConfirmationRequested). A request already kept or already answered is not
+     * added again.
+     */
+    fun restoreArrival(detail: OrderDetail)
+
     /** Sign-out: forget every kept request, they belong to the account that just left ([SessionCleanup]). */
     fun clearSession()
 
     companion object {
         const val EVENT_ORDER_STATUS_CHANGED = OrdersHub.EVENT_ORDER_STATUS_CHANGED
+
+        /** The waiting requests #63 shows (assignments[].pendingArrivalConfirmation), as PENDING requests. */
+        fun pendingArrivals(detail: OrderDetail): List<ArrivalConfirmation> = detail.assignments.mapNotNull { assignment ->
+            assignment.pendingArrivalConfirmation?.let { pending ->
+                ArrivalConfirmation(
+                    orderId = detail.id,
+                    assignmentId = assignment.id,
+                    requestId = pending.requestId,
+                    status = ArrivalConfirmationStatus.PENDING,
+                    expiresAt = pending.expiresAt,
+                )
+            }
+        }
 
         /** Live events closer together than this give one reload. */
         const val LIVE_RELOAD_WINDOW_MILLIS = 500L
@@ -93,9 +114,13 @@ suspend fun Flow<Unit>.reloadCoalesced(
  * per assignment; a newer one replaces the older). A request is dropped when it is answered, once past its expiresAt
  * (checked on every read, against [now]), or when OrderStatusChanged shows its assignment is no longer ON_THE_WAY
  * (arrived by GPS, cancelled, …). Ids are GUIDs, compared without case.
+ *
+ * Requests come from the hub ([received]) and from #63 ([restored], after the app was killed). Answered ids are
+ * remembered so a #63 answer that left the server before the answer cannot bring the dialog back.
  */
 class ArrivalRequests(private val now: () -> Instant = Instant::now) {
     private val byOrder = mutableMapOf<String, ArrivalConfirmation>()
+    private val answeredIds = mutableSetOf<String>()
     private val _version = MutableStateFlow(0)
     val version: StateFlow<Int> = _version.asStateFlow()
 
@@ -103,6 +128,27 @@ class ArrivalRequests(private val now: () -> Instant = Instant::now) {
     fun received(request: ArrivalConfirmation) {
         if (request.status != ArrivalConfirmationStatus.PENDING || isExpired(request)) return
         byOrder[request.orderId.lowercase()] = request
+        _version.value++
+    }
+
+    /**
+     * A waiting request read from #63. Ignored when it is expired or already answered, when the same request is kept
+     * (no new version, so the dialog is not shown again) or when the kept request of that order is a newer one (it
+     * came by the hub after #63 was read).
+     */
+    @Synchronized
+    fun restored(request: ArrivalConfirmation) {
+        val expiresAt = expiry(request)
+        if (request.status != ArrivalConfirmationStatus.PENDING || expiresAt == null || !expiresAt.isAfter(now())) return
+        if (request.requestId.lowercase() in answeredIds) return
+        val key = request.orderId.lowercase()
+        val kept = byOrder[key]
+        if (kept != null) {
+            if (kept.requestId.equals(request.requestId, ignoreCase = true)) return
+            val keptExpiresAt = expiry(kept)
+            if (keptExpiresAt != null && keptExpiresAt.isAfter(now()) && !keptExpiresAt.isBefore(expiresAt)) return
+        }
+        byOrder[key] = request
         _version.value++
     }
 
@@ -117,6 +163,7 @@ class ArrivalRequests(private val now: () -> Instant = Instant::now) {
 
     @Synchronized
     fun answered(requestId: String) {
+        answeredIds += requestId.lowercase()
         val key = byOrder.entries.firstOrNull { it.value.requestId.equals(requestId, ignoreCase = true) }?.key ?: return
         byOrder.remove(key)
         _version.value++
@@ -125,6 +172,7 @@ class ArrivalRequests(private val now: () -> Instant = Instant::now) {
     /** Drops every request (sign-out). */
     @Synchronized
     fun clear() {
+        answeredIds.clear()
         if (byOrder.isEmpty()) return
         byOrder.clear()
         _version.value++
@@ -142,9 +190,12 @@ class ArrivalRequests(private val now: () -> Instant = Instant::now) {
 
     /** An unreadable expiresAt counts as expired: the dialog could not count down to it. */
     private fun isExpired(request: ArrivalConfirmation): Boolean {
-        val expiresAt = runCatching { OffsetDateTime.parse(request.expiresAt).toInstant() }.getOrNull() ?: return true
+        val expiresAt = expiry(request) ?: return true
         return !expiresAt.isAfter(now())
     }
+
+    private fun expiry(request: ArrivalConfirmation): Instant? =
+        runCatching { OffsetDateTime.parse(request.expiresAt).toInstant() }.getOrNull()
 }
 
 /**
@@ -193,6 +244,8 @@ class HubOrderUpdates @Inject constructor(
     override fun arrivalChanges(): StateFlow<Int> = arrivals.version
 
     override fun arrivalAnswered(requestId: String) = arrivals.answered(requestId)
+
+    override fun restoreArrival(detail: OrderDetail) = OrderUpdates.pendingArrivals(detail).forEach(arrivals::restored)
 
     override fun clearSession() = arrivals.clear()
 }

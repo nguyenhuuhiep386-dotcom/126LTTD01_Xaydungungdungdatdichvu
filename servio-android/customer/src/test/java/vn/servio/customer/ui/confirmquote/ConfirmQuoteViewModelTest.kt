@@ -22,6 +22,7 @@ import org.junit.Test
 import vn.servio.core.network.ApiResult
 import vn.servio.core.network.PagedResult
 import vn.servio.customer.data.model.AcceptQuotesBody
+import vn.servio.customer.data.model.AppConfig
 import vn.servio.customer.data.model.CancelPreview
 import vn.servio.customer.data.model.CancelResult
 import vn.servio.customer.data.model.CreatedOrder
@@ -36,6 +37,7 @@ import vn.servio.customer.data.model.ScheduleType
 import vn.servio.customer.data.model.ServiceRequestDetail
 import vn.servio.customer.data.model.ServiceRequestStatus
 import vn.servio.customer.data.model.ServiceRequestSummary
+import vn.servio.customer.data.repository.AppConfigRepository
 import vn.servio.customer.data.repository.OrderRepository
 import vn.servio.customer.data.repository.ServiceRequestRepository
 import vn.servio.customer.ui.confirmquote.ConfirmFailure.DialogKind
@@ -48,7 +50,16 @@ class ConfirmQuoteViewModelTest {
     private val offline = ApiResult.Failure("NETWORK_ERROR", "Không có kết nối mạng")
 
     /** #38, #42 and #43 of one request "r1" with the quote "q1" (and "q2"). */
-    private class Server : ServiceRequestRepository, OrderRepository {
+    private class Server : ServiceRequestRepository, OrderRepository, AppConfigRepository {
+        /** #107. */
+        var config: ApiResult<AppConfig> = ApiResult.Success(AppConfig(10, 20_000, 30_000, 20.0, 15))
+        var configCalls = 0
+
+        override suspend fun getConfig(): ApiResult<AppConfig> {
+            configCalls++
+            return config
+        }
+
         var detail = detail(ServiceRequestStatus.OPEN)
         var quotes = listOf(quote("q1", 250_000, "v1"), quote("q2", 180_000, "v1"))
         var loadFailure: ApiResult.Failure? = null
@@ -105,7 +116,7 @@ class ConfirmQuoteViewModelTest {
     }
 
     private fun TestScope.viewModelWith(server: Server, events: MutableList<Event> = mutableListOf(), quoteId: String = "q1"): ConfirmQuoteViewModel {
-        val viewModel = ConfirmQuoteViewModel(SavedStateHandle(mapOf("requestId" to "r1", "quoteId" to quoteId)), server, server)
+        val viewModel = ConfirmQuoteViewModel(SavedStateHandle(mapOf("requestId" to "r1", "quoteId" to quoteId)), server, server, server)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect { events += it } }
         return viewModel
     }
@@ -268,6 +279,39 @@ class ConfirmQuoteViewModelTest {
         viewModel.confirm()
         advanceUntilIdle()
         assertTrue(server.accepted.isEmpty())
+    }
+
+    @Test
+    fun policyLinesComeFrom107() = runTest(dispatcher) {
+        val viewModel = viewModelWith(Server())
+        advanceUntilIdle()
+        assertEquals(AppConfig(10, 20_000, 30_000, 20.0, 15), viewModel.state.value.policy)
+    }
+
+    @Test
+    fun aFailed107HidesOnlyThePolicyLinesAndARetryAsksAgain() = runTest(dispatcher) {
+        val server = Server().apply { config = offline }
+        val viewModel = viewModelWith(server)
+        advanceUntilIdle()
+        assertNull(viewModel.state.value.policy)
+        assertTrue(viewModel.state.value.available)
+        assertNull(viewModel.state.value.error)
+
+        server.config = ApiResult.Success(AppConfig(5, 25_000, 40_000, 12.5, 15))
+        viewModel.load()
+        advanceUntilIdle()
+        assertEquals(2, server.configCalls)
+        assertEquals(12.5, viewModel.state.value.policy!!.cancellationFeeAfterArrivedPercent, 0.0)
+    }
+
+    @Test
+    fun aReloadDoesNotAsk107AgainOnceKnown() = runTest(dispatcher) {
+        val server = Server()
+        val viewModel = viewModelWith(server)
+        advanceUntilIdle()
+        viewModel.load()
+        advanceUntilIdle()
+        assertEquals(1, server.configCalls)
     }
 
     @Test

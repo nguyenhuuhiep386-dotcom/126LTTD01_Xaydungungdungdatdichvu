@@ -36,8 +36,14 @@ class OrderStatusChipTest {
     }
 
     @Test
+    fun `an order waiting for payment is red with a warning, like Chua tra on CS-30`() {
+        assertEquals(Look(R.string.order_status_unpaid, Tone.ALERT, R.drawable.ic_warning), OrderStatusChip.look(OrderStatus.AWAITING_PAYMENT))
+        assertEquals(vn.servio.core.R.color.servio_error_container, OrderStatusChip.backgroundColor(Tone.ALERT))
+    }
+
+    @Test
     fun `statuses outside the course scope and unknown values read Dang xu ly`() {
-        listOf(OrderStatus.AWAITING_PAYMENT, OrderStatus.REFUNDED, OrderStatus.SEARCHING, OrderStatus.UNKNOWN).forEach {
+        listOf(OrderStatus.REFUNDED, OrderStatus.SEARCHING, OrderStatus.UNKNOWN).forEach {
             val look = OrderStatusChip.look(it)
             assertEquals(R.string.order_status_processing, look.label)
             assertEquals(Tone.CLOSED, look.tone)
