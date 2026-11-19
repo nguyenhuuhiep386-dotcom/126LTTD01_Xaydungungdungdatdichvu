@@ -98,7 +98,9 @@ INSERT INTO @Configs VALUES
  ('integrity.checkin_required',                 N'false',  'bool',    'ORDER',     N'Bắt buộc Play Integrity khi check-in (tắt khi demo)'),
  ('app.min_version_customer',                   N'1.0.0',  'string',  'APP',       N'Phiên bản tối thiểu app khách'),
  ('app.min_version_partner',                    N'1.0.0',  'string',  'APP',       N'Phiên bản tối thiểu app đối tác'),
- ('app.maintenance_mode',                       N'false',  'bool',    'APP',       N'Chế độ bảo trì');
+ ('app.maintenance_mode',                       N'false',  'bool',    'APP',       N'Chế độ bảo trì'),
+ ('privacy.policy_version',                     N'2026-11-15', 'string', 'PRIVACY', N'Phiên bản chính sách bảo mật và điều khoản; đổi khi sửa nội dung để hỏi lại sự đồng ý'),
+ ('privacy.require_consent',                    N'true',   'bool',    'PRIVACY',   N'Bắt buộc có sự đồng ý trước khi thu dữ liệu (chỉ tắt khi app chưa có màn hình đồng ý)');
 
 INSERT INTO dbo.SystemConfigs ([Key], Value, DataType, [Group], Description)
 SELECT c.[Key], c.Value, c.DataType, c.[Group], c.Description

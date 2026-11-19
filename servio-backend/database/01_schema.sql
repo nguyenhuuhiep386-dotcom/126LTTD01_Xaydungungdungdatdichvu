@@ -195,6 +195,19 @@ CREATE TABLE dbo.UserDevices (
     CONSTRAINT UQ_UserDevices_User_Device_Flavor UNIQUE (UserId, DeviceId, AppFlavor)
 );
 
+CREATE TABLE dbo.UserConsents (                               -- append-only proof of consent (Luật 91/2025 Điều 9, NĐ 356/2025 Điều 6)
+    Id            uniqueidentifier NOT NULL CONSTRAINT PK_UserConsents PRIMARY KEY,
+    UserId        uniqueidentifier NOT NULL CONSTRAINT FK_UserConsents_Users REFERENCES dbo.Users (Id),
+    Purpose       tinyint          NOT NULL,                 -- 1=TERMS_AND_PRIVACY, 2=KYC_IDENTITY, 3=LOCATION_SHARING
+    Granted       bit              NOT NULL,                 -- 0 = withdrawn; the newest row per (UserId, Purpose) is the current choice
+    PolicyVersion varchar(20)      NOT NULL,
+    AppFlavor     tinyint          NOT NULL,                 -- 1=CUSTOMER, 2=PARTNER
+    IpAddress     varchar(45)      NULL,
+    UserAgent     nvarchar(300)    NULL,
+    CreatedAt     datetimeoffset   NOT NULL CONSTRAINT DF_UserConsents_CreatedAt DEFAULT SYSUTCDATETIME()
+);
+CREATE INDEX IX_UserConsents_User_Purpose ON dbo.UserConsents (UserId, Purpose, CreatedAt);
+
 CREATE TABLE dbo.RefreshTokens (
     Id                uniqueidentifier NOT NULL CONSTRAINT PK_RefreshTokens PRIMARY KEY,
     UserId            uniqueidentifier NOT NULL CONSTRAINT FK_RefreshTokens_Users REFERENCES dbo.Users (Id),
@@ -235,7 +248,7 @@ CREATE TABLE dbo.UploadedFiles (
     SizeBytes   bigint           NOT NULL,
     Width       int              NULL,
     Height      int              NULL,
-    Status      tinyint          NOT NULL CONSTRAINT DF_UploadedFiles_Status DEFAULT 3, -- 3=READY, 4=REJECTED
+    Status      tinyint          NOT NULL CONSTRAINT DF_UploadedFiles_Status DEFAULT 3, -- 3=READY, 4=REJECTED, 5=DELETED (account deletion)
     IsPrivate   bit              NOT NULL CONSTRAINT DF_UploadedFiles_IsPrivate DEFAULT 0,
     CreatedAt   datetimeoffset   NOT NULL CONSTRAINT DF_UploadedFiles_CreatedAt DEFAULT SYSUTCDATETIME()
 );
@@ -306,6 +319,7 @@ CREATE TABLE dbo.ServiceRequests (
     SearchRadiusKm         int              NOT NULL CONSTRAINT DF_ServiceRequests_SearchRadiusKm DEFAULT 10,
     Status                 tinyint          NOT NULL,        -- 1=DRAFT, 2=OPEN, 3=MATCHED, 4=EXPIRED, 5=CANCELLED, 6=REJECTED_BY_MODERATION
     QuoteCount             int              NOT NULL CONSTRAINT DF_ServiceRequests_QuoteCount DEFAULT 0,
+    BroadcastCount         int              NOT NULL CONSTRAINT DF_ServiceRequests_BroadcastCount DEFAULT 0, -- partners pushed the post when it was published
     ViewCount              int              NOT NULL CONSTRAINT DF_ServiceRequests_ViewCount DEFAULT 0,
     Revision               int              NOT NULL CONSTRAINT DF_ServiceRequests_Revision DEFAULT 1, -- always 1 in the course scope
     ExpiresAt              datetimeoffset   NULL,
@@ -417,6 +431,8 @@ CREATE TABLE dbo.OrderAssignments (
     ArrivalDistanceMeters      int              NULL,
     ArrivalAccuracyMeters      int              NULL,
     CustomerConfirmedArrivalAt datetimeoffset   NULL,
+    ArrivalRejectedAt          datetimeoffset   NULL,        -- last GPS check-in (#68) refused; #178 needs one within 10 minutes
+    ArrivalRejectCode          varchar(40)      NULL,        -- its error code: TOO_FAR_FROM_ADDRESS, GPS_NOT_RELIABLE, MOCK_LOCATION_DETECTED
     LastLatitude               decimal(9, 6)    NULL,        -- latest point from hub UpdateLocation (course scope)
     LastLongitude              decimal(9, 6)    NULL,
     LastLocationAccuracy       int              NULL,

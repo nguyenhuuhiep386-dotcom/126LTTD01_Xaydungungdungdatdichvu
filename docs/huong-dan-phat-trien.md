@@ -144,6 +144,7 @@ Các đối tác để Offline sau khi seed; bật Online trong app khi demo. �
 | BE-6: #71 khách xác nhận hoàn thành COD (ghi giao dịch tiền mặt và công nợ hoa hồng) + job tự xác nhận; #151, #72 khách huỷ có phí; #152 đối tác huỷ; #180 khách không có mặt; #87, #88, #155, #156 ví, công nợ và khai báo chuyển khoản; hàm xác nhận/từ chối trả nợ cho AW-18 (cấn trừ tự động) | Xong, có trên Swagger |
 | BE-7: #95, #96, #100 đánh giá hai chiều (rating trung bình); #146–#148 khiếu nại (đơn DISPUTED, tạm dừng tự xác nhận) + hàm admin chốt khiếu nại cho AW-08; #101–#104 thông báo; gửi FCM HTTP v1 cho báo giá mới, đơn đổi trạng thái, phát sinh, xác nhận đã đến, đánh giá, kết quả KYC, kết quả trả nợ | Xong, có trên Swagger; chưa gửi thông báo cho bài mới (NEW_POST_MATCH) và tin nhắn chat (đã có SignalR) |
 | #177 "Khách chưa thanh toán": đối tác báo trong lúc chờ khách xác nhận hoặc ≤ 24 giờ sau khi hoàn tất → khiếu nại UNPAID_CASH; admin xác nhận chưa trả thì đảo giao dịch tiền mặt và nợ hoa hồng, đơn chuyển AWAITING_PAYMENT, khách bị chặn đăng bài; khách trả xong thì FINANCE xác nhận ở AW-07 | Xong, có trên Swagger |
+| Dữ liệu cá nhân (Luật 91/2025): bảng `UserConsents`, `GET /legal`, `GET/POST /users/me/consents`, kiểm tra đồng ý khi đăng bài, KYC, gửi vị trí; `DELETE /users/me`; trang `/chinh-sach-bao-mat`, `/dieu-khoan-su-dung` (bản nháp); xoá vị trí khi hết chuyến | Xong; báo cáo rà soát ở `docs/phap-ly/ra-soat-phap-ly-backend.md` |
 | Android `:core`: design system, Retrofit, token + tự refresh, xử lý mất mạng | Xong |
 | Màn CS-01, CS-03, CS-04, CS-05 (dùng chung, gọi API thật) | Xong |
 | CS-06 Trang chủ (API thật), CS-14 Yêu cầu của tôi (dữ liệu giả), PS-07 Newsfeed (dữ liệu giả) | Xong, làm mẫu |
@@ -176,13 +177,15 @@ Các đối tác để Offline sau khi seed; bật Online trong app khi demo. �
 | `/hubs/chat` | Cả hai | `MessageRead` | `{ conversationId, userId, lastReadMessageId }`, gửi khi một bên đã đọc |
 
 - **Kết nối:** URL `BASE_URL + "hubs/feed"`, gửi JWT qua `accessTokenProvider` (thư viện SignalR Java client tự gắn `?access_token=`). Server tự đưa kết nối vào nhóm theo user và theo app, client không cần gọi hàm join nào.
-- **Khi kết nối lại:** gọi lại API danh sách (`GET /feed`, `GET .../quotes`), vì sự kiện phát ra lúc mất mạng sẽ không được gửi lại.
+- **Khi kết nối lại:** gọi lại API danh sách (`GET /feed`, `GET .../quotes`, #63), vì sự kiện phát ra lúc mất mạng sẽ không được gửi lại. Gọi lại **mỗi lần trạng thái hub chuyển sang CONNECTED**, kể cả lần kết nối đầu: `HubClient` không phát sự kiện "reconnected" cho lần đầu, và sự kiện phát ra trong lúc đang CONNECTING cũng bị lỡ. Màn hình nên đăng ký `listen()` trước rồi mới `start()`.
 - **Chỉ đối tác Online mới nhận NewPost:** phải gọi #25 trước và gửi heartbeat #26 mỗi 30 giây.
 - **Chat:** client gọi hub method `SendMessage({ conversationId, clientMessageId, type, content, attachmentUrl })` và `MarkRead(conversationId, messageId)`. `clientMessageId` là UUID do app tạo trước khi gửi; gửi lại cùng UUID (khi mất mạng) không tạo tin trùng. Khi hub mất kết nối, gửi qua `POST /conversations/{id}/messages`. Lỗi nghiệp vụ trả về dạng `HubException` có nội dung `MÃ_LỖI: thông báo`.
 - **Sau khi kết nối lại:** gọi `GET /conversations/{id}/messages?after=<syncCursor>` để lấy các tin bị lỡ.
 - **Đơn hàng:**
   - #43 gửi `{ quoteIds: [id], quoteVersions: { id: rowVersion }, paymentMethod: "CASH" }`, `rowVersion` lấy từ #42. Kết quả là chi tiết đơn (#63). Gửi lại cùng báo giá thì nhận lại đúng đơn đã tạo.
-  - Khi nhận `OrderStatusChanged`, gọi lại #63 để lấy dữ liệu mới. Mỗi thao tác cũng ghi một tin hệ thống vào chat của hai bên.
+  - Khi nhận `OrderStatusChanged`, gọi lại #63 để lấy dữ liệu mới. Mỗi thao tác cũng ghi một tin hệ thống vào chat của hai bên; tin hệ thống viết ở ngôi thứ ba ("Khách đã…", "Đối tác đã…"), cùng một câu cho cả hai bên. Lời nhắc riêng cho từng bên nằm ở thông báo đẩy.
+  - Danh sách và đầu màn chat (#54/#55) có `orderCode` (null khi chưa có đơn) và `price`: giá đã chốt với đối tác này khi đã có đơn, nếu chưa thì giá báo mới nhất của họ.
+  - Các con số CS-18 (hạn xác nhận đơn, phí huỷ 20.000 đ, max(30.000 đ, 20%), thời gian chờ khách) lấy từ `GET /api/v1/app-config` (không cần đăng nhập), không viết cứng trong app.
   - Số điện thoại và địa chỉ chính xác chỉ có trong #63 từ khi đối tác xác nhận (ACCEPTED) đến khi báo hoàn thành.
   - **Di chuyển (DT-4):** sau #67, foreground service gọi hub method `UpdateLocation(assignmentId, latitude, longitude, accuracy, capturedAt)` trên `/hubs/orders` mỗi 10 giây. Trả `false` khi điểm cũ hơn điểm đã lưu (bỏ qua). Nhận `HubException` bắt đầu bằng `INVALID_STATUS_TRANSITION` thì dừng service (đã đến, đơn bị huỷ hoặc đang khiếu nại).
   - **Theo dõi (CS-21):** gọi #76 khi mở màn, sau đó cập nhật marker theo `PartnerLocationUpdated`. `location` chỉ có khi đối tác đang ON_THE_WAY. `isStale = true` (điểm cũ hơn 30 giây) thì hiện "Chưa cập nhật" và không đếm ngược ETA.
@@ -193,8 +196,14 @@ Các đối tác để Offline sau khi seed; bật Online trong app khi demo. �
   - **Công nợ (CS-30, PS-21):** #87 số dư, #155 danh sách khoản nợ, #156 khai báo chuyển khoản `{ debtIds, bankTransferReference, evidenceUrl }` (ảnh tải lên với purpose `DISPUTE_EVIDENCE`; đối tác không gửi `debtIds`). Admin xác nhận trên AW-18 thì khoản nợ mới giảm.
   - **Đánh giá (CS-26, PS-27):** sau khi đơn COMPLETED, trong 5 ngày. Khách gửi `rating` và 4 tiêu chí; đối tác gửi `rating` và `tags` (ví dụ `PAID_ON_TIME`, `ACCURATE_DESCRIPTION`, `FRIENDLY`). #100 trả danh sách đơn chờ đánh giá để hiện nhắc nhở.
   - **Khiếu nại (CS-33):** #146 `{ reason, description, evidenceUrls }` (ảnh purpose `DISPUTE_EVIDENCE`). Đơn chuyển DISPUTED, mọi thao tác trả 409 `ORDER_DISPUTED` cho tới khi admin xử lý trên AW-08; sau đó đơn về trạng thái cũ.
+  - **Đồng ý và quyền dữ liệu cá nhân (Luật 91/2025, cả hai app):**
+    - App hiện ô đồng ý **không tích sẵn** kèm link `BASE_URL + "chinh-sach-bao-mat"` và `BASE_URL + "dieu-khoan-su-dung"`; không dùng câu "tiếp tục là đồng ý".
+    - Khi người dùng tích ô: gọi `GET /api/v1/legal` lấy `policyVersion`, rồi `POST /api/v1/users/me/consents` `{ purpose, granted: true, policyVersion }`. Rút đồng ý: gửi `granted: false`. Xem lại: `GET /api/v1/users/me/consents`.
+    - Mục đích và chỗ bị chặn khi thiếu (422 `CONSENT_REQUIRED`): `TERMS_AND_PRIVACY` (khách đăng bài; đối tác nộp hồ sơ), `KYC_IDENTITY` (chỉ app đối tác: tải ảnh CCCD, nộp hồ sơ; ô đồng ý phải ghi rõ đây là dữ liệu nhạy cảm), `LOCATION_SHARING` (chỉ app đối tác: bật Online, bắt đầu di chuyển, gửi vị trí).
+    - Xoá tài khoản: `DELETE /api/v1/users/me` → 204; còn đơn, yêu cầu mở, báo giá chờ hoặc nợ thì 409 `ACCOUNT_DELETION_BLOCKED` kèm lý do để hiện cho người dùng.
+    - App chưa có màn hình đồng ý thì tạm đặt `privacy.require_consent = false` ở AW-15; bản nộp cuối phải để `true`. CSDL tạo trước 16/11 chạy thêm `database/03_privacy.sql`; tạo trước 19/11 chạy thêm `database/04_phan_hoi_app.sql`.
   - **Khách chưa trả tiền (#177, PS-14):** đối tác gọi `POST /orders/{id}/assignments/{aid}/report-unpaid` `{ note, evidenceUrls }` từ lúc báo hoàn thành tới 24 giờ sau khi đơn hoàn tất; quá hạn 422 `UNPAID_REPORT_WINDOW_CLOSED`, đang có khiếu nại 409 `DISPUTE_ALREADY_OPEN`. Đơn ở `AWAITING_PAYMENT` nghĩa là khách còn nợ đối tác: app khách nên hiện nhắc thanh toán.
-  - **Khách xác nhận (#178, #179):** mỗi lần chờ tối đa 300 giây, tối đa 3 lần cho một phần việc. Khi demo trong lớp, dùng đường này vì điện thoại đối tác không ở gần địa chỉ đơn.
+  - **Khách xác nhận (#178, #179):** chỉ gọi được #178 trong 10 phút sau một lần #68 bị từ chối vì `TOO_FAR_FROM_ADDRESS` hoặc `GPS_NOT_RELIABLE`; chưa check-in, quá 10 phút hoặc lần gần nhất là vị trí giả thì 422 `ARRIVAL_CONFIRMATION_NOT_ALLOWED` (app đối tác nên bấm "Đã đến nơi" lại trước). Mỗi lần chờ tối đa 300 giây, tối đa 3 lần cho một phần việc. Yêu cầu đang chờ nằm trong #63 ở `assignments[].pendingArrivalConfirmation` `{ requestId, expiresAt }`, nên khách mở đơn muộn vẫn trả lời được. #179 gửi `{ confirmed, expectedRowVersion }` (`expectedRowVersion` không bắt buộc; gửi thì đơn đã đổi trả 409 `RESOURCE_VERSION_CONFLICT`). Khi demo trong lớp, dùng đường này vì điện thoại đối tác không ở gần địa chỉ đơn: bấm "Đã đến nơi" (bị chặn vì xa) rồi "Nhờ khách xác nhận".
 
 ## 6. Quy ước
 

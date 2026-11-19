@@ -57,6 +57,8 @@ builder.Services.AddDbContext<ServioDbContext>(options => options.UseSqlServer(
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ConsentService>();
+builder.Services.AddScoped<AccountDeletionService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<SystemConfigService>();
 builder.Services.AddScoped<FileService>();

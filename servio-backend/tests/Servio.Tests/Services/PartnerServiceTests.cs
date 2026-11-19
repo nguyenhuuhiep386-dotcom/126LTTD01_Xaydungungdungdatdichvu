@@ -13,7 +13,7 @@ public sealed class PartnerServiceTests : IDisposable
 
     public void Dispose() => _ctx.Dispose();
 
-    private PartnerProfileService Profiles() => new(_ctx.Db, _ctx.Files(), _ctx.Configs(), _ctx.Clock);
+    private PartnerProfileService Profiles() => new(_ctx.Db, _ctx.Files(), _ctx.Configs(), _ctx.Consents(), _ctx.Clock);
 
     private PartnerSkillService Skills() => new(_ctx.Db, _ctx.Files(), _ctx.Clock);
 

@@ -92,7 +92,7 @@ public sealed class QuoteService(
 
         var skillYears = partner.Skills[request.ServiceCategoryId].YearsOfExperience;
         await notifier.NewQuoteAsync(request.Customer.UserId,
-            ToCustomerDto(quote, conversation.Id, partner.Profile, skillYears, Matching.RoundKm(distance)), ct);
+            ToCustomerDto(quote, conversation.Id, partner.Profile, request.ServiceCategory.Name, skillYears, Matching.RoundKm(distance)), ct);
         await notifications.SendAsync([(AppFlavor.Customer, request.Customer.UserId)], NotificationType.NewQuote, "Có báo giá mới",
             $"{request.Title}: báo giá {Money.Vnd(quote.Amount)}", new { serviceRequestId = request.Id, quoteId = quote.Id },
             $"service-requests/{request.Id}", ct);
@@ -147,7 +147,7 @@ public sealed class QuoteService(
         (page, pageSize) = (Math.Max(page, 1), Math.Clamp(pageSize, 1, MaxPageSize));
         var request = await db.ServiceRequests.AsNoTracking()
                           .Where(r => r.Id == requestId && r.Customer.UserId == userId)
-                          .Select(r => new { r.Id, r.Revision, r.ServiceCategoryId, r.Latitude, r.Longitude })
+                          .Select(r => new { r.Id, r.Revision, r.ServiceCategoryId, CategoryName = r.ServiceCategory.Name, r.Latitude, r.Longitude })
                           .FirstOrDefaultAsync(ct)
                       ?? throw ApiException.NotFound("Không tìm thấy yêu cầu");
 
@@ -172,7 +172,7 @@ public sealed class QuoteService(
             double? distance = x.PartnerProfile is { CurrentLatitude: { } lat, CurrentLongitude: { } lng }
                 ? Matching.RoundKm(Geo.DistanceKm(lat, lng, request.Latitude, request.Longitude))
                 : null;
-            return ToCustomerDto(x.Quote, x.ConversationId, x.PartnerProfile, x.SkillYears, distance);
+            return ToCustomerDto(x.Quote, x.ConversationId, x.PartnerProfile, request.CategoryName, x.SkillYears, distance);
         });
         var ordered = sort switch
         {
@@ -266,10 +266,11 @@ public sealed class QuoteService(
         q.Id, q.ServiceRequestId, r.Code, r.Title, r.ServiceCategory.Name, (ServiceRequestStatus)r.Status,
         (long)q.Amount, q.EstimatedDurationMinutes, q.AvailableFrom, q.EstimatedEndAt, q.Note, (QuoteStatus)q.Status, conversationId, q.CreatedAt);
 
-    private static CustomerQuoteDto ToCustomerDto(Quote q, Guid? conversationId, PartnerProfile p, int skillYears, double? distanceKm) => new(
+    private static CustomerQuoteDto ToCustomerDto(Quote q, Guid? conversationId, PartnerProfile p, string skillName, int skillYears, double? distanceKm) => new(
         q.Id, q.ServiceRequestId, (long)q.Amount, q.EstimatedDurationMinutes, q.AvailableFrom, q.EstimatedEndAt, q.Note, (QuoteStatus)q.Status,
         q.RowVersion is { Length: > 0 } version ? Convert.ToBase64String(version) : "",
         conversationId,
-        new QuotePartnerDto(p.Id, p.User.FullName, p.User.AvatarUrl, p.AverageRating, p.TotalReviews, p.CompletedOrders, skillYears, distanceKm),
+        new QuotePartnerDto(p.Id, p.User.FullName, p.User.AvatarUrl, p.AverageRating, p.TotalReviews, p.CompletedOrders, skillName, skillYears,
+            p.VerificationStatus == (byte)PartnerVerificationStatus.Approved, distanceKm),
         q.CreatedAt);
 }

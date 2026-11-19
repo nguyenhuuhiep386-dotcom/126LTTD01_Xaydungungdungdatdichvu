@@ -90,7 +90,7 @@ public sealed class AssignmentService(
         var change = await workflow.MoveAsync(order, assignment, OrderStatus.CompletedByPartner, ActorType.Partner, userId, note, ct);
         await db.SaveChangesAsync(ct);
         var message = order.AutoConfirmAt is { } autoConfirm
-            ? $"Đối tác đã báo hoàn thành. Hãy kiểm tra và xác nhận, đơn sẽ tự hoàn tất lúc {OrderWorkflow.LocalTime(autoConfirm)}."
+            ? $"Đối tác đã báo hoàn thành, chờ khách xác nhận. Đơn sẽ tự hoàn tất lúc {OrderWorkflow.LocalTime(autoConfirm)}."
             : "Đối tác đã báo hoàn thành phần việc của mình.";
         await workflow.PublishAsync(order, assignment, change, message, ct);
         return change;

@@ -22,6 +22,7 @@ public sealed class ServiceRequestService(
     CodeGenerator codes,
     SystemConfigService configs,
     IRealtimeNotifier notifier,
+    ConsentService consents,
     TimeProvider clock)
 {
     public const int MaxImages = 6;
@@ -102,7 +103,10 @@ public sealed class ServiceRequestService(
         db.ServiceRequests.Add(request);
         await db.SaveChangesAsync(ct);
 
-        await notifier.NewPostAsync(await feed.FindRecipientsAsync(request.Id, ct), ct);
+        var recipients = await feed.FindRecipientsAsync(request.Id, ct);
+        request.BroadcastCount = recipients.Count; // spec: only partners actually sent the post, never an estimate
+        await db.SaveChangesAsync(ct);
+        await notifier.NewPostAsync(recipients, ct);
         return await GetForOwnerAsync(userId, request.Id, ct);
     }
 
@@ -120,7 +124,8 @@ public sealed class ServiceRequestService(
             .Select(r => new RequestSummaryDto(
                 r.Id, r.Code, r.Title, r.ServiceCategoryId, r.ServiceCategory.Name, (ServiceRequestStatus)r.Status,
                 r.Quotes.Count(q => q.Status == (byte)QuoteStatus.Pending && q.RequestRevision == r.Revision),
-                r.AddressSnapshot, (ScheduleType)r.ScheduleType, r.ScheduledStartAt, r.ExpiresAt,
+                r.BroadcastCount, r.Revision,
+                r.AddressSnapshot, (ScheduleType)r.ScheduleType, r.ScheduledStartAt, r.ScheduledEndAt, r.ExpiresAt,
                 r.ServiceRequestImages.OrderBy(i => i.DisplayOrder).Select(i => i.Url).FirstOrDefault(),
                 r.CreatedAt))
             .ToListAsync(ct);
@@ -146,7 +151,7 @@ public sealed class ServiceRequestService(
             s.Id, s.Code, (ServiceRequestStatus)s.Status, s.Revision, s.ServiceCategoryId, r.CategoryName, s.Title, s.Description, r.Images,
             s.AddressId, s.AddressSnapshot, s.Latitude, s.Longitude, (ScheduleType)s.ScheduleType, s.ScheduledStartAt, s.ScheduledEndAt,
             (long?)s.BudgetMin, (long?)s.BudgetMax, s.RequireExperienceYears, s.RequireCertificate, s.RequireMinRating, s.SearchRadiusKm,
-            r.PendingQuotes, s.PublishedAt, s.ExpiresAt, s.CancelReason, s.CreatedAt);
+            r.PendingQuotes, s.BroadcastCount, s.PublishedAt, s.ExpiresAt, s.CancelReason, s.CreatedAt);
     }
 
     /// <summary>
@@ -240,6 +245,7 @@ public sealed class ServiceRequestService(
 
     private async Task EnsureCanPostAsync(CustomerProfile customer, DateTimeOffset now, CancellationToken ct)
     {
+        await consents.EnsureAsync(customer.UserId, ConsentPurpose.TermsAndPrivacy, ct);
         if (UserService.NeedsProfileCompletion(customer.User.FullName))
         {
             throw new ApiException(StatusCodes.Status422UnprocessableEntity, ErrorCodes.ProfileIncomplete, "Hãy cập nhật họ tên trước khi đăng yêu cầu");

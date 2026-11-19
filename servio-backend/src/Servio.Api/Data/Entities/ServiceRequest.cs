@@ -47,6 +47,8 @@ public partial class ServiceRequest
 
     public int QuoteCount { get; set; }
 
+    public int BroadcastCount { get; set; }
+
     public int ViewCount { get; set; }
 
     public int Revision { get; set; }

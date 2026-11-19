@@ -15,6 +15,7 @@ public sealed class PartnerProfileService(
     ServioDbContext db,
     FileService files,
     SystemConfigService configs,
+    ConsentService consents,
     TimeProvider clock)
 {
     public static readonly int[] AllowedRadiusKm = [3, 5, 10, 20];
@@ -78,6 +79,7 @@ public sealed class PartnerProfileService(
     /// <summary>#19: one current document per type; uploading again replaces a PENDING/REJECTED one.</summary>
     public async Task<PartnerDocumentDto> AddDocumentAsync(Guid userId, AddDocumentRequest request, CancellationToken ct)
     {
+        await consents.EnsureAsync(userId, ConsentPurpose.KycIdentity, ct);
         if (!Enum.IsDefined(request.DocumentType))
         {
             throw new ApiException(StatusCodes.Status400BadRequest, ErrorCodes.ValidationError, "Loại giấy tờ không hợp lệ", "documentType");
@@ -109,6 +111,8 @@ public sealed class PartnerProfileService(
     /// <summary>#20: NOT_SUBMITTED/REJECTED → PENDING when name, 3 KYC photos, ≥1 skill and the anchor location are present.</summary>
     public async Task<VerificationStatusDto> SubmitAsync(Guid userId, CancellationToken ct)
     {
+        await consents.EnsureAsync(userId, ConsentPurpose.TermsAndPrivacy, ct);
+        await consents.EnsureAsync(userId, ConsentPurpose.KycIdentity, ct);
         var partner = await FindAsync(userId, ct, includeDocuments: true);
         EnsureEditable(partner);
         await db.Entry(partner).Reference(p => p.User).LoadAsync(ct);
@@ -139,8 +143,14 @@ public sealed class PartnerProfileService(
             {
                 throw new ApiException(StatusCodes.Status403Forbidden, ErrorCodes.PartnerNotVerified, "Hồ sơ đối tác chưa được duyệt");
             }
+            await consents.EnsureAsync(userId, ConsentPurpose.LocationSharing, ct);
             (partner.CurrentLatitude, partner.CurrentLongitude) = Geo.Require(request.Latitude, request.Longitude);
             partner.LastHeartbeatAt = now;
+        }
+        else
+        {
+            // Offline: the position was only kept for matching (data minimisation, 01-F).
+            partner.CurrentLatitude = partner.CurrentLongitude = null;
         }
         partner.IsOnline = request.IsOnline;
         partner.UpdatedAt = now;

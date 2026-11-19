@@ -107,6 +107,13 @@ def login(phone, flavor, name):
     return auth["accessToken"]
 
 
+def consent(token, *purposes):
+    """What the apps send after the user ticks the (unticked by default) consent boxes (Điều 9 Luật 91/2025)."""
+    version = api("GET", "/legal")["policyVersion"]
+    for purpose in purposes:
+        api("POST", "/users/me/consents", token, {"purpose": purpose, "granted": True, "policyVersion": version})
+
+
 def upload(token, purpose):
     return api("POST", "/files", token, files={"file": PNG, "purpose": purpose})["url"]
 
@@ -150,12 +157,19 @@ def main():
     api("GET", "/service-categories")  # fails fast when the backend is down
     services = {c["slug"]: c["id"] for g in api("GET", "/service-categories") for c in g.get("children", [])}
     service_id = services["ve-sinh-may-lanh"]
+    rules = api("GET", "/app-config")  # CS-18 numbers come from SystemConfigs
+    assert (rules["partnerAcceptTimeoutMinutes"], rules["cancellationFeeAfterOnTheWay"]) == (10, 20_000), rules
     admin = Admin()
     admin.login()
+    for page in ("/chinh-sach-bao-mat", "/dieu-khoan-su-dung"):
+        with urllib.request.urlopen(f"{BASE}{page}", timeout=30) as r:
+            assert r.status == 200 and "Phiên bản" in r.read().decode(), f"trang {page} lỗi"
 
     # ---------- (1) đối tác đăng ký, nộp KYC, admin duyệt ----------
     step("Đối tác đăng ký, nộp KYC, admin duyệt")
     partner = login(partner_phone, "PARTNER", "Thợ Kiểm Thử")
+    expect_error("CONSENT_REQUIRED", lambda: upload(partner, "KYC"))  # CCCD photos need their own consent first
+    consent(partner, "TERMS_AND_PRIVACY", "KYC_IDENTITY", "LOCATION_SHARING")
     near = (UTE[0] + 0.01, UTE[1])
     api("PATCH", "/partners/me", partner, {"yearsOfExperience": 5, "serviceRadiusKm": 10, "anchorLatitude": near[0], "anchorLongitude": near[1]})
     for doc in ("ID_FRONT", "ID_BACK", "SELFIE_WITH_ID"):
@@ -171,6 +185,7 @@ def main():
     # ---------- (2) khách đăng bài có ảnh, đối tác thấy bài ----------
     step("Khách đăng bài có ảnh, đối tác thấy trong newsfeed")
     customer = login(customer_phone, "CUSTOMER", "Khách Kiểm Thử")
+    consent(customer, "TERMS_AND_PRIVACY")
     address = api("POST", "/users/me/addresses", customer, {
         "label": "Trường", "receiverName": "Khách Kiểm Thử", "receiverPhone": customer_phone,
         "fullAddress": "1 Võ Văn Ngân, Linh Chiểu, Thủ Đức", "latitude": UTE[0], "longitude": UTE[1], "isDefault": True})
@@ -197,9 +212,12 @@ def main():
         {"clientMessageId": str(uuid.uuid4()), "type": "TEXT", "content": "Chào anh/chị, em qua kiểm tra trong 30 phút nhé."})
     quotes = api("GET", f"/service-requests/{request['id']}/quotes", customer)["items"]
     chosen = next(q for q in quotes if q["id"] == quote["id"])
+    assert (chosen["partner"]["skillName"], chosen["partner"]["identityVerified"]) == ("Vệ sinh máy lạnh", True), chosen["partner"]
     order = api("POST", f"/service-requests/{request['id']}/accept-quotes", customer,
                 {"quoteIds": [chosen["id"]], "quoteVersions": {chosen["id"]: chosen["rowVersion"]}, "paymentMethod": "CASH"}, expect=201)
     order_id, assignment_id = order["id"], order["assignments"][0]["id"]
+    room = api("GET", f"/conversations/{quote['conversationId']}", customer)
+    assert (room["orderCode"], room["price"]) == (order["code"], 450_000), room
     ok(f"đơn {order['code']} tạo, chờ đối tác xác nhận")
 
     # ---------- (4) xác nhận, di chuyển, khách thấy vị trí ----------
@@ -216,6 +234,10 @@ def main():
     arrive_url = f"/orders/{order_id}/assignments/{assignment_id}/arrive"
     expect_error("TOO_FAR_FROM_ADDRESS", lambda: api("POST", arrive_url, partner, {
         "latitude": near[0], "longitude": near[1], "accuracy": 10, "capturedAt": iso(datetime.now(timezone.utc)), "isMock": False}))
+    # GPS refused just now, so the partner may ask the customer (#178); the customer sees it in #63 even if they missed the push.
+    ask = api("POST", f"/orders/{order_id}/assignments/{assignment_id}/arrival-confirmation-requests", partner, expect=201)
+    pending = api("GET", f"/orders/{order_id}", customer)["assignments"][0]["pendingArrivalConfirmation"]
+    assert pending and pending["requestId"] == ask["requestId"], pending
     arrived = api("POST", arrive_url, partner, {
         "latitude": UTE[0] + 0.0004, "longitude": UTE[1], "accuracy": 10, "capturedAt": iso(datetime.now(timezone.utc)), "isMock": False})
     ok(f"đã đến, cách địa chỉ {arrived['distanceMeters']} m")
@@ -296,8 +318,14 @@ def main():
     assert api("GET", f"/orders/{order_id}", customer)["status"] == "COMPLETED"
     ok("đơn chờ thanh toán → khách trả → COMPLETED")
 
+    # ---------- (12) quyền xoá tài khoản (Điều 14 Luật 91/2025) ----------
+    step("Khách xoá tài khoản; số điện thoại đăng ký lại thành tài khoản mới")
     unread = api("GET", "/notifications/unread-count", customer)["total"]
-    print(f"\nĐẠT cả 10 bước + #177 trong {time.time() - started:.1f} s (khách có {unread} thông báo chưa đọc).")
+    api("DELETE", "/users/me", customer)
+    fresh = login(customer_phone, "CUSTOMER", "Khách Đăng Ký Lại")
+    assert api("GET", "/orders/me", fresh)["totalCount"] == 0, "tài khoản mới không được thấy đơn cũ"
+    ok("tài khoản cũ đã xoá, đăng ký lại không còn dữ liệu cũ")
+    print(f"\nĐẠT cả 10 bước + #177 + quyền dữ liệu trong {time.time() - started:.1f} s (khách có {unread} thông báo trước khi xoá).")
 
 
 if __name__ == "__main__":

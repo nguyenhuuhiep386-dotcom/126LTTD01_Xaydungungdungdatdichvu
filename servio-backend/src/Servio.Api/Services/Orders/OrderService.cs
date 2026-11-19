@@ -104,7 +104,7 @@ public sealed class OrderService(
                 new { quoteId = other.Id, orderId = (Guid?)null }, ct);
         }
         await workflow.SystemMessageAsync(request.Id, partner.Id,
-            $"Khách đã chọn báo giá của bạn. Hãy xác nhận đơn {order.Code} trước {OrderWorkflow.LocalTime(assignment.AcceptanceDeadlineAt)}.", ct);
+            $"Khách đã chọn báo giá. Đơn {order.Code} chờ đối tác xác nhận trước {OrderWorkflow.LocalTime(assignment.AcceptanceDeadlineAt)}.", ct);
         return await GetAsync(userId, AppFlavor.Customer, order.Id, ct);
     }
 
@@ -179,6 +179,11 @@ public sealed class OrderService(
         var showAddress = mine is null || mine.AcceptedAt is not null;
         var customerUser = order.Customer.User;
         var assignmentIds = visible.Select(a => a.Id).ToHashSet();
+        // #178 PENDING "partner says they arrived" requests, so a customer who opens the order late can still answer (#179).
+        var now = clock.GetUtcNow();
+        var pendingArrivals = await db.ArrivalConfirmationRequests.AsNoTracking()
+            .Where(r => assignmentIds.Contains(r.OrderAssignmentId) && r.Status == (byte)ArrivalConfirmationStatus.Pending && r.ExpiresAt > now)
+            .ToDictionaryAsync(r => r.OrderAssignmentId, r => new PendingArrivalDto(r.Id, r.ExpiresAt), ct);
 
         return new OrderDetailDto(
             order.Id, order.Code, (OrderStatus)order.Status, (PaymentMethod)order.PaymentMethod, (PaymentStatus)order.PaymentStatus,
@@ -195,7 +200,8 @@ public sealed class OrderService(
                 mine is null ? customerUser.FullName : CustomerName(customerUser.FullName, mine.AcceptedAt),
                 customerUser.AvatarUrl, order.Customer.AverageRating,
                 mine is not null && contact ? customerUser.PhoneNumber : null),
-            visible.Select(a => ToDto(a, showPhone: mine is null && OrderStateMachine.ContactVisible((OrderStatus)a.Status))).ToList(),
+            visible.Select(a => ToDto(a, showPhone: mine is null && OrderStateMachine.ContactVisible((OrderStatus)a.Status),
+                pendingArrivals.GetValueOrDefault(a.Id))).ToList(),
             order.OrderExtraCharges.Where(e => assignmentIds.Contains(e.OrderAssignmentId)).OrderBy(e => e.CreatedAt).Select(ToDto).ToList(),
             conversationId,
             order.AcceptedAt, order.StartedAt, order.CompletedByPartnerAt, order.AutoConfirmAt, order.CompletedAt, order.CancelledAt,
@@ -228,13 +234,13 @@ public sealed class OrderService(
             .ToListAsync(ct);
     }
 
-    public static AssignmentDto ToDto(OrderAssignment a, bool showPhone) => new(
+    public static AssignmentDto ToDto(OrderAssignment a, bool showPhone, PendingArrivalDto? pendingArrival = null) => new(
         a.Id, (OrderStatus)a.Status, a.IsPrimary,
         new OrderPartyDto(a.PartnerProfileId, a.PartnerProfile.User.FullName, a.PartnerProfile.User.AvatarUrl, a.PartnerProfile.AverageRating,
-            showPhone ? a.PartnerProfile.User.PhoneNumber : null),
+            showPhone ? a.PartnerProfile.User.PhoneNumber : null, a.PartnerProfile.TotalReviews),
         (long)a.Amount, (long)a.ExtraChargeTotal, a.AcceptanceDeadlineAt, a.ReservedStartAt, a.ReservedEndAt,
         a.AcceptedAt, a.OnTheWayAt, a.ArrivedAt, a.StartedAt, a.CompletedAt, a.CancelledAt, a.CancelReason,
-        Images(a, OrderImageType.Before), Images(a, OrderImageType.After));
+        Images(a, OrderImageType.Before), Images(a, OrderImageType.After), pendingArrival);
 
     public static ExtraChargeDto ToDto(OrderExtraCharge e) => new(
         e.Id, e.OrderId, e.OrderAssignmentId, e.Description, (long)e.Amount, e.EvidenceImageUrl, (ExtraChargeStatus)e.Status,

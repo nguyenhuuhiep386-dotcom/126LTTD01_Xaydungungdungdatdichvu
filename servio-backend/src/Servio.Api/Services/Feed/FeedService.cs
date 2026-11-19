@@ -87,7 +87,8 @@ public sealed class FeedService(ServioDbContext db, SystemConfigService configs,
                     && skillCategories.Contains(r.ServiceCategoryId)
                     && r.Customer.UserId != userId
                     && r.Latitude >= box.MinLat && r.Latitude <= box.MaxLat
-                    && r.Longitude >= box.MinLng && r.Longitude <= box.MaxLng),
+                    && r.Longitude >= box.MinLng && r.Longitude <= box.MaxLng)
+                    .OrderByDescending(r => r.CreatedAt).ThenBy(r => r.Id), // newest first if more than CandidateLimit match
                 partner.Profile.Id)
             .Take(CandidateLimit)
             .ToListAsync(ct);
@@ -174,6 +175,7 @@ public sealed class FeedService(ServioDbContext db, SystemConfigService configs,
                         && p.CurrentLatitude >= box.MinLat && p.CurrentLatitude <= box.MaxLat
                         && p.CurrentLongitude >= box.MinLng && p.CurrentLongitude <= box.MaxLng
                         && p.PartnerSkills.Any(s => s.ServiceCategoryId == row.CategoryId && s.Status == (byte)ApprovalStatus.Approved))
+            .OrderByDescending(p => p.LastHeartbeatAt).ThenBy(p => p.Id) // deterministic cut; distance is ranked below
             .Take(CandidateLimit)
             .ToListAsync(ct);
 

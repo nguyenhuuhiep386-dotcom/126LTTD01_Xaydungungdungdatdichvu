@@ -88,7 +88,7 @@ public sealed class CancellationService(
         }
         var change = await workflow.MoveAsync(order, assignment, OrderStatus.Cancelled, ActorType.Partner, userId, reason, ct);
         await db.SaveChangesAsync(ct);
-        await workflow.PublishAsync(order, assignment, change, $"Đối tác đã huỷ đơn: {reason}. Bạn có thể đăng lại yêu cầu để tìm người khác.", ct);
+        await workflow.PublishAsync(order, assignment, change, $"Đối tác đã huỷ đơn: {reason}", ct);
         return change;
     }
 
@@ -129,7 +129,7 @@ public sealed class CancellationService(
         var charge = AddCharge(order, assignment, fee, CancellationReason.CustomerNoShow);
         await db.SaveChangesAsync(ct);
         await workflow.PublishAsync(order, assignment, change,
-            $"Đối tác báo khách không có mặt sau {wait} phút chờ. Phí {Money.Vnd(fee)}; nếu không đúng, hãy liên hệ hỗ trợ trong 24 giờ.", ct);
+            $"Đối tác báo khách không có mặt sau {wait} phút chờ. Phí {Money.Vnd(fee)}. Khách có 24 giờ để khiếu nại nếu không đúng.", ct);
         return Result(order, [charge]);
     }
 
@@ -162,7 +162,7 @@ public sealed class CancellationService(
         return fees.Select(f => (f.a, f.Item2!.Value)).ToList();
     }
 
-    private async Task<FeePolicy> PolicyAsync(CancellationToken ct) => new(
+    public async Task<FeePolicy> PolicyAsync(CancellationToken ct) => new(
         (long)await configs.GetDecimalAsync("cancellation.fee_after_on_the_way", 20_000, ct),
         (long)await configs.GetDecimalAsync("cancellation.fee_after_arrived_min", 30_000, ct),
         await configs.GetDecimalAsync("cancellation.fee_after_arrived_percent", 20, ct));

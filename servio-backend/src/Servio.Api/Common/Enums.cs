@@ -97,6 +97,9 @@ public enum ArrivalMethod : byte { Gps = 1, Customer = 2 }
 /// <summary>ArrivalConfirmationRequests.Status</summary>
 public enum ArrivalConfirmationStatus : byte { Pending = 1, Confirmed = 2, Denied = 3, Expired = 4, Cancelled = 5 }
 
+/// <summary>UserConsents.Purpose: asked separately (Điều 9 Luật 91/2025). KYC and location only in the partner app.</summary>
+public enum ConsentPurpose : byte { TermsAndPrivacy = 1, KycIdentity = 2, LocationSharing = 3 }
+
 public enum ActorType : byte { Customer = 1, Partner = 2, System = 3, Admin = 4 }
 
 /// <summary>Parses UPPER_SNAKE_CASE values from query strings and multipart forms (JSON bodies use the converter in Program.cs).</summary>

@@ -37,7 +37,7 @@ public sealed class CompletionService(
         }
         var changes = await SettleAsync(order, ActorType.Customer, userId, ct);
         await db.SaveChangesAsync(ct);
-        await PublishAsync(order, changes, "Khách đã xác nhận hoàn thành và thanh toán tiền mặt. Cảm ơn hai bạn!", ct);
+        await PublishAsync(order, changes, "Khách đã xác nhận hoàn thành và thanh toán tiền mặt.", ct);
         return new CompletionResultDto(order.Id, (OrderStatus)order.Status, false, (long)order.TotalAmount,
             (long)order.OrderAssignments.Where(a => a.Status == (byte)OrderStatus.Completed).Sum(a => a.CustomerPayable));
     }

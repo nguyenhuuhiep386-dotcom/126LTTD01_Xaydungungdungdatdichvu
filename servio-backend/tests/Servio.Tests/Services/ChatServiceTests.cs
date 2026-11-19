@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Servio.Api.Common;
 using Servio.Api.Data.Entities;
 using Servio.Api.Services.Chat;
+using Servio.Api.Services.Orders;
 using Servio.Api.Services.Quotes;
 
 namespace Servio.Tests.Services;
@@ -177,5 +178,22 @@ public sealed class ChatServiceTests : IAsyncLifetime
         Assert.Equal(ActorType.System, system!.SenderRole);
         Assert.Equal(0, (await chat.UnreadCountAsync(_f.Customer.Id, AppFlavor.Customer, default)).Total);
         Assert.Equal("Đối tác đã xác nhận đơn", (await chat.ListAsync(_f.Customer.Id, AppFlavor.Customer, null, 1, 20, default)).Items.Single().LastMessage?.Preview);
+    }
+
+    [Fact]
+    public async Task ConversationRow_ShowsTheQuotedPrice_ThenTheOrderCode()
+    {
+        var chat = _f.Chat();
+        var before = (await chat.ListAsync(_f.Customer.Id, AppFlavor.Customer, null, 1, 20, default)).Items.Single();
+        var quote = await _f.Ctx.Db.Quotes.AsNoTracking().SingleAsync(q => q.ServiceRequestId == _requestId);
+        var order = await _f.Orders().AcceptQuoteAsync(_f.Customer.Id, _requestId,
+            new AcceptQuotesRequest([quote.Id], new() { [quote.Id] = Convert.ToBase64String(quote.RowVersion) }), default);
+
+        var after = await chat.GetAsync(_partner.Id, AppFlavor.Partner, _conversationId, default);
+
+        Assert.Equal((null, 300_000m), (before.OrderCode, before.Price));
+        Assert.Equal((order.Code, 300_000m), (after.OrderCode, after.Price));
+        Assert.Contains(order.Code, after.LastMessage!.Preview); // neutral system message, same text for both sides
+        Assert.DoesNotContain("của bạn", after.LastMessage.Preview);
     }
 }
