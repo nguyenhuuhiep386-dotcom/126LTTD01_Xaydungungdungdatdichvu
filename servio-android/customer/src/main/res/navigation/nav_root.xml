@@ -173,73 +173,36 @@
                 app:argType="string" />
         </fragment>
 
+        <!-- KH-5 part 1: tabs Đang diễn ra / Đã hoàn thành / Đã huỷ (#62); a card opens CS-20. -->
         <fragment
             android:id="@+id/cs19"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-19 Đơn hàng">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-19"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Đơn hàng"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Tab: Đang xử lý / Hoàn thành / Đã huỷ (#62)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs20|Mở một đơn"
-                app:argType="string" />
-        </fragment>
+            android:name="vn.servio.customer.ui.order.MyOrdersFragment"
+            android:label="CS-19 Đơn hàng" />
 
+        <!--
+          KH-5 part 1. Opened from CS-19, and by CS-18 after #43 (201); CS-18 is popped, so Back returns to CS-15.
+          CS-20c (cancel) is a dialog of this screen. CS-21, CS-22, CS-23, CS-33 come in later parts.
+        -->
         <fragment
             android:id="@+id/cs20"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.orderdetail.OrderDetailFragment"
             android:label="CS-20 Chi tiết đơn hàng">
-            <!-- Set by CS-18 after #43 (201); CS-18 is popped, so Back returns to CS-15. -->
             <argument
                 android:name="orderId"
                 android:defaultValue=""
-                app:argType="string" />
-            <argument
-                android:name="code"
-                android:defaultValue="CS-20"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Chi tiết đơn hàng"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Timeline + hành động theo trạng thái; hộp thoại &quot;Thợ đã đến?&quot; (#179)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs21|Theo dõi bản đồ;cs22|Duyệt phát sinh;cs23|Xác nhận hoàn thành;cs33|Khiếu nại"
                 app:argType="string" />
         </fragment>
 
         <fragment
             android:id="@+id/cs21"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.tracking.OrderTrackingFragment"
             android:label="CS-21 Theo dõi bản đồ">
             <argument
-                android:name="code"
-                android:defaultValue="CS-21"
+                android:name="orderId"
+                android:defaultValue=""
                 app:argType="string" />
             <argument
-                android:name="title"
-                android:defaultValue="Theo dõi bản đồ"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="osmdroid, marker cập nhật qua SignalR, nhãn &quot;Chưa cập nhật&quot;"
-                app:argType="string" />
-            <argument
-                android:name="links"
+                android:name="assignmentId"
                 android:defaultValue=""
                 app:argType="string" />
         </fragment>

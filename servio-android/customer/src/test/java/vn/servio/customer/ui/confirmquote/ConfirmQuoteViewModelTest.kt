@@ -22,7 +22,12 @@ import org.junit.Test
 import vn.servio.core.network.ApiResult
 import vn.servio.core.network.PagedResult
 import vn.servio.customer.data.model.AcceptQuotesBody
+import vn.servio.customer.data.model.CancelPreview
+import vn.servio.customer.data.model.CancelResult
 import vn.servio.customer.data.model.CreatedOrder
+import vn.servio.customer.data.model.OrderDetail
+import vn.servio.customer.data.model.OrderListFilter
+import vn.servio.customer.data.model.OrderSummary
 import vn.servio.customer.data.model.CustomerQuote
 import vn.servio.customer.data.model.QuotePartner
 import vn.servio.customer.data.model.QuoteSort
@@ -74,6 +79,23 @@ class ConfirmQuoteViewModelTest {
 
         override suspend fun getMyRequests(statuses: Set<ServiceRequestStatus>, page: Int, pageSize: Int):
             ApiResult<PagedResult<ServiceRequestSummary>> = error("unused")
+
+        override suspend fun getMyOrders(filter: OrderListFilter, page: Int, pageSize: Int): ApiResult<PagedResult<OrderSummary>> = error("unused")
+
+        override suspend fun getOrder(orderId: String): ApiResult<OrderDetail> = error("unused")
+
+        override suspend fun cancelPreview(orderId: String): ApiResult<CancelPreview> = error("unused")
+
+        override suspend fun cancel(orderId: String, reason: String, rowVersion: String): ApiResult<CancelResult> = error("unused")
+
+        override suspend fun cancelDebtLimit(): ApiResult<Long?> = error("unused")
+
+        override suspend fun getTracking(orderId: String, assignmentId: String): ApiResult<vn.servio.customer.data.model.Tracking?> = error("unused")
+
+        override suspend fun respondArrival(
+            confirmation: vn.servio.customer.data.model.ArrivalConfirmation,
+            confirmed: Boolean,
+        ): ApiResult<vn.servio.customer.data.model.ArrivalConfirmation> = error("unused")
     }
 
     private fun TestScope.viewModelWith(server: Server, events: MutableList<Event> = mutableListOf(), quoteId: String = "q1"): ConfirmQuoteViewModel {

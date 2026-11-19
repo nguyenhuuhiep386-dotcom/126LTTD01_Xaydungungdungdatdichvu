@@ -357,4 +357,141 @@
     <string name="create_request_post_restricted_title">Tạm thời chưa đăng được</string>
     <string name="create_request_post_view_fee">Xem phí huỷ</string>
     <string name="action_close">Đóng</string>
+
+    <!-- region Đơn hàng (CS-19, CS-20, CS-20c). Only labels: every name, time, amount and count comes from the API. -->
+    <string name="order_status_pending">Chờ đối tác xác nhận</string>
+    <string name="order_status_accepted">Đã nhận việc</string>
+    <string name="order_status_on_the_way">Đang trên đường</string>
+    <string name="order_status_arrived">Đối tác đã đến</string>
+    <string name="order_status_in_progress">Đang thực hiện</string>
+    <string name="order_status_completed_by_partner">Chờ bạn xác nhận</string>
+    <string name="order_status_completed">Hoàn thành</string>
+    <string name="order_status_cancelled">Đã huỷ</string>
+    <string name="order_status_disputed">Đang khiếu nại</string>
+    <string name="order_status_processing">Đang xử lý</string>
+
+    <string name="orders_title">Đơn hàng</string>
+    <string name="orders_tab_active">Đang diễn ra</string>
+    <string name="orders_tab_completed">Đã hoàn thành</string>
+    <string name="orders_tab_cancelled">Đã huỷ</string>
+    <string name="orders_tab_with_count">%1$s (%2$d)</string>
+    <string name="orders_empty_active">Chưa có đơn đang diễn ra</string>
+    <string name="orders_empty_completed">Chưa có đơn đã hoàn thành</string>
+    <string name="orders_empty_cancelled">Chưa có đơn đã huỷ</string>
+    <string name="orders_load_failed">Chưa tải được đơn hàng</string>
+    <string name="order_code">Đơn #%1$s</string>
+    <string name="order_missing_value">–</string>
+
+    <string name="order_detail_title">Đơn #%1$s</string>
+    <string name="order_detail_title_loading">Chi tiết đơn hàng</string>
+    <string name="order_detail_not_found_title">Không xem được đơn này</string>
+    <string name="order_detail_not_found_message">Đơn này không tồn tại hoặc không thuộc tài khoản của bạn.</string>
+    <string name="order_detail_pending_title">Chờ đối tác xác nhận</string>
+    <string name="order_detail_pending_window">Đối tác có %1$d phút để xác nhận · còn %2$s</string>
+    <string name="order_detail_pending_left">Còn %1$s để đối tác xác nhận</string>
+    <string name="order_detail_pending_expired">Đã hết thời gian xác nhận</string>
+    <string name="order_detail_line_scheduled">Hẹn %1$s</string>
+    <string name="order_detail_line_on_the_way">Bắt đầu đi lúc %1$s</string>
+    <string name="order_detail_line_arrived">Đã đến lúc %1$s</string>
+    <string name="order_detail_line_started">Bắt đầu làm lúc %1$s</string>
+    <string name="order_detail_line_auto_confirm">Đối tác báo đã xong · tự xác nhận lúc %1$s</string>
+    <string name="order_detail_line_done_by_partner">Đối tác báo đã xong</string>
+    <string name="order_detail_line_completed">Hoàn thành lúc %1$s</string>
+    <string name="order_detail_line_cancelled">Đã huỷ lúc %1$s</string>
+    <string name="order_detail_disputed">Khiếu nại đang được xử lý</string>
+    <string name="order_detail_confirm_completion">Xem kết quả và xác nhận</string>
+    <string name="order_detail_phone_later">Số điện thoại hiện sau khi đối tác nhận đơn</string>
+    <string name="order_detail_chat">Nhắn tin với đối tác</string>
+    <string name="order_detail_call">Gọi đối tác</string>
+    <string name="order_detail_job_section">Thông tin công việc</string>
+    <string name="order_detail_service">Dịch vụ</string>
+    <string name="order_detail_schedule">Lịch hẹn</string>
+    <string name="order_detail_address">Địa chỉ</string>
+    <string name="order_detail_price">Giá báo</string>
+    <string name="order_detail_payment">Thanh toán</string>
+    <string name="order_payment_cash">Tiền mặt</string>
+    <string name="order_detail_progress_section">Tiến trình</string>
+    <string name="order_step_created">Đã tạo đơn</string>
+    <string name="order_step_waiting_partner">Chờ đối tác xác nhận</string>
+    <string name="order_step_partner_confirmed">Đối tác xác nhận</string>
+    <string name="order_step_on_the_way">Đang trên đường</string>
+    <string name="order_step_arrived">Đã đến nơi</string>
+    <string name="order_step_in_progress">Đang thực hiện</string>
+    <string name="order_step_completed">Hoàn thành</string>
+    <string name="order_step_expires_at">Hết hạn lúc %1$s</string>
+    <string name="order_step_awaiting_confirm">Chờ bạn xác nhận · tự xác nhận lúc %1$s</string>
+    <string name="order_step_awaiting_confirm_no_time">Chờ bạn xác nhận</string>
+    <string name="order_step_cancelled">Đã huỷ</string>
+    <string name="order_step_cancelled_at">Đã huỷ %1$s</string>
+    <string name="order_step_cancelled_by">bởi %1$s</string>
+    <string name="order_actor_customer">Bạn</string>
+    <string name="order_actor_partner">Đối tác</string>
+    <string name="order_actor_system">Hệ thống</string>
+    <string name="order_actor_admin">Quản trị viên</string>
+    <string name="order_step_separator">" · "</string>
+    <string name="order_cancel_free">Huỷ đơn (miễn phí)</string>
+    <string name="order_cancel">Huỷ đơn</string>
+
+    <string name="order_cancel_title">Huỷ đơn #%1$s?</string>
+    <string name="order_cancel_lead_free">Đối tác chưa lên đường nên huỷ đơn không mất phí.</string>
+    <string name="order_cancel_lead_on_the_way">Đối tác đang trên đường đến nên đơn này có phí huỷ.</string>
+    <string name="order_cancel_lead_arrived">Đối tác đã đến nơi nên đơn này có phí huỷ.</string>
+    <string name="order_cancel_lead_fee">Đơn này có phí huỷ.</string>
+    <string name="order_cancel_fee_on_the_way">Phí huỷ khi đối tác đang di chuyển</string>
+    <string name="order_cancel_fee_arrived">Phí huỷ khi đối tác đã đến</string>
+    <string name="order_cancel_fee">Phí huỷ</string>
+    <string name="order_cancel_debt_note">Phí được ghi vào mục Phí huỷ cần thanh toán. Bạn chuyển khoản, quản trị viên xác nhận. Tổng phí chưa trả trên %1$s sẽ tạm khoá đăng yêu cầu mới.</string>
+    <string name="order_cancel_debt_note_no_limit">Phí được ghi vào mục Phí huỷ cần thanh toán. Bạn chuyển khoản, quản trị viên xác nhận. Nợ phí huỷ vượt mức cho phép sẽ tạm khoá đăng yêu cầu mới.</string>
+    <string name="order_cancel_reason_label">Lý do huỷ</string>
+    <string name="order_cancel_reason_hint">Chọn lý do huỷ</string>
+    <string name="order_cancel_keep">Giữ đơn</string>
+    <string name="order_cancel_confirm">Huỷ đơn</string>
+    <string name="order_cancel_confirm_fee">Huỷ đơn, chịu phí %1$s</string>
+    <string name="order_cancel_fee_changed">Phí huỷ vừa thay đổi. Xem lại rồi bấm huỷ lần nữa.</string>
+    <string name="order_cancel_done">Đã huỷ đơn</string>
+    <string name="order_cancel_done_fee">Đã huỷ đơn · phí %1$s ghi vào Phí huỷ cần thanh toán</string>
+    <string name="order_cancel_not_cancellable">Đơn không còn huỷ được</string>
+    <!-- The customer's reason, sent to #72 exactly as written here. -->
+    <string-array name="order_cancel_reasons">
+        <item>Tôi đã tự xử lý được</item>
+        <item>Tôi muốn đổi lịch</item>
+        <item>Đối tác đến trễ</item>
+        <item>Tôi tìm được người khác</item>
+        <item>Lý do khác</item>
+    </string-array>
+    <!-- endregion -->
+
+    <!-- region Theo dõi đối tác (CS-20 ON_THE_WAY, CS-21) và CS-20b. Every ETA, distance and time comes from #76 / the hub. -->
+    <string name="order_distance_km">%1$s&#160;km</string>
+    <string name="order_eta_minutes">Khoảng %1$d phút nữa</string>
+    <string name="order_eta_updated">Cập nhật lúc %1$s · cách %2$s</string>
+    <string name="order_eta_unknown">Chưa cập nhật</string>
+    <string name="order_eta_stale">Chưa cập nhật · vị trí lúc %1$s</string>
+    <string name="order_eta_no_location">Chưa có vị trí của đối tác</string>
+    <string name="order_track">Theo dõi đường đi</string>
+    <string name="tracking_back">Quay lại đơn hàng</string>
+    <string name="tracking_updated">Cập nhật %1$s</string>
+    <string name="tracking_stale">Chưa cập nhật · %1$s</string>
+    <string name="tracking_no_location">Chưa có vị trí</string>
+    <string name="tracking_eta_label">Dự kiến đến</string>
+    <string name="tracking_distance_label">Khoảng cách</string>
+    <string name="tracking_eta_value">~%1$d&#160;phút</string>
+    <string name="tracking_missing">–</string>
+    <string name="tracking_note">Xác nhận %1$s · bắt đầu di chuyển %2$s. Thời gian dự kiến tính theo khoảng cách, có thể lệch khi kẹt xe.</string>
+    <string name="tracking_note_no_times">Thời gian dự kiến tính theo khoảng cách, có thể lệch khi kẹt xe.</string>
+    <string name="tracking_chat">Nhắn tin</string>
+    <string name="tracking_call">Gọi</string>
+    <string name="tracking_partner_marker">Vị trí đối tác</string>
+    <string name="tracking_address_marker">Địa chỉ làm việc</string>
+    <string name="arrival_title">Thợ báo đã đến, đúng không?</string>
+    <string name="arrival_body">%1$s báo đã có mặt tại %2$s nhưng GPS trên máy đối tác chưa xác định được vị trí. Chỉ xác nhận khi bạn đã gặp đối tác.</string>
+    <string name="arrival_partner_fallback">Đối tác</string>
+    <string name="arrival_address_fallback">địa chỉ của đơn</string>
+    <string name="arrival_expires_in">Yêu cầu hết hạn sau %1$s</string>
+    <string name="arrival_deny">Chưa thấy</string>
+    <string name="arrival_confirm">Đúng, đã đến</string>
+    <string name="arrival_expired">Yêu cầu xác nhận đã hết hạn</string>
+    <string name="arrival_conflict">Yêu cầu đã hết hạn hoặc đã được trả lời</string>
+    <string name="arrival_denied">Đã báo đối tác là bạn chưa thấy</string>
+    <!-- endregion -->
 </resources>
