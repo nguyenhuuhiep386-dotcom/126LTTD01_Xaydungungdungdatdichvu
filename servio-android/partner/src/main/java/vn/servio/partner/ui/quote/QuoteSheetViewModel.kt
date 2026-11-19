@@ -74,8 +74,13 @@ class QuoteSheetViewModel @Inject constructor(
                 is ApiResult.Failure -> UiState.Error(result.message)
                 is ApiResult.Success -> {
                     val data = result.data
+                    // The server accepts availableFrom only inside the post window: NOW = [now, end], SCHEDULED = [start, end].
+                    val end = Texts.parse(data.scheduledEndAt)
                     if (data.scheduleType == ScheduleType.SCHEDULED) {
                         Texts.parse(data.scheduledStartAt)?.let { _arrival.value = it }
+                    } else if (end != null && _arrival.value.isAfter(end)) {
+                        val soon = ZonedDateTime.now().plusMinutes(1).truncatedTo(ChronoUnit.MINUTES)
+                        _arrival.value = if (end.isAfter(soon)) soon else end
                     }
                     val count = (pending.await() as? ApiResult.Success)?.data?.size ?: 0
                     UiState.Content(Content(data, count))

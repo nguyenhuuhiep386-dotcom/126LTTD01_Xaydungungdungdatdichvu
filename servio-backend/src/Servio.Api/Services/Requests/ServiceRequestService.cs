@@ -29,9 +29,9 @@ public sealed class ServiceRequestService(
     public const int MaxPageSize = 50;
     public const int MinSearchRadiusKm = 3;
 
-    private static readonly TimeSpan Window = TimeSpan.FromHours(2);
-    private static readonly TimeSpan MinLeadTime = TimeSpan.FromMinutes(30);
-    private static readonly TimeSpan MaxLeadTime = TimeSpan.FromDays(30);
+    public static readonly TimeSpan Window = TimeSpan.FromHours(2);
+    public static readonly TimeSpan MinLeadTime = TimeSpan.FromMinutes(30);
+    public static readonly TimeSpan MaxLeadTime = TimeSpan.FromDays(30);
 
     public async Task<RequestDetailDto> CreateAsync(Guid userId, CreateServiceRequestRequest input, CancellationToken ct)
     {
@@ -261,7 +261,7 @@ public sealed class ServiceRequestService(
             .Select(o => o.Code).FirstOrDefaultAsync(ct);
         if (unpaid is not null)
         {
-            throw new ApiException(StatusCodes.Status422UnprocessableEntity, ErrorCodes.OutstandingDebt,
+            throw new ApiException(StatusCodes.Status422UnprocessableEntity, ErrorCodes.UnpaidOrder,
                 $"Đơn {unpaid} chưa thanh toán cho đối tác, hãy thanh toán để đăng yêu cầu mới");
         }
 

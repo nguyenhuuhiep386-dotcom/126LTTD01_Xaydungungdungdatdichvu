@@ -1,6 +1,7 @@
 package vn.servio.core.data.model
 
 import kotlinx.serialization.Serializable
+import vn.servio.core.utils.Money
 
 // Chat (BE-3, spec 6 #54–#61, hub /hubs/chat). Shared by CS-27/CS-28 (customer) and PS-20 (partner).
 
@@ -37,12 +38,24 @@ data class Conversation(
     val requestTitle: String = "",
     val requestStatus: String? = null,
     val orderId: String? = null,
+    /** Set once the post became an order with this partner (#54/#55). */
+    val orderCode: String? = null,
     val orderStatus: String? = null,
+    /** Agreed price of the order, else this partner's newest quote; decimal on the server, so Double here. */
+    val price: Double? = null,
     val counterpart: Counterpart,
     val lastMessage: LastMessage? = null,
     val unreadCount: Int = 0,
     val createdAt: String? = null,
-)
+) {
+    /** "#SV-2087 · Máy lạnh chảy nước · 450.000 đ" once ordered, else the post code, title and quoted price. */
+    val contextLine: String
+        get() = listOfNotNull(
+            orderCode?.let { "#$it" } ?: requestCode.takeIf { it.isNotBlank() },
+            requestTitle.takeIf { it.isNotBlank() },
+            price?.let { Money.format(it.toLong()) },
+        ).joinToString(" · ")
+}
 
 /** A message (#57, #58, hub ReceiveMessage). */
 @Serializable

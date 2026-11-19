@@ -31,11 +31,14 @@ import vn.servio.partner.R
 import vn.servio.partner.data.location.DeviceLocation
 import vn.servio.partner.data.model.OrderDetail
 import vn.servio.partner.data.model.OrderStatus
+import vn.servio.partner.data.repository.ConsentPurpose
+import vn.servio.partner.data.repository.ConsentRepository
 import vn.servio.partner.databinding.FragmentOrderDetailBinding
 import vn.servio.partner.databinding.ItemStatusRowBinding
 import vn.servio.partner.tracking.LocationTrackingService
 import vn.servio.partner.ui.common.LoadStatus
 import vn.servio.partner.ui.common.Texts
+import vn.servio.partner.ui.common.withConsent
 import vn.servio.partner.ui.order.OrderDetailViewModel.Event
 import java.time.Duration
 import java.time.ZonedDateTime
@@ -46,6 +49,7 @@ import javax.inject.Inject
 class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
 
     @Inject lateinit var deviceLocation: DeviceLocation
+    @Inject lateinit var consents: ConsentRepository
 
     private val viewModel: OrderDetailViewModel by viewModels()
     private var countdownJob: Job? = null
@@ -174,7 +178,7 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         }
     }
 
-    /** Bottom buttons for each assignment status. DT-5 adds the steps after arriving. */
+    /** Bottom buttons for each assignment status: confirm → move → work (PS-16) → cash (PS-19) → review (PS-27). */
     private fun bindActions(binding: FragmentOrderDetailBinding, order: OrderDetail, status: OrderStatus) {
         val primary = binding.primaryButton
         val secondary = binding.secondaryButton
@@ -191,7 +195,9 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
                 secondary.setText(R.string.order_partner_cancel)
                 secondary.setOnClickListener { askReason(R.string.order_partner_cancel_title) { viewModel.cancel(it) } }
                 primary.setText(R.string.order_start_moving)
-                primary.setOnClickListener { requestTripPermissions() }
+                primary.setOnClickListener {
+                    withConsent(consents, listOf(ConsentPurpose.LOCATION_SHARING)) { requestTripPermissions() }
+                }
             }
             OrderStatus.ON_THE_WAY -> {
                 secondary.setText(R.string.order_partner_cancel)
@@ -202,6 +208,21 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
                     order.assignment?.let { LocationTrackingService.start(requireContext(), order.id, it.id) }
                     openNavigation()
                 }
+            }
+            OrderStatus.ARRIVED, OrderStatus.IN_PROGRESS -> {
+                secondary.isVisible = false
+                primary.setText(if (status == OrderStatus.ARRIVED) R.string.work_start else R.string.order_open_work)
+                primary.setOnClickListener { openStep(R.id.ps16) }
+            }
+            OrderStatus.COMPLETED_BY_PARTNER, OrderStatus.AWAITING_PAYMENT -> {
+                secondary.isVisible = false
+                primary.setText(R.string.work_go_cash)
+                primary.setOnClickListener { openStep(R.id.ps19) }
+            }
+            OrderStatus.COMPLETED -> {
+                secondary.isVisible = false
+                primary.setText(R.string.cash_rate_customer)
+                primary.setOnClickListener { openStep(R.id.ps27) }
             }
             else -> {
                 primary.isVisible = false
@@ -264,6 +285,10 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
                 }
             }
             .show()
+    }
+
+    private fun openStep(destination: Int) {
+        findNavController().navigate(destination, bundleOf(ARG_ORDER_ID to viewModel.orderId))
     }
 
     private fun openNavigation() {
