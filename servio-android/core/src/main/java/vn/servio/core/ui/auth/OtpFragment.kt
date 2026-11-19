@@ -64,8 +64,6 @@ class OtpFragment : Fragment(R.layout.fragment_otp) {
                 getString(R.string.otp_resend)
             }
         }
-        collectWhenStarted(viewModel.loggedIn) { user ->
-            navigateAfterLogin(authRouter.destinationAfterLogin(user))
-        }
+        collectWhenStarted(viewModel.loggedIn) { signedIn -> continueAfterLogin(signedIn, authRouter) }
     }
 }

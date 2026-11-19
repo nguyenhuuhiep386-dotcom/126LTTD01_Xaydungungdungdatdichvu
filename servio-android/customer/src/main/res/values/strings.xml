@@ -236,6 +236,26 @@
     <string name="settings_logout_confirm">Đăng xuất khỏi Servio?</string>
 
     <!--
+      CS-32 Quyền riêng tư (Luật 91/2025). The deletion text follows AccountDeletionService of the backend: what is
+      erased at once, what stays anonymised as the record of finished orders.
+    -->
+    <string name="settings_privacy_title">Quyền riêng tư</string>
+    <string name="settings_privacy_policy">Chính sách bảo mật</string>
+    <string name="settings_terms">Điều khoản sử dụng</string>
+    <string name="settings_withdraw_consent">Rút lại đồng ý</string>
+    <string name="settings_withdraw_title">Rút lại đồng ý?</string>
+    <string name="settings_withdraw_message">Bạn sẽ được đăng xuất. Lần đăng nhập sau cần đồng ý lại mới dùng tiếp Servio. Đơn đang làm không bị huỷ.</string>
+    <string name="settings_withdraw_confirm">Rút lại đồng ý</string>
+    <string name="settings_delete_account">Xoá tài khoản</string>
+    <string name="settings_delete_title">Xoá tài khoản?</string>
+    <string name="settings_delete_message">Servio sẽ xoá ngay hồ sơ của bạn (họ tên, ảnh đại diện, email, ngày sinh, giới tính), sổ địa chỉ, thiết bị đã đăng nhập và thông báo. Các đơn đã xong, thanh toán, đánh giá, tin nhắn và khiếu nại được giữ làm hồ sơ giao dịch dưới tên “Người dùng đã xoá”. Số điện thoại được giải phóng để đăng ký tài khoản mới.</string>
+    <string name="settings_delete_confirm_title">Xoá vĩnh viễn tài khoản?</string>
+    <string name="settings_delete_confirm_message">Không thể hoàn tác. Bạn sẽ được đăng xuất ngay.</string>
+    <string name="settings_delete_confirm">Xoá vĩnh viễn</string>
+    <string name="settings_delete_blocked_title">Chưa xoá được tài khoản</string>
+    <string name="settings_link_unavailable">Không mở được trang. Hãy cài một trình duyệt rồi thử lại.</string>
+
+    <!--
       CS-34 Trung tâm hỗ trợ (Figma 18:3388). Hotline, hours and every figure of the answers come from GET /app-config
       (#107); the fees are formatted by OrderFormat.money, the percent by PolicyTexts.percent.
     -->
@@ -417,6 +437,7 @@
     <!-- UNPAID_ORDER of #36: an AWAITING_PAYMENT order (#177); the message is the server's, with the order code. -->
     <string name="create_request_post_unpaid_title">Còn đơn chưa thanh toán</string>
     <string name="create_request_post_view_order">Xem đơn</string>
+    <string name="create_request_consent_recorded">Đã ghi nhận đồng ý, bấm Đăng yêu cầu để gửi</string>
     <string name="action_close">Đóng</string>
 
     <!-- region Đơn hàng (CS-19, CS-20, CS-20c). Only labels: every name, time, amount and count comes from the API. -->

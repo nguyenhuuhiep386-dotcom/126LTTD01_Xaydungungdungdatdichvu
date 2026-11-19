@@ -26,6 +26,12 @@ interface AuthRepository {
     suspend fun getMe(): ApiResult<Me>
     suspend fun updateMe(request: UpdateMeRequest): ApiResult<Me>
     suspend fun logout()
+
+    /**
+     * Forgets the session on this device only, without POST /auth/logout: after DELETE /users/me the server has
+     * already revoked every session, so a logout call would only fail.
+     */
+    fun clearLocalSession()
 }
 
 @Singleton
@@ -61,4 +67,6 @@ class RemoteAuthRepository @Inject constructor(
         apiCallNoContent { authApi.logout(LogoutRequest(tokenStore.deviceId, appConfig.flavor)) }
         tokenStore.clear()
     }
+
+    override fun clearLocalSession() = tokenStore.clear()
 }

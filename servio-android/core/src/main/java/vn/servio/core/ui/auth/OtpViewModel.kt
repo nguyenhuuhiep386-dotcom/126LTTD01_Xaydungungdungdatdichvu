@@ -14,14 +14,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import vn.servio.core.data.model.Me
 import vn.servio.core.data.repository.AuthRepository
+import vn.servio.core.data.repository.LegalConsentRepository
 import vn.servio.core.network.ApiResult
 import javax.inject.Inject
 
 @HiltViewModel
 class OtpViewModel @Inject constructor(
     private val authRepository: AuthRepository,
+    private val legalConsents: LegalConsentRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -37,9 +38,9 @@ class OtpViewModel @Inject constructor(
     private val _state = MutableStateFlow(State())
     val state: StateFlow<State> = _state.asStateFlow()
 
-    /** One-time event: logged in, the Fragment asks AuthRouter where to go. */
-    private val _loggedIn = Channel<Me>(Channel.BUFFERED)
-    val loggedIn: Flow<Me> = _loggedIn.receiveAsFlow()
+    /** One-time event: logged in; the Fragment opens the consent screen or asks AuthRouter where to go. */
+    private val _loggedIn = Channel<SignedIn>(Channel.BUFFERED)
+    val loggedIn: Flow<SignedIn> = _loggedIn.receiveAsFlow()
 
     private var countdown: Job? = null
 
@@ -53,8 +54,9 @@ class OtpViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = authRepository.verifyOtp(otpId, code)) {
                 is ApiResult.Success -> {
+                    val needsConsent = legalConsents.needsTermsConsent()
                     _state.update { it.copy(isLoading = false) }
-                    _loggedIn.send(result.data.user)
+                    _loggedIn.send(SignedIn(result.data.user, needsConsent))
                 }
                 is ApiResult.Failure -> _state.update { it.copy(isLoading = false, error = result.message) }
             }

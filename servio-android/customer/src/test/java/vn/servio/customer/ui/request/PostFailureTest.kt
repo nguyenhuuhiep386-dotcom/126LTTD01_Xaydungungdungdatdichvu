@@ -110,4 +110,10 @@ class PostFailureTest {
         // Only the first page was read: another one may be on the next.
         assertNull(PostFailure.unpaidOrderId(listOf(order("o1", OrderStatus.AWAITING_PAYMENT)), complete = false))
     }
+
+    @Test
+    fun `CONSENT_REQUIRED opens the consent screen instead of a message`() {
+        val needs = "Bạn cần đọc và đồng ý Điều khoản sử dụng và Chính sách bảo mật"
+        assertEquals(PostFailure.NeedsConsent, PostFailure.of("CONSENT_REQUIRED", null, needs))
+    }
 }

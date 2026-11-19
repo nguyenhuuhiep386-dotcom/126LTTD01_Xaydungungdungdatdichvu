@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavDestination
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -65,8 +66,9 @@ class MainActivity : MainHostActivity() {
         }
         navController.addOnDestinationChangedListener { _, destination, _ ->
             // Logout (CS-32 also does it) or an expired session (core sends every screen back to login): close the
-            // hubs and drop the account's data so the next account starts clean. Repeating it is harmless.
-            val inAuthFlow = destination.parent?.id == vn.servio.core.R.id.auth_graph
+            // hubs and drop the account's data so the next account starts clean. Repeating it is harmless. The consent
+            // screen lives in auth_graph but is also opened over CS-11 (CONSENT_REQUIRED): still signed in there.
+            val inAuthFlow = isAuthFlow(destination)
             if (inAuthFlow && inMainGraph) sessionCleanup.signedOut()
             inMainGraph = !inAuthFlow
             unreadRefresh.tryEmit(Unit)
@@ -74,7 +76,12 @@ class MainActivity : MainHostActivity() {
     }
 
     private fun signedIn(): Boolean =
-        tokenStore.hasSession && navController.currentDestination?.parent?.id != vn.servio.core.R.id.auth_graph
+        tokenStore.hasSession && navController.currentDestination?.let(::isAuthFlow) != true
+
+    /** A login screen. The consent screen is one too, except when opened over the app's screens. */
+    private fun isAuthFlow(destination: NavDestination): Boolean =
+        destination.parent?.id == vn.servio.core.R.id.auth_graph &&
+            !(destination.id == vn.servio.core.R.id.consentFragment && inMainGraph)
 
     private fun listenLive() {
         if (liveJob?.isActive == true) return

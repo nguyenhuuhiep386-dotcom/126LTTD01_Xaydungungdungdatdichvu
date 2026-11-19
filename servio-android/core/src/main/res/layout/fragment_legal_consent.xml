@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Consent to the terms and privacy policy (Luật 91/2025), both apps: a short summary of the policy, the two pages,
+  an unticked checkbox and "Đồng ý và tiếp tục", enabled only once ticked. Built like CS-05 (same spacing and styles).
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/screen_padding">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xxl"
+            android:accessibilityHeading="true"
+            android:text="@string/legal_consent_title"
+            android:textAppearance="@style/TextAppearance.Servio.ScreenTitle" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_l"
+            android:text="@string/legal_consent_summary_data"
+            android:textAppearance="@style/TextAppearance.Servio.Body" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:text="@string/legal_consent_summary_sharing"
+            android:textAppearance="@style/TextAppearance.Servio.Body" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:text="@string/legal_consent_summary_rights"
+            android:textAppearance="@style/TextAppearance.Servio.Body" />
+
+        <!-- The two pages of GET /legal, opened in the browser. -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/termsLink"
+            style="@style/Widget.Servio.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:minWidth="0dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:text="@string/legal_terms_link" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/privacyLink"
+            style="@style/Widget.Servio.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:text="@string/legal_privacy_link" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/agreeCheck"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_l"
+            android:checked="false"
+            android:text="@string/legal_consent_checkbox"
+            android:textAppearance="@style/TextAppearance.Servio.Body" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/agreeButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xl"
+            android:enabled="false"
+            android:text="@string/legal_consent_agree" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:indeterminate="true"
+            android:visibility="invisible" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/logoutButton"
+            style="@style/Widget.Servio.Button.Text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:text="@string/action_logout" />
+    </LinearLayout>
+</ScrollView>

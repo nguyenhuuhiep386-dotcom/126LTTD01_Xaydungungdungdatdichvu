@@ -70,11 +70,9 @@
             android:indeterminate="true"
             android:visibility="invisible" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_l"
-            android:text="@string/phone_terms"
-            android:textAppearance="@style/TextAppearance.Servio.Caption" />
+        <!--
+          No "Bằng việc tiếp tục, bạn đồng ý…" here, unlike the Figma: Luật 91/2025 does not accept silence or going on
+          as consent. The terms are agreed on their own screen after OTP (LegalConsentFragment).
+        -->
     </LinearLayout>
 </ScrollView>

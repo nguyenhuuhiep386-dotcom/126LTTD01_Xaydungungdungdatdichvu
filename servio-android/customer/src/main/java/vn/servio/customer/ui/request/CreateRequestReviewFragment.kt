@@ -17,6 +17,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import vn.servio.core.ui.auth.LegalConsentFragment
+import vn.servio.core.ui.auth.openLegalConsentForResult
 import vn.servio.core.utils.UiState
 import vn.servio.core.utils.collectWhenStarted
 import vn.servio.customer.R
@@ -86,6 +88,14 @@ class CreateRequestReviewFragment : Fragment(R.layout.fragment_create_request_re
             binding.bindPosting(posting)
         }
         collectWhenStarted(viewModel.events) { event -> onEvent(event) }
+        // Back from the consent screen opened by CONSENT_REQUIRED: the draft is as it was, the customer posts again.
+        val consentResult = findNavController().getBackStackEntry(R.id.cs11).savedStateHandle
+        collectWhenStarted(consentResult.getStateFlow(LegalConsentFragment.RESULT_GRANTED, false)) { granted ->
+            if (granted) {
+                consentResult[LegalConsentFragment.RESULT_GRANTED] = false
+                showMessage(getString(R.string.create_request_consent_recorded))
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -200,6 +210,7 @@ class CreateRequestReviewFragment : Fragment(R.layout.fragment_create_request_re
                 }
                 is PostFailure.Dialog -> showDialog(failure)
                 is PostFailure.Message -> showMessage(failure.message)
+                PostFailure.NeedsConsent -> openConsent()
             }
             is Event.Incomplete -> {
                 // An expired slot is told by CS-09 itself when it resumes: one message only.
@@ -278,6 +289,11 @@ class CreateRequestReviewFragment : Fragment(R.layout.fragment_create_request_re
     private fun edit(step: Step) {
         if (viewModel.posting.value) return
         backTo(step)
+    }
+
+    private fun openConsent() {
+        if (findNavController().currentDestination?.id != R.id.cs11) return
+        openLegalConsentForResult()
     }
 
     private fun backTo(step: Step) {

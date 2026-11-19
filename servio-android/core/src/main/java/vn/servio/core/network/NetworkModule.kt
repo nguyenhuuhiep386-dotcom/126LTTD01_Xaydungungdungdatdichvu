@@ -14,6 +14,7 @@ import vn.servio.core.BuildConfig
 import vn.servio.core.data.local.TokenStore
 import vn.servio.core.data.remote.AuthApi
 import vn.servio.core.data.remote.CategoryApi
+import vn.servio.core.data.remote.LegalConsentApi
 import vn.servio.core.data.remote.UserApi
 import vn.servio.core.utils.AppConfig
 import vn.servio.core.utils.SessionEvents
@@ -73,6 +74,10 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideUserApi(retrofit: Retrofit): UserApi = retrofit.create(UserApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideLegalConsentApi(retrofit: Retrofit): LegalConsentApi = retrofit.create(LegalConsentApi::class.java)
 
     @Provides
     @Singleton

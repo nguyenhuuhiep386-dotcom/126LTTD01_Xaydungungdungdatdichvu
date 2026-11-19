@@ -35,8 +35,6 @@ class CompleteProfileFragment : Fragment(R.layout.fragment_complete_profile) {
                 else -> state.error
             }
         }
-        collectWhenStarted(viewModel.saved) { user ->
-            navigateAfterLogin(authRouter.destinationAfterLogin(user))
-        }
+        collectWhenStarted(viewModel.saved) { signedIn -> continueAfterLogin(signedIn, authRouter) }
     }
 }
