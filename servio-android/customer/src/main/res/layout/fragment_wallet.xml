@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CS-30 Phí huỷ và giao dịch (Figma 18:3188). Total and limit from #87, the fees from #155, the declaration (#156) with
+  the bank reference and one receipt photo. Not shown on purpose: the bank card of the Figma (no API gives the bank,
+  the account or the transfer content) and "Lịch sử" (no API lists the paid fees of a customer).
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationContentDescription="@string/action_back"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="@string/wallet_title" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/errorGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_padding"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/errorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/retryButton"
+                style="@style/Widget.Servio.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:text="@string/action_retry" />
+        </LinearLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/screen_padding"
+                android:paddingTop="@dimen/space_s"
+                android:paddingBottom="@dimen/space_xl">
+
+                <!-- region Phí huỷ cần thanh toán -->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_order_banner"
+                    android:orientation="vertical"
+                    android:padding="@dimen/space_l">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/wallet_due_label"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+                    <TextView
+                        android:id="@+id/dueAmount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xs"
+                        android:fontFamily="@font/be_vietnam_pro_bold"
+                        android:textAppearance="@style/TextAppearance.Servio.ScreenTitle"
+                        tools:text="20.000 đ" />
+
+                    <TextView
+                        android:id="@+id/limitNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xs"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        tools:text="Tổng phí chưa trả trên 100.000 đ sẽ tạm khoá đăng yêu cầu mới." />
+
+                    <TextView
+                        android:id="@+id/pendingNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:textAppearance="@style/TextAppearance.Servio.Accent"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        tools:text="Đang chờ quản trị viên xác nhận: 20.000 đ"
+                        tools:visibility="visible" />
+                </LinearLayout>
+
+                <!-- endregion -->
+
+                <!-- region Khoản đang nợ -->
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xl"
+                    android:accessibilityHeading="true"
+                    android:text="@string/wallet_debts_title"
+                    android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/debtsCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_m">
+
+                    <LinearLayout
+                        android:id="@+id/debtRows"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/space_xs" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:id="@+id/noDebtsText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_m"
+                    android:text="@string/wallet_no_debts"
+                    android:textAppearance="@style/TextAppearance.Servio.Body"
+                    android:visibility="gone" />
+
+                <!-- endregion -->
+
+                <!-- region Khai báo đã chuyển khoản (only while a fee is not declared yet) -->
+
+                <LinearLayout
+                    android:id="@+id/declareGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xl"
+                        android:accessibilityHeading="true"
+                        android:text="@string/wallet_declare_title"
+                        android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:text="@string/wallet_declare_hint"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+                    <TextView
+                        android:id="@+id/referenceLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_l"
+                        android:labelFor="@id/referenceInput"
+                        android:text="@string/wallet_reference_label"
+                        android:textAppearance="@style/TextAppearance.Servio.BodyStrong" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/referenceLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s">
+
+                        <!-- saveEnabled=false: the text is restored from the ViewModel only, never from the view state. -->
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/referenceInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:importantForAutofill="no"
+                            android:inputType="textNoSuggestions|textCapCharacters"
+                            android:maxLength="100"
+                            android:maxLines="1"
+                            android:saveEnabled="false"
+                            android:textAppearance="@style/TextAppearance.Servio.Body" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_l"
+                        android:text="@string/wallet_evidence_title"
+                        android:textAppearance="@style/TextAppearance.Servio.BodyStrong" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/addEvidenceButton"
+                        style="@style/Widget.Servio.Button.Outlined"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:text="@string/wallet_evidence_add"
+                        app:icon="@drawable/ic_image" />
+
+                    <!-- The picked receipt, previewed from the local uri (the uploaded file is private). -->
+                    <LinearLayout
+                        android:id="@+id/evidenceGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/evidenceCard"
+                            android:layout_width="160dp"
+                            android:layout_height="240dp"
+                            app:cardBackgroundColor="@color/servio_surface_variant"
+                            app:shapeAppearance="@style/ShapeAppearance.Servio.Medium"
+                            app:strokeWidth="0dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:importantForAccessibility="no"
+                                android:src="@drawable/ic_image"
+                                app:tint="@color/servio_text_secondary" />
+
+                            <ImageView
+                                android:id="@+id/evidenceImage"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/wallet_evidence_preview"
+                                android:scaleType="centerCrop" />
+
+                            <View
+                                android:id="@+id/evidenceScrim"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:alpha="0.7"
+                                android:background="@color/servio_surface"
+                                android:visibility="gone" />
+
+                            <com.google.android.material.progressindicator.CircularProgressIndicator
+                                android:id="@+id/evidenceProgress"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:contentDescription="@string/wallet_evidence_uploading"
+                                android:indeterminate="true"
+                                android:visibility="gone"
+                                app:indicatorColor="@color/servio_text_accent"
+                                app:indicatorSize="28dp" />
+
+                            <LinearLayout
+                                android:id="@+id/evidenceFailed"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:visibility="gone">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:importantForAccessibility="no"
+                                    android:src="@drawable/ic_retry"
+                                    app:tint="@color/servio_error" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/action_retry"
+                                    android:textAppearance="@style/TextAppearance.Servio.Caption"
+                                    android:textColor="@color/servio_error" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:id="@+id/evidenceError"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_xs"
+                            android:textAppearance="@style/TextAppearance.Servio.Caption"
+                            android:textColor="@color/servio_error"
+                            android:visibility="gone" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/changeEvidenceButton"
+                                style="@style/Widget.Servio.Button.Text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/wallet_evidence_change" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/removeEvidenceButton"
+                                style="@style/Widget.Servio.Button.Text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/space_s"
+                                android:text="@string/wallet_evidence_remove"
+                                android:textColor="@color/servio_error" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- endregion -->
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/servio_surface"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/servio_divider" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/submitButton"
+            style="@style/Widget.Servio.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/screen_padding"
+            android:layout_marginVertical="@dimen/space_m"
+            android:text="@string/wallet_submit"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

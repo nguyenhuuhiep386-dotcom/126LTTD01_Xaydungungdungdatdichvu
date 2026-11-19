@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import vn.servio.core.data.repository.ChatRepository
 import vn.servio.core.network.ApiResult
 import vn.servio.core.ui.MainHostActivity
+import vn.servio.customer.data.repository.SessionCleanup
 import javax.inject.Inject
 
 /** Servio (customer). Tabs: CS-06 Trang chủ, CS-14 Yêu cầu, CS-19 Đơn hàng, CS-27 Tin nhắn, CS-29 Tài khoản. */
@@ -26,6 +27,11 @@ class MainActivity : MainHostActivity() {
     override val topLevelDestinations = setOf(R.id.cs06, R.id.cs14, R.id.cs19, R.id.cs27, R.id.cs29)
 
     @Inject lateinit var chat: ChatRepository
+
+    @Inject lateinit var sessionCleanup: SessionCleanup
+
+    /** True while a screen of the main graph is shown; going from there to the auth screens is a sign-out. */
+    private var inMainGraph = false
 
     /** One pending "count again" is enough: several triggers in a row give one call (#61). */
     private val unreadRefresh = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -57,7 +63,14 @@ class MainActivity : MainHostActivity() {
                 }
             }
         }
-        navController.addOnDestinationChangedListener { _, _, _ -> unreadRefresh.tryEmit(Unit) }
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            // Logout (CS-32 also does it) or an expired session (core sends every screen back to login): close the
+            // hubs and drop the account's data so the next account starts clean. Repeating it is harmless.
+            val inAuthFlow = destination.parent?.id == vn.servio.core.R.id.auth_graph
+            if (inAuthFlow && inMainGraph) sessionCleanup.signedOut()
+            inMainGraph = !inAuthFlow
+            unreadRefresh.tryEmit(Unit)
+        }
     }
 
     private fun signedIn(): Boolean =

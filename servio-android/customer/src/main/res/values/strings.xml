@@ -169,13 +169,12 @@
 
     <!-- CS-29 Account -->
     <string name="account_title">Tài khoản</string>
-    <string name="account_edit">Sửa</string>
-    <string name="account_edit_coming_soon">Đang phát triển</string>
     <string name="account_fee_title">Phí huỷ và giao dịch</string>
     <string name="account_fee_outstanding">Còn %1$s cần thanh toán</string>
+    <string name="account_fee_pending">Đang chờ xác nhận %1$s</string>
     <string name="account_fee_none">Không có khoản cần thanh toán</string>
-    <!-- Shown while the counter has no API yet (fee #156, unread notifications #104). -->
-    <string name="account_value_unavailable">—</string>
+    <!-- Shown when the counter's call failed (fee #87, unread notifications #104). -->
+    <string name="account_value_unavailable">–</string>
     <string name="account_address_title">Sổ địa chỉ</string>
     <string name="account_address_none">Chưa có địa chỉ</string>
     <plurals name="account_address_count">
@@ -229,9 +228,30 @@
     <string name="settings_version_label">Phiên bản ứng dụng</string>
     <string name="settings_version_value">%1$s (demo)</string>
     <string name="settings_logout_confirm">Đăng xuất khỏi Servio?</string>
-    <string name="settings_logout_all_title">Đăng xuất khỏi mọi thiết bị</string>
-    <string name="settings_logout_all_subtitle">Thu hồi phiên đăng nhập ở các máy khác</string>
-    <string name="settings_coming_soon">Đang phát triển</string>
+
+    <!-- CS-30 Phí huỷ và giao dịch. Amounts, the limit and the dates come from #87 and #155; no bank details (no API). -->
+    <string name="wallet_title">Phí huỷ và giao dịch</string>
+    <string name="wallet_due_label">Phí huỷ cần thanh toán</string>
+    <string name="wallet_limit_note">Tổng phí chưa trả trên %1$s sẽ tạm khoá đăng yêu cầu mới.</string>
+    <string name="wallet_pending_note">Đang chờ quản trị viên xác nhận: %1$s</string>
+    <string name="wallet_debts_title">Khoản đang nợ</string>
+    <string name="wallet_debt_title">Đơn #%1$s · %2$s</string>
+    <string name="wallet_debt_unpaid">Chưa trả</string>
+    <string name="wallet_debt_pending">Đang chờ xác nhận</string>
+    <string name="wallet_no_debts">Bạn không có khoản phí nào cần thanh toán.</string>
+    <string name="wallet_declare_title">Khai báo đã chuyển khoản</string>
+    <string name="wallet_declare_hint">Sau khi chuyển khoản, nhập mã giao dịch ngân hàng và ảnh chứng từ để quản trị viên xác nhận.</string>
+    <string name="wallet_reference_label">Mã giao dịch ngân hàng</string>
+    <string name="wallet_reference_length">Mã giao dịch dài 3–100 ký tự</string>
+    <string name="wallet_evidence_title">Ảnh chứng từ</string>
+    <string name="wallet_evidence_add">Tải ảnh chụp màn hình chuyển khoản</string>
+    <string name="wallet_evidence_uploading">Đang tải ảnh lên…</string>
+    <string name="wallet_evidence_change">Đổi ảnh</string>
+    <string name="wallet_evidence_remove">Xoá ảnh</string>
+    <string name="wallet_evidence_preview">Ảnh chứng từ chuyển khoản</string>
+    <string name="wallet_submit">Gửi khai báo</string>
+    <string name="wallet_sent">Đã gửi khai báo %1$s, chờ quản trị viên xác nhận</string>
+    <string name="wallet_nothing_to_pay">Các khoản này đã được khai báo hoặc đã trả</string>
 
     <!-- KH-2 Tạo yêu cầu (CS-07 → CS-11) -->
     <string name="create_request_image_unreadable">Không đọc được ảnh này, vui lòng chọn ảnh khác.</string>
