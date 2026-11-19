@@ -59,7 +59,7 @@
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Servio.Accent"
             android:textSize="12sp"
-            tools:text="SR-1024 · Máy lạnh chảy nước" />
+            tools:text="#SV-2087 · 450.000 đ · Máy lạnh chảy nước" />
 
         <LinearLayout
             android:layout_width="match_parent"
