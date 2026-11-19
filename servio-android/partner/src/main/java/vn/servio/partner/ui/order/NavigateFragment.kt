@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
@@ -99,7 +100,12 @@ class NavigateFragment : Fragment(R.layout.fragment_navigate) {
                 Event.Arrived -> {
                     LocationTrackingService.stop(requireContext())
                     Snackbar.make(view, R.string.navigate_arrived_done, Snackbar.LENGTH_LONG).show()
-                    findNavController().navigateUp()
+                    // Next step is PS-16 (before photos); back from there returns to the order, not to the map.
+                    findNavController().navigate(
+                        R.id.ps16,
+                        bundleOf(OrderDetailFragment.ARG_ORDER_ID to requireArguments().getString(OrderDetailFragment.ARG_ORDER_ID)),
+                        navOptions { popUpTo(R.id.ps15) { inclusive = true } },
+                    )
                 }
                 is Event.Message -> Snackbar.make(view, event.text, Snackbar.LENGTH_LONG).show()
             }

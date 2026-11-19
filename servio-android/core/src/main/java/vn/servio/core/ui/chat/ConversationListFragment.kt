@@ -105,8 +105,7 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
                 avatar.text = ChatTexts.initials(conversation.counterpart.displayName)
                 name.text = conversation.counterpart.displayName
                 time.text = ChatTexts.listTime(context, conversation.lastMessage?.at ?: conversation.createdAt)
-                requestLine.text = listOf(conversation.requestCode, conversation.requestTitle)
-                    .filter { it.isNotBlank() }.joinToString(" · ")
+                requestLine.text = conversation.contextLine
                 preview.text = conversation.lastMessage?.preview.orEmpty()
                 readOnly.isVisible = conversation.status == ConversationStatus.READ_ONLY || !conversation.canSend
                 unread.isVisible = conversation.unreadCount > 0

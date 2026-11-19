@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Notification row: pale yellow while unread (state_activated), plain otherwise; ripple on tap. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="@color/servio_divider">
+    <item>
+        <selector>
+            <item android:state_activated="true">
+                <color android:color="@color/servio_primary_container" />
+            </item>
+            <item>
+                <color android:color="@android:color/transparent" />
+            </item>
+        </selector>
+    </item>
+</ripple>

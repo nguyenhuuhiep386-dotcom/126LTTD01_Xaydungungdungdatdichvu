@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PS-23 Hồ sơ đối tác -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationContentDescription="@string/action_back"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="@string/profile_title" />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/space_xxl" />
+
+    <TextView
+        android:id="@+id/errorText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="@dimen/screen_padding"
+        android:textAppearance="@style/TextAppearance.Servio.Body"
+        android:visibility="gone" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/screen_padding"
+            android:paddingBottom="@dimen/space_xl">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingVertical="@dimen/space_m">
+
+                <TextView
+                    android:id="@+id/initials"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:background="@drawable/bg_icon_circle"
+                    android:gravity="center"
+                    android:importantForAccessibility="no"
+                    android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                    tools:text="TP" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_l"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.SectionTitle"
+                        tools:text="Trần Văn Phúc" />
+
+                    <TextView
+                        android:id="@+id/phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        tools:text="+84912345678" />
+
+                    <TextView
+                        android:id="@+id/rating"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Servio.Accent"
+                        tools:text="★ 4,5 · 12 đánh giá" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/stats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Servio.Body"
+                tools:text="28 đơn hoàn thành · 6 năm kinh nghiệm" />
+
+            <TextView
+                android:id="@+id/bio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/skillsRow"
+                        style="@style/Widget.Servio.MenuRow">
+
+                        <TextView
+                            style="@style/Widget.Servio.MenuRow.Label"
+                            android:text="@string/skills_manage_title" />
+
+                        <TextView
+                            android:id="@+id/skillsValue"
+                            style="@style/Widget.Servio.MenuRow.Value"
+                            tools:text="3/3 đã duyệt" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/areaRow"
+                        style="@style/Widget.Servio.MenuRow">
+
+                        <TextView
+                            style="@style/Widget.Servio.MenuRow.Label"
+                            android:text="@string/area_manage_title" />
+
+                        <TextView
+                            android:id="@+id/areaValue"
+                            style="@style/Widget.Servio.MenuRow.Value"
+                            tools:text="Bán kính 10 km" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/notificationsRow"
+                        style="@style/Widget.Servio.MenuRow">
+
+                        <TextView
+                            style="@style/Widget.Servio.MenuRow.Label"
+                            android:text="@string/notifications_title" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/logoutButton"
+                style="@style/Widget.Servio.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xl"
+                android:text="@string/action_logout"
+                android:textColor="@color/servio_error" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

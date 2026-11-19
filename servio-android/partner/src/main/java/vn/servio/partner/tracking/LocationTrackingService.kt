@@ -20,11 +20,14 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import vn.servio.partner.MainActivity
 import vn.servio.partner.R
+import vn.servio.core.network.ApiResult
 import vn.servio.partner.data.location.DeviceLocation
+import vn.servio.partner.data.model.OrderStatus
 import vn.servio.partner.data.repository.OrderRepository
 import javax.inject.Inject
 
@@ -41,6 +44,7 @@ class LocationTrackingService : Service() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var loop: Job? = null
+    private var watch: Job? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -55,14 +59,35 @@ class LocationTrackingService : Service() {
         ServiceCompat.startForeground(this, NOTIFICATION_ID, notification(orderId), type)
 
         loop?.cancel()
+        watch?.cancel()
         loop = scope.launch {
+            var refused = 0
             while (isActive) {
-                deviceLocation.current(maxAgeMillis = INTERVAL_MILLIS, timeoutMillis = INTERVAL_MILLIS)
-                    ?.let { orderRepository.sendLocation(assignmentId, it) }
+                val fix = deviceLocation.current(maxAgeMillis = INTERVAL_MILLIS, timeoutMillis = INTERVAL_MILLIS)
+                val sent = fix != null && orderRepository.sendLocation(assignmentId, fix)
+                // The hub refuses points once the order left ON_THE_WAY: check the order after a few refusals.
+                refused = if (sent || fix == null) 0 else refused + 1
+                if (refused >= CHECK_AFTER_REFUSALS && !stillMoving(orderId)) break
                 delay(INTERVAL_MILLIS)
+            }
+            stopSelf()
+        }
+        // The customer cancelled (#72), or the partner arrived from another screen: stop sharing at once.
+        watch = scope.launch {
+            orderRepository.changes().filter { it == null || it == orderId }.collect {
+                if (!stillMoving(orderId)) {
+                    loop?.cancel()
+                    stopSelf()
+                }
             }
         }
         return START_REDELIVER_INTENT
+    }
+
+    private suspend fun stillMoving(orderId: String): Boolean {
+        val order = orderRepository.get(orderId)
+        // Network trouble is not a reason to stop: keep sharing until the server says otherwise.
+        return order !is ApiResult.Success || order.data.assignment?.status == OrderStatus.ON_THE_WAY
     }
 
     override fun onDestroy() {
@@ -95,6 +120,7 @@ class LocationTrackingService : Service() {
         private const val CHANNEL_ID = "trip_tracking"
         private const val NOTIFICATION_ID = 2001
         private const val INTERVAL_MILLIS = 10_000L
+        private const val CHECK_AFTER_REFUSALS = 3
         private const val ACTION_STOP = "vn.servio.partner.tracking.STOP"
         const val EXTRA_ORDER_ID = "orderId"
         const val EXTRA_ASSIGNMENT_ID = "assignmentId"

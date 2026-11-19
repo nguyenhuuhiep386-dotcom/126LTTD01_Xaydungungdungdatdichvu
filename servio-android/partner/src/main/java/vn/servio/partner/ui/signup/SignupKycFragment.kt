@@ -14,11 +14,14 @@ import vn.servio.partner.R
 import vn.servio.partner.data.image.CameraCaptureFiles
 import vn.servio.partner.data.model.ApprovalStatus
 import vn.servio.partner.data.model.DocumentType
+import vn.servio.partner.data.repository.ConsentPurpose
+import vn.servio.partner.data.repository.ConsentRepository
 import vn.servio.partner.databinding.FragmentSignupKycBinding
 import vn.servio.partner.databinding.ItemKycSlotBinding
 import vn.servio.partner.ui.common.LoadStatus
 import vn.servio.partner.ui.common.PhotoPicker
 import vn.servio.partner.ui.common.showLocalPhoto
+import vn.servio.partner.ui.common.withConsent
 import vn.servio.partner.ui.signup.SignupKycViewModel.Event
 import vn.servio.partner.ui.signup.SignupKycViewModel.Slot
 import javax.inject.Inject
@@ -29,6 +32,7 @@ class SignupKycFragment : Fragment(R.layout.fragment_signup_kyc) {
 
     @Inject lateinit var authRepository: AuthRepository
     @Inject lateinit var captureFiles: CameraCaptureFiles
+    @Inject lateinit var consents: ConsentRepository
 
     private val viewModel: SignupKycViewModel by viewModels()
     private var pendingType: DocumentType? = null
@@ -52,7 +56,10 @@ class SignupKycFragment : Fragment(R.layout.fragment_signup_kyc) {
         setupSignupToolbar(binding.toolbar, authRepository)
         SignupSteps.bind(binding.steps, 4, R.string.signup_step_kyc)
         binding.actionBar.primaryButton.setText(R.string.kyc_submit)
-        binding.actionBar.primaryButton.setOnClickListener { viewModel.submit() }
+        // TERMS_AND_PRIVACY is asked once in the shared post-OTP flow of :core; here only the KYC consent.
+        binding.actionBar.primaryButton.setOnClickListener {
+            withConsent(consents, listOf(ConsentPurpose.KYC_IDENTITY)) { viewModel.submit() }
+        }
 
         val views = mapOf(
             DocumentType.ID_FRONT to binding.idFront,
@@ -62,8 +69,11 @@ class SignupKycFragment : Fragment(R.layout.fragment_signup_kyc) {
         views.forEach { (type, slot) ->
             slot.title.setText(titleOf(type))
             slot.captureButton.setOnClickListener {
-                pendingType = type
-                photoPicker.show(cameraOnly = true)
+                // CCCD photos are sensitive data: the server needs the KYC_IDENTITY consent before the upload.
+                withConsent(consents, listOf(ConsentPurpose.KYC_IDENTITY)) {
+                    pendingType = type
+                    photoPicker.show(cameraOnly = true)
+                }
             }
         }
 

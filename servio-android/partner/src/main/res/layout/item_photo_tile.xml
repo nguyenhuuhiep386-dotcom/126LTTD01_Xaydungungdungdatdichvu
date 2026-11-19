@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One photo of an order step (or the "Chụp ảnh" tile when addIcon is shown). -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="88dp"
+    android:layout_height="88dp"
+    android:layout_marginEnd="@dimen/space_s"
+    android:background="@drawable/bg_thumbnail"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop" />
+
+    <LinearLayout
+        android:id="@+id/addIcon"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_camera"
+            app:tint="@color/servio_text_secondary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/photo_take"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_gravity="center" />
+
+    <ImageButton
+        android:id="@+id/removeButton"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="top|end"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/photo_remove"
+        android:padding="6dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_close"
+        app:tint="@color/servio_text_primary" />
+</FrameLayout>

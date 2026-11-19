@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import vn.servio.core.data.model.PartnerVerificationStatus
 import vn.servio.core.data.repository.AuthRepository
@@ -49,6 +50,10 @@ class VerificationStatusFragment : Fragment(R.layout.fragment_verification_statu
             }
             binding.actionBar.root.isVisible = state is UiState.Content
             if (state is UiState.Content) bind(binding, state.data)
+        }
+        collectWhenStarted(viewModel.approved) {
+            Snackbar.make(view, R.string.verification_approved_title, Snackbar.LENGTH_LONG).show()
+            leaveSignup(CoreR.id.main_graph)
         }
     }
 
