@@ -8,6 +8,8 @@ public partial class ServioDbContext
 {
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder)
     {
+        ConfigurePrivacy(modelBuilder);
+
         // Two parallel requests on the same OTP / refresh token: the second SaveChanges fails
         // (DbUpdateConcurrencyException → 409) instead of bypassing the attempt limit or minting two sessions.
         modelBuilder.Entity<OtpCode>(entity =>
