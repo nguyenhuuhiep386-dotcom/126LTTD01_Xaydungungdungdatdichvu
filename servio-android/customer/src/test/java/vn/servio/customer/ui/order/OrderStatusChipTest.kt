@@ -16,7 +16,7 @@ class OrderStatusChipTest {
         assertEquals(Look(R.string.order_status_accepted, Tone.ACTIVE, R.drawable.ic_check), OrderStatusChip.look(OrderStatus.ACCEPTED))
         assertEquals(Look(R.string.order_status_on_the_way, Tone.ACTIVE, R.drawable.ic_navigation), OrderStatusChip.look(OrderStatus.ON_THE_WAY))
         assertEquals(Look(R.string.order_status_arrived, Tone.ACTIVE, R.drawable.ic_pin), OrderStatusChip.look(OrderStatus.ARRIVED))
-        assertEquals(Look(R.string.order_status_in_progress, Tone.ACTIVE, R.drawable.ic_clock), OrderStatusChip.look(OrderStatus.IN_PROGRESS))
+        assertEquals(Look(R.string.order_status_in_progress, Tone.ACTIVE, R.drawable.ic_wrench), OrderStatusChip.look(OrderStatus.IN_PROGRESS))
         assertEquals(
             Look(R.string.order_status_completed_by_partner, Tone.ACTIVE, R.drawable.ic_check),
             OrderStatusChip.look(OrderStatus.COMPLETED_BY_PARTNER),

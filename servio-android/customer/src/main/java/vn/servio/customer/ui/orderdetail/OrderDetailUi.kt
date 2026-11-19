@@ -1,8 +1,12 @@
 package vn.servio.customer.ui.orderdetail
 
+import vn.servio.customer.data.model.ExtraCharge
+import vn.servio.customer.data.model.ExtraChargeStatus
 import vn.servio.customer.data.model.OrderActor
 import vn.servio.customer.data.model.OrderDetail
 import vn.servio.customer.data.model.OrderStatus
+import vn.servio.customer.data.model.PendingReview
+import vn.servio.customer.ui.review.ReviewForm
 import vn.servio.customer.ui.order.OrderTexts
 
 /**
@@ -78,6 +82,17 @@ object OrderDetailUi {
         )
     }
 
+    /**
+     * "Đánh giá đối tác" on a COMPLETED order: only while #100 still lists its primary assignment (not reviewed yet,
+     * before the deadline). [pending] null = #100 not answered or failed → no button.
+     */
+    fun canReview(order: OrderDetail, pending: List<PendingReview>?): Boolean =
+        order.status == OrderStatus.COMPLETED && pending != null &&
+            ReviewForm.pendingFor(pending, order.id, order.primary?.id) != null
+
+    /** "Phát sinh đã duyệt" and "Tổng tiền" rows of "Thông tin công việc", only when something was approved. */
+    fun showsTotal(order: OrderDetail): Boolean = order.pricing.extraChargeTotal > 0
+
     /** Label of the cancel button: "(miễn phí)" only when #151 said 0; unknown fee (not loaded, failed) → plain. */
     fun cancelIsFree(fee: Long?): Boolean = fee == 0L
 
@@ -91,7 +106,8 @@ object OrderDetailUi {
 
     /** Second line of a step. */
     sealed interface Note {
-        data class At(val at: String?) : Note
+        /** [pendingCharges] > 0 only on the current "Đang thực hiện" step: " · N phát sinh chờ duyệt". */
+        data class At(val at: String?, val pendingCharges: Int = 0) : Note
 
         /** PENDING, step 2: "Hết hạn lúc HH:mm". */
         data class ExpiresAt(val at: String?) : Note
@@ -163,11 +179,78 @@ object OrderDetailUi {
                 progress == OrderStatus.PENDING && kind == StepKind.PARTNER -> Note.ExpiresAt(primary?.acceptanceDeadlineAt)
                 progress == OrderStatus.COMPLETED_BY_PARTNER && kind == StepKind.COMPLETED -> Note.AwaitingConfirm(order.autoConfirmAt)
                 progress == OrderStatus.AWAITING_PAYMENT && kind == StepKind.COMPLETED -> Note.None
+                kind == StepKind.IN_PROGRESS && state == StepState.CURRENT -> Note.At(times[index], pendingCharges(order).size)
                 else -> Note.At(times[index])
             }
             Step(kind, state, note, waiting = progress == OrderStatus.PENDING && kind == StepKind.PARTNER)
         }
         return Timeline(steps, null)
+    }
+
+    // endregion
+
+    // region Extra charges (CS-22)
+
+    /** Order statuses in which #74 accepts an answer (the server checks the assignment: ARRIVED or IN_PROGRESS). */
+    val CHARGE_STATUSES = setOf(OrderStatus.ARRIVED, OrderStatus.IN_PROGRESS)
+
+    /**
+     * Charges waiting for the customer, oldest first (by createdAt; the server already sends them in that order, an
+     * unreadable time keeps its place at the end). None outside [CHARGE_STATUSES]: a disputed or cancelled order
+     * cannot be answered, so CS-20 neither counts nor opens them.
+     */
+    fun pendingCharges(order: OrderDetail): List<ExtraCharge> {
+        if (order.status !in CHARGE_STATUSES) return emptyList()
+        return order.extraCharges
+            .filter { it.status == ExtraChargeStatus.PENDING }
+            .sortedWith(compareBy(nullsLast()) { OrderTexts.instant(it.createdAt) })
+    }
+
+    /**
+     * The charge CS-22 opens: the oldest pending one, skipping those the customer closed in this visit of CS-20
+     * ([closed], ids compared without case) unless [includeClosed] (a tap on the warning line). [held]: a charge whose
+     * answer just failed with a 409/404, left out until the reload shows where it stands.
+     */
+    fun chargeToOpen(order: OrderDetail, closed: Set<String>, includeClosed: Boolean, held: String? = null): ExtraCharge? =
+        pendingCharges(order).firstOrNull { charge ->
+            !charge.id.equals(held, ignoreCase = true) &&
+                (includeClosed || closed.none { it.equals(charge.id, ignoreCase = true) })
+        }
+
+    /**
+     * Price block of CS-22, all from #63: "Giá báo" = subTotal, "Phát sinh đã duyệt" = extraChargeTotal (null = row
+     * hidden when 0), "Phát sinh này" = the charge, "Tổng mới" = totalAmount + the charge. Only a preview: once
+     * approved, CS-20 shows the totals the server computed.
+     */
+    data class Bill(val quoted: Long, val approvedExtras: Long?, val charge: Long, val newTotal: Long)
+
+    fun bill(order: OrderDetail, charge: ExtraCharge): Bill = Bill(
+        quoted = order.pricing.subTotal,
+        approvedExtras = order.pricing.extraChargeTotal.takeIf { it > 0 },
+        charge = charge.amount,
+        newTotal = order.pricing.totalAmount + charge.amount,
+    )
+
+    /** What a failed #74 means for CS-22. */
+    enum class ChargeFailure {
+        /** Already answered, the work moved on, or answered at the same time elsewhere: close, say so, reload. */
+        HANDLED,
+
+        /** The order is being disputed: close and say it cannot be answered now. */
+        DISPUTED,
+
+        /** No such charge (any more): close and reload. */
+        NOT_FOUND,
+
+        /** Network and the rest: keep the sheet with the message, the customer can try again. */
+        OTHER,
+    }
+
+    fun chargeFailure(code: String): ChargeFailure = when (code) {
+        "INVALID_STATUS_TRANSITION", "CONFLICT" -> ChargeFailure.HANDLED
+        "ORDER_DISPUTED" -> ChargeFailure.DISPUTED
+        "NOT_FOUND" -> ChargeFailure.NOT_FOUND
+        else -> ChargeFailure.OTHER
     }
 
     // endregion

@@ -95,6 +95,9 @@ data class OrderAssignment(
     val completedAt: String? = null,
     val cancelledAt: String? = null,
     val cancelReason: String? = null,
+    /** Photo urls sent with #69 / #70 (CS-23); the server gives no caption and no time. */
+    val beforeImages: List<String> = emptyList(),
+    val afterImages: List<String> = emptyList(),
 )
 
 /** Money of the order (#63 pricing). */
@@ -135,6 +138,8 @@ data class OrderDetail(
     val cancelledAt: String? = null,
     val cancelledBy: OrderActor? = null,
     val cancelReason: String? = null,
+    /** Every extra charge of the visible assignments, oldest first (#63). */
+    val extraCharges: List<ExtraCharge> = emptyList(),
     val rowVersion: String = "",
     val createdAt: String = "",
     val updatedAt: String = "",
@@ -142,6 +147,32 @@ data class OrderDetail(
     /** The part used for contact and the partner row (spec 2.5.1: exactly one IsPrimary); else the first one. */
     val primary: OrderAssignment? get() = assignments.firstOrNull { it.isPrimary } ?: assignments.firstOrNull()
 }
+
+/** Status of an extra charge (ExtraChargeStatus). An unexpected value becomes [UNKNOWN]. */
+@Serializable
+enum class ExtraChargeStatus { PENDING, APPROVED, REJECTED, UNKNOWN }
+
+/**
+ * One extra charge the partner asked for (#63 extraCharges[], answer of #74). The server has only [description] (no
+ * separate title) and at most one evidence photo, without a caption.
+ */
+@Serializable
+data class ExtraCharge(
+    val id: String,
+    val orderId: String = "",
+    val assignmentId: String = "",
+    val description: String = "",
+    val amount: Long = 0,
+    val evidenceImageUrl: String? = null,
+    val status: ExtraChargeStatus = ExtraChargeStatus.UNKNOWN,
+    val responseNote: String? = null,
+    val respondedAt: String? = null,
+    val createdAt: String = "",
+)
+
+/** #74 body. [approved] has no default on purpose (the app's Json does not encode defaults); no note is sent. */
+@Serializable
+data class RespondExtraChargeBody(val approved: Boolean)
 
 /** Fee of one assignment in #151, by its current status. */
 @Serializable

@@ -28,7 +28,8 @@ import javax.inject.Singleton
 /**
  * Live order data of /hubs/orders for CS-19 … CS-21.
  *
- * - [changes]: OrderStatusChanged gives the [String] id of its order; every (re)connect of the hub gives null, meaning
+ * - [changes]: OrderStatusChanged and ExtraChargeRequested give the [String] id of their order (after the reload CS-20
+ *   shows the new PENDING charge and opens CS-22 from it); every (re)connect of the hub gives null, meaning
  *   "any order", because events sent while it was down are not replayed. Each screen keeps the ids it shows and
  *   reloads through [reloadCoalesced] (CS-20 and CS-21 then also ask #76 again).
  * - [locations]: PartnerLocationUpdated as sent (the same model as #76).
@@ -159,6 +160,10 @@ class HubOrderUpdates @Inject constructor(
     override fun changes(): Flow<String?> = channelFlow {
         launch(start = CoroutineStart.UNDISPATCHED) {
             hub.events(OrdersHub.EVENT_ORDER_STATUS_CHANGED, JsonObject.serializer())
+                .collect { payload -> OrderUpdates.orderIdOf(payload)?.let { send(it) } }
+        }
+        launch(start = CoroutineStart.UNDISPATCHED) {
+            hub.events(OrdersHub.EVENT_EXTRA_CHARGE_REQUESTED, JsonObject.serializer())
                 .collect { payload -> OrderUpdates.orderIdOf(payload)?.let { send(it) } }
         }
         launch(start = CoroutineStart.UNDISPATCHED) { hub.connects().collect { send(null) } }

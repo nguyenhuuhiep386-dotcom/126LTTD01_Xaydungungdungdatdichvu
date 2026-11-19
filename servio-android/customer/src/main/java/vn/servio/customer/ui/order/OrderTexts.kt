@@ -17,7 +17,8 @@ object OrderTexts {
     private fun parse(iso: String?, zone: ZoneId): ZonedDateTime? =
         iso?.let { runCatching { OffsetDateTime.parse(it).atZoneSameInstant(zone) }.getOrNull() }
 
-    private fun instant(iso: String?): Instant? = iso?.let { runCatching { OffsetDateTime.parse(it).toInstant() }.getOrNull() }
+    /** The moment of a server time; null when missing or unreadable. */
+    fun instant(iso: String?): Instant? = iso?.let { runCatching { OffsetDateTime.parse(it).toInstant() }.getOrNull() }
 
     /** No-break space: keeps "100.000" with "đ" and "T5" with "19/11" on one line in the sentences these screens build. */
     val NBSP: Char = 0xA0.toChar()

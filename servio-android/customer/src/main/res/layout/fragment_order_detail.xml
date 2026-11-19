@@ -3,7 +3,8 @@
   CS-20 Chi tiết đơn hàng (Figma 18:2121 PENDING, 18:2208 ON_THE_WAY). Top: the yellow banner (PENDING, red for a
   dispute) or a white card with the status chip and one line. Then the partner row, "Thông tin công việc",
   "Tiến trình" and the cancel text button. The ⋮ of Figma has no action yet, so it is not shown.
-  KH-5 part 1: no ETA and no "Theo dõi đường đi" yet; no "Gửi khiếu nại" (KH-7).
+  ETA and "Theo dõi đường đi" while ON_THE_WAY; the pending extra charges line (CS-22) while ARRIVED / IN_PROGRESS;
+  no "Gửi khiếu nại" (KH-7).
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -138,6 +139,29 @@
                                 tools:text="Cập nhật lúc 13:52 · cách 3,2 km"
                                 tools:visibility="visible" />
 
+                            <!-- ARRIVED / IN_PROGRESS with PENDING charges (Figma 18:2512): opens CS-22 on the oldest one. -->
+                            <TextView
+                                android:id="@+id/chargeWarning"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_m"
+                                android:background="@drawable/bg_order_banner"
+                                android:drawablePadding="@dimen/space_s"
+                                android:foreground="?attr/selectableItemBackground"
+                                android:gravity="center_vertical"
+                                android:minHeight="48dp"
+                                android:paddingHorizontal="@dimen/space_m"
+                                android:paddingVertical="@dimen/space_s"
+                                android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+                                android:textColor="@color/servio_text_accent"
+                                android:textStyle="bold"
+                                android:visibility="gone"
+                                app:drawableEndCompat="@drawable/ic_chevron_right"
+                                app:drawableStartCompat="@drawable/ic_warning"
+                                app:drawableTint="@color/servio_text_accent"
+                                tools:text="Có 1 chi phí phát sinh chờ bạn duyệt"
+                                tools:visibility="visible" />
+
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/trackButton"
                                 style="@style/Widget.Servio.Button"
@@ -160,6 +184,20 @@
                                 android:layout_marginTop="@dimen/space_l"
                                 android:text="@string/order_detail_confirm_completion"
                                 android:visibility="gone" />
+
+                            <!-- COMPLETED and still in #100 for this assignment: opens CS-26. -->
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/reviewButton"
+                                style="@style/Widget.Servio.Button"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_l"
+                                android:text="@string/order_detail_review"
+                                android:textStyle="bold"
+                                android:visibility="gone"
+                                app:icon="@drawable/ic_star"
+                                app:iconGravity="textStart"
+                                app:iconTint="@color/servio_text_primary" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -284,6 +322,17 @@
                     <include
                         android:id="@+id/priceRow"
                         layout="@layout/view_order_info_row" />
+
+                    <!-- Only when pricing.extraChargeTotal > 0: "+X" and the server's totalAmount. -->
+                    <include
+                        android:id="@+id/extraRow"
+                        layout="@layout/view_order_info_row"
+                        android:visibility="gone" />
+
+                    <include
+                        android:id="@+id/totalRow"
+                        layout="@layout/view_order_info_row"
+                        android:visibility="gone" />
 
                     <include
                         android:id="@+id/paymentRow"

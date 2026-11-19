@@ -34,7 +34,10 @@ import vn.servio.customer.data.repository.OrderUpdates
 import vn.servio.customer.databinding.FragmentOrderDetailBinding
 import vn.servio.customer.databinding.ItemOrderStepBinding
 import vn.servio.customer.ui.common.RemoteImages
+import vn.servio.customer.ui.completion.ConfirmCompletionViewModel
 import vn.servio.customer.ui.order.OrderFormat
+import vn.servio.customer.ui.order.OrderRoutes
+import vn.servio.customer.ui.review.SubmitReviewViewModel
 import vn.servio.customer.ui.order.OrderStatusChip
 import vn.servio.customer.ui.order.OrderTexts
 import vn.servio.customer.ui.order.TrackingUi
@@ -49,7 +52,8 @@ import vn.servio.customer.ui.requestdetail.QuoteTexts
 import javax.inject.Inject
 
 /**
- * CS-20 Chi tiết đơn hàng (every status; ETA while ON_THE_WAY, CS-21 behind "Theo dõi đường đi", CS-20b through [ArrivalPrompt]). What is shown per status is decided in
+ * CS-20 Chi tiết đơn hàng (every status; ETA while ON_THE_WAY, CS-21 behind "Theo dõi đường đi", CS-20b through [ArrivalPrompt],
+ * CS-22 [ExtraChargeSheet] for pending extra charges). What is shown per status is decided in
  * [OrderDetailUi]; this class only formats. "Huỷ đơn" opens [CancelOrderDialogFragment] (CS-20c), which answers
  * through a fragment result.
  */
@@ -79,6 +83,11 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         binding.addressRow.label.setText(R.string.order_detail_address)
         binding.priceRow.label.setText(R.string.order_detail_price)
         binding.paymentRow.label.setText(R.string.order_detail_payment)
+        binding.extraRow.label.setText(R.string.order_detail_extra_approved)
+        binding.totalRow.label.setText(R.string.order_detail_total)
+        binding.totalRow.label.setTextColor(requireContext().getColor(vn.servio.core.R.color.servio_text_primary))
+        binding.totalRow.label.setTypeface(null, Typeface.BOLD)
+        OrderRoutes.listen(this, R.id.cs20) { view }
 
         arrivalPrompt = ArrivalPrompt(
             host = this,
@@ -119,8 +128,25 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
             }
         }
         collectWhenStarted(viewModel.events) { event ->
-            when (event) {
-                is OrderDetailViewModel.Event.Message -> Snackbar.make(binding.root, event.text, Snackbar.LENGTH_LONG).show()
+            val text = when (event) {
+                is OrderDetailViewModel.Event.Message -> event.text
+                is OrderDetailViewModel.Event.ChargeAnswered ->
+                    if (event.approved) getString(R.string.extra_charge_approved_done, OrderFormat.money(requireContext(), event.amount))
+                    else getString(R.string.extra_charge_rejected_done)
+                is OrderDetailViewModel.Event.ChargeFailed -> when (event.failure) {
+                    OrderDetailUi.ChargeFailure.HANDLED -> getString(R.string.extra_charge_handled)
+                    OrderDetailUi.ChargeFailure.DISPUTED -> getString(R.string.extra_charge_disputed)
+                    // 404: the reload shows where the order stands; OTHER never comes here (the sheet keeps it).
+                    OrderDetailUi.ChargeFailure.NOT_FOUND, OrderDetailUi.ChargeFailure.OTHER -> null
+                }
+            }
+            text?.let { Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show() }
+        }
+        // CS-22 opens by itself while CS-20 is resumed: on resume and after each #63 answer (ExtraChargeRequested
+        // reloads it), with the oldest pending charge the customer has not closed in this visit.
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.state.collect { showCharge(fromWarning = false) }
             }
         }
 
@@ -164,6 +190,8 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         binding.callButton.setOnClickListener { partner?.phoneNumber?.let(::dial) }
         binding.confirmButton.isVisible = actions.confirm
         binding.confirmButton.setOnClickListener { openConfirm() }
+        binding.reviewButton.isVisible = state.reviewable
+        binding.reviewButton.setOnClickListener { order.primary?.id?.let(::openReview) }
         binding.cancelButton.isVisible = actions.cancel
         binding.cancelButton.setText(if (OrderDetailUi.cancelIsFree(state.cancelFee)) R.string.order_cancel_free else R.string.order_cancel)
         binding.cancelButton.setOnClickListener { openCancel() }
@@ -174,6 +202,11 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         binding.scheduleRow.value.text = OrderTexts.moment(order.scheduledStartAt, weekdays) ?: missing
         binding.addressRow.value.text = order.address.ifBlank { missing }
         binding.priceRow.value.text = order.primary?.let { OrderFormat.money(context, it.amount) } ?: missing
+        val showsTotal = OrderDetailUi.showsTotal(order)
+        binding.extraRow.root.isVisible = showsTotal
+        binding.totalRow.root.isVisible = showsTotal
+        binding.extraRow.value.text = getString(R.string.extra_charge_plus, OrderFormat.money(context, order.pricing.extraChargeTotal))
+        binding.totalRow.value.text = OrderFormat.money(context, order.pricing.totalAmount)
         binding.paymentRow.value.text = paymentLabel(order.paymentMethod)?.let(::getString) ?: missing
 
         bindTimeline(binding, order)
@@ -211,6 +244,10 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
                 binding.banner.isVisible = false
                 binding.statusCard.isVisible = true
                 OrderStatusChip.bind(binding.statusChip, area.status)
+                val pendingCharges = OrderDetailUi.pendingCharges(order).size
+                binding.chargeWarning.isVisible = pendingCharges > 0
+                binding.chargeWarning.text = getString(R.string.order_detail_pending_charges, pendingCharges)
+                binding.chargeWarning.setOnClickListener { showCharge(fromWarning = true) }
                 val tracked = area.status == OrderStatus.ON_THE_WAY
                 binding.etaLine.isVisible = false
                 binding.trackButton.isVisible = tracked && order.primary != null
@@ -374,7 +411,10 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
     }
 
     private fun stepNote(note: Note, weekdays: List<String>): String? = when (note) {
-        is Note.At -> OrderTexts.moment(note.at, weekdays)
+        is Note.At -> listOfNotNull(
+            OrderTexts.moment(note.at, weekdays),
+            note.pendingCharges.takeIf { it > 0 }?.let { getString(R.string.order_step_pending_charges, it) },
+        ).takeIf { it.isNotEmpty() }?.joinToString(getString(R.string.order_step_separator))
         is Note.ExpiresAt -> OrderTexts.time(note.at)?.let { getString(R.string.order_step_expires_at, it) }
         is Note.AwaitingConfirm -> OrderTexts.moment(note.autoConfirmAt, weekdays)
             ?.let { getString(R.string.order_step_awaiting_confirm, it) }
@@ -417,11 +457,40 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         navController.navigate(R.id.cs21, bundleOf(OrderTrackingViewModel.ARG_ORDER_ID to viewModel.orderId, OrderTrackingViewModel.ARG_ASSIGNMENT_ID to assignmentId))
     }
 
-    /** CS-23 is still a placeholder (KH-6). */
+    /**
+     * CS-22 on the oldest pending charge: by itself only while resumed and skipping the charges closed in this visit;
+     * from the warning line also a closed one. Never two sheets, never over a saved state.
+     */
+    private fun showCharge(fromWarning: Boolean) {
+        if (!isResumed) return
+        val manager = childFragmentManager
+        if (manager.isStateSaved || manager.findFragmentByTag(ExtraChargeSheet.TAG) != null) return
+        val charge = viewModel.state.value.chargeToOpen(includeClosed = fromWarning) ?: return
+        ExtraChargeSheet.newInstance(charge.id).show(manager, ExtraChargeSheet.TAG)
+    }
+
+    /** The sheet went away (answered, closed, no longer pending): open the next pending charge if there is one. */
+    fun onChargeSheetGone() {
+        view?.post { showCharge(fromWarning = false) }
+    }
+
+    /** CS-23 Xác nhận hoàn thành; after #71 it becomes CS-26, whose Back returns here. */
     private fun openConfirm() {
         val navController = findNavController()
         if (navController.currentDestination?.id != R.id.cs20) return
-        navController.navigate(R.id.cs23)
+        navController.navigate(R.id.cs23, bundleOf(ConfirmCompletionViewModel.ARG_ORDER_ID to viewModel.orderId))
+    }
+
+    /** CS-26 Đánh giá đối tác; a sent review comes back as "Đã gửi đánh giá" (OrderRoutes) and the button goes. */
+    private fun openReview(assignmentId: String) {
+        val navController = findNavController()
+        if (navController.currentDestination?.id != R.id.cs20) return
+        navController.navigate(R.id.cs26, SubmitReviewViewModel.args(viewModel.orderId, assignmentId))
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.onResumed()
     }
 
     private fun dial(phone: String) {

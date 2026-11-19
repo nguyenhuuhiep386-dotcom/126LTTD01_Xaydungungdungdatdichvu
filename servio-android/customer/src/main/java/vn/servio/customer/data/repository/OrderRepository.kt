@@ -9,17 +9,22 @@ import vn.servio.customer.data.model.ArrivalConfirmation
 import vn.servio.customer.data.model.CancelOrderBody
 import vn.servio.customer.data.model.CancelPreview
 import vn.servio.customer.data.model.CancelResult
+import vn.servio.customer.data.model.ConfirmCompletionBody
+import vn.servio.customer.data.model.ConfirmCompletionResult
 import vn.servio.customer.data.model.CreatedOrder
+import vn.servio.customer.data.model.TimelineEntry
+import vn.servio.customer.data.model.ExtraCharge
 import vn.servio.customer.data.model.OrderDetail
 import vn.servio.customer.data.model.OrderListFilter
 import vn.servio.customer.data.model.OrderSummary
 import vn.servio.customer.data.model.RespondArrivalBody
+import vn.servio.customer.data.model.RespondExtraChargeBody
 import vn.servio.customer.data.model.Tracking
 import vn.servio.customer.data.remote.OrderApi
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** Orders (CS-18 … CS-21): list, detail, cancel, tracking and the answer to "Thợ báo đã đến". */
+/** Orders (CS-18 … CS-22): list, detail, cancel, tracking, the answer to "Thợ báo đã đến" and to extra charges. */
 interface OrderRepository {
     /** #43: choose [quoteId] at [rowVersion] (from #42), paid in cash. */
     suspend fun acceptQuote(requestId: String, quoteId: String, rowVersion: String): ApiResult<CreatedOrder>
@@ -41,6 +46,15 @@ interface OrderRepository {
 
     /** #179. */
     suspend fun respondArrival(confirmation: ArrivalConfirmation, confirmed: Boolean): ApiResult<ArrivalConfirmation>
+
+    /** #64. */
+    suspend fun getTimeline(orderId: String): ApiResult<List<TimelineEntry>>
+
+    /** #71 with the rowVersion of the #63 on screen. */
+    suspend fun confirmCompletion(orderId: String, rowVersion: String): ApiResult<ConfirmCompletionResult>
+
+    /** #74 without a note. */
+    suspend fun respondExtraCharge(orderId: String, extraChargeId: String, approved: Boolean): ApiResult<ExtraCharge>
 
     /** maxDebt of #87: unpaid cancellation fees above it block new posts. Null when the server does not say. */
     suspend fun cancelDebtLimit(): ApiResult<Long?>
@@ -72,6 +86,14 @@ class RemoteOrderRepository @Inject constructor(
 
     override suspend fun respondArrival(confirmation: ArrivalConfirmation, confirmed: Boolean): ApiResult<ArrivalConfirmation> =
         apiCall { api.respondArrival(confirmation.orderId, confirmation.assignmentId, confirmation.requestId, RespondArrivalBody(confirmed)) }
+
+    override suspend fun getTimeline(orderId: String): ApiResult<List<TimelineEntry>> = apiCall { api.getTimeline(orderId) }
+
+    override suspend fun confirmCompletion(orderId: String, rowVersion: String): ApiResult<ConfirmCompletionResult> =
+        apiCall { api.confirmCompletion(orderId, ConfirmCompletionBody(rowVersion)) }
+
+    override suspend fun respondExtraCharge(orderId: String, extraChargeId: String, approved: Boolean): ApiResult<ExtraCharge> =
+        apiCall { api.respondExtraCharge(orderId, extraChargeId, RespondExtraChargeBody(approved)) }
 
     override suspend fun cancelDebtLimit(): ApiResult<Long?> = apiCall { api.getWallet() }.map { it.maxDebt }
 }

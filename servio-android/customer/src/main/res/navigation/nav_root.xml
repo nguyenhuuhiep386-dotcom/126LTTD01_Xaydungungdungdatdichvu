@@ -231,44 +231,24 @@
 
         <fragment
             android:id="@+id/cs23"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.completion.ConfirmCompletionFragment"
             android:label="CS-23 Xác nhận hoàn thành">
             <argument
-                android:name="code"
-                android:defaultValue="CS-23"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Xác nhận hoàn thành"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Ảnh trước/sau, tổng tiền, &quot;Xác nhận và đã trả tiền mặt&quot; (#71)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue="cs26|Đánh giá đối tác"
+                android:name="orderId"
+                android:defaultValue=""
                 app:argType="string" />
         </fragment>
 
         <fragment
             android:id="@+id/cs26"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
+            android:name="vn.servio.customer.ui.review.SubmitReviewFragment"
             android:label="CS-26 Đánh giá đối tác">
             <argument
-                android:name="code"
-                android:defaultValue="CS-26"
+                android:name="orderId"
+                android:defaultValue=""
                 app:argType="string" />
             <argument
-                android:name="title"
-                android:defaultValue="Đánh giá đối tác"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Sao + nhận xét (#95)"
-                app:argType="string" />
-            <argument
-                android:name="links"
+                android:name="assignmentId"
                 android:defaultValue=""
                 app:argType="string" />
         </fragment>

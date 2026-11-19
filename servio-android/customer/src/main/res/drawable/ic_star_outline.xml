@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Star not chosen (CS-26, Figma 18:2704 Icon/star outline): the path of ic_star, stroked and not filled. Tinted in code. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M12,2.5l2.9,6 6.6,0.9 -4.8,4.6 1.2,6.5L12,17.4 6.1,20.5l1.2,-6.5L2.5,9.4l6.6,-0.9z"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/servio_outline"
+        android:strokeLineJoin="round" />
+</vector>

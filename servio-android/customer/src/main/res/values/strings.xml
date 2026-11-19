@@ -429,6 +429,74 @@
     <string name="order_actor_system">Hệ thống</string>
     <string name="order_actor_admin">Quản trị viên</string>
     <string name="order_step_separator">" · "</string>
+    <string name="order_step_pending_charges">%1$d phát sinh chờ duyệt</string>
+    <string name="order_detail_pending_charges">Có %1$d chi phí phát sinh chờ bạn duyệt</string>
+
+    <!-- CS-22 Duyệt chi phí phát sinh -->
+    <string name="extra_charge_title">Đối tác đề xuất chi phí phát sinh</string>
+    <string name="extra_charge_order">Đơn #%1$s</string>
+    <string name="extra_charge_evidence">Ảnh chứng từ của khoản phát sinh</string>
+    <string name="extra_charge_quoted">Giá báo</string>
+    <string name="extra_charge_approved_extras">Phát sinh đã duyệt</string>
+    <string name="extra_charge_this">Phát sinh này</string>
+    <string name="extra_charge_plus">+%1$s</string>
+    <string name="extra_charge_new_total">Tổng mới</string>
+    <string name="extra_charge_note">Nếu từ chối, khoản này không được tính vào tổng tiền. Bạn có thể nhắn tin hỏi thêm trước khi quyết định.</string>
+    <string name="extra_charge_reject">Từ chối</string>
+    <string name="extra_charge_approve">Duyệt %1$s</string>
+    <string name="extra_charge_approved_done">Đã duyệt phát sinh %1$s</string>
+    <string name="extra_charge_rejected_done">Đã từ chối phát sinh</string>
+    <string name="extra_charge_handled">Khoản này đã được xử lý hoặc đơn đã đổi trạng thái</string>
+    <string name="extra_charge_disputed">Đơn đang khiếu nại nên chưa duyệt được</string>
+
+    <!-- CS-20 khi có phát sinh đã duyệt, đơn đã hoàn thành -->
+    <string name="order_detail_extra_approved">Phát sinh đã duyệt</string>
+    <string name="order_detail_total">Tổng tiền</string>
+    <string name="order_detail_review">Đánh giá đối tác</string>
+
+    <!-- CS-23 Xác nhận hoàn thành -->
+    <string name="confirm_title">Xác nhận hoàn thành</string>
+    <string name="confirm_done_at">Đối tác đã báo hoàn thành lúc %1$s</string>
+    <string name="confirm_done">Đối tác đã báo hoàn thành</string>
+    <string name="confirm_auto_at">Đơn tự hoàn thành lúc %1$s nếu bạn không phản hồi.</string>
+    <string name="confirm_auto_unknown">Đơn sẽ tự hoàn thành nếu bạn không phản hồi.</string>
+    <string name="confirm_photos">Ảnh trước và sau</string>
+    <string name="confirm_photo_before">Trước</string>
+    <string name="confirm_photo_after">Sau</string>
+    <string name="confirm_photo_before_desc">Ảnh trước khi làm %1$d</string>
+    <string name="confirm_photo_after_desc">Ảnh sau khi làm %1$d</string>
+    <string name="confirm_note">“%1$s”</string>
+    <string name="confirm_payment">Thanh toán</string>
+    <string name="confirm_quoted">Giá báo</string>
+    <string name="confirm_extra">Phát sinh đã duyệt · %1$s</string>
+    <string name="confirm_total">Tổng tiền mặt trả đối tác</string>
+    <string name="confirm_button">Xác nhận hoàn thành và đã trả tiền mặt %1$s</string>
+    <string name="confirm_not_waiting">Đơn không còn chờ xác nhận</string>
+    <string name="confirm_changed">Đơn vừa thay đổi, bạn kiểm tra lại số tiền rồi xác nhận</string>
+    <string name="confirm_disputed">Đơn đang khiếu nại nên chưa xác nhận được</string>
+
+    <!-- CS-26 Đánh giá đối tác -->
+    <string name="review_title">Đánh giá đối tác</string>
+    <string name="review_order">Đơn #%1$s</string>
+    <string name="review_rating_none">Chạm để chọn số sao</string>
+    <string name="review_rating_1">Rất tệ</string>
+    <string name="review_rating_2">Chưa hài lòng</string>
+    <string name="review_rating_3">Bình thường</string>
+    <string name="review_rating_4">Hài lòng</string>
+    <string name="review_rating_5">Rất hài lòng</string>
+    <string name="review_star">%1$d sao</string>
+    <string name="review_punctuality">Đúng giờ</string>
+    <string name="review_quality">Tay nghề</string>
+    <string name="review_attitude">Thái độ</string>
+    <string name="review_price">Giá cả</string>
+    <string name="review_comment">Nhận xét</string>
+    <string name="review_comment_hint">Không bắt buộc</string>
+    <string name="review_deadline">Bạn có thể đánh giá đến %1$s.</string>
+    <string name="review_submit">Gửi đánh giá</string>
+    <string name="review_sent">Đã gửi đánh giá</string>
+    <string name="review_window_closed">Đã quá hạn đánh giá đơn này</string>
+    <string name="review_already">Bạn đã đánh giá đơn này</string>
+    <string name="review_not_pending">Đơn này không còn chờ đánh giá</string>
     <string name="order_cancel_free">Huỷ đơn (miễn phí)</string>
     <string name="order_cancel">Huỷ đơn</string>
 
