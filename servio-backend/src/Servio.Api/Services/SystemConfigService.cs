@@ -25,6 +25,9 @@ public sealed class SystemConfigService(ServioDbContext db, IMemoryCache cache)
     public async Task<decimal> GetDecimalAsync(string key, decimal fallback, CancellationToken ct) =>
         decimal.TryParse(await GetAsync(key, ct), NumberStyles.Number, CultureInfo.InvariantCulture, out var value) ? value : fallback;
 
+    public async Task<string> GetStringAsync(string key, string fallback, CancellationToken ct) =>
+        await GetAsync(key, ct) is { Length: > 0 } value ? value : fallback;
+
     public async Task<bool> GetBoolAsync(string key, bool fallback, CancellationToken ct) =>
         bool.TryParse(await GetAsync(key, ct), out var value) ? value : fallback;
 

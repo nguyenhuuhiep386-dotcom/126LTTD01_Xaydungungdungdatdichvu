@@ -22,6 +22,7 @@ public sealed class ServiceRequestService(
     CodeGenerator codes,
     SystemConfigService configs,
     IRealtimeNotifier notifier,
+    ConsentService consents,
     TimeProvider clock)
 {
     public const int MaxImages = 6;
@@ -240,6 +241,7 @@ public sealed class ServiceRequestService(
 
     private async Task EnsureCanPostAsync(CustomerProfile customer, DateTimeOffset now, CancellationToken ct)
     {
+        await consents.EnsureAsync(customer.UserId, ConsentPurpose.TermsAndPrivacy, ct);
         if (UserService.NeedsProfileCompletion(customer.User.FullName))
         {
             throw new ApiException(StatusCodes.Status422UnprocessableEntity, ErrorCodes.ProfileIncomplete, "Hãy cập nhật họ tên trước khi đăng yêu cầu");

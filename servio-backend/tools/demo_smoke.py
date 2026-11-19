@@ -107,6 +107,13 @@ def login(phone, flavor, name):
     return auth["accessToken"]
 
 
+def consent(token, *purposes):
+    """What the apps send after the user ticks the (unticked by default) consent boxes (Điều 9 Luật 91/2025)."""
+    version = api("GET", "/legal")["policyVersion"]
+    for purpose in purposes:
+        api("POST", "/users/me/consents", token, {"purpose": purpose, "granted": True, "policyVersion": version})
+
+
 def upload(token, purpose):
     return api("POST", "/files", token, files={"file": PNG, "purpose": purpose})["url"]
 
@@ -152,10 +159,15 @@ def main():
     service_id = services["ve-sinh-may-lanh"]
     admin = Admin()
     admin.login()
+    for page in ("/chinh-sach-bao-mat", "/dieu-khoan-su-dung"):
+        with urllib.request.urlopen(f"{BASE}{page}", timeout=30) as r:
+            assert r.status == 200 and "Phiên bản" in r.read().decode(), f"trang {page} lỗi"
 
     # ---------- (1) đối tác đăng ký, nộp KYC, admin duyệt ----------
     step("Đối tác đăng ký, nộp KYC, admin duyệt")
     partner = login(partner_phone, "PARTNER", "Thợ Kiểm Thử")
+    expect_error("CONSENT_REQUIRED", lambda: upload(partner, "KYC"))  # CCCD photos need their own consent first
+    consent(partner, "TERMS_AND_PRIVACY", "KYC_IDENTITY", "LOCATION_SHARING")
     near = (UTE[0] + 0.01, UTE[1])
     api("PATCH", "/partners/me", partner, {"yearsOfExperience": 5, "serviceRadiusKm": 10, "anchorLatitude": near[0], "anchorLongitude": near[1]})
     for doc in ("ID_FRONT", "ID_BACK", "SELFIE_WITH_ID"):
@@ -171,6 +183,7 @@ def main():
     # ---------- (2) khách đăng bài có ảnh, đối tác thấy bài ----------
     step("Khách đăng bài có ảnh, đối tác thấy trong newsfeed")
     customer = login(customer_phone, "CUSTOMER", "Khách Kiểm Thử")
+    consent(customer, "TERMS_AND_PRIVACY")
     address = api("POST", "/users/me/addresses", customer, {
         "label": "Trường", "receiverName": "Khách Kiểm Thử", "receiverPhone": customer_phone,
         "fullAddress": "1 Võ Văn Ngân, Linh Chiểu, Thủ Đức", "latitude": UTE[0], "longitude": UTE[1], "isDefault": True})
@@ -296,8 +309,14 @@ def main():
     assert api("GET", f"/orders/{order_id}", customer)["status"] == "COMPLETED"
     ok("đơn chờ thanh toán → khách trả → COMPLETED")
 
+    # ---------- (12) quyền xoá tài khoản (Điều 14 Luật 91/2025) ----------
+    step("Khách xoá tài khoản; số điện thoại đăng ký lại thành tài khoản mới")
     unread = api("GET", "/notifications/unread-count", customer)["total"]
-    print(f"\nĐẠT cả 10 bước + #177 trong {time.time() - started:.1f} s (khách có {unread} thông báo chưa đọc).")
+    api("DELETE", "/users/me", customer)
+    fresh = login(customer_phone, "CUSTOMER", "Khách Đăng Ký Lại")
+    assert api("GET", "/orders/me", fresh)["totalCount"] == 0, "tài khoản mới không được thấy đơn cũ"
+    ok("tài khoản cũ đã xoá, đăng ký lại không còn dữ liệu cũ")
+    print(f"\nĐẠT cả 10 bước + #177 + quyền dữ liệu trong {time.time() - started:.1f} s (khách có {unread} thông báo trước khi xoá).")
 
 
 if __name__ == "__main__":

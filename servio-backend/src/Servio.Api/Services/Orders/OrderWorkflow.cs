@@ -62,6 +62,13 @@ public sealed class OrderWorkflow(
         OrderStateMachine.EnsureCanMove(from, to);
         var now = clock.GetUtcNow();
         StampAssignment(assignment, to, by, note, now);
+        if (from == OrderStatus.OnTheWay)
+        {
+            // Tracking ends here (0.2.7 ý 5): drop the live position, keep only the check-in point (data minimisation).
+            assignment.LastLatitude = assignment.LastLongitude = null;
+            assignment.LastLocationAccuracy = null;
+            assignment.LastLocationAt = null;
+        }
         AddHistory(order, assignment, from, to, by, userId, note, now);
 
         var before = (OrderStatus)order.Status;
