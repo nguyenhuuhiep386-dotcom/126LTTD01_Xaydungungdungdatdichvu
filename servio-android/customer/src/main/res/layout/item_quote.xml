@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  CS-15 quote card (Figma). Tap = CS-16. The server sends no skill name, so the line under the name is only the
-  years of experience. Buttons (Figma): "Nhắn tin" outlined + "Chọn" filled. "Nhắn tin" only when the quote has a
+  CS-15 quote card (Figma 18:1511). Tap = CS-16. Line under the name: "<skill of the request's category> · <years>
+  năm kinh nghiệm" from #42; without a skill name only the years. Buttons (Figma): "Nhắn tin" outlined + "Chọn" filled. "Nhắn tin" only when the quote has a
   conversation (KH-4); a quote that cannot be chosen keeps only "Nhắn tin", which then takes the whole row (the gap
   sits on "Chọn"). An accepted quote also shows "Đã chọn".
 -->
@@ -69,7 +69,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.Servio.Caption"
-                    tools:text="6 năm kinh nghiệm" />
+                    tools:text="Điện lạnh · 6 năm kinh nghiệm" />
 
                 <include
                     android:id="@+id/rating"

@@ -140,6 +140,13 @@ class FakeOrderUpdates(val arrivals: ArrivalRequests = ArrivalRequests()) : Orde
 
     override fun arrivalChanges(): StateFlow<Int> = arrivals.version
 
+    var restoreCalls = 0
+
+    override fun restoreArrival(detail: OrderDetail) {
+        restoreCalls++
+        OrderUpdates.pendingArrivals(detail).forEach(arrivals::restored)
+    }
+
     var cleared = 0
 
     override fun clearSession() {

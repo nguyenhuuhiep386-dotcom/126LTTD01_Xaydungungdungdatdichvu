@@ -21,7 +21,18 @@ object PartnerTexts {
     sealed interface Experience {
         data class Years(val years: Int) : Experience
         data object LessThanOneYear : Experience
+
+        /**
+         * "5 năm" / "< 1 năm" held together by no-break spaces, so a narrow line never leaves "năm" alone at the start
+         * of the next one (CS-15 card, CS-17 cell). [unit] = "năm", [lessThanOne] = "< 1", both from strings.xml.
+         */
+        fun text(unit: String, lessThanOne: String): String = when (this) {
+            is Years -> "$years$NBSP$unit"
+            LessThanOneYear -> "${lessThanOne.replace(' ', NBSP)}$NBSP$unit"
+        }
     }
+
+    const val NBSP: Char = ' '
 
     fun experience(years: Int): Experience = if (years >= 1) Experience.Years(years) else Experience.LessThanOneYear
 

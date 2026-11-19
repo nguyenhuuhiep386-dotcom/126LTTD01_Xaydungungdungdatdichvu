@@ -4,6 +4,7 @@ import android.content.Context
 import vn.servio.customer.R
 import vn.servio.customer.data.model.QuotePartner
 import vn.servio.customer.data.model.ScheduleType
+import vn.servio.customer.ui.partner.PartnerTexts
 import vn.servio.customer.ui.request.MoneyInput
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -32,14 +33,24 @@ object QuoteTexts {
     fun moment(iso: String?, weekdays: List<String>, zone: ZoneId = ZoneId.systemDefault()): String? =
         parse(iso, zone)?.let { "${TIME.format(it)}, ${day(it, weekdays)}" }
 
-    /** "T7 17/10 · 14:00–16:00" (the day is the start's). */
+    /** "T7 17/10 · 14:00–16:00" (the day is the start's); "T7 17/10 · 14:00" when the server sent no end. */
     fun window(startIso: String?, endIso: String?, weekdays: List<String>, zone: ZoneId = ZoneId.systemDefault()): String? {
         val start = parse(startIso, zone) ?: return null
-        val end = parse(endIso, zone) ?: return null
+        val end = parse(endIso, zone) ?: return "${day(start, weekdays)} · ${TIME.format(start)}"
         return "${day(start, weekdays)} · ${TIME.format(start)}–${TIME.format(end)}"
     }
 
-    data class Duration(val hours: Int, val minutes: Int)
+    data class Duration(val hours: Int, val minutes: Int) {
+        /**
+         * "90 phút", "3 giờ", "2 giờ 30 phút" with each figure held to its unit by a no-break space (as
+         * PartnerTexts.Experience), so "phút" never starts a line alone. Units come from strings.xml.
+         */
+        fun text(hourUnit: String, minuteUnit: String): String = when {
+            hours == 0 -> "$minutes${PartnerTexts.NBSP}$minuteUnit"
+            minutes == 0 -> "$hours${PartnerTexts.NBSP}$hourUnit"
+            else -> "$hours${PartnerTexts.NBSP}$hourUnit $minutes${PartnerTexts.NBSP}$minuteUnit"
+        }
+    }
 
     /** Up to two hours stays in minutes ("90 phút", "120 phút", as in Figma); longer jobs are split into hours and minutes. */
     fun duration(totalMinutes: Int): Duration =
@@ -67,6 +78,15 @@ object QuoteTexts {
     fun rating(average: Double?, totalReviews: Int): String? =
         if (average == null || totalReviews <= 0) null else String.format(VIETNAMESE, "%.1f", average)
 
+    /**
+     * Line under the name on the CS-15 card (Figma 18:1511 "Điện lạnh · 6 năm kinh nghiệm"): [skill] of #42 (null when
+     * missing or blank: the card then keeps the plain "N năm kinh nghiệm") and the years as on CS-17.
+     */
+    data class ExperienceLine(val skill: String?, val experience: PartnerTexts.Experience)
+
+    fun experienceLine(partner: QuotePartner): ExperienceLine =
+        ExperienceLine(partner.skillName?.trim()?.takeIf { it.isNotEmpty() }, PartnerTexts.experience(partner.yearsOfExperience))
+
     /** "Trần Văn Phúc" → "VP" (the last two words); one word gives one letter. Shown when there is no avatar. */
     fun initials(fullName: String): String =
         fullName.trim().split(' ').filter { it.isNotEmpty() }.takeLast(2).joinToString("") { it.take(1) }.uppercase(VIETNAMESE)
@@ -84,15 +104,17 @@ object QuoteFormat {
 
     fun moment(context: Context, iso: String): String = QuoteTexts.moment(iso, weekdays(context)) ?: iso
 
-    /** "90 phút", "120 phút", "3 giờ", "2 giờ 30 phút". */
-    fun duration(context: Context, totalMinutes: Int): String {
-        val (hours, minutes) = QuoteTexts.duration(totalMinutes)
-        return when {
-            hours == 0 -> context.getString(R.string.quote_duration_minutes, minutes)
-            minutes == 0 -> context.getString(R.string.quote_duration_hours, hours)
-            else -> context.getString(R.string.quote_duration_hours_minutes, hours, minutes)
-        }
+    /** "Sửa điện dân dụng · 5 năm kinh nghiệm", "… · < 1 năm kinh nghiệm"; without a skill "5 năm kinh nghiệm" as before. */
+    fun experience(context: Context, partner: QuotePartner): String {
+        val line = QuoteTexts.experienceLine(partner)
+        val skill = line.skill ?: return context.getString(R.string.quote_experience, partner.yearsOfExperience)
+        val years = line.experience.text(context.getString(R.string.partner_years_unit), context.getString(R.string.partner_years_less_than_one))
+        return context.getString(R.string.quote_skill_experience, skill, years)
     }
+
+    /** "90 phút", "120 phút", "3 giờ", "2 giờ 30 phút". */
+    fun duration(context: Context, totalMinutes: Int): String =
+        QuoteTexts.duration(totalMinutes).text(context.getString(R.string.unit_hours), context.getString(R.string.unit_minutes))
 
     /** "Hết hạn sau 22 giờ" / "Hết hạn sau 15 phút" / "Đã hết hạn"; null when the time is unreadable. */
     fun expiry(context: Context, expiresAtIso: String?): String? = when (val left = QuoteTexts.remaining(expiresAtIso)) {
@@ -104,7 +126,8 @@ object QuoteFormat {
 
     /**
      * Schedule line of a request (CS-14 card, CS-15 header): "Càng sớm càng tốt · trước 16:00, T7 17/10" for NOW,
-     * "T7 17/10 · 14:00–16:00" for a booked slot. [endIso] is the end of the 2-hour window.
+     * "T7 17/10 · 14:00–16:00" for a booked slot. [endIso] is the server's scheduledEndAt (#37 / #38); without it a NOW
+     * request says "Càng sớm càng tốt" and a booked slot shows its start only.
      */
     fun schedule(context: Context, type: ScheduleType, startIso: String?, endIso: String?): String {
         val weekdays = weekdays(context)

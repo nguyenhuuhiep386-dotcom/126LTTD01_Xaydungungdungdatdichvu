@@ -1,6 +1,7 @@
 package vn.servio.customer.ui.request
 
 import vn.servio.customer.data.model.ScheduleType
+import vn.servio.customer.data.model.Wallet
 import vn.servio.customer.ui.request.CreateRequestViewModel.Step
 import java.time.LocalDate
 
@@ -72,7 +73,8 @@ sealed interface PostFailure {
 
     enum class StepNotice { CONTACT_INFO, IMAGES_NOT_READY, SERVER }
 
-    enum class DialogKind { PROFILE_INCOMPLETE, OUTSTANDING_DEBT, POSTING_RESTRICTED }
+    /** [UNPAID_ORDER]: OUTSTANDING_DEBT sent because an order waits for payment, not for cancellation fees ([debtKind]). */
+    enum class DialogKind { PROFILE_INCOMPLETE, OUTSTANDING_DEBT, UNPAID_ORDER, POSTING_RESTRICTED }
 
     companion object {
         const val CONTACT_INFO_NOT_ALLOWED = "CONTACT_INFO_NOT_ALLOWED"
@@ -91,6 +93,17 @@ sealed interface PostFailure {
             VALIDATION_ERROR -> stepOf(field)?.let { BackToStep(it, StepNotice.SERVER, message) } ?: Message(message)
             // NETWORK_ERROR (timeouts included), UNKNOWN and the rest: stay on CS-11.
             else -> Message(message)
+        }
+
+        /**
+         * OUTSTANDING_DEBT of #36 means unpaid cancellation fees above maxDebt or an AWAITING_PAYMENT order. Fees still
+         * owed (debtBalance − pendingPayment > 0, #87) keep the fee dialog; none owed means an unpaid order. [wallet]
+         * null (#87 failed) keeps the fee dialog.
+         */
+        fun debtKind(wallet: Wallet?): DialogKind = when {
+            wallet == null -> DialogKind.OUTSTANDING_DEBT
+            wallet.debtBalance - wallet.pendingPayment > 0 -> DialogKind.OUTSTANDING_DEBT
+            else -> DialogKind.UNPAID_ORDER
         }
 
         /** Maps a server field name of #36 to the step that edits it. */

@@ -83,7 +83,8 @@ class ExtraChargeUiTest {
     @Test
     fun `the approve label names the amount with a no-break space before đ`() {
         val strings = File("src/main/res/values/strings.xml").readText()
-        fun template(name: String) = Regex("<string name=\"$name\">(.*?)</string>").find(strings)!!.groupValues[1]
+        fun template(name: String) = Regex("<string name=\"$name\">(.*?)</string>").find(strings)!!.groupValues[1] // &#160; decoded as aapt does
+            .replace("&#160;", OrderTexts.NBSP.toString())
         val money = OrderTexts.keepTogether(template("quote_price").replace("%1\$s", MoneyInput.format(a.amount)))
         val label = template("extra_charge_approve").replace("%1\$s", money)
         assertEquals("Duyệt 120.000${OrderTexts.NBSP}đ", label)

@@ -102,6 +102,7 @@ class QuoteDetailSheet : BottomSheetDialogFragment() {
         nameText.text = partner.fullName
         rating.bind(partner)
         completedText.text = getString(R.string.quote_completed, partner.completedOrders)
+        verifiedText.isVisible = partner.identityVerified
         bindSkills(state.partnerSkills[partner.id])
 
         priceText.text = QuoteFormat.money(context, quote.amount)

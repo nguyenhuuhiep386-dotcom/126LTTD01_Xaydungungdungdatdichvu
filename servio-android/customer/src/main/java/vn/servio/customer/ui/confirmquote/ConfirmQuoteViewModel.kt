@@ -16,12 +16,14 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import vn.servio.core.network.ApiResult
+import vn.servio.customer.data.model.AppConfig
 import vn.servio.customer.data.model.CreatedOrder
 import vn.servio.customer.data.model.CustomerQuote
 import vn.servio.customer.data.model.QuoteSort
 import vn.servio.customer.data.model.QuoteStatus
 import vn.servio.customer.data.model.ServiceRequestDetail
 import vn.servio.customer.data.model.ServiceRequestStatus
+import vn.servio.customer.data.repository.AppConfigRepository
 import vn.servio.customer.data.repository.OrderRepository
 import vn.servio.customer.data.repository.ServiceRequestRepository
 import javax.inject.Inject
@@ -29,12 +31,15 @@ import javax.inject.Inject
 /**
  * CS-18 Xác nhận đặt dịch vụ. Loads the request (#38) and its quotes (#42) itself, so it is right after the app was
  * restored and always sends the rowVersion the customer is looking at. Confirming calls #43 for that quote, in cash.
+ * The two policy lines (accept window, cancellation fees) come from #107, asked beside them; they are hidden while it
+ * has not answered or when it failed, the rest of the screen does not wait for it.
  */
 @HiltViewModel
 class ConfirmQuoteViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val requests: ServiceRequestRepository,
     private val orders: OrderRepository,
+    private val appConfig: AppConfigRepository,
 ) : ViewModel() {
 
     val requestId: String = savedStateHandle.get<String>(ARG_REQUEST_ID).orEmpty()
@@ -53,6 +58,8 @@ class ConfirmQuoteViewModel @Inject constructor(
         val error: String? = null,
         val submitting: Boolean = false,
         val dialog: ConfirmFailure.Dialog? = null,
+        /** #107; null while unknown (the policy lines are hidden). */
+        val policy: AppConfig? = null,
     ) {
         /** Only a pending quote of an open request can be booked; anything else shows "không còn hiệu lực". */
         val available: Boolean
@@ -88,6 +95,13 @@ class ConfirmQuoteViewModel @Inject constructor(
         loadJob?.cancel()
         _state.update { it.copy(loading = true, error = null) }
         loadJob = viewModelScope.launch { fetch() }
+        if (_state.value.policy == null) viewModelScope.launch { loadPolicy() }
+    }
+
+    /** #107 for the policy lines; a failure leaves them hidden (a retry of the screen asks again). */
+    private suspend fun loadPolicy() {
+        val result = appConfig.getConfig()
+        if (result is ApiResult.Success) _state.update { it.copy(policy = result.data) }
     }
 
     /** Request and quotes together; what is on screen stays if this fails. */

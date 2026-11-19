@@ -139,7 +139,7 @@ class OrderTrackingFragment : Fragment(R.layout.fragment_order_tracking) {
             binding.avatarImage.setTag(R.id.avatarImage, avatarUrl)
             images.load(avatarUrl, binding.avatarImage)
         }
-        val rating = OrderTexts.rating(partner?.rating, state.reviewCount)
+        val rating = OrderTexts.rating(partner?.rating, partner?.totalReviews)
         with(binding.rating) {
             star.isVisible = rating.score != null
             score.isVisible = rating.score != null

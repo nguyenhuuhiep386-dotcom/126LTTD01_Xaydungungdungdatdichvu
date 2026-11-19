@@ -169,7 +169,7 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
             binding.avatarImage.setTag(R.id.avatarImage, avatarUrl)
             images.load(avatarUrl, binding.avatarImage)
         }
-        val rating = OrderTexts.rating(partner?.rating, state.reviewCount)
+        val rating = OrderTexts.rating(partner?.rating, partner?.totalReviews)
         with(binding.rating) {
             star.isVisible = rating.score != null
             score.isVisible = rating.score != null
@@ -238,6 +238,19 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
                 binding.bannerTitle.setText(R.string.order_detail_disputed)
                 binding.bannerTitle.setTextColor(context.getColor(vn.servio.core.R.color.servio_error))
                 binding.bannerText.isVisible = false
+            }
+            is StatusArea.AwaitingPayment -> {
+                stopCountdown()
+                stopEta()
+                binding.banner.isVisible = true
+                binding.statusCard.isVisible = false
+                binding.banner.backgroundTintList = ColorStateList.valueOf(context.getColor(vn.servio.core.R.color.servio_error_container))
+                binding.bannerIcon.setImageResource(R.drawable.ic_warning)
+                binding.bannerIcon.imageTintList = ColorStateList.valueOf(context.getColor(vn.servio.core.R.color.servio_error))
+                binding.bannerTitle.setText(R.string.order_status_unpaid)
+                binding.bannerTitle.setTextColor(context.getColor(vn.servio.core.R.color.servio_error))
+                binding.bannerText.isVisible = true
+                binding.bannerText.text = getString(R.string.order_detail_unpaid_text, OrderFormat.money(context, area.amount))
             }
             is StatusArea.Card -> {
                 stopCountdown()
@@ -419,6 +432,7 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         is Note.AwaitingConfirm -> OrderTexts.moment(note.autoConfirmAt, weekdays)
             ?.let { getString(R.string.order_step_awaiting_confirm, it) }
             ?: getString(R.string.order_step_awaiting_confirm_no_time)
+        Note.Unpaid -> getString(R.string.order_status_unpaid)
         Note.None -> null
     }
 

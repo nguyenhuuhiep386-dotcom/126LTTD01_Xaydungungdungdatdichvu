@@ -22,6 +22,7 @@ import vn.servio.customer.ui.common.RemoteImages
 import vn.servio.customer.ui.confirmquote.ConfirmFailure.DialogKind
 import vn.servio.customer.ui.confirmquote.ConfirmQuoteViewModel.Event
 import vn.servio.customer.ui.confirmquote.ConfirmQuoteViewModel.State
+import vn.servio.customer.ui.order.OrderFormat
 import vn.servio.customer.ui.requestdetail.QuoteFormat
 import vn.servio.customer.ui.requestdetail.QuoteTexts
 import vn.servio.customer.ui.requestdetail.bind
@@ -84,6 +85,18 @@ class ConfirmQuoteFragment : Fragment(R.layout.fragment_confirm_quote) {
         bottomBar.isVisible = state.available
         confirmButton.isEnabled = !state.submitting && !state.loading
         confirmButton.text = getString(if (state.submitting) R.string.confirm_quote_sending else R.string.confirm_quote_confirm)
+
+        val policy = state.policy
+        policyNotes.isVisible = policy != null
+        if (policy != null) {
+            acceptNote.text = getString(R.string.confirm_quote_note_accept, policy.partnerAcceptTimeoutMinutes)
+            cancelNote.text = getString(
+                R.string.confirm_quote_note_cancel,
+                OrderFormat.money(requireContext(), policy.cancellationFeeAfterOnTheWay),
+                OrderFormat.money(requireContext(), policy.cancellationFeeAfterArrivedMin),
+                PolicyTexts.percent(policy.cancellationFeeAfterArrivedPercent),
+            )
+        }
 
         val detail = state.detail ?: return
         val quote = state.quote ?: return

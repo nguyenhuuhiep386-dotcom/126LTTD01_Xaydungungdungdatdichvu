@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   CS-20 Chi tiết đơn hàng (Figma 18:2121 PENDING, 18:2208 ON_THE_WAY). Top: the yellow banner (PENDING, red for a
-  dispute) or a white card with the status chip and one line. Then the partner row, "Thông tin công việc",
+  dispute and for AWAITING_PAYMENT) or a white card with the status chip and one line. Then the partner row, "Thông tin công việc",
   "Tiến trình" and the cancel text button. The ⋮ of Figma has no action yet, so it is not shown.
   ETA and "Theo dõi đường đi" while ON_THE_WAY; the pending extra charges line (CS-22) while ARRIVED / IN_PROGRESS;
   no "Gửi khiếu nại" (KH-7).
@@ -49,7 +49,7 @@
 
                     <!-- region Trạng thái -->
 
-                    <!-- PENDING (countdown) and DISPUTED. -->
+                    <!-- PENDING (countdown), DISPUTED and AWAITING_PAYMENT ("Chưa thanh toán" + amount). -->
                     <LinearLayout
                         android:id="@+id/banner"
                         android:layout_width="match_parent"

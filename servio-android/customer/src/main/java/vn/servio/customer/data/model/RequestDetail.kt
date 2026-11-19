@@ -4,7 +4,8 @@ import kotlinx.serialization.Serializable
 
 /**
  * GET /service-requests/{id} for the owner (#38), same fields as the backend's RequestDetailDto (coordinates and
- * addressId left out). Quotes are not nested: they come from #42. The server sends no broadcastCount.
+ * addressId left out). Quotes are not nested: they come from #42. [broadcastCount] is read but not shown (no place
+ * for it in Figma CS-15).
  */
 @Serializable
 data class ServiceRequestDetail(
@@ -26,6 +27,7 @@ data class ServiceRequestDetail(
     val budgetMin: Long? = null,
     val budgetMax: Long? = null,
     val quoteCount: Int = 0,
+    val broadcastCount: Int = 0,
     val expiresAt: String? = null,
     val cancelReason: String? = null,
     val createdAt: String,
@@ -68,7 +70,10 @@ data class CustomerQuote(
     val createdAt: String,
 )
 
-/** The server sends no skill names here: only the years of experience in the request's category. */
+/**
+ * Partner on a quote card (#42). [skillName] and [yearsOfExperience] are for the request's category (one skill, not
+ * the whole list of #27); [identityVerified] = KYC approved by an admin.
+ */
 @Serializable
 data class QuotePartner(
     val id: String,
@@ -79,4 +84,6 @@ data class QuotePartner(
     val completedOrders: Int = 0,
     val yearsOfExperience: Int = 0,
     val distanceKm: Double? = null,
+    val skillName: String? = null,
+    val identityVerified: Boolean = false,
 )

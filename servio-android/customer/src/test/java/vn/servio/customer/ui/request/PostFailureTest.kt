@@ -4,6 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 import vn.servio.core.network.ErrorMessages
+import vn.servio.customer.data.model.Wallet
 import vn.servio.customer.ui.request.CreateRequestViewModel.Step
 import vn.servio.customer.ui.request.PostFailure.BackToStep
 import vn.servio.customer.ui.request.PostFailure.Dialog
@@ -73,5 +74,22 @@ class PostFailureTest {
         assertEquals(Step.BUDGET, PostFailure.stepOf("requireMinRating"))
         assertNull(PostFailure.stepOf("phone"))
         assertNull(PostFailure.stepOf(null))
+    }
+
+    @Test
+    fun `OUTSTANDING_DEBT with fees still owed keeps the fee dialog`() {
+        assertEquals(DialogKind.OUTSTANDING_DEBT, PostFailure.debtKind(Wallet(debtBalance = 60_000, pendingPayment = 20_000, maxDebt = 50_000)))
+    }
+
+    @Test
+    fun `OUTSTANDING_DEBT without fees owed means an unpaid order`() {
+        assertEquals(DialogKind.UNPAID_ORDER, PostFailure.debtKind(Wallet(debtBalance = 0, pendingPayment = 0, maxDebt = 50_000)))
+        // Every fee already declared and waiting for the admin: nothing left to pay on CS-30.
+        assertEquals(DialogKind.UNPAID_ORDER, PostFailure.debtKind(Wallet(debtBalance = 20_000, pendingPayment = 20_000)))
+    }
+
+    @Test
+    fun `a failed 87 keeps the fee dialog`() {
+        assertEquals(DialogKind.OUTSTANDING_DEBT, PostFailure.debtKind(null))
     }
 }

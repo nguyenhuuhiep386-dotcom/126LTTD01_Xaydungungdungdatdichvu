@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,13 +21,12 @@ import vn.servio.customer.data.model.OrderStatus
 import vn.servio.customer.data.model.Tracking
 import vn.servio.customer.data.repository.OrderRepository
 import vn.servio.customer.data.repository.OrderUpdates
-import vn.servio.customer.data.repository.PartnerRepository
 import vn.servio.customer.data.repository.reloadCoalesced
 import vn.servio.customer.ui.order.TrackingUi
 import javax.inject.Inject
 
 /**
- * CS-21 Theo dõi bản đồ of one assignment: #63 (address, times, contact), #27 (number of reviews) and #76, then
+ * CS-21 Theo dõi bản đồ of one assignment: #63 (address, times, contact, review count) and #76, then
  * PartnerLocationUpdated of this assignment. OrderStatusChanged of the order and hub reconnects reload #63 and #76;
  * once the assignment is no longer ON_THE_WAY (also when opened too late) the screen goes back to CS-20 ([Event.Leave]).
  */
@@ -36,19 +34,17 @@ import javax.inject.Inject
 class OrderTrackingViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: OrderRepository,
-    private val partnerRepository: PartnerRepository,
     private val orderUpdates: OrderUpdates,
 ) : ViewModel() {
 
     val orderId: String = savedStateHandle.get<String>(ARG_ORDER_ID).orEmpty()
     val assignmentId: String = savedStateHandle.get<String>(ARG_ASSIGNMENT_ID).orEmpty()
 
-    /** [error]: the first #63 failed (retry). [reviewCount]: #27, null while unknown. [tracking]: null until #76 answers. */
+    /** [error]: the first #63 failed (retry). [tracking]: null until #76 answers. */
     data class State(
         val detail: OrderDetail? = null,
         val loading: Boolean = true,
         val error: String? = null,
-        val reviewCount: Int? = null,
         val tracking: Tracking? = null,
     )
 
@@ -65,7 +61,6 @@ class OrderTrackingViewModel @Inject constructor(
 
     private var loadJob: Job? = null
     private var left = false
-    private var reviewsLoaded = false
 
     init {
         if (orderId.isNotEmpty()) {
@@ -96,14 +91,13 @@ class OrderTrackingViewModel @Inject constructor(
             is ApiResult.Success -> {
                 val detail = result.data
                 _state.update { it.copy(detail = detail, loading = false, error = null) }
+                // A waiting "Thợ báo đã đến" request comes back after the app was killed (CS-20b shows on this screen too).
+                orderUpdates.restoreArrival(detail)
                 if (!isOnTheWay(detail, assignmentId)) {
                     leave()
                     return
                 }
-                coroutineScope {
-                    launch { loadReviewCount(detail) }
-                    launch { loadTracking() }
-                }
+                loadTracking()
             }
             is ApiResult.Failure -> _state.update {
                 // A later failure keeps what is shown; the next change or reconnect asks again.
@@ -116,16 +110,6 @@ class OrderTrackingViewModel @Inject constructor(
         val result = repository.getTracking(orderId, assignmentId)
         if (result is ApiResult.Success) {
             result.data?.let { fresh -> _state.update { it.copy(tracking = TrackingUi.newer(it.tracking, fresh)) } }
-        }
-    }
-
-    private suspend fun loadReviewCount(detail: OrderDetail) {
-        if (reviewsLoaded) return
-        val partnerId = assignmentOf(detail, assignmentId)?.partner?.partnerProfileId ?: return
-        val result = partnerRepository.getPublicProfile(partnerId)
-        if (result is ApiResult.Success) {
-            reviewsLoaded = true
-            _state.update { it.copy(reviewCount = result.data.totalReviews) }
         }
     }
 

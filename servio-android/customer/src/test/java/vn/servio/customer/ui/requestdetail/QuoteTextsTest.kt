@@ -3,6 +3,8 @@ package vn.servio.customer.ui.requestdetail
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import vn.servio.customer.data.model.QuotePartner
+import vn.servio.customer.ui.partner.PartnerTexts
 import vn.servio.customer.ui.requestdetail.QuoteTexts.Remaining
 import java.time.Instant
 import java.time.ZoneId
@@ -44,7 +46,8 @@ class QuoteTextsTest {
             QuoteTexts.window("2026-10-17T07:00:00+00:00", "2026-10-17T09:00:00+00:00", weekdays, vietnam),
         )
         assertNull(QuoteTexts.window(null, "2026-10-17T09:00:00+00:00", weekdays, vietnam))
-        assertNull(QuoteTexts.window("2026-10-17T07:00:00+00:00", null, weekdays, vietnam))
+        // No scheduledEndAt from the server: the start alone.
+        assertEquals("T7 17/10 · 14:00", QuoteTexts.window("2026-10-17T07:00:00+00:00", null, weekdays, vietnam))
     }
 
     @Test
@@ -91,5 +94,45 @@ class QuoteTextsTest {
         assertEquals("Đ", QuoteTexts.initials(" đạt "))
         assertEquals("AB", QuoteTexts.initials("an   bình"))
         assertEquals("", QuoteTexts.initials(""))
+    }
+
+    @Test
+    fun experienceLineTakesTheSkillOf42AndTheYearsAsOnCs17() {
+        val partner = QuotePartner(id = "p1", fullName = "Thợ Một", yearsOfExperience = 5, skillName = "Sửa điện dân dụng")
+        assertEquals(
+            QuoteTexts.ExperienceLine("Sửa điện dân dụng", PartnerTexts.Experience.Years(5)),
+            QuoteTexts.experienceLine(partner),
+        )
+        // 0 years → "< 1 năm", as on CS-17.
+        assertEquals(PartnerTexts.Experience.LessThanOneYear, QuoteTexts.experienceLine(partner.copy(yearsOfExperience = 0)).experience)
+    }
+
+    @Test
+    fun withoutASkillNameTheLineKeepsTheYearsOnly() {
+        val partner = QuotePartner(id = "p1", fullName = "Thợ Một", yearsOfExperience = 5)
+        assertNull(QuoteTexts.experienceLine(partner).skill)
+        assertNull(QuoteTexts.experienceLine(partner.copy(skillName = "  ")).skill)
+    }
+
+    @Test
+    fun quotePartnerReadsSkillNameAndIdentityVerifiedOf42() {
+        val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+        val partner = json.decodeFromString(
+            QuotePartner.serializer(),
+            """{"id":"p1","fullName":"Tho Mot","averageRating":5.0,"totalReviews":1,"completedOrders":2,"skillName":"Sửa điện dân dụng","yearsOfExperience":5,"identityVerified":true,"distanceKm":1.2}""",
+        )
+        assertEquals("Sửa điện dân dụng", partner.skillName)
+        assertEquals(true, partner.identityVerified)
+        // An older server without the fields: no skill, not verified.
+        val old = json.decodeFromString(QuotePartner.serializer(), """{"id":"p1","fullName":"Tho Mot"}""")
+        assertNull(old.skillName)
+        assertEquals(false, old.identityVerified)
+    }
+
+    @Test
+    fun durationKeepsEachFigureWithItsUnit() {
+        assertEquals("60 phút", QuoteTexts.duration(60).text("giờ", "phút"))
+        assertEquals("3 giờ", QuoteTexts.duration(180).text("giờ", "phút"))
+        assertEquals("2 giờ 30 phút", QuoteTexts.duration(150).text("giờ", "phút"))
     }
 }

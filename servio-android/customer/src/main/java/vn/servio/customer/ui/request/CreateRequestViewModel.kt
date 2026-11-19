@@ -30,6 +30,7 @@ import vn.servio.customer.data.model.ScheduleType
 import vn.servio.customer.data.repository.AddressRepository
 import vn.servio.customer.data.repository.CreateRequestRepository
 import vn.servio.customer.data.repository.FileRepository
+import vn.servio.customer.data.repository.WalletRepository
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -53,6 +54,7 @@ class CreateRequestViewModel @Inject constructor(
     private val addressRepository: AddressRepository,
     private val fileRepository: FileRepository,
     private val createRequestRepository: CreateRequestRepository,
+    private val walletRepository: WalletRepository,
     private val cameraFiles: CameraCaptureFiles,
 ) : ViewModel() {
 
@@ -594,8 +596,16 @@ class CreateRequestViewModel @Inject constructor(
                 // posting stays on: the flow is left right away and nothing may be sent twice.
                 is ApiResult.Success -> _events.send(Event.Posted(result.data.id))
                 is ApiResult.Failure -> {
+                    // OUTSTANDING_DEBT is also sent for an AWAITING_PAYMENT order: #87 tells which ("Đăng" stays off
+                    // meanwhile).
+                    val failure = PostFailure.of(result.code, result.field, result.message).let { failure ->
+                        if (failure is PostFailure.Dialog && failure.kind == PostFailure.DialogKind.OUTSTANDING_DEBT) {
+                            failure.copy(kind = PostFailure.debtKind((walletRepository.getWallet() as? ApiResult.Success)?.data))
+                        } else {
+                            failure
+                        }
+                    }
                     _posting.value = false
-                    val failure = PostFailure.of(result.code, result.field, result.message)
                     if (failure is PostFailure.BackToStep) markChecked(failure.step)
                     _events.send(Event.Failed(failure))
                 }

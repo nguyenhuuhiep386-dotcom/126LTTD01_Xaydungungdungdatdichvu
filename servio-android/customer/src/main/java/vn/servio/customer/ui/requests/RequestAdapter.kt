@@ -32,9 +32,13 @@ class RequestAdapter(
             bindChip(chip, card.chip)
             title.text = request.title
             schedule.text = QuoteFormat.schedule(context, request.scheduleType, request.scheduledStartAt, card.scheduledEndAt)
-            val expiry = if (card.showsExpiry) QuoteFormat.expiry(context, request.expiresAt) else null
-            footer.isVisible = expiry != null
-            footer.text = expiry
+            val last = when (val kind = card.footer) {
+                is RequestFooter.SentTo -> context.getString(R.string.requests_sent_to, kind.partners)
+                RequestFooter.Expiry -> QuoteFormat.expiry(context, request.expiresAt)
+                RequestFooter.None -> null
+            }
+            footer.isVisible = last != null
+            footer.text = last
             root.setOnClickListener { onClick(request) }
         }
     }

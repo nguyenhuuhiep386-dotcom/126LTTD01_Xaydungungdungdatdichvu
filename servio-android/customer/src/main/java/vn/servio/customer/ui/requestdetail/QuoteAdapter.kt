@@ -51,7 +51,7 @@ class QuoteAdapter(
             avatarInitials.text = QuoteTexts.initials(partner.fullName)
             images.load(partner.avatarUrl, avatarImage)
             nameText.text = partner.fullName
-            experienceText.text = context.getString(R.string.quote_experience, partner.yearsOfExperience)
+            experienceText.text = QuoteFormat.experience(context, partner)
             rating.bind(partner)
             priceText.text = QuoteFormat.money(context, quote.amount)
             availableText.text = context.getString(

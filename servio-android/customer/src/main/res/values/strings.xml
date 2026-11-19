@@ -19,7 +19,7 @@
     <string name="home_post_request_hint">Mô tả việc cần làm, đối tác gần bạn sẽ gửi báo giá</string>
     <string name="home_categories">Danh mục dịch vụ</string>
     <string name="home_see_all">Xem tất cả</string>
-    <string name="home_services_count">%1$d dịch vụ</string>
+    <string name="home_services_count">%1$d&#160;dịch vụ</string>
 
     <!-- CS-07 Categories -->
     <string name="category_title">Chọn dịch vụ</string>
@@ -29,7 +29,7 @@
     <string name="category_group_empty">Nhóm này chưa có dịch vụ nào.</string>
     <string name="category_search_results">Kết quả tìm kiếm</string>
     <plurals name="category_search_count">
-        <item quantity="other">%1$d dịch vụ phù hợp</item>
+        <item quantity="other">%1$d&#160;dịch vụ phù hợp</item>
     </plurals>
     <string name="category_search_empty">Không tìm thấy dịch vụ nào cho “%1$s”. Thử từ khoá khác hoặc chọn một nhóm bên trái.</string>
 
@@ -45,7 +45,9 @@
     <string name="requests_meta">%1$s · %2$s</string>
     <string name="requests_new">Đăng yêu cầu mới</string>
     <string name="requests_waiting_quotes">Chờ báo giá</string>
-    <string name="requests_quotes">%1$d báo giá</string>
+    <string name="requests_quotes">%1$d&#160;báo giá</string>
+    <!-- CS-14, Figma 18:1417: open request without quotes, #37 broadcastCount > 0. -->
+    <string name="requests_sent_to">Đã gửi tới %1$d&#160;người làm phù hợp</string>
     <string name="requests_status_draft">Đang kiểm duyệt</string>
     <string name="requests_status_open">Đang mở</string>
     <string name="requests_status_matched">Đã ghép</string>
@@ -72,9 +74,9 @@
     <string name="request_detail_time_now">Càng sớm càng tốt</string>
     <string name="request_detail_time_now_until">Càng sớm càng tốt · trước %1$s</string>
     <string name="request_detail_time_unknown">Chưa có khung giờ</string>
-    <string name="request_detail_budget">Ngân sách %1$s – %2$s đ</string>
-    <string name="request_detail_expires_hours">Hết hạn sau %1$d giờ</string>
-    <string name="request_detail_expires_minutes">Hết hạn sau %1$d phút</string>
+    <string name="request_detail_budget">Ngân sách %1$s – %2$s&#160;đ</string>
+    <string name="request_detail_expires_hours">Hết hạn sau %1$d&#160;giờ</string>
+    <string name="request_detail_expires_minutes">Hết hạn sau %1$d&#160;phút</string>
     <string name="request_detail_expired">Đã hết hạn</string>
     <string name="request_detail_cancel_reason">Lý do huỷ: %1$s</string>
     <string name="request_detail_quotes_title">Báo giá (%1$d)</string>
@@ -92,22 +94,25 @@
     <string name="request_detail_cancel_conflict">Yêu cầu đã thay đổi trạng thái, vui lòng tải lại.</string>
 
     <!-- Quote card (CS-15) and CS-16 Quote detail -->
-    <string name="quote_price">%1$s đ</string>
+    <string name="quote_price">%1$s&#160;đ</string>
     <string name="quote_price_caption">giá báo</string>
     <string name="quote_price_label">Giá báo</string>
     <string name="quote_price_note">Tiền công, chưa gồm chi phí phát sinh (nếu có, bạn duyệt trong app)</string>
-    <string name="quote_review_count">(%1$d đánh giá)</string>
+    <string name="quote_review_count">(%1$d&#160;đánh giá)</string>
     <string name="quote_no_reviews">Chưa có đánh giá</string>
-    <string name="quote_experience">%1$d năm kinh nghiệm</string>
-    <string name="quote_completed">%1$d đơn hoàn thành</string>
+    <string name="quote_experience">%1$d&#160;năm kinh nghiệm</string>
+    <!-- CS-15 card, Figma 18:1511: "Điện lạnh · 6 năm kinh nghiệm" (skill of the request's category, from #42). -->
+    <string name="quote_skill_experience">%1$s · %2$s kinh nghiệm</string>
+    <string name="partner_identity_verified">Đã xác minh danh tính</string>
+    <string name="quote_completed">%1$d&#160;đơn hoàn thành</string>
     <!-- Always an absolute time: "Có mặt 14:00, T7 17/10 · làm khoảng 90 phút" -->
     <string name="quote_available">Có mặt %1$s · làm khoảng %2$s</string>
     <string name="quote_available_label">Có mặt</string>
     <string name="quote_duration_label">Thời gian làm</string>
     <string name="quote_duration_about">Khoảng %1$s</string>
-    <string name="quote_duration_minutes">%1$d phút</string>
-    <string name="quote_duration_hours">%1$d giờ</string>
-    <string name="quote_duration_hours_minutes">%1$d giờ %2$d phút</string>
+    <!-- Units of QuoteTexts.Duration.text (figure + no-break space + unit). -->
+    <string name="unit_minutes">phút</string>
+    <string name="unit_hours">giờ</string>
     <string name="quote_note">“%1$s”</string>
     <string name="quote_status_accepted">Đã chọn</string>
     <string name="quote_chat">Nhắn tin</string>
@@ -118,17 +123,18 @@
 
     <!-- CS-17 Hồ sơ đối tác (#27, #28) -->
     <string name="partner_profile_title">Hồ sơ đối tác</string>
-    <string name="partner_profile_review_count">%1$d đánh giá</string>
+    <string name="partner_profile_review_count">%1$d&#160;đánh giá</string>
     <string name="partner_profile_no_rating">–</string>
     <string name="partner_profile_no_rating_label">Chưa có đánh giá</string>
     <string name="partner_profile_completed_label">đơn hoàn thành</string>
-    <string name="partner_profile_years">%1$d năm</string>
-    <string name="partner_profile_years_new">&lt; 1 năm</string>
+    <!-- Years of experience (CS-15, CS-17): joined to the figure by a no-break space in PartnerTexts. -->
+    <string name="partner_years_unit">năm</string>
+    <string name="partner_years_less_than_one">&lt; 1</string>
     <string name="partner_profile_experience_label">kinh nghiệm</string>
     <string name="partner_profile_about">Giới thiệu</string>
     <string name="partner_profile_reviews">Đánh giá gần đây</string>
     <string name="partner_profile_no_reviews">Chưa có đánh giá nào</string>
-    <string name="partner_profile_stars">%1$d trên 5 sao</string>
+    <string name="partner_profile_stars">%1$d trên 5&#160;sao</string>
     <string name="partner_profile_not_found_title">Không xem được hồ sơ</string>
     <string name="partner_profile_not_found_message">Hồ sơ này không tồn tại hoặc bạn chưa có báo giá, tin nhắn hay đơn hàng nào với đối tác này.</string>
     <string name="partner_profile_quote_for">Báo giá cho %1$s</string>
@@ -146,9 +152,9 @@
     <string name="confirm_quote_payment_title">Thanh toán</string>
     <string name="confirm_quote_cash">Tiền mặt</string>
     <string name="confirm_quote_cash_hint">Trả trực tiếp cho đối tác khi xác nhận hoàn thành</string>
-    <!-- Fixed as in Figma: 10 minutes and the fees are SystemConfigs on the server, and no API reads them. -->
-    <string name="confirm_quote_note_accept">Đối tác có 10 phút để xác nhận. Các báo giá khác sẽ tự đóng.</string>
-    <string name="confirm_quote_note_cancel">Huỷ miễn phí trước khi đối tác di chuyển. Đang di chuyển: 20.000 đ. Đã đến: 30.000 đ hoặc 20% giá báo.</string>
+    <!-- CS-18 policy lines, numbers from #107 (hidden when it fails). -->
+    <string name="confirm_quote_note_accept">Đối tác có %1$d&#160;phút để xác nhận. Các báo giá khác sẽ tự đóng.</string>
+    <string name="confirm_quote_note_cancel">Huỷ miễn phí trước khi đối tác di chuyển. Đang di chuyển: %1$s. Đã đến: %2$s hoặc %3$s%% giá báo.</string>
     <string name="confirm_quote_confirm">Xác nhận đặt dịch vụ</string>
     <string name="confirm_quote_sending">Đang đặt…</string>
     <string name="confirm_quote_unavailable_title">Báo giá này không còn hiệu lực</string>
@@ -178,7 +184,7 @@
     <string name="account_address_title">Sổ địa chỉ</string>
     <string name="account_address_none">Chưa có địa chỉ</string>
     <plurals name="account_address_count">
-        <item quantity="other">%1$d địa chỉ</item>
+        <item quantity="other">%1$d&#160;địa chỉ</item>
     </plurals>
     <string name="account_notification_title">Thông báo</string>
     <string name="account_notification_none">Không có thông báo mới</string>
@@ -199,8 +205,8 @@
     <string name="address_book_default">Mặc định</string>
     <string name="address_book_edit">Sửa địa chỉ</string>
     <string name="address_book_add">Thêm địa chỉ mới</string>
-    <string name="address_book_limit_note">Lưu tối đa %1$d địa chỉ.</string>
-    <string name="address_book_limit_reached">Đã đạt tối đa %1$d địa chỉ</string>
+    <string name="address_book_limit_note">Lưu tối đa %1$d&#160;địa chỉ.</string>
+    <string name="address_book_limit_reached">Đã đạt tối đa %1$d&#160;địa chỉ</string>
     <string name="address_book_empty">Bạn chưa lưu địa chỉ nào</string>
     <string name="address_book_use_selected">Dùng địa chỉ đã chọn</string>
     <string name="address_book_set_default">Đặt làm mặc định</string>
@@ -242,7 +248,7 @@
     <string name="wallet_declare_title">Khai báo đã chuyển khoản</string>
     <string name="wallet_declare_hint">Sau khi chuyển khoản, nhập mã giao dịch ngân hàng và ảnh chứng từ để quản trị viên xác nhận.</string>
     <string name="wallet_reference_label">Mã giao dịch ngân hàng</string>
-    <string name="wallet_reference_length">Mã giao dịch dài 3–100 ký tự</string>
+    <string name="wallet_reference_length">Mã giao dịch dài 3–100&#160;ký tự</string>
     <string name="wallet_evidence_title">Ảnh chứng từ</string>
     <string name="wallet_evidence_add">Tải ảnh chụp màn hình chuyển khoản</string>
     <string name="wallet_evidence_uploading">Đang tải ảnh lên…</string>
@@ -264,14 +270,14 @@
 
     <!-- CS-08 Bước 1 Mô tả -->
     <string name="create_request_title_label">Tiêu đề</string>
-    <string name="create_request_title_helper">Từ 5 đến 150 ký tự</string>
-    <string name="create_request_title_length">Tiêu đề dài từ 5 đến 150 ký tự</string>
+    <string name="create_request_title_helper">Từ 5 đến 150&#160;ký tự</string>
+    <string name="create_request_title_length">Tiêu đề dài từ 5 đến 150&#160;ký tự</string>
     <string name="create_request_description_label">Mô tả chi tiết</string>
     <string name="create_request_description_helper">Không ghi số điện thoại hoặc đường link.</string>
-    <string name="create_request_description_length">Mô tả dài từ 20 đến 2000 ký tự</string>
+    <string name="create_request_description_length">Mô tả dài từ 20 đến 2000&#160;ký tự</string>
     <string name="create_request_contact_info">Không ghi số điện thoại hoặc đường link. Hai bên trao đổi qua chat trong ứng dụng.</string>
     <string name="create_request_images_label">Ảnh (%1$d/%2$d)</string>
-    <string name="create_request_images_helper">Tối đa 6 ảnh, mỗi ảnh không quá 5 MB.</string>
+    <string name="create_request_images_helper">Tối đa 6&#160;ảnh, mỗi ảnh không quá 5&#160;MB.</string>
     <string name="create_request_images_uploading">Ảnh đang được tải lên. Đợi tải xong rồi bấm Tiếp tục.</string>
     <string name="create_request_images_failed">Có ảnh tải lên không thành công. Bấm vào ảnh để thử lại hoặc xoá ảnh đó.</string>
     <string name="create_request_add_image">Thêm ảnh</string>
@@ -300,10 +306,10 @@
     <string name="create_request_address_not_ready">Chưa tải được địa chỉ. Bấm Thử lại để tải lại.</string>
     <string name="create_request_time_section">Thời gian</string>
     <string name="create_request_time_now">Càng sớm càng tốt</string>
-    <string name="create_request_time_now_hint">Trong vòng 2 giờ</string>
+    <string name="create_request_time_now_hint">Trong vòng 2&#160;giờ</string>
     <string name="create_request_time_scheduled">Hẹn lịch</string>
     <string name="create_request_time_scheduled_hint">Chọn ngày và khung giờ</string>
-    <string name="create_request_slot_helper">Khung 2 giờ. Đặt trước tối đa 30 ngày.</string>
+    <string name="create_request_slot_helper">Khung 2&#160;giờ. Đặt trước tối đa 30&#160;ngày.</string>
     <string name="create_request_slot_required">Chọn ngày và khung giờ còn đặt được.</string>
     <string name="create_request_slot_expired">Khung giờ bạn chọn đã qua, vui lòng chọn khung khác.</string>
     <!-- Day chip: "T5 30/10" (Monday = T2 … Saturday = T7), Sunday "CN 01/11". -->
@@ -326,13 +332,13 @@
     <!-- "Giá tham chiếu Sửa máy lạnh: 250.000 – 600.000 đ. …" -->
     <string name="create_request_reference_price">Giá tham chiếu %1$s: %2$s – %3$s đ. Đây là giá ước tính, chưa gồm linh kiện.</string>
     <string name="create_request_requirements_section">Yêu cầu với người làm</string>
-    <string name="create_request_require_experience">Có từ %1$d năm kinh nghiệm</string>
+    <string name="create_request_require_experience">Có từ %1$d&#160;năm kinh nghiệm</string>
     <string name="create_request_require_certificate">Có chứng chỉ nghề</string>
     <string name="create_request_certificate_required">Dịch vụ này yêu cầu người làm có chứng chỉ.</string>
     <!-- %1$s is already in Vietnamese format: "4,5". -->
-    <string name="create_request_require_rating">Đánh giá từ %1$s sao</string>
+    <string name="create_request_require_rating">Đánh giá từ %1$s&#160;sao</string>
     <string name="create_request_radius_section">Bán kính tìm người làm</string>
-    <string name="create_request_radius_option">%1$d km</string>
+    <string name="create_request_radius_option">%1$d&#160;km</string>
     <string name="create_request_review">Xem lại</string>
 
     <!-- CS-11 Xem lại yêu cầu -->
@@ -346,7 +352,7 @@
     <string name="create_request_review_service">%1$s · %2$s</string>
     <string name="create_request_review_image">Ảnh %1$d</string>
     <string name="create_request_review_images_lost">Ảnh đã chọn bị mất khi ứng dụng đóng. Bấm Sửa ở phần Mô tả để thêm lại.</string>
-    <string name="create_request_review_time_now">Càng sớm càng tốt · trong vòng 2 giờ</string>
+    <string name="create_request_review_time_now">Càng sớm càng tốt · trong vòng 2&#160;giờ</string>
     <!-- "Thứ Bảy 17/10 · 14:00 – 16:00" -->
     <string name="create_request_review_time_scheduled">%1$s · %2$s</string>
     <string name="create_request_review_day">%1$s %2$s</string>
@@ -360,12 +366,12 @@
         <item>Chủ Nhật</item>
     </string-array>
     <string name="create_request_review_time_missing">Chưa chọn khung giờ</string>
-    <string name="create_request_review_budget_range">%1$s đ</string>
-    <string name="create_request_review_experience">Từ %1$d năm kinh nghiệm</string>
+    <string name="create_request_review_budget_range">%1$s&#160;đ</string>
+    <string name="create_request_review_experience">Từ %1$d&#160;năm kinh nghiệm</string>
     <string name="create_request_review_no_requirement">Không yêu cầu thêm</string>
-    <string name="create_request_review_radius">bán kính %1$d km</string>
-    <string name="create_request_review_expiry_scheduled">Yêu cầu tự hết hạn sau 24 giờ hoặc khi tới giờ hẹn, tuỳ mốc nào đến trước.</string>
-    <string name="create_request_review_expiry_now">Yêu cầu tự hết hạn sau 2 giờ kể từ lúc đăng.</string>
+    <string name="create_request_review_radius">bán kính %1$d&#160;km</string>
+    <string name="create_request_review_expiry_scheduled">Yêu cầu tự hết hạn sau 24&#160;giờ hoặc khi tới giờ hẹn, tuỳ mốc nào đến trước.</string>
+    <string name="create_request_review_expiry_now">Yêu cầu tự hết hạn sau 2&#160;giờ kể từ lúc đăng.</string>
     <string name="create_request_post">Đăng yêu cầu</string>
     <string name="create_request_posting">Đang đăng…</string>
     <string name="create_request_post_not_ready">Đang tải lại thông tin yêu cầu. Đợi tải xong rồi bấm Đăng.</string>
@@ -376,6 +382,10 @@
     <string name="create_request_post_debt_title">Còn phí huỷ chưa thanh toán</string>
     <string name="create_request_post_restricted_title">Tạm thời chưa đăng được</string>
     <string name="create_request_post_view_fee">Xem phí huỷ</string>
+    <!-- OUTSTANDING_DEBT of #36 with no fee owed (#87): an order waits for payment. -->
+    <string name="create_request_post_unpaid_title">Còn đơn chưa thanh toán</string>
+    <string name="create_request_post_unpaid_message">Bạn còn đơn chưa thanh toán cho đối tác.</string>
+    <string name="create_request_post_view_orders">Xem đơn hàng</string>
     <string name="action_close">Đóng</string>
 
     <!-- region Đơn hàng (CS-19, CS-20, CS-20c). Only labels: every name, time, amount and count comes from the API. -->
@@ -389,6 +399,7 @@
     <string name="order_status_cancelled">Đã huỷ</string>
     <string name="order_status_disputed">Đang khiếu nại</string>
     <string name="order_status_processing">Đang xử lý</string>
+    <string name="order_status_unpaid">Chưa thanh toán</string>
 
     <string name="orders_title">Đơn hàng</string>
     <string name="orders_tab_active">Đang diễn ra</string>
@@ -407,7 +418,7 @@
     <string name="order_detail_not_found_title">Không xem được đơn này</string>
     <string name="order_detail_not_found_message">Đơn này không tồn tại hoặc không thuộc tài khoản của bạn.</string>
     <string name="order_detail_pending_title">Chờ đối tác xác nhận</string>
-    <string name="order_detail_pending_window">Đối tác có %1$d phút để xác nhận · còn %2$s</string>
+    <string name="order_detail_pending_window">Đối tác có %1$d&#160;phút để xác nhận · còn %2$s</string>
     <string name="order_detail_pending_left">Còn %1$s để đối tác xác nhận</string>
     <string name="order_detail_pending_expired">Đã hết thời gian xác nhận</string>
     <string name="order_detail_line_scheduled">Hẹn %1$s</string>
@@ -419,6 +430,8 @@
     <string name="order_detail_line_completed">Hoàn thành lúc %1$s</string>
     <string name="order_detail_line_cancelled">Đã huỷ lúc %1$s</string>
     <string name="order_detail_disputed">Khiếu nại đang được xử lý</string>
+    <!-- AWAITING_PAYMENT: %1$s = pricing.totalAmount (OrderFormat.money). -->
+    <string name="order_detail_unpaid_text">Bạn chưa thanh toán %1$s cho đối tác. Hãy trả trực tiếp cho đối tác; đơn sẽ hoàn tất khi được xác nhận.</string>
     <string name="order_detail_confirm_completion">Xem kết quả và xác nhận</string>
     <string name="order_detail_phone_later">Số điện thoại hiện sau khi đối tác nhận đơn</string>
     <string name="order_detail_chat">Nhắn tin với đối tác</string>
@@ -449,8 +462,8 @@
     <string name="order_actor_system">Hệ thống</string>
     <string name="order_actor_admin">Quản trị viên</string>
     <string name="order_step_separator">" · "</string>
-    <string name="order_step_pending_charges">%1$d phát sinh chờ duyệt</string>
-    <string name="order_detail_pending_charges">Có %1$d chi phí phát sinh chờ bạn duyệt</string>
+    <string name="order_step_pending_charges">%1$d&#160;phát sinh chờ duyệt</string>
+    <string name="order_detail_pending_charges">Có %1$d&#160;chi phí phát sinh chờ bạn duyệt</string>
 
     <!-- CS-22 Duyệt chi phí phát sinh -->
     <string name="extra_charge_title">Đối tác đề xuất chi phí phát sinh</string>
@@ -504,7 +517,7 @@
     <string name="review_rating_3">Bình thường</string>
     <string name="review_rating_4">Hài lòng</string>
     <string name="review_rating_5">Rất hài lòng</string>
-    <string name="review_star">%1$d sao</string>
+    <string name="review_star">%1$d&#160;sao</string>
     <string name="review_punctuality">Đúng giờ</string>
     <string name="review_quality">Tay nghề</string>
     <string name="review_attitude">Thái độ</string>
@@ -551,7 +564,7 @@
 
     <!-- region Theo dõi đối tác (CS-20 ON_THE_WAY, CS-21) và CS-20b. Every ETA, distance and time comes from #76 / the hub. -->
     <string name="order_distance_km">%1$s&#160;km</string>
-    <string name="order_eta_minutes">Khoảng %1$d phút nữa</string>
+    <string name="order_eta_minutes">Khoảng %1$d&#160;phút nữa</string>
     <string name="order_eta_updated">Cập nhật lúc %1$s · cách %2$s</string>
     <string name="order_eta_unknown">Chưa cập nhật</string>
     <string name="order_eta_stale">Chưa cập nhật · vị trí lúc %1$s</string>
