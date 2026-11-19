@@ -2,6 +2,8 @@ package vn.servio.customer.ui.wallet
 
 import android.Manifest
 import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.net.Uri
@@ -83,6 +85,17 @@ class WalletFragment : Fragment(R.layout.fragment_wallet) {
 
         binding.submitButton.setOnClickListener { viewModel.submit() }
 
+        binding.bankRow.label.setText(R.string.wallet_transfer_bank)
+        binding.accountRow.label.setText(R.string.wallet_transfer_account)
+        binding.holderRow.label.setText(R.string.wallet_transfer_holder)
+        binding.noteRow.label.setText(R.string.wallet_transfer_note)
+        binding.accountRow.value.setOnClickListener {
+            viewModel.state.value.transfer?.let { copy(R.string.wallet_transfer_account, it.accountNumber) }
+        }
+        binding.noteRow.value.setOnClickListener {
+            viewModel.state.value.transfer?.note?.let { copy(R.string.wallet_transfer_note, it) }
+        }
+
         collectWhenStarted(viewModel.state) { state -> binding.bind(state) }
         collectWhenStarted(viewModel.state.map { it.debts }.distinctUntilChanged()) { debts -> debts?.let { binding.bindDebts(it) } }
         collectWhenStarted(viewModel.state.map { it.evidence }.distinctUntilChanged()) { evidence -> binding.bindEvidence(evidence) }
@@ -127,6 +140,7 @@ class WalletFragment : Fragment(R.layout.fragment_wallet) {
 
         val owes = state.status == WalletForm.Status.OWES
         declareGroup.isVisible = owes
+        bindTransfer(state.transfer)
         bottomBar.isVisible = owes
         referenceLayout.error = when {
             state.referenceServerError != null -> state.referenceServerError
@@ -135,6 +149,27 @@ class WalletFragment : Fragment(R.layout.fragment_wallet) {
         }
         referenceInput.isEnabled = !state.sending
         submitButton.isEnabled = state.canSubmit
+    }
+
+    /** Hidden while #107 has no complete account (AW-15); the note row also needs the phone number of #9. */
+    private fun FragmentWalletBinding.bindTransfer(transfer: TransferCard?) {
+        transferCard.isVisible = transfer != null
+        if (transfer == null) return
+        bankRow.value.text = transfer.bankName
+        accountRow.value.text = transfer.accountNumber
+        holderRow.value.text = transfer.accountHolder
+        noteRow.root.isVisible = transfer.note != null
+        noteRow.value.text = transfer.note
+    }
+
+    /**
+     * A tap on the account number or the note: to the clipboard. From Android 13 (API 33) the system confirms the copy
+     * itself, so "Đã sao chép" is shown only up to Android 12L.
+     */
+    private fun copy(@StringRes label: Int, text: String) {
+        val clipboard = requireContext().getSystemService(ClipboardManager::class.java) ?: return
+        clipboard.setPrimaryClip(ClipData.newPlainText(getString(label), text))
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) showMessage(R.string.wallet_copied)
     }
 
     private fun FragmentWalletBinding.bindDebts(debts: List<Debt>) {

@@ -16,15 +16,15 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import vn.servio.core.network.ApiResult
-import vn.servio.customer.data.model.AppConfig
 import vn.servio.customer.data.model.CreatedOrder
 import vn.servio.customer.data.model.CustomerQuote
 import vn.servio.customer.data.model.QuoteSort
 import vn.servio.customer.data.model.QuoteStatus
+import vn.servio.customer.data.model.ServerConfig
 import vn.servio.customer.data.model.ServiceRequestDetail
 import vn.servio.customer.data.model.ServiceRequestStatus
-import vn.servio.customer.data.repository.AppConfigRepository
 import vn.servio.customer.data.repository.OrderRepository
+import vn.servio.customer.data.repository.ServerConfigRepository
 import vn.servio.customer.data.repository.ServiceRequestRepository
 import javax.inject.Inject
 
@@ -39,7 +39,7 @@ class ConfirmQuoteViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val requests: ServiceRequestRepository,
     private val orders: OrderRepository,
-    private val appConfig: AppConfigRepository,
+    private val serverConfig: ServerConfigRepository,
 ) : ViewModel() {
 
     val requestId: String = savedStateHandle.get<String>(ARG_REQUEST_ID).orEmpty()
@@ -59,7 +59,7 @@ class ConfirmQuoteViewModel @Inject constructor(
         val submitting: Boolean = false,
         val dialog: ConfirmFailure.Dialog? = null,
         /** #107; null while unknown (the policy lines are hidden). */
-        val policy: AppConfig? = null,
+        val policy: ServerConfig? = null,
     ) {
         /** Only a pending quote of an open request can be booked; anything else shows "không còn hiệu lực". */
         val available: Boolean
@@ -100,7 +100,7 @@ class ConfirmQuoteViewModel @Inject constructor(
 
     /** #107 for the policy lines; a failure leaves them hidden (a retry of the screen asks again). */
     private suspend fun loadPolicy() {
-        val result = appConfig.getConfig()
+        val result = serverConfig.getConfig()
         if (result is ApiResult.Success) _state.update { it.copy(policy = result.data) }
     }
 

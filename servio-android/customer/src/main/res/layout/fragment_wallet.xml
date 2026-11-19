@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   CS-30 Phí huỷ và giao dịch (Figma 18:3188). Total and limit from #87, the fees from #155, the declaration (#156) with
-  the bank reference and one receipt photo. Not shown on purpose: the bank card of the Figma (no API gives the bank,
-  the account or the transfer content) and "Lịch sử" (no API lists the paid fees of a customer).
+  the bank reference and one receipt photo; the bank card from #107 (hidden until AW-15 has the whole account). Not
+  shown on purpose: "Lịch sử" (no API lists the paid fees of a customer).
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -174,6 +174,44 @@
                         android:layout_marginTop="@dimen/space_s"
                         android:text="@string/wallet_declare_hint"
                         android:textAppearance="@style/TextAppearance.Servio.Caption" />
+
+                    <!--
+                      Where to transfer (cancellationFeeBank of #107): only when the bank, the account number and the
+                      holder are all filled in AW-15. A tap on the account number or the transfer note copies it.
+                    -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/transferCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="@dimen/space_l"
+                            android:paddingTop="@dimen/space_xs"
+                            android:paddingBottom="@dimen/space_l">
+
+                            <include
+                                android:id="@+id/bankRow"
+                                layout="@layout/view_order_info_row" />
+
+                            <include
+                                android:id="@+id/accountRow"
+                                layout="@layout/view_order_info_row" />
+
+                            <include
+                                android:id="@+id/holderRow"
+                                layout="@layout/view_order_info_row" />
+
+                            <include
+                                android:id="@+id/noteRow"
+                                layout="@layout/view_order_info_row" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <TextView
                         android:id="@+id/referenceLabel"

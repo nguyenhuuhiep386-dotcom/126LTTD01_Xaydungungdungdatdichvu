@@ -22,7 +22,7 @@ import org.junit.Test
 import vn.servio.core.network.ApiResult
 import vn.servio.core.network.PagedResult
 import vn.servio.customer.data.model.AcceptQuotesBody
-import vn.servio.customer.data.model.AppConfig
+import vn.servio.customer.data.model.ServerConfig
 import vn.servio.customer.data.model.CancelPreview
 import vn.servio.customer.data.model.CancelResult
 import vn.servio.customer.data.model.CreatedOrder
@@ -37,7 +37,8 @@ import vn.servio.customer.data.model.ScheduleType
 import vn.servio.customer.data.model.ServiceRequestDetail
 import vn.servio.customer.data.model.ServiceRequestStatus
 import vn.servio.customer.data.model.ServiceRequestSummary
-import vn.servio.customer.data.repository.AppConfigRepository
+import vn.servio.customer.data.repository.ServerConfigRepository
+import vn.servio.customer.data.repository.serverConfig
 import vn.servio.customer.data.repository.OrderRepository
 import vn.servio.customer.data.repository.ServiceRequestRepository
 import vn.servio.customer.ui.confirmquote.ConfirmFailure.DialogKind
@@ -50,12 +51,14 @@ class ConfirmQuoteViewModelTest {
     private val offline = ApiResult.Failure("NETWORK_ERROR", "Không có kết nối mạng")
 
     /** #38, #42 and #43 of one request "r1" with the quote "q1" (and "q2"). */
-    private class Server : ServiceRequestRepository, OrderRepository, AppConfigRepository {
+    private class Server : ServiceRequestRepository, OrderRepository, ServerConfigRepository {
         /** #107. */
-        var config: ApiResult<AppConfig> = ApiResult.Success(AppConfig(10, 20_000, 30_000, 20.0, 15))
+        var config: ApiResult<ServerConfig> = ApiResult.Success(serverConfig())
         var configCalls = 0
 
-        override suspend fun getConfig(): ApiResult<AppConfig> {
+        override val latest: ServerConfig? = null
+
+        override suspend fun getConfig(): ApiResult<ServerConfig> {
             configCalls++
             return config
         }
@@ -285,7 +288,7 @@ class ConfirmQuoteViewModelTest {
     fun policyLinesComeFrom107() = runTest(dispatcher) {
         val viewModel = viewModelWith(Server())
         advanceUntilIdle()
-        assertEquals(AppConfig(10, 20_000, 30_000, 20.0, 15), viewModel.state.value.policy)
+        assertEquals(serverConfig(), viewModel.state.value.policy)
     }
 
     @Test
@@ -297,7 +300,7 @@ class ConfirmQuoteViewModelTest {
         assertTrue(viewModel.state.value.available)
         assertNull(viewModel.state.value.error)
 
-        server.config = ApiResult.Success(AppConfig(5, 25_000, 40_000, 12.5, 15))
+        server.config = ApiResult.Success(serverConfig(5, 25_000, 40_000, 12.5))
         viewModel.load()
         advanceUntilIdle()
         assertEquals(2, server.configCalls)

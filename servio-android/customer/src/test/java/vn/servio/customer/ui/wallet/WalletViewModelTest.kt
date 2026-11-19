@@ -19,16 +19,24 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import vn.servio.core.data.model.AuthResult
+import vn.servio.core.data.model.Me
+import vn.servio.core.data.model.OtpRequestResult
+import vn.servio.core.data.model.UpdateMeRequest
+import vn.servio.core.data.repository.AuthRepository
 import vn.servio.core.network.ApiResult
 import vn.servio.customer.R
 import vn.servio.customer.data.image.CaptureFiles
+import vn.servio.customer.data.model.BankAccount
 import vn.servio.customer.data.model.Debt
 import vn.servio.customer.data.model.DebtPaymentBody
 import vn.servio.customer.data.model.DebtPaymentResult
 import vn.servio.customer.data.model.UploadedFile
 import vn.servio.customer.data.model.Wallet
+import vn.servio.customer.data.repository.FakeServerConfigRepository
 import vn.servio.customer.data.repository.FileRepository
 import vn.servio.customer.data.repository.WalletRepository
+import vn.servio.customer.data.repository.serverConfig
 import vn.servio.customer.ui.wallet.WalletForm.EvidenceStatus
 import vn.servio.customer.ui.wallet.WalletViewModel.Event
 
@@ -77,12 +85,35 @@ class WalletViewModelTest {
         override fun delete(uri: Uri) = error("unused")
     }
 
+    /** #9 for the transfer note: [me] is what it answers. */
+    private class Account(var me: ApiResult<Me> = ApiResult.Success(Me("u1", "+84912345678", "Khách Một"))) : AuthRepository {
+        override val hasSession: Boolean = true
+
+        override suspend fun requestOtp(phoneNumber: String): ApiResult<OtpRequestResult> = error("unused")
+
+        override suspend fun verifyOtp(otpId: String, code: String): ApiResult<AuthResult> = error("unused")
+
+        override suspend fun getMe(): ApiResult<Me> = me
+
+        override suspend fun updateMe(request: UpdateMeRequest): ApiResult<Me> = error("unused")
+
+        override suspend fun logout() = error("unused")
+    }
+
+    private val bank = BankAccount("Vietcombank", "0123456789", "CONG TY SERVIO", "SERVIO {phone}")
+
     /** A receipt already uploaded (as after a rotation): no android.net.Uri is needed by the ViewModel for it. */
     private fun uploaded(reference: String = "FT2611190001") =
         SavedStateHandle(mapOf("reference" to reference, "evidenceUri" to "content://media/picker/1", "evidenceUrl" to "/api/v1/files/f1"))
 
-    private fun TestScope.viewModel(server: Server, events: MutableList<Event>, handle: SavedStateHandle = uploaded()) =
-        WalletViewModel(handle, server, NoFiles, NoCamera).also { vm ->
+    private fun TestScope.viewModel(
+        server: Server,
+        events: MutableList<Event>,
+        handle: SavedStateHandle = uploaded(),
+        config: FakeServerConfigRepository = FakeServerConfigRepository(),
+        account: Account = Account(),
+    ) =
+        WalletViewModel(handle, server, NoFiles, NoCamera, config, account).also { vm ->
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.events.collect { events += it } }
             advanceUntilIdle()
         }
@@ -209,6 +240,35 @@ class WalletViewModelTest {
         assertEquals("Ảnh không hợp lệ", vm.state.value.evidence?.error)
         assertNull(vm.state.value.referenceServerError)
         assertFalse(vm.state.value.canSubmit)
+    }
+
+    private fun owing() = Server().apply {
+        wallets += ApiResult.Success(Wallet(debtBalance = 20_000, maxDebt = 100_000))
+        debts += ApiResult.Success(listOf(fee))
+    }
+
+    @Test
+    fun `the transfer card shows the account of 107 and the note with the phone of 9`() = runTest(dispatcher) {
+        val vm = viewModel(owing(), mutableListOf(), config = FakeServerConfigRepository(ApiResult.Success(serverConfig(bank = bank))))
+        assertEquals(TransferCard("Vietcombank", "0123456789", "CONG TY SERVIO", "SERVIO 0912345678"), vm.state.value.transfer)
+    }
+
+    @Test
+    fun `no card while AW-15 has no account, no note without the phone`() = runTest(dispatcher) {
+        // The seed: transferNoteTemplate only.
+        assertNull(viewModel(owing(), mutableListOf()).state.value.transfer)
+        // 107 failed and the session has no config yet.
+        val offline = FakeServerConfigRepository(ApiResult.Failure("NETWORK_ERROR", "Mất kết nối"))
+        assertNull(viewModel(owing(), mutableListOf(), config = offline).state.value.transfer)
+        // 9 failed: the card stays, without its note row.
+        val vm = viewModel(
+            owing(),
+            mutableListOf(),
+            config = FakeServerConfigRepository(ApiResult.Success(serverConfig(bank = bank))),
+            account = Account(ApiResult.Failure("NETWORK_ERROR", "Mất kết nối")),
+        )
+        assertEquals("0123456789", vm.state.value.transfer?.accountNumber)
+        assertNull(vm.state.value.transfer?.note)
     }
 
     @Test

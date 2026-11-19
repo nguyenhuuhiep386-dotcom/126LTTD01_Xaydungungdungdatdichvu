@@ -27,6 +27,7 @@ object ScheduleLabels {
         return context.getString(R.string.create_request_review_day, weekday, date.format(DAY_MONTH))
     }
 
-    fun slot(context: Context, startHour: Int): String =
-        context.getString(R.string.create_request_slot_label, startHour, startHour + ScheduleSlots.WINDOW_HOURS.toInt())
+    /** [windowHours] = posting.windowHours of #107. */
+    fun slot(context: Context, startHour: Int, windowHours: Int): String =
+        context.getString(R.string.create_request_slot_label, startHour, startHour + windowHours)
 }

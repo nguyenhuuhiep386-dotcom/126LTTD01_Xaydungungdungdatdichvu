@@ -3,8 +3,8 @@ package vn.servio.customer.ui.request
 import android.net.Uri
 import vn.servio.core.data.model.Category
 import vn.servio.customer.data.model.Address
+import vn.servio.customer.data.model.PostingRules
 import vn.servio.customer.data.model.ScheduleType
-import java.time.Duration
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -137,31 +137,32 @@ object MoneyInput {
 }
 
 /**
- * CS-09 time slots: 2-hour windows starting at [START_HOURS], Vietnam time. A slot can be booked when it starts
- * at least 30 minutes from now and at most 30 days from now — the same window the server checks for #36.
+ * CS-09 time slots: windows of posting.windowHours (#107) starting at [START_HOURS], Vietnam time. A slot can be
+ * booked when it starts at least minLeadMinutes and at most maxLeadDays from now — the window the server checks for
+ * #36. Without [PostingRules] nothing can be booked: the screen waits for #107 instead of guessing.
  */
 object ScheduleSlots {
     val ZONE: ZoneId = ZoneId.of("Asia/Ho_Chi_Minh")
     val START_HOURS = listOf(8, 10, 14, 16, 18)
-    const val WINDOW_HOURS = 2L
-    const val MAX_DAYS_AHEAD = 30L
-    private val MIN_LEAD: Duration = Duration.ofMinutes(30)
 
     fun startOf(date: LocalDate, hour: Int): ZonedDateTime = date.atTime(hour, 0).atZone(ZONE)
 
-    fun isAvailable(date: LocalDate, hour: Int, now: ZonedDateTime): Boolean {
+    fun isAvailable(date: LocalDate, hour: Int, now: ZonedDateTime, rules: PostingRules): Boolean {
         val start = startOf(date, hour)
-        return !start.isBefore(now.plus(MIN_LEAD)) && !start.isAfter(now.plusDays(MAX_DAYS_AHEAD))
+        return !start.isBefore(now.plusMinutes(rules.minLeadMinutes.toLong())) &&
+            !start.isAfter(now.plusDays(rules.maxLeadDays.toLong()))
     }
 
-    /** Today through today + 30 days; a day is only selectable when at least one of its slots is. */
-    fun days(now: ZonedDateTime): List<LocalDate> {
+    /** Today through today + maxLeadDays; a day is only selectable when at least one of its slots is. */
+    fun days(now: ZonedDateTime, rules: PostingRules): List<LocalDate> {
         val today = now.withZoneSameInstant(ZONE).toLocalDate()
-        return (0..MAX_DAYS_AHEAD).map { today.plusDays(it) }
+        return (0..rules.maxLeadDays.toLong()).map { today.plusDays(it) }
     }
 
-    fun hasAvailableSlot(date: LocalDate, now: ZonedDateTime): Boolean = START_HOURS.any { isAvailable(date, it, now) }
+    fun hasAvailableSlot(date: LocalDate, now: ZonedDateTime, rules: PostingRules): Boolean =
+        START_HOURS.any { isAvailable(date, it, now, rules) }
 
     /** Today, or tomorrow once today's last slot is too close. */
-    fun firstAvailableDay(now: ZonedDateTime): LocalDate? = days(now).firstOrNull { hasAvailableSlot(it, now) }
+    fun firstAvailableDay(now: ZonedDateTime, rules: PostingRules): LocalDate? =
+        days(now, rules).firstOrNull { hasAvailableSlot(it, now, rules) }
 }

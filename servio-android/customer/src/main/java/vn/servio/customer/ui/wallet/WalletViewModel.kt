@@ -16,20 +16,24 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import vn.servio.core.data.repository.AuthRepository
 import vn.servio.core.network.ApiResult
 import vn.servio.customer.R
 import vn.servio.customer.data.image.CaptureFiles
+import vn.servio.customer.data.model.BankAccount
 import vn.servio.customer.data.model.Debt
 import vn.servio.customer.data.model.DebtPaymentBody
 import vn.servio.customer.data.model.Wallet
 import vn.servio.customer.data.repository.FileRepository
+import vn.servio.customer.data.repository.ServerConfigRepository
 import vn.servio.customer.data.repository.WalletRepository
 import vn.servio.customer.ui.wallet.WalletForm.EvidenceStatus
 import javax.inject.Inject
 
 /**
  * CS-30 Phí huỷ và giao dịch: #87 (total, pending part, limit) and #155 (the fees), then #156 for every fee not
- * declared yet, with the bank reference and one receipt photo (POST /files purpose DISPUTE_EVIDENCE).
+ * declared yet, with the bank reference and one receipt photo (POST /files purpose DISPUTE_EVIDENCE). The account to
+ * transfer to comes from #107 and the transfer note needs the customer's phone number (#9); neither blocks the screen.
  *
  * The reference and the photo (local uri, uploaded url, camera flag) are kept in [SavedStateHandle]; the ViewModel
  * itself survives a rotation, so nothing is uploaded again. The preview always uses the local uri: the uploaded file
@@ -41,6 +45,8 @@ class WalletViewModel @Inject constructor(
     private val walletRepository: WalletRepository,
     private val fileRepository: FileRepository,
     private val captureFiles: CaptureFiles,
+    private val serverConfig: ServerConfigRepository,
+    private val auth: AuthRepository,
 ) : ViewModel() {
 
     /** The receipt: [uri] is the local image (as text), [url] the uploaded file once [status] is UPLOADED. */
@@ -54,7 +60,8 @@ class WalletViewModel @Inject constructor(
 
     /**
      * [wallet] and [debts] stay null until the first load answered; [error] is the full-screen error of that load.
-     * [referenceServerError] is a 400 of #156 shown under the field until the text changes.
+     * [referenceServerError] is a 400 of #156 shown under the field until the text changes. [bank] (#107) and
+     * [phoneNumber] (#9) stay null when their call failed: the transfer card or its note row is then hidden.
      */
     data class State(
         val loading: Boolean = true,
@@ -65,7 +72,11 @@ class WalletViewModel @Inject constructor(
         val referenceServerError: String? = null,
         val evidence: Evidence? = null,
         val sending: Boolean = false,
+        val bank: BankAccount? = null,
+        val phoneNumber: String? = null,
     ) {
+        val transfer: TransferCard? get() = TransferCard.of(bank, phoneNumber)
+
         val loaded: Boolean get() = wallet != null && debts != null
         val status: WalletForm.Status get() = WalletForm.status(debts.orEmpty())
         val undeclared: List<Debt> get() = WalletForm.undeclared(debts.orEmpty())
@@ -88,6 +99,7 @@ class WalletViewModel @Inject constructor(
     val events: Flow<Event> = _events.receiveAsFlow()
 
     private var loadJob: Job? = null
+    private var transferJob: Job? = null
     private var uploadJob: Job? = null
 
     init {
@@ -110,6 +122,23 @@ class WalletViewModel @Inject constructor(
             val shown = _state.value.loaded
             _state.update { it.copy(loading = false, error = if (shown) null else message) }
             if (shown) _events.send(Event.Message(text = message))
+        }
+        loadTransfer()
+    }
+
+    /** #107 (the session's last config when it fails) and #9 for the transfer card; a failure only hides that part. */
+    private fun loadTransfer() {
+        transferJob?.cancel()
+        transferJob = viewModelScope.launch {
+            val meCall = async { auth.getMe() }
+            val config = serverConfig.getConfig()
+            val me = meCall.await()
+            _state.update { state ->
+                state.copy(
+                    bank = (config as? ApiResult.Success)?.data?.cancellationFeeBank ?: state.bank,
+                    phoneNumber = (me as? ApiResult.Success)?.data?.phoneNumber ?: state.phoneNumber,
+                )
+            }
         }
     }
 

@@ -21,6 +21,7 @@ import vn.servio.core.utils.UiState
 import vn.servio.core.utils.collectWhenStarted
 import vn.servio.customer.R
 import vn.servio.customer.data.model.Address
+import vn.servio.customer.data.model.PostingRules
 import vn.servio.customer.databinding.FragmentCreateRequestReviewBinding
 import vn.servio.customer.databinding.ItemReviewImageBinding
 import vn.servio.customer.ui.request.CreateRequestViewModel.Event
@@ -73,8 +74,8 @@ class CreateRequestReviewFragment : Fragment(R.layout.fragment_create_request_re
 
         collectWhenStarted(viewModel.category) { state -> binding.bindService(state) }
         collectWhenStarted(viewModel.address) { state -> binding.bindAddress(state) }
-        collectWhenStarted(combine(viewModel.draft, viewModel.category, ::Pair)) { (draft, category) ->
-            binding.bindDraft(draft, viewModel.certificateFor(draft, category))
+        collectWhenStarted(combine(viewModel.draft, viewModel.category, viewModel.postingRules, ::Triple)) { (draft, category, rules) ->
+            binding.bindDraft(draft, viewModel.certificateFor(draft, category), (rules as? UiState.Content)?.data)
         }
         collectWhenStarted(viewModel.draft.map { it.images }.distinctUntilChanged()) { images ->
             binding.bindImages(images, thumbnails)
@@ -112,16 +113,22 @@ class CreateRequestReviewFragment : Fragment(R.layout.fragment_create_request_re
         addressRetryButton.isVisible = state is UiState.Error
     }
 
-    private fun FragmentCreateRequestReviewBinding.bindDraft(draft: RequestDraft, certificate: CertificateState) {
+    /**
+     * [rules] = posting of #107; while it is unknown the time line leaves out the figures it would need (the window,
+     * the slot's end) and the expiry note is hidden.
+     */
+    private fun FragmentCreateRequestReviewBinding.bindDraft(draft: RequestDraft, certificate: CertificateState, rules: PostingRules?) {
         titleText.text = draft.title.trim()
         descriptionText.text = draft.description.trim()
 
         timeText.text = when (val line = ReviewTexts.timeLine(draft)) {
-            TimeLine.Now -> getString(R.string.create_request_review_time_now)
+            TimeLine.Now -> rules?.let { getString(R.string.create_request_review_time_now, it.windowHours) }
+                ?: getString(R.string.create_request_time_now)
             is TimeLine.Scheduled -> getString(
                 R.string.create_request_review_time_scheduled,
                 ScheduleLabels.fullDay(requireContext(), line.date),
-                ScheduleLabels.slot(requireContext(), line.startHour),
+                rules?.let { ScheduleLabels.slot(requireContext(), line.startHour, it.windowHours) }
+                    ?: getString(R.string.create_request_slot_start, line.startHour),
             )
             null -> getString(R.string.create_request_review_time_missing)
         }
@@ -143,12 +150,13 @@ class CreateRequestReviewFragment : Fragment(R.layout.fragment_create_request_re
             radius = getString(R.string.create_request_review_radius, draft.searchRadiusKm),
         )
 
-        expiryText.setText(
-            when (ReviewTexts.expiryNote(draft.scheduleType)) {
-                ExpiryNote.NOW_TWO_HOURS -> R.string.create_request_review_expiry_now
-                ExpiryNote.SCHEDULED_DAY_OR_START -> R.string.create_request_review_expiry_scheduled
-            },
-        )
+        expiryText.isVisible = rules != null
+        if (rules != null) {
+            expiryText.text = when (ReviewTexts.expiryNote(draft.scheduleType)) {
+                ExpiryNote.NOW_WINDOW -> getString(R.string.create_request_review_expiry_now, rules.windowHours)
+                ExpiryNote.SCHEDULED_DAY_OR_START -> getString(R.string.create_request_review_expiry_scheduled, rules.expireHours)
+            }
+        }
     }
 
     /** Read-only tiles; a tile whose uri cannot be decoded keeps the "Ảnh N" placeholder. */
@@ -223,21 +231,27 @@ class CreateRequestReviewFragment : Fragment(R.layout.fragment_create_request_re
             PostFailure.DialogKind.UNPAID_ORDER -> R.string.create_request_post_unpaid_title
             PostFailure.DialogKind.POSTING_RESTRICTED -> R.string.create_request_post_restricted_title
         }
-        // The server's message speaks of cancellation fees: an unpaid order gets the app's own sentence.
-        val message = if (failure.kind == PostFailure.DialogKind.UNPAID_ORDER) getString(R.string.create_request_post_unpaid_message) else failure.message
         val builder = MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Servio_AlertDialog)
             .setTitle(title)
-            .setMessage(message)
+            .setMessage(failure.message)
             .setPositiveButton(R.string.action_close, null)
         when (failure.kind) {
             // CS-30 "Phí huỷ và giao dịch" opens on top: the draft is kept.
             PostFailure.DialogKind.OUTSTANDING_DEBT ->
                 builder.setNeutralButton(R.string.create_request_post_view_fee) { _, _ -> findNavController().navigate(R.id.cs30) }
-            PostFailure.DialogKind.UNPAID_ORDER ->
-                builder.setNeutralButton(R.string.create_request_post_view_orders) { _, _ -> openOrders() }
+            PostFailure.DialogKind.UNPAID_ORDER -> builder.setNeutralButton(R.string.create_request_post_view_order) { _, _ ->
+                failure.orderId?.let(::openOrder) ?: openOrders()
+            }
             else -> Unit
         }
         builder.show()
+    }
+
+    /** CS-20 of the order waiting for payment, on top of CS-11 like CS-30: the draft is kept. */
+    private fun openOrder(orderId: String) {
+        val navController = findNavController()
+        if (navController.currentDestination?.id != R.id.cs11) return
+        navController.navigate(R.id.cs20, bundleOf(ARG_ORDER_ID to orderId))
     }
 
     /**
@@ -290,6 +304,9 @@ class CreateRequestReviewFragment : Fragment(R.layout.fragment_create_request_re
         const val THUMBNAIL_EDGE = 240
 
         const val ARG_REQUEST_ID = "requestId"
+
+        /** Argument of cs20. */
+        const val ARG_ORDER_ID = "orderId"
 
         /** "4,5" whatever the device language. */
         val RATING_FORMAT: NumberFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag("vi-VN"))

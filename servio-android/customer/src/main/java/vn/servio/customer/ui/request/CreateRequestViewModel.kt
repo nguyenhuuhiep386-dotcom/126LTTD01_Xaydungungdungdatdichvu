@@ -25,12 +25,15 @@ import vn.servio.core.utils.UiState
 import vn.servio.customer.data.image.CameraCaptureFiles
 import vn.servio.customer.data.model.Address
 import vn.servio.customer.data.model.CreateServiceRequestRequest
+import vn.servio.customer.data.model.OrderListFilter
+import vn.servio.customer.data.model.PostingRules
 import vn.servio.customer.data.model.RequestImageInput
 import vn.servio.customer.data.model.ScheduleType
 import vn.servio.customer.data.repository.AddressRepository
 import vn.servio.customer.data.repository.CreateRequestRepository
 import vn.servio.customer.data.repository.FileRepository
-import vn.servio.customer.data.repository.WalletRepository
+import vn.servio.customer.data.repository.OrderRepository
+import vn.servio.customer.data.repository.ServerConfigRepository
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -54,7 +57,8 @@ class CreateRequestViewModel @Inject constructor(
     private val addressRepository: AddressRepository,
     private val fileRepository: FileRepository,
     private val createRequestRepository: CreateRequestRepository,
-    private val walletRepository: WalletRepository,
+    private val serverConfig: ServerConfigRepository,
+    private val orderRepository: OrderRepository,
     private val cameraFiles: CameraCaptureFiles,
 ) : ViewModel() {
 
@@ -82,8 +86,16 @@ class CreateRequestViewModel @Inject constructor(
         data object NotReady : Event
     }
 
-    /** CS-09 day chips and slot grid, as plain data: the screen builds the labels. */
-    data class ScheduleUi(val days: List<DayOption>, val slots: List<SlotOption>, val selectedDayIndex: Int) {
+    /**
+     * CS-09 day chips and slot grid, as plain data: the screen builds the labels ("08:00 – 10:00" needs
+     * [windowHours]). Only exists once posting of #107 is known.
+     */
+    data class ScheduleUi(
+        val days: List<DayOption>,
+        val slots: List<SlotOption>,
+        val selectedDayIndex: Int,
+        val windowHours: Int,
+    ) {
         data class DayOption(val date: LocalDate, val enabled: Boolean, val selected: Boolean)
         data class SlotOption(val startHour: Int, val enabled: Boolean, val selected: Boolean)
     }
@@ -104,8 +116,21 @@ class CreateRequestViewModel @Inject constructor(
     /** "Now" the CS-09 slots were last checked against; moved forward on every refresh. */
     private val clock = MutableStateFlow(now())
 
-    val schedule: StateFlow<ScheduleUi> = combine(_draft, clock, ::scheduleUi)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, scheduleUi(_draft.value, clock.value))
+    /**
+     * posting of #107 (CS-09 time block, CS-11 time and expiry lines): Loading, Error while this session has no config
+     * yet, Content once one arrived (kept when a later call fails). Starts from the session's last config, if any.
+     */
+    private val _postingRules = MutableStateFlow<UiState<PostingRules>>(
+        serverConfig.latest?.let { UiState.Content(it.posting) } ?: UiState.Loading,
+    )
+    val postingRules: StateFlow<UiState<PostingRules>> = _postingRules.asStateFlow()
+
+    private var rulesJob: Job? = null
+
+    /** Null until posting of #107 is known: no day or slot is offered with made-up limits. */
+    val schedule: StateFlow<ScheduleUi?> = combine(_draft, clock, _postingRules) { draft, now, rules ->
+        (rules as? UiState.Content)?.let { scheduleUi(draft, now, it.data) }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, rules()?.let { scheduleUi(_draft.value, clock.value, it) })
 
     /** CS-09 address card: Content(null) means the address book is empty. */
     private val _address = MutableStateFlow<UiState<Address?>>(UiState.Loading)
@@ -150,19 +175,46 @@ class CreateRequestViewModel @Inject constructor(
      */
     private var lastRequestedAddressId: String? = savedStateHandle[KEY_ADDRESS_ID]
 
-    /** A restored slot that had already passed; reported by the next [refreshSchedule]. */
+    /** A slot dropped on restore or when the rules of #107 arrived; reported by the next [refreshSchedule]. */
     private var slotDroppedOnRestore = false
 
     init {
         // Files of a draft lost with the process are of no use now, except a capture whose result is still coming.
         cameraFiles.deleteAllExcept(savedStateHandle.get<Uri>(KEY_PENDING_CAPTURE))
         loadCategory()
-        // A slot restored after process death may have passed in the meantime.
-        val restored = _draft.value
-        val fresh = freshSchedule(restored, clock.value)
-        if (fresh != restored) {
-            slotDroppedOnRestore = droppedSlot(restored, fresh)
-            updateSchedule(fresh)
+        // A slot restored after process death may have passed in the meantime (checked again once the rules arrive).
+        dropStaleSlot()
+    }
+
+    /** Checks the saved slot against the current rules and time; a slot dropped here is told by [refreshSchedule]. */
+    private fun dropStaleSlot() {
+        val before = _draft.value
+        val after = freshSchedule(before, clock.value)
+        if (after != before) {
+            if (droppedSlot(before, after)) slotDroppedOnRestore = true
+            updateSchedule(after)
+        }
+    }
+
+    private fun rules(): PostingRules? = (_postingRules.value as? UiState.Content)?.data
+
+    /**
+     * Every time CS-09 or CS-11 opens, and "Thử lại": asks #107 again. A failure keeps the config already known in
+     * this session (the repository answers with it); with none, the time block shows the error.
+     */
+    fun loadPostingRules() {
+        if (rulesJob?.isActive == true) return
+        if (_postingRules.value is UiState.Error) _postingRules.value = UiState.Loading
+        rulesJob = viewModelScope.launch {
+            when (val result = serverConfig.getConfig()) {
+                is ApiResult.Success -> {
+                    _postingRules.value = UiState.Content(result.data.posting)
+                    dropStaleSlot()
+                    recheckAddressTime()
+                }
+                is ApiResult.Failure ->
+                    if (_postingRules.value !is UiState.Content) _postingRules.value = UiState.Error(result.message)
+            }
         }
     }
 
@@ -346,6 +398,15 @@ class CreateRequestViewModel @Inject constructor(
     /** "Thử lại" on the address card: runs the failed load again. */
     fun retryAddress() = loadAddress(lastRequestedAddressId)
 
+    /**
+     * "Thử lại" on CS-09, from the address card or the time block: runs again every part that failed (the address and
+     * the rules of #107), so one tap is enough when the network was down for both.
+     */
+    fun retryFailedStep2() {
+        if (_address.value is UiState.Error) retryAddress()
+        if (_postingRules.value is UiState.Error) loadPostingRules()
+    }
+
     /** Address returned by CS-13 (select mode) or CS-12 (new address); reloaded even when it is the same id. */
     fun selectAddress(id: String) = loadAddress(id)
 
@@ -393,17 +454,19 @@ class CreateRequestViewModel @Inject constructor(
      * that day is over) picks the first day with a bookable slot, with no slot yet.
      */
     fun chooseScheduled() {
+        val rules = rules() ?: return
         val now = now()
         clock.value = now
         val draft = freshSchedule(_draft.value, now)
-        val date = draft.scheduledDate ?: ScheduleSlots.firstAvailableDay(now)
+        val date = draft.scheduledDate ?: ScheduleSlots.firstAvailableDay(now, rules)
         updateSchedule(draft.copy(scheduleType = ScheduleType.SCHEDULED, scheduledDate = date))
     }
 
     /** Another day: keeps the slot only if it is still bookable on that day. */
     fun setScheduledDate(date: LocalDate) {
+        val rules = rules() ?: return
         val draft = _draft.value
-        val hour = draft.scheduledHour?.takeIf { ScheduleSlots.isAvailable(date, it, now()) }
+        val hour = draft.scheduledHour?.takeIf { ScheduleSlots.isAvailable(date, it, now(), rules) }
         updateSchedule(draft.copy(scheduleType = ScheduleType.SCHEDULED, scheduledDate = date, scheduledHour = hour))
     }
 
@@ -425,11 +488,15 @@ class CreateRequestViewModel @Inject constructor(
         return dropped
     }
 
-    /** Drops a slot that can no longer be booked and moves off a day that has no bookable slot left. */
+    /**
+     * Drops a slot that can no longer be booked and moves off a day that has no bookable slot left. Leaves the draft
+     * as it is while the rules are unknown: it is checked again when they arrive.
+     */
     private fun freshSchedule(draft: RequestDraft, now: ZonedDateTime): RequestDraft {
+        val rules = rules() ?: return draft
         val date = draft.scheduledDate ?: return draft
-        val day = if (ScheduleSlots.hasAvailableSlot(date, now)) date else ScheduleSlots.firstAvailableDay(now)
-        val hour = draft.scheduledHour?.takeIf { day == date && ScheduleSlots.isAvailable(date, it, now) }
+        val day = if (ScheduleSlots.hasAvailableSlot(date, now, rules)) date else ScheduleSlots.firstAvailableDay(now, rules)
+        val hour = draft.scheduledHour?.takeIf { day == date && ScheduleSlots.isAvailable(date, it, now, rules) }
         return draft.copy(scheduledDate = day, scheduledHour = hour)
     }
 
@@ -445,19 +512,19 @@ class CreateRequestViewModel @Inject constructor(
         recheckAddressTime()
     }
 
-    private fun scheduleUi(draft: RequestDraft, now: ZonedDateTime): ScheduleUi {
+    private fun scheduleUi(draft: RequestDraft, now: ZonedDateTime, rules: PostingRules): ScheduleUi {
         val date = draft.scheduledDate
-        val days = ScheduleSlots.days(now).map { day ->
-            ScheduleUi.DayOption(day, enabled = ScheduleSlots.hasAvailableSlot(day, now), selected = day == date)
+        val days = ScheduleSlots.days(now, rules).map { day ->
+            ScheduleUi.DayOption(day, enabled = ScheduleSlots.hasAvailableSlot(day, now, rules), selected = day == date)
         }
         val slots = ScheduleSlots.START_HOURS.map { hour ->
             ScheduleUi.SlotOption(
                 startHour = hour,
-                enabled = date != null && ScheduleSlots.isAvailable(date, hour, now),
+                enabled = date != null && ScheduleSlots.isAvailable(date, hour, now, rules),
                 selected = date != null && hour == draft.scheduledHour,
             )
         }
-        return ScheduleUi(days, slots, selectedDayIndex = days.indexOfFirst { it.selected })
+        return ScheduleUi(days, slots, selectedDayIndex = days.indexOfFirst { it.selected }, windowHours = rules.windowHours)
     }
 
     /** "Tiếp tục" on CS-09. Errors are shown from this first tap on, and then follow every change. */
@@ -470,13 +537,19 @@ class CreateRequestViewModel @Inject constructor(
         if (addressTimeChecked) setErrors(addressTimeErrors(_draft.value))
     }
 
-    /** A slot that became too close (or past) while the screen was open counts as missing. */
+    /**
+     * A slot that became too close (or past) while the screen was open counts as missing. Without the rules of #107 no
+     * slot can be checked: "Tiếp tục" is locked on CS-09 then, and CS-11 does not post.
+     */
     private fun addressTimeErrors(draft: RequestDraft) = buildSet {
         addAll(addressErrors(draft.address, _address.value))
         if (draft.scheduleType == ScheduleType.SCHEDULED) {
+            val rules = rules()
             val date = draft.scheduledDate
             val hour = draft.scheduledHour
-            if (date == null || hour == null || !ScheduleSlots.isAvailable(date, hour, now())) add(FieldError.SLOT_REQUIRED)
+            if (rules == null || date == null || hour == null || !ScheduleSlots.isAvailable(date, hour, now(), rules)) {
+                add(FieldError.SLOT_REQUIRED)
+            }
         }
     }
 
@@ -542,14 +615,17 @@ class CreateRequestViewModel @Inject constructor(
      * CS-11 shows the service and the address from the same loads as CS-08 / CS-09; after process death on CS-11 the
      * address is loaded from here, as CS-09 was never opened.
      */
-    fun loadReviewData() = loadAddressIfNeeded()
+    fun loadReviewData() {
+        loadAddressIfNeeded()
+        loadPostingRules()
+    }
 
     /** "Đăng yêu cầu". Ignored while a post is running and once it succeeded. */
     fun post() {
         if (_posting.value) return
         val draft = _draft.value
         val service = (_category.value as? UiState.Content)?.data?.service
-        if (service == null || _address.value !is UiState.Content) {
+        if (service == null || _address.value !is UiState.Content || rules() == null) {
             sendEvent(Event.NotReady)
             return
         }
@@ -596,11 +672,11 @@ class CreateRequestViewModel @Inject constructor(
                 // posting stays on: the flow is left right away and nothing may be sent twice.
                 is ApiResult.Success -> _events.send(Event.Posted(result.data.id))
                 is ApiResult.Failure -> {
-                    // OUTSTANDING_DEBT is also sent for an AWAITING_PAYMENT order: #87 tells which ("Đăng" stays off
-                    // meanwhile).
+                    // UNPAID_ORDER: the order behind it is looked up first, so "Xem đơn" knows where to go ("Đăng" stays
+                    // off meanwhile).
                     val failure = PostFailure.of(result.code, result.field, result.message).let { failure ->
-                        if (failure is PostFailure.Dialog && failure.kind == PostFailure.DialogKind.OUTSTANDING_DEBT) {
-                            failure.copy(kind = PostFailure.debtKind((walletRepository.getWallet() as? ApiResult.Success)?.data))
+                        if (failure is PostFailure.Dialog && failure.kind == PostFailure.DialogKind.UNPAID_ORDER) {
+                            failure.copy(orderId = unpaidOrderId())
                         } else {
                             failure
                         }
@@ -612,6 +688,13 @@ class CreateRequestViewModel @Inject constructor(
             }
         }
     }
+
+    /** The AWAITING_PAYMENT order among the active ones (#62), see [PostFailure.unpaidOrderId]; null when #62 failed. */
+    private suspend fun unpaidOrderId(): String? =
+        when (val result = orderRepository.getMyOrders(OrderListFilter.ACTIVE, page = 1, pageSize = UNPAID_LOOKUP_PAGE_SIZE)) {
+            is ApiResult.Success -> PostFailure.unpaidOrderId(result.data.items, complete = result.data.totalPages <= 1)
+            is ApiResult.Failure -> null
+        }
 
     /**
      * The key of the last post when [request] is exactly what was sent then (a retry after a network error), a new
@@ -662,6 +745,9 @@ class CreateRequestViewModel @Inject constructor(
 
     companion object {
         const val ARG_CATEGORY_ID = "categoryId"
+
+        /** The largest page #62 serves: the AWAITING_PAYMENT order is looked for among this many active orders. */
+        const val UNPAID_LOOKUP_PAGE_SIZE = 50
 
         /**
          * CS-09 address errors. While the card is loading or shows an error the draft may still hold the previous

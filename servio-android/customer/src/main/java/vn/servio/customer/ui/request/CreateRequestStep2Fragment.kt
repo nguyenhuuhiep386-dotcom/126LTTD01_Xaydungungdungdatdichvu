@@ -19,6 +19,7 @@ import vn.servio.core.utils.UiState
 import vn.servio.core.utils.collectWhenStarted
 import vn.servio.customer.R
 import vn.servio.customer.data.model.Address
+import vn.servio.customer.data.model.PostingRules
 import vn.servio.customer.data.model.ScheduleType
 import vn.servio.customer.databinding.FragmentCreateRequestStep2Binding
 import vn.servio.customer.ui.address.AddressBookFragment
@@ -28,7 +29,7 @@ import java.time.LocalDate
 
 /**
  * CS-09 Tạo yêu cầu – Bước 2 Địa chỉ & thời gian: the work address (default one, "Đổi" through CS-13 in select mode,
- * or a new one pinned on CS-12) and "Càng sớm càng tốt" or a 2-hour slot up to 30 days ahead.
+ * or a new one pinned on CS-12) and "Càng sớm càng tốt" or a slot; the window and how far ahead come from #107.
  * Back returns to CS-08 without asking: nothing typed here is lost, the draft lives in [CreateRequestViewModel].
  */
 @AndroidEntryPoint
@@ -80,14 +81,20 @@ class CreateRequestStep2Fragment : Fragment(R.layout.fragment_create_request_ste
         binding.slotList.itemAnimator = null
         binding.nowCard.setOnClickListener { viewModel.setScheduleNow() }
         binding.scheduledCard.setOnClickListener { viewModel.chooseScheduled() }
+        binding.timeRetryButton.setOnClickListener { viewModel.retryFailedStep2() }
+        // Asked again each time the screen opens: an admin may have changed the rules (AW-15).
+        viewModel.loadPostingRules()
 
         binding.continueButton.setOnClickListener { onContinue() }
 
         collectWhenStarted(viewModel.address) { state -> binding.bindAddress(state) }
+        collectWhenStarted(viewModel.postingRules) { state -> binding.bindRules(state) }
         collectWhenStarted(viewModel.draft.map { it.scheduleType }.distinctUntilChanged()) { type ->
             binding.bindScheduleType(type)
         }
-        collectWhenStarted(viewModel.schedule) { schedule -> binding.bindSchedule(schedule, dayAdapter, slotAdapter) }
+        collectWhenStarted(viewModel.schedule) { schedule ->
+            if (schedule != null) binding.bindSchedule(schedule, dayAdapter, slotAdapter)
+        }
         collectWhenStarted(combine(viewModel.fieldErrors, viewModel.address, ::Pair)) { (errors, address) ->
             binding.bindErrors(errors, address)
         }
@@ -137,11 +144,11 @@ class CreateRequestStep2Fragment : Fragment(R.layout.fragment_create_request_ste
         }
     }
 
-    /** "Đổi": CS-13 in select mode, ticked on the address in use. "Thử lại" runs the failed load again. */
+    /** "Đổi": CS-13 in select mode, ticked on the address in use. "Thử lại" runs every failed load again. */
     private fun changeAddress() {
         when (val state = viewModel.address.value) {
             UiState.Loading -> Unit
-            is UiState.Error -> viewModel.retryAddress()
+            is UiState.Error -> viewModel.retryFailedStep2()
             is UiState.Content -> navigateFromHere(
                 R.id.cs13,
                 bundleOf(
@@ -170,6 +177,25 @@ class CreateRequestStep2Fragment : Fragment(R.layout.fragment_create_request_ste
     // endregion
 
     // region Time
+
+    /**
+     * The two choices and the slot grid only once posting of #107 is known; before that the loading line, or the error
+     * with "Thử lại" when this session has no config yet. "Tiếp tục" stays locked until then.
+     */
+    private fun FragmentCreateRequestStep2Binding.bindRules(state: UiState<PostingRules>) {
+        val rules = (state as? UiState.Content)?.data
+        timeContent.isVisible = rules != null
+        timeStatus.isVisible = rules == null
+        timeProgress.isVisible = state is UiState.Loading
+        timeRetryButton.isVisible = state is UiState.Error
+        timeStatusText.setText(if (state is UiState.Error) R.string.create_request_time_error else R.string.create_request_time_loading)
+        continueButton.isEnabled = rules != null
+        if (rules != null) {
+            nowHint.text = getString(R.string.create_request_time_now_hint, rules.windowHours)
+            slotHelper.text = getString(R.string.create_request_slot_helper, rules.windowHours, rules.maxLeadDays)
+            scrollDayIntoViewIfPending()
+        }
+    }
 
     private fun FragmentCreateRequestStep2Binding.bindScheduleType(type: ScheduleType) {
         val scheduled = type == ScheduleType.SCHEDULED
@@ -203,7 +229,12 @@ class CreateRequestStep2Fragment : Fragment(R.layout.fragment_create_request_ste
         dayAdapter.submitList(days) { scrollDayIntoViewIfPending() }
         slotAdapter.submitList(
             schedule.slots.map {
-                ScheduleChipAdapter.Item(it.startHour.toString(), ScheduleLabels.slot(context, it.startHour), it.enabled, it.selected)
+                ScheduleChipAdapter.Item(
+                    it.startHour.toString(),
+                    ScheduleLabels.slot(context, it.startHour, schedule.windowHours),
+                    it.enabled,
+                    it.selected,
+                )
             },
         )
     }
@@ -217,7 +248,7 @@ class CreateRequestStep2Fragment : Fragment(R.layout.fragment_create_request_ste
         if (!pendingDayScroll) return
         dayList.post {
             val binding = binding ?: return@post
-            if (!pendingDayScroll || !binding.scheduleGroup.isVisible) return@post
+            if (!pendingDayScroll || !binding.scheduleGroup.isVisible || !binding.timeContent.isVisible) return@post
             val adapter = binding.dayList.adapter as? ScheduleChipAdapter ?: return@post
             val index = adapter.currentList.indexOfFirst { it.selected }
             if (index < 0) return@post

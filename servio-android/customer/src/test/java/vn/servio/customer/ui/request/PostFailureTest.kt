@@ -4,7 +4,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 import vn.servio.core.network.ErrorMessages
-import vn.servio.customer.data.model.Wallet
+import vn.servio.customer.data.model.OrderStatus
+import vn.servio.customer.data.model.OrderSummary
 import vn.servio.customer.ui.request.CreateRequestViewModel.Step
 import vn.servio.customer.ui.request.PostFailure.BackToStep
 import vn.servio.customer.ui.request.PostFailure.Dialog
@@ -77,19 +78,36 @@ class PostFailureTest {
     }
 
     @Test
-    fun `OUTSTANDING_DEBT with fees still owed keeps the fee dialog`() {
-        assertEquals(DialogKind.OUTSTANDING_DEBT, PostFailure.debtKind(Wallet(debtBalance = 60_000, pendingPayment = 20_000, maxDebt = 50_000)))
+    fun `OUTSTANDING_DEBT is the fee dialog with the server's sentence`() {
+        val debt = "Bạn còn 150.000 đ phí huỷ chưa thanh toán, hãy thanh toán để đăng yêu cầu mới"
+        val failure = PostFailure.of("OUTSTANDING_DEBT", null, debt)
+        assertEquals(Dialog(DialogKind.OUTSTANDING_DEBT, debt), failure)
+        assertNull((failure as Dialog).orderId)
     }
 
     @Test
-    fun `OUTSTANDING_DEBT without fees owed means an unpaid order`() {
-        assertEquals(DialogKind.UNPAID_ORDER, PostFailure.debtKind(Wallet(debtBalance = 0, pendingPayment = 0, maxDebt = 50_000)))
-        // Every fee already declared and waiting for the admin: nothing left to pay on CS-30.
-        assertEquals(DialogKind.UNPAID_ORDER, PostFailure.debtKind(Wallet(debtBalance = 20_000, pendingPayment = 20_000)))
+    fun `UNPAID_ORDER is its own dialog with the server's sentence`() {
+        val unpaid = "Đơn OD2611190016 chưa thanh toán cho đối tác, hãy thanh toán để đăng yêu cầu mới"
+        assertEquals(Dialog(DialogKind.UNPAID_ORDER, unpaid), PostFailure.of("UNPAID_ORDER", null, unpaid))
+    }
+
+    private fun order(id: String, status: OrderStatus) = OrderSummary(id = id, code = "OD-$id", status = status)
+
+    @Test
+    fun `Xem don opens the only order waiting for payment`() {
+        val active = listOf(order("o1", OrderStatus.ON_THE_WAY), order("o2", OrderStatus.AWAITING_PAYMENT), order("o3", OrderStatus.DISPUTED))
+        assertEquals("o2", PostFailure.unpaidOrderId(active, complete = true))
     }
 
     @Test
-    fun `a failed 87 keeps the fee dialog`() {
-        assertEquals(DialogKind.OUTSTANDING_DEBT, PostFailure.debtKind(null))
+    fun `Xem don opens CS-19 when there is no single order to open`() {
+        // None among the active orders (paid meanwhile, or the server sees one the list does not).
+        assertNull(PostFailure.unpaidOrderId(listOf(order("o1", OrderStatus.ARRIVED)), complete = true))
+        assertNull(PostFailure.unpaidOrderId(emptyList(), complete = true))
+        // More than one: the customer picks on CS-19.
+        val two = listOf(order("o1", OrderStatus.AWAITING_PAYMENT), order("o2", OrderStatus.AWAITING_PAYMENT))
+        assertNull(PostFailure.unpaidOrderId(two, complete = true))
+        // Only the first page was read: another one may be on the next.
+        assertNull(PostFailure.unpaidOrderId(listOf(order("o1", OrderStatus.AWAITING_PAYMENT)), complete = false))
     }
 }
