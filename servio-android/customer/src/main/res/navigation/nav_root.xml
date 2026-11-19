@@ -280,27 +280,11 @@
             android:label="CS-29 Tài khoản">
         </fragment>
 
+        <!-- CS-30 Phí huỷ và giao dịch: from CS-29 and from "Xem phí huỷ" of CS-11 (posting blocked by the debt). -->
         <fragment
             android:id="@+id/cs30"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-30 Ví &amp; giao dịch">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-30"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Ví &amp; giao dịch"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Phí huỷ còn nợ + khai báo đã chuyển khoản (#155, #156)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
-        </fragment>
+            android:name="vn.servio.customer.ui.wallet.WalletFragment"
+            android:label="CS-30 Phí huỷ và giao dịch" />
 
         <fragment
             android:id="@+id/cs31"

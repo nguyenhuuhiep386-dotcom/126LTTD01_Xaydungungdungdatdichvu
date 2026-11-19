@@ -50,6 +50,9 @@ interface OrderUpdates {
     /** The customer answered [requestId] (or the server said it no longer can be answered): drop it. */
     fun arrivalAnswered(requestId: String)
 
+    /** Sign-out: forget every kept request, they belong to the account that just left ([SessionCleanup]). */
+    fun clearSession()
+
     companion object {
         const val EVENT_ORDER_STATUS_CHANGED = OrdersHub.EVENT_ORDER_STATUS_CHANGED
 
@@ -119,6 +122,14 @@ class ArrivalRequests(private val now: () -> Instant = Instant::now) {
         _version.value++
     }
 
+    /** Drops every request (sign-out). */
+    @Synchronized
+    fun clear() {
+        if (byOrder.isEmpty()) return
+        byOrder.clear()
+        _version.value++
+    }
+
     @Synchronized
     fun current(orderId: String): ArrivalConfirmation? {
         val key = orderId.lowercase()
@@ -182,4 +193,6 @@ class HubOrderUpdates @Inject constructor(
     override fun arrivalChanges(): StateFlow<Int> = arrivals.version
 
     override fun arrivalAnswered(requestId: String) = arrivals.answered(requestId)
+
+    override fun clearSession() = arrivals.clear()
 }

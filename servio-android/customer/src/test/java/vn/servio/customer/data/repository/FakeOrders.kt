@@ -140,6 +140,13 @@ class FakeOrderUpdates(val arrivals: ArrivalRequests = ArrivalRequests()) : Orde
 
     override fun arrivalChanges(): StateFlow<Int> = arrivals.version
 
+    var cleared = 0
+
+    override fun clearSession() {
+        cleared++
+        arrivals.clear()
+    }
+
     override fun arrivalAnswered(requestId: String) {
         answered += requestId
         arrivals.answered(requestId)

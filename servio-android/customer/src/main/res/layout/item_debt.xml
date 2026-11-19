@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CS-30 one fee of #155: "Đơn #code · description", day and the "Chưa trả" / "Đang chờ xác nhận" chip on the left, the
+  amount on the right. The chip sits under the day (not under the amount): "Đang chờ xác nhận" is wide and would
+  squeeze the order code onto several lines.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="top"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/space_l"
+    android:paddingVertical="@dimen/space_m">
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_profile_menu_icon"
+        android:importantForAccessibility="no"
+        android:padding="@dimen/space_s"
+        android:src="@drawable/ic_receipt" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/space_m"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+            tools:text="Đơn #OD2611180012 · Phí huỷ đơn" />
+
+        <TextView
+            android:id="@+id/day"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Servio.Caption"
+            tools:text="18/11" />
+
+        <TextView
+            android:id="@+id/chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:background="@drawable/bg_status_chip"
+            android:paddingHorizontal="@dimen/space_m"
+            android:paddingVertical="@dimen/space_xs"
+            android:textAppearance="@style/TextAppearance.Servio.Accent"
+            android:textStyle="bold"
+            tools:text="Chưa trả" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.Servio.BodyStrong"
+        android:textStyle="bold"
+        tools:text="20.000 đ" />
+</LinearLayout>

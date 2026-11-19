@@ -20,10 +20,16 @@ import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** Image upload through POST /files. Used by CS-08 (purpose POST_IMAGE). */
+/** Image upload through POST /files: CS-08 (purpose POST_IMAGE) and the transfer receipt of CS-30 (DISPUTE_EVIDENCE). */
 interface FileRepository {
     /** Shrinks the picked image (long edge ≤ 1600 px, JPEG ≤ 5 MB, F-REQ-03) and uploads it. */
     suspend fun uploadPostImage(uri: Uri): ApiResult<UploadedFile>
+
+    /**
+     * Same shrinking, purpose DISPUTE_EVIDENCE. The file is private: its url (/api/v1/files/{id}) only opens with the
+     * owner's token, so screens preview the local uri instead of loading it back.
+     */
+    suspend fun uploadEvidence(uri: Uri): ApiResult<UploadedFile>
 }
 
 @Singleton
@@ -32,14 +38,18 @@ class RemoteFileRepository @Inject constructor(
     private val api: FileApi,
 ) : FileRepository {
 
-    override suspend fun uploadPostImage(uri: Uri): ApiResult<UploadedFile> {
+    override suspend fun uploadPostImage(uri: Uri): ApiResult<UploadedFile> = upload(uri, PURPOSE_POST_IMAGE)
+
+    override suspend fun uploadEvidence(uri: Uri): ApiResult<UploadedFile> = upload(uri, PURPOSE_DISPUTE_EVIDENCE)
+
+    private suspend fun upload(uri: Uri, purpose: String): ApiResult<UploadedFile> {
         val bytes = withContext(Dispatchers.IO) { runCatching { compress(uri) }.getOrNull() }
             ?: return ApiResult.Failure(IMAGE_UNREADABLE, context.getString(R.string.create_request_image_unreadable))
         if (bytes.size > MAX_BYTES) {
             return ApiResult.Failure(FILE_TOO_LARGE, ErrorMessages.forCode(FILE_TOO_LARGE))
         }
         val file = MultipartBody.Part.createFormData("file", "image.jpg", bytes.toRequestBody(JPEG))
-        return apiCall { api.upload(file, PURPOSE_POST_IMAGE.toRequestBody(TEXT)) }
+        return apiCall { api.upload(file, purpose.toRequestBody(TEXT)) }
     }
 
     /**
@@ -63,6 +73,7 @@ class RemoteFileRepository @Inject constructor(
 
     private companion object {
         const val PURPOSE_POST_IMAGE = "POST_IMAGE"
+        const val PURPOSE_DISPUTE_EVIDENCE = "DISPUTE_EVIDENCE"
         const val IMAGE_UNREADABLE = "IMAGE_UNREADABLE"
         const val FILE_TOO_LARGE = "FILE_TOO_LARGE"
         const val MAX_EDGE = 1600

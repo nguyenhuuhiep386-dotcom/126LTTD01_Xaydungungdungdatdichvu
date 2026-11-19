@@ -60,4 +60,17 @@ class ArrivalRequestsTest {
         requests.statusChanged(OrderStatusChange("o1", "a1", OrderStatus.ARRIVED, OrderStatus.ARRIVED))
         assertNull(requests.current("o1"))
     }
+
+    @Test
+    fun `sign-out drops every kept request`() {
+        requests.received(request("r1", order = "O1"))
+        requests.received(request("r2", order = "O2"))
+        val before = requests.version.value
+        requests.clear()
+        assertNull(requests.current("o1"))
+        assertNull(requests.current("o2"))
+        assertEquals(before + 1, requests.version.value)
+        requests.clear() // nothing left: no new version
+        assertEquals(before + 1, requests.version.value)
+    }
 }

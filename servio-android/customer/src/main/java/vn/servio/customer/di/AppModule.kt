@@ -10,11 +10,15 @@ import vn.servio.core.data.model.AppFlavor
 import vn.servio.core.utils.AppConfig
 import vn.servio.core.utils.AuthRouter
 import vn.servio.customer.BuildConfig
+import vn.servio.customer.data.image.CameraCaptureFiles
+import vn.servio.customer.data.image.CaptureFiles
 import vn.servio.customer.data.remote.AddressApi
 import vn.servio.customer.data.remote.FileApi
+import vn.servio.customer.data.remote.NotificationApi
 import vn.servio.customer.data.remote.OrderApi
 import vn.servio.customer.data.remote.PartnerApi
 import vn.servio.customer.data.remote.ServiceRequestApi
+import vn.servio.customer.data.remote.WalletApi
 import vn.servio.customer.data.repository.AddressRepository
 import vn.servio.customer.data.repository.CreateRequestRepository
 import vn.servio.customer.data.repository.FileRepository
@@ -35,6 +39,12 @@ import vn.servio.customer.data.repository.OrderUpdates
 import vn.servio.customer.data.repository.QuoteUpdates
 import vn.servio.customer.data.repository.RemoteServiceRequestRepository
 import vn.servio.customer.data.repository.ServiceRequestRepository
+import vn.servio.customer.data.repository.CustomerSessionCleanup
+import vn.servio.customer.data.repository.NotificationRepository
+import vn.servio.customer.data.repository.RemoteNotificationRepository
+import vn.servio.customer.data.repository.RemoteWalletRepository
+import vn.servio.customer.data.repository.SessionCleanup
+import vn.servio.customer.data.repository.WalletRepository
 import javax.inject.Singleton
 
 @Module
@@ -70,12 +80,32 @@ object AppModule {
     @Provides
     @Singleton
     fun provideOrderApi(retrofit: Retrofit): OrderApi = retrofit.create(OrderApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideWalletApi(retrofit: Retrofit): WalletApi = retrofit.create(WalletApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideNotificationApi(retrofit: Retrofit): NotificationApi = retrofit.create(NotificationApi::class.java)
 }
 
 /** Customer repositories. All of them call the real API. */
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryBindings {
+
+    @Binds
+    abstract fun bindWalletRepository(impl: RemoteWalletRepository): WalletRepository
+
+    @Binds
+    abstract fun bindNotificationRepository(impl: RemoteNotificationRepository): NotificationRepository
+
+    @Binds
+    abstract fun bindSessionCleanup(impl: CustomerSessionCleanup): SessionCleanup
+
+    @Binds
+    abstract fun bindCaptureFiles(impl: CameraCaptureFiles): CaptureFiles
 
     @Binds
     abstract fun bindServiceRequestRepository(impl: RemoteServiceRequestRepository): ServiceRequestRepository
