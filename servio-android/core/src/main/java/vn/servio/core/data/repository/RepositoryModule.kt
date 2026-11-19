@@ -14,5 +14,8 @@ abstract class RepositoryModule {
     abstract fun bindAuthRepository(impl: RemoteAuthRepository): AuthRepository
 
     @Binds
+    abstract fun bindLegalConsentRepository(impl: RemoteLegalConsentRepository): LegalConsentRepository
+
+    @Binds
     abstract fun bindCategoryRepository(impl: RemoteCategoryRepository): CategoryRepository
 }

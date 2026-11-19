@@ -79,6 +79,12 @@ sealed interface PostFailure {
     /** Snackbar on CS-11; "Đăng yêu cầu" can be tapped again (same Idempotency-Key). */
     data class Message(val message: String) : PostFailure
 
+    /**
+     * CONSENT_REQUIRED: the terms of the current version are not agreed (withdrawn, or the policy changed). The consent
+     * screen of :core opens over CS-11 and comes back to it with the draft untouched; nothing is posted by itself.
+     */
+    data object NeedsConsent : PostFailure
+
     enum class StepNotice { CONTACT_INFO, IMAGES_NOT_READY, SERVER }
 
     /**
@@ -94,6 +100,7 @@ sealed interface PostFailure {
         const val OUTSTANDING_DEBT = "OUTSTANDING_DEBT"
         const val UNPAID_ORDER = "UNPAID_ORDER"
         const val POSTING_RESTRICTED = "POSTING_RESTRICTED"
+        const val CONSENT_REQUIRED = "CONSENT_REQUIRED"
         const val VALIDATION_ERROR = "VALIDATION_ERROR"
 
         fun of(code: String, field: String?, message: String): PostFailure = when (code) {
@@ -103,6 +110,7 @@ sealed interface PostFailure {
             OUTSTANDING_DEBT -> Dialog(DialogKind.OUTSTANDING_DEBT, message)
             UNPAID_ORDER -> Dialog(DialogKind.UNPAID_ORDER, message)
             POSTING_RESTRICTED -> Dialog(DialogKind.POSTING_RESTRICTED, message)
+            CONSENT_REQUIRED -> NeedsConsent
             VALIDATION_ERROR -> stepOf(field)?.let { BackToStep(it, StepNotice.SERVER, message) } ?: Message(message)
             // NETWORK_ERROR (timeouts included), UNKNOWN and the rest: stay on CS-11.
             else -> Message(message)

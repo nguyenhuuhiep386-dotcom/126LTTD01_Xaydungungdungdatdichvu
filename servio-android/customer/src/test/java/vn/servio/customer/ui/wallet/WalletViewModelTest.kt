@@ -98,6 +98,8 @@ class WalletViewModelTest {
         override suspend fun updateMe(request: UpdateMeRequest): ApiResult<Me> = error("unused")
 
         override suspend fun logout() = error("unused")
+
+        override fun clearLocalSession() = error("unused")
     }
 
     private val bank = BankAccount("Vietcombank", "0123456789", "CONG TY SERVIO", "SERVIO {phone}")

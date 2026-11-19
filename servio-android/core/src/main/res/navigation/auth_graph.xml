@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Shared auth flow (CS-01, CS-03, CS-04, CS-05). Each app includes it from nav_root.xml. -->
+<!--
+  Shared auth flow (CS-01, CS-03, CS-04, consent, CS-05). Each app includes it from nav_root.xml. The consent screen is
+  also opened from the apps' screens (openLegalConsentForResult) when a call answers 422 CONSENT_REQUIRED.
+-->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/auth_graph"
@@ -41,6 +44,21 @@
         <argument
             android:name="resendAfterSeconds"
             app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/consentFragment"
+        android:name="vn.servio.core.ui.auth.LegalConsentFragment"
+        android:label="Điều khoản và quyền riêng tư">
+        <argument
+            android:name="returnToCaller"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <!--
+          In-app only (no <nav-graph> in the manifests, so no intent filter): the apps' screens sit in main_graph and
+          cannot reach a destination of auth_graph by id; a deep link is matched over the whole graph.
+        -->
+        <deepLink app:uri="servio-internal://legal-consent?returnToCaller={returnToCaller}" />
     </fragment>
 
     <fragment

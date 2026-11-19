@@ -34,7 +34,7 @@ class SplashFragment : Fragment(R.layout.fragment_splash) {
                 SplashViewModel.State.NeedsLogin ->
                     findNavController().navigate(R.id.action_splash_to_phoneInput)
                 is SplashViewModel.State.LoggedIn ->
-                    navigateAfterLogin(authRouter.destinationAfterLogin(state.user))
+                    continueAfterLogin(SignedIn(state.user, state.needsConsent), authRouter)
                 is SplashViewModel.State.Error -> binding.errorText.text = state.message
             }
         }

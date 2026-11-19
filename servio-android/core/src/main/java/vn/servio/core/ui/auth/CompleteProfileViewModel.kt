@@ -10,15 +10,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import vn.servio.core.data.model.Me
 import vn.servio.core.data.model.UpdateMeRequest
 import vn.servio.core.data.repository.AuthRepository
+import vn.servio.core.data.repository.LegalConsentRepository
 import vn.servio.core.network.ApiResult
 import javax.inject.Inject
 
 @HiltViewModel
 class CompleteProfileViewModel @Inject constructor(
     private val authRepository: AuthRepository,
+    private val legalConsents: LegalConsentRepository,
 ) : ViewModel() {
 
     data class State(val isLoading: Boolean = false, val error: String? = null)
@@ -26,8 +27,8 @@ class CompleteProfileViewModel @Inject constructor(
     private val _state = MutableStateFlow(State())
     val state: StateFlow<State> = _state.asStateFlow()
 
-    private val _saved = Channel<Me>(Channel.BUFFERED)
-    val saved: Flow<Me> = _saved.receiveAsFlow()
+    private val _saved = Channel<SignedIn>(Channel.BUFFERED)
+    val saved: Flow<SignedIn> = _saved.receiveAsFlow()
 
     fun save(rawName: String) {
         val name = rawName.trim()
@@ -39,8 +40,10 @@ class CompleteProfileViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = authRepository.updateMe(UpdateMeRequest(fullName = name))) {
                 is ApiResult.Success -> {
+                    // Normally agreed before CS-05; asked again only if the policy changed meanwhile.
+                    val needsConsent = legalConsents.needsTermsConsent()
                     _state.value = State()
-                    _saved.send(result.data)
+                    _saved.send(SignedIn(result.data, needsConsent))
                 }
                 is ApiResult.Failure -> _state.value = State(error = result.message)
             }

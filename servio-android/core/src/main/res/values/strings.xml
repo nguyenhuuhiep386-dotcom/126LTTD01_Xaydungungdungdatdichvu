@@ -11,7 +11,6 @@
     <string name="phone_subtitle">Chúng tôi sẽ gửi mã OTP gồm 6 chữ số để xác thực.</string>
     <string name="phone_hint">Số điện thoại</string>
     <string name="phone_invalid">Số điện thoại gồm 10 chữ số, bắt đầu bằng 0</string>
-    <string name="phone_terms">Bằng việc tiếp tục, bạn đồng ý với Điều khoản sử dụng và Chính sách bảo mật của Servio.</string>
 
     <string name="otp_title">Nhập mã OTP</string>
     <string name="otp_subtitle">Mã xác thực đã được gửi tới %1$s</string>
@@ -27,6 +26,22 @@
     <string name="profile_name_hint">Họ và tên</string>
     <string name="profile_name_invalid">Họ tên dài 2–100 ký tự</string>
     <string name="profile_save">Lưu và bắt đầu</string>
+
+    <!--
+      Consent to the terms and privacy policy (Luật 91/2025), shared by both apps after OTP and when a call answers
+      CONSENT_REQUIRED. Prefix legal_: the partner app has its own consent_* strings, which would replace these.
+      The summary takes its points from the backend page /chinh-sach-bao-mat (Pages/Legal/Privacy.cshtml).
+    -->
+    <string name="legal_consent_title">Điều khoản và quyền riêng tư</string>
+    <string name="legal_consent_summary_data">Servio dùng số điện thoại để xác thực tài khoản, và dùng thông tin bạn cung cấp khi sử dụng dịch vụ để thực hiện đơn hàng và giải quyết khiếu nại. Số điện thoại của bạn chỉ hiện cho bên kia từ lúc đối tác xác nhận nhận đơn đến khi xong việc.</string>
+    <string name="legal_consent_summary_sharing">Servio không bán dữ liệu cá nhân của bạn và không dùng dữ liệu để quảng cáo. Thông báo đẩy được gửi qua dịch vụ của Google đặt ở nước ngoài.</string>
+    <string name="legal_consent_summary_rights">Bạn có quyền rút lại sự đồng ý và tự xoá tài khoản trong ứng dụng. Việc tiếp tục sử dụng ứng dụng không được coi là đồng ý.</string>
+    <string name="legal_terms_link">Điều khoản sử dụng</string>
+    <string name="legal_privacy_link">Chính sách bảo mật</string>
+    <string name="legal_consent_checkbox">Tôi đã đọc và đồng ý với Điều khoản sử dụng và Chính sách bảo mật</string>
+    <string name="legal_consent_agree">Đồng ý và tiếp tục</string>
+    <string name="legal_consent_policy_changed">Chính sách vừa được cập nhật, vui lòng xem lại</string>
+    <string name="legal_link_unavailable">Không mở được trang. Hãy cài một trình duyệt rồi thử lại.</string>
 
     <!-- Placeholder screens -->
     <string name="placeholder_note">Màn hình đang phát triển. Thay Fragment giữ chỗ này bằng giao diện thật theo Figma.</string>
