@@ -22,7 +22,8 @@ import vn.servio.partner.data.repository.ConsentRepository
  */
 fun Fragment.withConsent(consents: ConsentRepository, purposes: List<ConsentPurpose>, onGranted: () -> Unit) {
     viewLifecycleOwner.lifecycleScope.launch {
-        val missing = consents.missing(purposes)
+        // TERMS_AND_PRIVACY is asked by :core (after OTP and when the app opens), never by this dialog.
+        val missing = consents.missing(purposes).filter { textOf(it) != null }
         if (missing.isEmpty()) {
             onGranted()
             return@launch
@@ -31,7 +32,7 @@ fun Fragment.withConsent(consents: ConsentRepository, purposes: List<ConsentPurp
         val context = requireContext()
         val padding = resources.getDimensionPixelSize(vn.servio.core.R.dimen.screen_padding)
         val body = TextView(context).apply {
-            text = missing.joinToString("\n\n") { getString(textOf(it)) }
+            text = missing.mapNotNull(::textOf).joinToString("\n\n") { getString(it) }
             setTextAppearance(vn.servio.core.R.style.TextAppearance_Servio_Body)
         }
         val check = CheckBox(context).apply { text = getString(R.string.consent_checkbox) }
@@ -70,8 +71,9 @@ fun Fragment.withConsent(consents: ConsentRepository, purposes: List<ConsentPurp
     }
 }
 
-private fun textOf(purpose: ConsentPurpose) = when (purpose) {
+/** Only the two purposes this app asks itself; anything else (TERMS_AND_PRIVACY) is left to :core. */
+private fun textOf(purpose: ConsentPurpose): Int? = when (purpose) {
     ConsentPurpose.KYC_IDENTITY -> R.string.consent_kyc
     ConsentPurpose.LOCATION_SHARING -> R.string.consent_location
-    ConsentPurpose.TERMS_AND_PRIVACY -> R.string.consent_terms
+    else -> null
 }
