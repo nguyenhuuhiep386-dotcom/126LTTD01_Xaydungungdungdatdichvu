@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-31 "Đọc hết" (#103); disabled when nothing is unread. -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_read_all"
+        android:title="@string/notifications_read_all"
+        app:actionLayout="@layout/view_notifications_read_all"
+        app:showAsAction="always" />
+</menu>
