@@ -193,10 +193,10 @@ public sealed class TrackingService(
         await db.SaveChangesAsync(ct); // the filtered unique index turns a double tap into an error instead of two PENDING rows
 
         var dto = ToDto(order.Id, request);
-        await notifier.OrderEventAsync([(AppFlavor.Customer, order.Customer.UserId)], RealtimeEvents.ArrivalConfirmationRequested, dto, ct);
         await workflow.SystemMessageAsync(order.ServiceRequestId, assignment.PartnerProfileId,
             "Đối tác báo đã đến nơi, chờ khách xác nhận.", ct);
         await workflow.NotifyOrderAsync(order, [(AppFlavor.Customer, order.Customer.UserId)], "Thợ báo đã đến nơi, bạn xác nhận giúp nhé.", ct);
+        await notifier.OrderEventAsync([(AppFlavor.Customer, order.Customer.UserId)], RealtimeEvents.ArrivalConfirmationRequested, dto, ct);
         return dto;
     }
 
@@ -239,7 +239,6 @@ public sealed class TrackingService(
         await db.SaveChangesAsync(ct);
 
         var dto = ToDto(order.Id, request);
-        await notifier.OrderEventAsync([(AppFlavor.Partner, assignment.PartnerProfile.UserId)], RealtimeEvents.ArrivalConfirmationResolved, dto, ct);
         if (change is not null)
         {
             await workflow.PublishAsync(order, assignment, change, "Khách đã xác nhận đối tác đến nơi.", ct);
@@ -250,6 +249,7 @@ public sealed class TrackingService(
             await workflow.NotifyOrderAsync(order, [(AppFlavor.Partner, assignment.PartnerProfile.UserId)],
                 "Khách chưa thấy bạn đến nơi. Hãy kiểm tra lại địa chỉ hoặc nhắn tin cho khách.", ct);
         }
+        await notifier.OrderEventAsync([(AppFlavor.Partner, assignment.PartnerProfile.UserId)], RealtimeEvents.ArrivalConfirmationResolved, dto, ct);
         return dto;
     }
 

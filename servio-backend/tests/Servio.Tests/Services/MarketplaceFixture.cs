@@ -25,6 +25,10 @@ public sealed class RecordingNotifier : IRealtimeNotifier
     public List<MessageRead> Reads { get; } = [];
     public List<(string Event, IReadOnlyList<(AppFlavor Flavor, Guid UserId)> To, object Payload)> OrderEvents { get; } = [];
 
+    /// <summary>Inbox rows saved when each hub event went out: an app reloading on the event must find its notification.</summary>
+    public List<(string Event, int InboxRows)> InboxAtEvent { get; } = [];
+    public Func<int>? CountInbox { get; set; }
+
     public Task NewPostAsync(IReadOnlyList<(Guid PartnerUserId, FeedItemDto Item)> recipients, CancellationToken ct)
     {
         NewPosts.AddRange(recipients);
@@ -34,6 +38,7 @@ public sealed class RecordingNotifier : IRealtimeNotifier
     public Task NewQuoteAsync(Guid customerUserId, CustomerQuoteDto quote, CancellationToken ct)
     {
         NewQuotes.Add((customerUserId, quote));
+        InboxAtEvent.Add((RealtimeEvents.NewQuote, CountInbox?.Invoke() ?? 0));
         return Task.CompletedTask;
     }
 
@@ -58,6 +63,7 @@ public sealed class RecordingNotifier : IRealtimeNotifier
     public Task OrderEventAsync(IReadOnlyList<(AppFlavor Flavor, Guid UserId)> recipients, string eventName, object payload, CancellationToken ct)
     {
         OrderEvents.Add((eventName, recipients, payload));
+        InboxAtEvent.Add((eventName, CountInbox?.Invoke() ?? 0));
         return Task.CompletedTask;
     }
 }
@@ -95,6 +101,7 @@ public sealed class MarketplaceFixture : IDisposable
     public static async Task<MarketplaceFixture> CreateAsync()
     {
         var f = new MarketplaceFixture();
+        f.Notifier.CountInbox = () => f.Ctx.Db.Notifications.Count();
         var now = f.Ctx.Clock.GetUtcNow();
         var group = new ServiceCategory { Id = Guid.NewGuid(), Name = "Điện lạnh", Slug = "dien-lanh", IsActive = true, CreatedAt = now, UpdatedAt = now };
         var service = new ServiceCategory { Id = Guid.NewGuid(), Parent = group, Name = "Vệ sinh máy lạnh", Slug = "ve-sinh-may-lanh", IsActive = true, CreatedAt = now, UpdatedAt = now };
