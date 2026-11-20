@@ -124,14 +124,14 @@ public sealed class OrderWorkflow(
     }
 
     /// <summary>
-    /// After commit: OrderStatusChanged to both sides, an optional system line in their chat, and an inbox + push
-    /// notification (ORDER_STATUS_CHANGED) to the side that did not make the change (both when SYSTEM/ADMIN did).
+    /// After commit: an optional system line in their chat, an inbox + push notification (ORDER_STATUS_CHANGED) to the
+    /// side that did not make the change (both when SYSTEM/ADMIN did), then OrderStatusChanged to both sides. The hub event
+    /// goes last so an app reloading on it already finds the chat line and the notification.
     /// </summary>
     public async Task PublishAsync(Order order, OrderAssignment assignment, OrderStatusChangedDto change, string? systemMessage, CancellationToken ct)
     {
         (AppFlavor, Guid) customer = (AppFlavor.Customer, order.Customer.UserId);
         (AppFlavor, Guid) partner = (AppFlavor.Partner, assignment.PartnerProfile.UserId);
-        await notifier.OrderEventAsync([customer, partner], RealtimeEvents.OrderStatusChanged, change, ct);
         if (systemMessage is not null)
         {
             await SystemMessageAsync(order.ServiceRequestId, assignment.PartnerProfileId, systemMessage, ct);
@@ -143,6 +143,7 @@ public sealed class OrderWorkflow(
             _ => [customer, partner],
         };
         await NotifyOrderAsync(order, to, systemMessage ?? "Trạng thái đơn đã thay đổi.", ct);
+        await notifier.OrderEventAsync([customer, partner], RealtimeEvents.OrderStatusChanged, change, ct);
     }
 
     /// <summary>Inbox + push about an order: title "Đơn OD…", opens the order screen (deepLink orders/{id}).</summary>

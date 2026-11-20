@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Servio.Api.Common;
 using Servio.Api.Data.Entities;
+using Servio.Api.Hubs;
 using Servio.Api.Services.Feed;
+using Servio.Api.Services.Orders;
 using Servio.Api.Services.Quotes;
 using Servio.Api.Services.Requests;
 
@@ -258,5 +260,25 @@ public sealed class MarketplaceTests : IAsyncLifetime
         Assert.Equal((byte)ServiceRequestStatus.Expired, (await _f.Ctx.Db.ServiceRequests.SingleAsync()).Status);
         Assert.Equal((byte)QuoteStatus.Expired, (await _f.Ctx.Db.Quotes.SingleAsync()).Status);
         Assert.Empty((await _f.Feed().GetFeedAsync(partner.Id, null, null, FeedSort.Distance, 1, 20, default)).Items);
+    }
+
+    [Fact]
+    public async Task HubEvents_GoOut_AfterTheirNotificationIsSaved()
+    {
+        var partner = await _f.AddPartnerAsync();
+        var post = await _f.Requests().CreateAsync(_f.Customer.Id, _f.Post(), default);
+        var before = _f.Ctx.Db.Notifications.Count();
+
+        var quote = await _f.Quotes().SubmitAsync(partner.Id, post.Id, Quote(), default);
+        var afterQuote = _f.Ctx.Db.Notifications.Count();
+        var version = (await _f.Ctx.Db.Quotes.AsNoTracking().SingleAsync(q => q.Id == quote.Id)).RowVersion;
+        var order = await _f.Orders().AcceptQuoteAsync(_f.Customer.Id, post.Id,
+            new AcceptQuotesRequest([quote.Id], new() { [quote.Id] = Convert.ToBase64String(version) }), default);
+        await _f.Assignments().AcceptAsync(partner.Id, order.Id, order.Assignments.Single().Id, default);
+
+        // The customer app reloads its inbox on NewQuote; the row must already be there (no 1.5 s retry).
+        Assert.Equal((RealtimeEvents.NewQuote, before + 1), _f.Notifier.InboxAtEvent.Single(e => e.Event == RealtimeEvents.NewQuote));
+        Assert.Equal(afterQuote + 1, _f.Notifier.InboxAtEvent.Single(e => e.Event == RealtimeEvents.QuoteAccepted).InboxRows);
+        Assert.Equal(_f.Ctx.Db.Notifications.Count(), _f.Notifier.InboxAtEvent.Last(e => e.Event == RealtimeEvents.OrderStatusChanged).InboxRows);
     }
 }

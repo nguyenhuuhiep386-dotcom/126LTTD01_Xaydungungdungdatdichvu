@@ -95,9 +95,9 @@ public sealed class OrderService(
         await tx.CommitAsync(ct);
 
         var assignment = order.OrderAssignments.Single();
-        await notifier.OrderEventAsync([(AppFlavor.Partner, partner.UserId)], RealtimeEvents.QuoteAccepted, new { quoteId, orderId = order.Id }, ct);
         await workflow.NotifyOrderAsync(order, [(AppFlavor.Partner, partner.UserId)],
             "Khách đã chọn báo giá của bạn. Hãy xác nhận đơn trong 10 phút.", ct, Notifications.NotificationType.QuoteAccepted);
+        await notifier.OrderEventAsync([(AppFlavor.Partner, partner.UserId)], RealtimeEvents.QuoteAccepted, new { quoteId, orderId = order.Id }, ct);
         foreach (var other in rejected)
         {
             await notifier.OrderEventAsync([(AppFlavor.Partner, other.PartnerProfile.UserId)], RealtimeEvents.QuoteRejected,

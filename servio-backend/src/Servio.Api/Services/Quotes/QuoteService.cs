@@ -91,11 +91,12 @@ public sealed class QuoteService(
         }
 
         var skillYears = partner.Skills[request.ServiceCategoryId].YearsOfExperience;
-        await notifier.NewQuoteAsync(request.Customer.UserId,
-            ToCustomerDto(quote, conversation.Id, partner.Profile, request.ServiceCategory.Name, skillYears, Matching.RoundKm(distance)), ct);
+        // Inbox first, then the hub event: an app that reloads its notifications on NewQuote already finds the row.
         await notifications.SendAsync([(AppFlavor.Customer, request.Customer.UserId)], NotificationType.NewQuote, "Có báo giá mới",
             $"{request.Title}: báo giá {Money.Vnd(quote.Amount)}", new { serviceRequestId = request.Id, quoteId = quote.Id },
             $"service-requests/{request.Id}", ct);
+        await notifier.NewQuoteAsync(request.Customer.UserId,
+            ToCustomerDto(quote, conversation.Id, partner.Profile, request.ServiceCategory.Name, skillYears, Matching.RoundKm(distance)), ct);
         return ToPartnerDto(quote, request, conversation.Id);
     }
 
