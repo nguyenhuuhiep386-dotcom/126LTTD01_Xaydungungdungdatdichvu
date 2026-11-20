@@ -3,6 +3,7 @@ package vn.servio.customer.ui.completion
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -19,6 +20,7 @@ import vn.servio.customer.databinding.FragmentConfirmCompletionBinding
 import vn.servio.customer.databinding.ItemCompletionPhotoBinding
 import vn.servio.customer.databinding.ItemPaymentRowBinding
 import vn.servio.customer.ui.common.RemoteImages
+import vn.servio.customer.ui.dispute.CreateDisputeViewModel
 import vn.servio.customer.ui.order.OrderFormat
 import vn.servio.customer.ui.order.OrderRoutes
 import vn.servio.customer.ui.order.OrderTexts
@@ -49,6 +51,7 @@ class ConfirmCompletionFragment : Fragment(R.layout.fragment_confirm_completion)
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
         binding.retryButton.setOnClickListener { viewModel.load() }
         binding.confirmButton.setOnClickListener { viewModel.confirm() }
+        binding.disputeButton.setOnClickListener { openDispute() }
 
         collectWhenStarted(viewModel.state) { state ->
             val detail = state.detail
@@ -108,6 +111,7 @@ class ConfirmCompletionFragment : Fragment(R.layout.fragment_confirm_completion)
         binding.totalText.text = total
         binding.confirmButton.text = getString(R.string.confirm_button, total)
         binding.confirmButton.isEnabled = !state.sending
+        binding.disputeButton.isEnabled = !state.sending
     }
 
     /** Tiles only rebuilt when the list changes (a reload with the same photos does not download them again). */
@@ -127,6 +131,13 @@ class ConfirmCompletionFragment : Fragment(R.layout.fragment_confirm_completion)
             else getString(R.string.confirm_photo_after_desc, ++after)
             images.load(photo.url, tile.image)
         }
+    }
+
+    /** CS-33; once sent it closes CS-23 too and lands on CS-20 (see CreateDisputeFragment). */
+    private fun openDispute() {
+        val navController = findNavController()
+        if (navController.currentDestination?.id != R.id.cs23) return
+        navController.navigate(R.id.cs33, bundleOf(CreateDisputeViewModel.ARG_ORDER_ID to viewModel.orderId))
     }
 
     /** CS-26 replaces CS-23: the order is COMPLETED now, Back from CS-26 goes to CS-19 or CS-20. */

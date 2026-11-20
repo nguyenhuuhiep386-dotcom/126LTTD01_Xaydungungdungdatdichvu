@@ -663,4 +663,35 @@
     <string name="home_notifications">Thông báo</string>
     <string name="home_notifications_unread">Thông báo, %1$s&#160;chưa đọc</string>
     <!-- endregion -->
+
+    <!-- region CS-33 Gửi khiếu nại, and the dispute lines of CS-20 / CS-23 (KH-7) -->
+    <string name="dispute_title">Gửi khiếu nại</string>
+    <string name="dispute_order_code">Đơn #%1$s</string>
+    <!-- "Máy lạnh chảy nước, kém lạnh · Trần Văn Phúc" -->
+    <string name="dispute_order_line">%1$s · %2$s</string>
+    <string name="dispute_reason_label">Vấn đề gặp phải</string>
+    <string name="dispute_reason_work_quality">Chất lượng công việc</string>
+    <string name="dispute_reason_overcharge">Phát sinh không đúng thoả thuận</string>
+    <string name="dispute_reason_behavior">Thái độ</string>
+    <string name="dispute_reason_other">Khác</string>
+    <string name="dispute_reason_required">Hãy chọn vấn đề gặp phải</string>
+    <string name="dispute_description_label">Mô tả</string>
+    <string name="dispute_description_hint">Nêu rõ thời điểm và tình trạng</string>
+    <string name="dispute_description_required">Hãy mô tả vấn đề</string>
+    <string name="dispute_description_too_short">Mô tả ít nhất %1$d&#160;ký tự</string>
+    <string name="dispute_description_too_long">Mô tả tối đa %1$d&#160;ký tự</string>
+    <string name="dispute_images_label">Ảnh bằng chứng (%1$d/%2$d)</string>
+    <!-- 48 = disputeResponseHours, 72 = disputeWindowHours of /app-config (Figma 18:3333). -->
+    <string name="dispute_info">Đơn tạm dừng xử lý trong lúc quản trị viên xem xét, phản hồi trong %1$d&#160;giờ. Bạn có thể khiếu nại đến %2$d&#160;giờ sau khi đơn hoàn thành.</string>
+    <string name="dispute_send">Gửi khiếu nại</string>
+    <string name="dispute_sending">Đang gửi…</string>
+    <string name="dispute_sent">Đã gửi khiếu nại</string>
+    <string name="order_detail_menu_dispute">Khiếu nại</string>
+    <!-- Second line of the DISPUTED banner: "Mã DS2611200001 · phản hồi trước 14:00, T5 19/11". -->
+    <string name="order_detail_dispute_line">Mã %1$s · phản hồi trước %2$s</string>
+    <string name="order_detail_dispute_code">Mã %1$s</string>
+    <string name="order_detail_dispute_result">Kết quả khiếu nại %1$s: %2$s</string>
+    <string name="order_detail_dispute_result_empty">đã xử lý</string>
+    <string name="confirm_dispute_link">Có vấn đề? Gửi khiếu nại</string>
+    <!-- endregion -->
 </resources>

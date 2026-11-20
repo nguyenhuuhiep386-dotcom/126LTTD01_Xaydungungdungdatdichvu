@@ -33,9 +33,11 @@ import vn.servio.customer.data.model.PendingArrival
 import vn.servio.customer.data.model.PendingReview
 import vn.servio.customer.data.model.Tracking
 import vn.servio.customer.data.model.TrackingLocation
+import vn.servio.customer.data.repository.FakeDisputeRepository
 import vn.servio.customer.data.repository.FakeOrderRepository
 import vn.servio.customer.data.repository.FakeOrderUpdates
 import vn.servio.customer.data.repository.FakeReviewRepository
+import vn.servio.customer.data.repository.FakeServerConfigRepository
 import vn.servio.customer.ui.order.OrderTexts
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -56,7 +58,7 @@ class OrderDetailViewModelTest {
     @After fun tearDown() = Dispatchers.resetMain()
 
     private fun TestScope.viewModel(server: FakeOrderRepository, updates: FakeOrderUpdates = FakeOrderUpdates(), reviews: FakeReviewRepository = FakeReviewRepository()) =
-        OrderDetailViewModel(SavedStateHandle(mapOf("orderId" to orderId)), server, updates, reviews).also {
+        OrderDetailViewModel(SavedStateHandle(mapOf("orderId" to orderId)), server, updates, reviews, FakeDisputeRepository(), FakeServerConfigRepository()).also {
             it.load()
             advanceUntilIdle()
         }
@@ -273,12 +275,12 @@ class OrderDetailViewModelTest {
         val second = charge.copy(id = "ec2", createdAt = "2026-11-18T08:05:00Z")
         val server = FakeOrderRepository().apply { order = ApiResult.Success(withCharge(charge, second)) }
         val handle = SavedStateHandle(mapOf("orderId" to orderId))
-        val vm = OrderDetailViewModel(handle, server, FakeOrderUpdates(), FakeReviewRepository()).also { it.load(); advanceUntilIdle() }
+        val vm = OrderDetailViewModel(handle, server, FakeOrderUpdates(), FakeReviewRepository(), FakeDisputeRepository(), FakeServerConfigRepository()).also { it.load(); advanceUntilIdle() }
         vm.chargeClosed("ec1")
         assertEquals("ec2", vm.state.value.chargeToOpen(includeClosed = false)?.id)
         assertEquals("ec1", vm.state.value.chargeToOpen(includeClosed = true)?.id)
 
-        val restored = OrderDetailViewModel(handle, server, FakeOrderUpdates(), FakeReviewRepository()).also { it.load(); advanceUntilIdle() }
+        val restored = OrderDetailViewModel(handle, server, FakeOrderUpdates(), FakeReviewRepository(), FakeDisputeRepository(), FakeServerConfigRepository()).also { it.load(); advanceUntilIdle() }
         assertEquals(setOf("ec1"), restored.state.value.closedCharges)
         assertEquals("ec2", restored.state.value.chargeToOpen(includeClosed = false)?.id)
     }

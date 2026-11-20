@@ -205,6 +205,16 @@
                 </LinearLayout>
 
                 <!-- endregion -->
+
+                <!-- KH-7: before confirming, the customer can open a dispute instead (CS-33). -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/disputeButton"
+                    style="@style/Widget.Servio.Button.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:text="@string/confirm_dispute_link" />
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </FrameLayout>

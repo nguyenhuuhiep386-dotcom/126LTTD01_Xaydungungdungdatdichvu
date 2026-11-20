@@ -17,14 +17,18 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import vn.servio.core.network.ApiResult
+import vn.servio.customer.data.model.Dispute
 import vn.servio.customer.data.model.ExtraCharge
 import vn.servio.customer.data.model.OrderDetail
 import vn.servio.customer.data.model.OrderStatus
 import vn.servio.customer.data.model.Tracking
+import vn.servio.customer.data.repository.DisputeRepository
 import vn.servio.customer.data.repository.OrderRepository
+import vn.servio.customer.data.repository.ServerConfigRepository
 import vn.servio.customer.data.repository.OrderUpdates
 import vn.servio.customer.data.repository.ReviewRepository
 import vn.servio.customer.data.repository.reloadCoalesced
+import vn.servio.customer.ui.dispute.DisputeRules
 import vn.servio.customer.ui.order.TrackingUi
 import javax.inject.Inject
 
@@ -42,6 +46,8 @@ class OrderDetailViewModel @Inject constructor(
     private val repository: OrderRepository,
     private val orderUpdates: OrderUpdates,
     private val reviewRepository: ReviewRepository,
+    private val disputeRepository: DisputeRepository,
+    private val configRepository: ServerConfigRepository,
 ) : ViewModel() {
 
     val orderId: String = savedStateHandle.get<String>(ARG_ORDER_ID).orEmpty()
@@ -68,7 +74,14 @@ class OrderDetailViewModel @Inject constructor(
         val heldCharge: String? = null,
         /** COMPLETED and still in #100: "Đánh giá đối tác" (asked again on each resume). */
         val reviewable: Boolean = false,
+        /** #147, newest first; null until it answered (a failed reload keeps the last answer). */
+        val disputes: List<Dispute>? = null,
+        /** disputeWindowHours of /app-config; null while unknown (a completed order then shows no "Khiếu nại"). */
+        val disputeWindowHours: Int? = null,
     ) {
+        /** "Khiếu nại" in the app bar menu (see [DisputeRules.canOpen]). */
+        val canDispute: Boolean get() = detail?.let { DisputeRules.canOpen(it, disputeWindowHours) } == true
+
         /** The charge CS-22 should open now (see [OrderDetailUi.chargeToOpen]); null when none. */
         fun chargeToOpen(includeClosed: Boolean): ExtraCharge? =
             detail?.let { OrderDetailUi.chargeToOpen(it, closedCharges, includeClosed, heldCharge) }
@@ -180,6 +193,8 @@ class OrderDetailViewModel @Inject constructor(
                     launch { loadReviewable(detail) }
                     launch { loadCancelFee(detail) }
                     launch { loadTracking(detail) }
+                    launch { loadDisputes() }
+                    launch { loadDisputeWindow() }
                 }
             }
             is ApiResult.Failure -> when {
@@ -231,6 +246,21 @@ class OrderDetailViewModel @Inject constructor(
     /** The primary assignment while the order is ON_THE_WAY. */
     private fun trackedAssignment(detail: OrderDetail?): String? =
         detail?.takeIf { it.status == OrderStatus.ON_THE_WAY }?.primary?.id
+
+    /**
+     * #147 with every #63 answer (the banner of a DISPUTED order, "Kết quả khiếu nại" once it is closed). A failure keeps
+     * what is shown: the banner then has its title only, as before the first answer.
+     */
+    private suspend fun loadDisputes() {
+        val result = disputeRepository.list(orderId)
+        if (result is ApiResult.Success) _state.update { it.copy(disputes = result.data) }
+    }
+
+    /** /app-config for the window of "Khiếu nại" after completion; the repository falls back to this session's last one. */
+    private suspend fun loadDisputeWindow() {
+        val result = configRepository.getConfig()
+        if (result is ApiResult.Success) _state.update { it.copy(disputeWindowHours = result.data.disputeWindowHours) }
+    }
 
     /** #151 while the order can be cancelled; otherwise (or on failure) the fee is unknown and the label plain. */
     private suspend fun loadCancelFee(detail: OrderDetail) {

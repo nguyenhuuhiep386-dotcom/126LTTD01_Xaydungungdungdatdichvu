@@ -10,12 +10,13 @@ import vn.servio.customer.R
 import vn.servio.customer.databinding.ItemAddImageBinding
 import vn.servio.customer.databinding.ItemDraftImageBinding
 
-/** CS-08 image grid: the picked images, then the "Thêm ảnh" tile while there is a free slot. */
+/** CS-08 (and CS-33) image grid: the picked images, then the "Thêm ảnh" tile while there is a free slot of [maxImages]. */
 class DraftImageAdapter(
     private val thumbnails: ImageThumbnails,
     private val onAdd: () -> Unit,
     private val onRetry: (DraftImage) -> Unit,
     private val onRemove: (DraftImage) -> Unit,
+    private val maxImages: Int = RequestDraft.MAX_IMAGES,
 ) : ListAdapter<DraftImageAdapter.Tile, RecyclerView.ViewHolder>(Diff) {
 
     sealed interface Tile {
@@ -29,7 +30,7 @@ class DraftImageAdapter(
 
     fun submitImages(images: List<DraftImage>) {
         val tiles = images.map(Tile::Image)
-        submitList(if (images.size < RequestDraft.MAX_IMAGES) tiles + Tile.Add else tiles)
+        submitList(if (images.size < maxImages) tiles + Tile.Add else tiles)
     }
 
     override fun getItemViewType(position: Int) = when (getItem(position)) {

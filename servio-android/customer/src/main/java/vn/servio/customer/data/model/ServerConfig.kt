@@ -18,9 +18,9 @@ data class ServerConfig(
     val noShowWaitMinutes: Int,
     /** CS-34 FAQ "Tự hoàn thành". */
     val autoConfirmHours: Int,
-    /** CS-34 FAQ "Khiếu nại": how long after completion a complaint can be opened. */
+    /** CS-34 FAQ "Khiếu nại", CS-33 info card and the CS-20 "Khiếu nại" menu: how long after completion a complaint can be opened. */
     val disputeWindowHours: Int,
-    /** No place in the customer app yet (CS-33 is not built). */
+    /** CS-33 info card: support answers a dispute within this many hours. */
     val disputeResponseHours: Int,
     /** No place in the customer app yet: the review button follows #100. */
     val reviewWindowDays: Int,
