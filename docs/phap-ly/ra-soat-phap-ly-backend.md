@@ -90,7 +90,7 @@ Chỉ nêu cho mục 🔴 có bằng chứng, theo checklist 08. Đây là mức
 
 ## Việc nhóm cần tự hoàn thiện
 
-- **`[ĐIỀN]` trong hai trang:** tên đơn vị vận hành, mã số doanh nghiệp, địa chỉ, email tiếp nhận yêu cầu về dữ liệu cá nhân, email và số điện thoại hỗ trợ, thời hạn lưu hồ sơ giao dịch.
+- **`[ĐIỀN]` trong hai trang** (đã điền 21/11, xem lượt 3): tên đơn vị vận hành, mã số doanh nghiệp, địa chỉ, email tiếp nhận yêu cầu về dữ liệu cá nhân, email và số điện thoại hỗ trợ, thời hạn lưu hồ sơ giao dịch.
 - **`[KIỂM TRA]`:**
   - Nơi đặt máy chủ khi triển khai.
   - App có SDK thống kê hoặc quảng cáo nào không.

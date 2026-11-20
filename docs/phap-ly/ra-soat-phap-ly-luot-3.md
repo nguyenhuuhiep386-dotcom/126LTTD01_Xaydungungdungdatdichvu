@@ -48,7 +48,7 @@ Kiểm tra: 159 unit test backend đạt (thêm test cho hai việc dọn dữ l
 2. **01-B. Rút đồng ý ảnh CCCD sau khi đã duyệt** (lượt 1, 🟡 1): ảnh cũ vẫn giữ tới khi xoá tài khoản. Nên quy định trong chính sách: rút thì tài khoản dừng nhận việc và ảnh bị xoá.
 3. **01-A, 01-E. Thời hạn lưu trữ còn lại, quy trình báo sự cố 72 giờ, chuyển dữ liệu xuyên biên giới (thông báo đẩy qua Google), DPIA và nhân sự bảo vệ dữ liệu** (lượt 1, 🟡 3–6). Đây là việc của đơn vị vận hành khi triển khai thật, không sửa được trong code.
    - Ghi chú: hai app hiện chưa tích hợp Firebase Cloud Messaging. Màn đồng ý và chính sách vẫn nói thông báo đẩy đi qua Google. Nói thừa thì không vi phạm, nhưng nếu không tích hợp FCM thì nên bỏ câu đó cho đúng thực tế.
-4. **02-B, 02-C, 09-F. Thông tin chủ quản và đăng ký nền tảng trung gian** (lượt 1, 🟡 7–8): hai trang pháp lý còn `[ĐIỀN]` (tên đơn vị, mã số doanh nghiệp, địa chỉ, email); app chưa hiện tên chủ sở hữu. Căn cứ: Điều 11, khoản 2 Điều 14 Luật 122/2025/QH15; Điều 5 khoản 2 của 42/VBHN-BCT.
+4. **02-B, 02-C, 09-F. Thông tin chủ quản và đăng ký nền tảng trung gian** (lượt 1, 🟡 7–8): ngày 21/11 hai trang pháp lý đã điền đơn vị vận hành (nhóm Tam Tài, đồ án môn học, không có mã số doanh nghiệp), địa chỉ và email. Khi kinh doanh thật cần pháp nhân và đăng ký nền tảng; app chưa hiện tên chủ sở hữu ngoài hai trang này. Căn cứ: Điều 11, khoản 2 Điều 14 Luật 122/2025/QH15; Điều 5 khoản 2 của 42/VBHN-BCT.
 5. **03-B. Lưu nhật ký hệ thống 12 tháng** (lượt 1, 🟡 9): khi triển khai thật.
 
 ## 🟢 Đạt yêu cầu
@@ -82,7 +82,7 @@ Không còn lỗi 🔴. Mục 🟡 1 thuộc nhóm "không đáp ứng yêu cầ
 
 ## Việc nhóm cần làm trước khi nộp
 
-- Điền `[ĐIỀN]` trong hai trang pháp lý nếu có thông tin; nếu là đồ án không có pháp nhân, ghi rõ "đồ án môn học" thay cho thông tin doanh nghiệp.
+- ~~Điền `[ĐIỀN]` trong hai trang pháp lý~~: đã điền 21/11 (nhóm Tam Tài, đồ án môn học).
 - AW-15: điền `support.hotline` và tài khoản nhận phí huỷ; giữ `privacy.require_consent = true`.
 - Hiệp làm mục 🟡 1 nếu kịp.
 
