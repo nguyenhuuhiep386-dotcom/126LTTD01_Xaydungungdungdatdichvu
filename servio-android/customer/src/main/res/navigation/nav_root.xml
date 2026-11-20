@@ -286,27 +286,11 @@
             android:name="vn.servio.customer.ui.wallet.WalletFragment"
             android:label="CS-30 Phí huỷ và giao dịch" />
 
+        <!-- CS-31 Thông báo (KH-7): from the bell of CS-06 and from CS-29. Opens CS-20, CS-15 or CS-30 from a row. -->
         <fragment
             android:id="@+id/cs31"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-31 Thông báo">
-            <argument
-                android:name="code"
-                android:defaultValue="CS-31"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Thông báo"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Danh sách thông báo (#101–#104)"
-                app:argType="string" />
-            <argument
-                android:name="links"
-                android:defaultValue=""
-                app:argType="string" />
-        </fragment>
+            android:name="vn.servio.customer.ui.notifications.NotificationsFragment"
+            android:label="CS-31 Thông báo" />
 
         <fragment
             android:id="@+id/cs32"

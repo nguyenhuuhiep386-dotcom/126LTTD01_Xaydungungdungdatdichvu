@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-31 "Đọc hết" in the app bar: the app's text button (the default menu text would be all caps). -->
+<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/readAllButton"
+    style="@style/Widget.Servio.Button.Text"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="@dimen/space_s"
+    android:text="@string/notifications_read_all" />

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-31 day header: "Hôm nay", "Hôm qua", "T5 19/11". -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:accessibilityHeading="true"
+    android:paddingHorizontal="@dimen/screen_padding"
+    android:paddingTop="@dimen/space_l"
+    android:paddingBottom="@dimen/space_xs"
+    android:textAppearance="@style/TextAppearance.Servio.Label"
+    android:textColor="@color/servio_text_secondary"
+    tools:text="Hôm nay" />

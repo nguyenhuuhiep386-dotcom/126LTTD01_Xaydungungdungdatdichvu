@@ -16,13 +16,61 @@
             android:orientation="vertical"
             android:padding="@dimen/screen_padding">
 
-            <TextView
-                android:id="@+id/greeting"
+            <!--
+              Greeting, and the bell top right (Figma 18:648: 48 dp button, red 18 dp badge over the bell's corner).
+              The badge is anchored to the end so "9+" (wider than 18 dp) grows to the left and is not clipped.
+            -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_s"
-                android:textAppearance="@style/TextAppearance.Servio.Caption"
-                tools:text="Xin chào, An" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/greeting"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAppearance="@style/TextAppearance.Servio.Caption"
+                    tools:text="Xin chào, An" />
+
+                <FrameLayout
+                    android:id="@+id/bellButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:contentDescription="@string/home_notifications"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_profile_notification" />
+
+                    <TextView
+                        android:id="@+id/bellBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="18dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/bg_notification_badge"
+                        android:gravity="center"
+                        android:importantForAccessibility="no"
+                        android:includeFontPadding="false"
+                        android:minWidth="18dp"
+                        android:paddingHorizontal="4dp"
+                        android:textColor="@color/servio_surface"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        tools:text="2"
+                        tools:visibility="visible" />
+                </FrameLayout>
+            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"

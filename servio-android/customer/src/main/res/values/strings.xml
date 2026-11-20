@@ -647,4 +647,20 @@
     <string name="arrival_conflict">Yêu cầu đã hết hạn hoặc đã được trả lời</string>
     <string name="arrival_denied">Đã báo đối tác là bạn chưa thấy</string>
     <!-- endregion -->
+
+    <!-- region CS-31 Thông báo and the CS-06 bell (KH-7) -->
+    <string name="notifications_title">Thông báo</string>
+    <string name="notifications_read_all">Đọc hết</string>
+    <string name="notifications_empty">Chưa có thông báo nào</string>
+    <string name="notifications_load_failed">Chưa tải được thông báo</string>
+    <string name="notifications_read_all_failed">Chưa đánh dấu đọc hết được, thử lại sau</string>
+    <string name="notifications_today">Hôm nay</string>
+    <string name="notifications_yesterday">Hôm qua</string>
+    <!-- TalkBack of a row: title, body, "HH:mm". -->
+    <string name="notifications_row_unread">Chưa đọc. %1$s. %2$s. %3$s</string>
+    <string name="notifications_row_read">%1$s. %2$s. %3$s</string>
+    <!-- TalkBack of the CS-06 bell; the badge text ("3", "9+") is the argument. -->
+    <string name="home_notifications">Thông báo</string>
+    <string name="home_notifications_unread">Thông báo, %1$s&#160;chưa đọc</string>
+    <!-- endregion -->
 </resources>
