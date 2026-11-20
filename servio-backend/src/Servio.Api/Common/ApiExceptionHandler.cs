@@ -12,6 +12,14 @@ public sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) : I
         {
             return false;
         }
+        if (context.RequestAborted.IsCancellationRequested)
+        {
+            // The app went away (closed, lost network, reinstalled): SQL Server reports the cancelled query as an error,
+            // but nobody is listening for the answer. Not a server fault, and writing a body would throw again.
+            logger.LogDebug("Client closed {Method} {Path}", context.Request.Method, context.Request.Path);
+            context.Response.StatusCode = 499; // "client closed request"
+            return true;
+        }
 
         var (status, error) = exception switch
         {

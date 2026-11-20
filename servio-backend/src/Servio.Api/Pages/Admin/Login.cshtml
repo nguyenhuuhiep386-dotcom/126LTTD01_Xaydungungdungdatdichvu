@@ -9,16 +9,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Đăng nhập · Servio Admin</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="~/admin/admin.css" asp-append-version="true" />
 </head>
 <body>
 <main class="login-page">
+    <section class="login-hero" aria-hidden="true">
+        <span class="brand-mark brand-mark-lg">S</span>
+        <h2>Servio</h2>
+        <p>Nền tảng kết nối khách hàng với thợ sửa chữa tại nhà.</p>
+        <ul>
+            <li>Duyệt hồ sơ đối tác và CCCD</li>
+            <li>Theo dõi bài đăng, đơn hàng, khiếu nại</li>
+            <li>Xác nhận trả nợ hoa hồng và phí huỷ</li>
+        </ul>
+    </section>
     <form method="post" class="login-card" novalidate>
-        <span class="brand-mark">S</span>
-        <h1>Servio Admin</h1>
-        <p class="muted">Đăng nhập để quản lý đối tác, đơn hàng và công nợ.</p>
+        <h1>Đăng nhập quản trị</h1>
+        <p class="muted">Dùng tài khoản admin được cấp để tiếp tục.</p>
 
         <div class="field">
             <label asp-for="Email">Email</label>
