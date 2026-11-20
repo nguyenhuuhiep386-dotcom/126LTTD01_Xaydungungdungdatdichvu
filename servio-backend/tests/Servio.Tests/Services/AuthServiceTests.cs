@@ -159,4 +159,18 @@ public sealed class AuthServiceTests : IDisposable
         public string ContentRootPath { get; set; } = "";
         public Microsoft.Extensions.FileProviders.IFileProvider ContentRootFileProvider { get; set; } = null!;
     }
+
+    [Fact]
+    public async Task ExpiredOtpCodes_AreDeletedADayLater()
+    {
+        var auth = CreateService();
+        await auth.RequestOtpAsync(new OtpRequest("0901234567", OtpPurpose.Login, AppFlavor.Customer), default);
+
+        var kept = await auth.PurgeExpiredOtpsAsync(default);
+        _clock.Advance(TimeSpan.FromDays(1.1));
+        var purged = await auth.PurgeExpiredOtpsAsync(default);
+
+        Assert.Equal((0, 1), (kept, purged));
+        Assert.False(await _db.OtpCodes.AnyAsync());
+    }
 }

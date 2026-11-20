@@ -44,7 +44,7 @@
 
 <h2>3. Dữ liệu nhạy cảm</h2>
 <p>Ảnh CCCD và ảnh chân dung cầm CCCD là <strong>dữ liệu cá nhân nhạy cảm</strong>. Chúng tôi chỉ nhận các ảnh này sau khi bạn đồng ý riêng cho mục đích xác minh hồ sơ đối tác. Ảnh được lưu riêng, không có đường dẫn công khai; chỉ nhân viên quản trị có quyền duyệt hồ sơ được xem, và mỗi lần xem đều được ghi nhật ký.</p>
-<p>Vị trí của đối tác cũng được chúng tôi xử lý như dữ liệu nhạy cảm và chỉ thu khi bạn đồng ý riêng cho việc chia sẻ vị trí. Vị trí theo thời gian thực bị xoá khi chuyến đi kết thúc; vị trí dùng để tìm việc bị xoá khi bạn tắt Online; chỉ điểm check-in "Đã đến" được giữ cùng đơn hàng làm bằng chứng.</p>
+<p>Vị trí của đối tác cũng được chúng tôi xử lý như dữ liệu nhạy cảm và chỉ thu khi bạn đồng ý riêng cho việc chia sẻ vị trí. Vị trí theo thời gian thực bị xoá khi chuyến đi kết thúc; vị trí dùng để tìm việc bị xoá khi bạn tắt Online hoặc khi ứng dụng ngừng gửi tín hiệu quá @Model.OfflineMinutes phút; chỉ điểm check-in "Đã đến" được giữ cùng đơn hàng làm bằng chứng.</p>
 @* Căn cứ: khoản 1 Điều 4 và khoản 4 Điều 6 NĐ 356/2025/NĐ-CP. Vị trí có thuộc danh mục nhạy cảm hay không: CHƯA XÁC MINH, xử lý như nhạy cảm cho an toàn. *@
 
 <h2>4. Ai nhận dữ liệu của bạn</h2>
@@ -64,11 +64,12 @@
 
 <h2>5. Lưu trữ và chuyển dữ liệu ra nước ngoài</h2>
 <p>Dữ liệu được lưu trên máy chủ đặt tại Việt Nam [KIỂM TRA: nơi đặt máy chủ khi triển khai]. Riêng thông báo đẩy được gửi qua dịch vụ của Google đặt ở nước ngoài; việc này là chuyển dữ liệu cá nhân xuyên biên giới.</p>
-<p>Chúng tôi lưu dữ liệu tài khoản cho đến khi bạn xoá tài khoản. Hồ sơ đơn hàng, giao dịch và khiếu nại được giữ [ĐIỀN: thời hạn lưu hồ sơ giao dịch theo pháp luật kế toán, thuế] dưới dạng đã ẩn danh tên và số điện thoại sau khi bạn xoá tài khoản.</p>
+<p>Chúng tôi lưu dữ liệu tài khoản cho đến khi bạn xoá tài khoản. Hồ sơ đơn hàng, giao dịch và khiếu nại được giữ [ĐIỀN: thời hạn lưu hồ sơ giao dịch theo pháp luật kế toán, thuế] dưới dạng đã ẩn danh tên và số điện thoại sau khi bạn xoá tài khoản. Mã OTP bị xoá một ngày sau khi hết hạn.</p>
 @* Căn cứ: khoản 1 Điều 20 Luật 91/2025; điểm b khoản 1 Điều 14. Hồ sơ đánh giá tác động chuyển dữ liệu xuyên biên giới: khoản 2 Điều 20 (việc của đơn vị vận hành). *@
 
 <h2>6. Cookie và công cụ theo dõi</h2>
-<p>Hai ứng dụng và trang này không dùng cookie, không gắn công cụ thống kê hay quảng cáo [KIỂM TRA: xác nhận khi rà soát ứng dụng].</p>
+<p>Hai ứng dụng và trang này không dùng cookie, không gắn công cụ thống kê hay quảng cáo.</p>
+@* Đã kiểm tra ở lượt rà soát 3 (20/11/2026): hai app không có SDK thống kê, quảng cáo hay Firebase Analytics. *@
 
 <h2>7. Sự đồng ý và quyền của bạn</h2>
 <p>Chúng tôi xin đồng ý riêng cho từng mục đích bằng ô đánh dấu không được chọn sẵn: (1) điều khoản sử dụng và chính sách này; (2) ảnh CCCD để xác minh đối tác; (3) chia sẻ vị trí của đối tác. Việc bạn tiếp tục sử dụng ứng dụng không được coi là đồng ý. Mỗi lần đồng ý hoặc rút lại đều được lưu kèm thời điểm và phiên bản chính sách.</p>

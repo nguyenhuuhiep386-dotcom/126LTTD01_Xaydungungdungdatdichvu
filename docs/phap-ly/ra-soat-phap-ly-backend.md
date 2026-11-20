@@ -99,6 +99,8 @@ Chỉ nêu cho mục 🔴 có bằng chứng, theo checklist 08. Đây là mức
 
 ## Lượt rà soát tiếp theo (khi các thành viên làm xong)
 
+> Đã rà ngày 20/11/2026: xem [ra-soat-phap-ly-luot-3.md](ra-soat-phap-ly-luot-3.md).
+
 Chạy lại skill `vn-law-check` trên toàn repo, thêm checklist 09-mobile-app cho hai app, và kiểm tra:
 
 1. Màn đăng nhập: bỏ câu "tiếp tục là đồng ý", có ô đồng ý không tích sẵn kèm link hai trang, gọi `POST /users/me/consents` (`TERMS_AND_PRIVACY`).

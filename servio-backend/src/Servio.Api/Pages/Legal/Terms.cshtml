@@ -76,5 +76,5 @@
 </ul>
 
 <h2>9. Liên hệ và giải quyết tranh chấp</h2>
-<p>Liên hệ: [ĐIỀN: email, số điện thoại hỗ trợ]. Tranh chấp được ưu tiên giải quyết bằng thương lượng qua cơ chế khiếu nại ở mục 6; nếu không thành, các bên có quyền yêu cầu cơ quan có thẩm quyền giải quyết theo pháp luật Việt Nam.</p>
+<p>Liên hệ: @(string.IsNullOrEmpty(Model.SupportHotline) ? "[ĐIỀN: số điện thoại hỗ trợ]" : $"hotline {Model.SupportHotline}"), email [ĐIỀN]. Tranh chấp được ưu tiên giải quyết bằng thương lượng qua cơ chế khiếu nại ở mục 6; nếu không thành, các bên có quyền yêu cầu cơ quan có thẩm quyền giải quyết theo pháp luật Việt Nam.</p>
 @* Căn cứ: khoản 1, 2 Điều 11; khoản 6 Điều 5; Điều 17 Luật 122/2025/QH15; Điều 21, 25, 31 Luật 19/2023/QH15. *@

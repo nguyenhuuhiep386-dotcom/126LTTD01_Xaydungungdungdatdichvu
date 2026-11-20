@@ -18,6 +18,16 @@ public sealed class AuthService(
     IHostEnvironment env,
     ILogger<AuthService> logger)
 {
+    /// <summary>Job: OTP codes are useless once expired; kept one day for the rate limit and support, then deleted.</summary>
+    public async Task<int> PurgeExpiredOtpsAsync(CancellationToken ct)
+    {
+        var cutoff = clock.GetUtcNow().AddDays(-1);
+        var old = await db.OtpCodes.Where(o => o.ExpiresAt < cutoff).ToListAsync(ct);
+        db.OtpCodes.RemoveRange(old);
+        await db.SaveChangesAsync(ct);
+        return old.Count;
+    }
+
     private readonly OtpOptions _otp = otpOptions.Value;
 
     public async Task<OtpRequestResult> RequestOtpAsync(OtpRequest request, CancellationToken ct)
