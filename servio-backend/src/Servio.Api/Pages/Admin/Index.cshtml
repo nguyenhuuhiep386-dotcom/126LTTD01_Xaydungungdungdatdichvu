@@ -4,22 +4,56 @@
 @{
     ViewData["Title"] = "Dashboard";
     var maxGmv = Math.Max(1m, Model.Days.Max(d => d.Gmv));
+    var maxOrders = Math.Max(1, Model.Days.Max(d => Math.Max(d.Created, d.Completed)));
+    var maxStatus = Math.Max(1, Model.OrdersByStatus.Count == 0 ? 1 : Model.OrdersByStatus.Max(s => s.Item2));
+    var queue = Model.PendingKyc + Model.OpenDisputes + Model.PendingPayments;
+
+    // Small stroke icons for the KPI tiles (same style as the sidebar).
+    string Icon(string paths) => $"<svg viewBox='0 0 24 24' aria-hidden='true'>{paths}</svg>";
+    const string shield = "<path d='M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z'/><path d='M8.5 12l2.5 2.5 4.5-5'/>";
+    const string alert = "<path d='M12 3.5l9.5 16.5h-19z'/><path d='M12 10v4.5M12 17.5v.01'/>";
+    const string wallet = "<rect x='3' y='5.5' width='18' height='14' rx='2.5'/><path d='M3 9.5h18M16 14.5h2'/>";
+    const string file = "<path d='M6 2.5h8l4.5 4.5v14.5H6z'/><path d='M14 2.5V7h4.5M9 12h6M9 16h6'/>";
+    const string coins = "<ellipse cx='12' cy='6' rx='7' ry='3'/><path d='M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6'/>";
+    const string percent = "<path d='M19 5L5 19'/><circle cx='7' cy='7' r='2.5'/><circle cx='17' cy='17' r='2.5'/>";
+    const string users = "<circle cx='9' cy='8' r='3.5'/><path d='M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5'/><path d='M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.8c2 .7 3.2 2.4 3.5 5.2'/>";
+    const string tool = "<path d='M14.5 5.5a4 4 0 0 0 5 5L12 18l-3.5 3.5-3-3L9 15l7.5-7.5'/><path d='M14.5 5.5L17 3l4 4-2.5 2.5'/>";
+    const string signal = "<circle cx='12' cy='12' r='2'/><path d='M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14'/>";
+    const string check = "<circle cx='12' cy='12' r='9'/><path d='M8 12.5l2.7 2.7L16 9.5'/>";
 }
+
+<section class="hero card">
+    <div>
+        <p class="hero-eyebrow">Tổng quan hệ thống</p>
+        <h2>@(queue == 0 ? "Không có việc nào đang chờ" : $"Có {queue} việc đang chờ xử lý")</h2>
+        <p class="muted">Số liệu lấy trực tiếp từ CSDL. Bấm vào ô để mở danh sách tương ứng.</p>
+    </div>
+    <div class="hero-stat">
+        <span class="hero-stat-label">Tỷ lệ hoàn thành</span>
+        <span class="hero-stat-value">@Model.CompletionRate.ToString("0")%</span>
+        <span class="progress"><span style="width:@((int)Math.Clamp(Model.CompletionRate, 0, 100))%"></span></span>
+    </div>
+</section>
+
 <h2 class="section-title">Cần xử lý</h2>
 <section class="kpis" aria-label="Hàng đợi">
-    <a class="card kpi @(Model.PendingKyc > 0 ? "highlight" : "")" href="/admin/partners/verifications">
+    <a class="card kpi tone-amber @(Model.PendingKyc > 0 ? "highlight" : "")" href="/admin/partners/verifications">
+        <span class="kpi-icon">@Html.Raw(Icon(shield))</span>
         <div class="label">Đối tác chờ duyệt KYC</div>
         <div class="value">@Model.PendingKyc</div>
     </a>
-    <a class="card kpi @(Model.OpenDisputes > 0 ? "highlight" : "")" href="/admin/disputes">
+    <a class="card kpi tone-red @(Model.OpenDisputes > 0 ? "highlight" : "")" href="/admin/disputes">
+        <span class="kpi-icon">@Html.Raw(Icon(alert))</span>
         <div class="label">Khiếu nại chờ xử lý</div>
         <div class="value">@Model.OpenDisputes</div>
     </a>
-    <a class="card kpi @(Model.PendingPayments > 0 ? "highlight" : "")" href="/admin/debts">
+    <a class="card kpi tone-blue @(Model.PendingPayments > 0 ? "highlight" : "")" href="/admin/debts">
+        <span class="kpi-icon">@Html.Raw(Icon(wallet))</span>
         <div class="label">Khai báo trả nợ chờ xác nhận</div>
         <div class="value">@Model.PendingPayments</div>
     </a>
-    <a class="card kpi" href="/admin/requests">
+    <a class="card kpi tone-green" href="/admin/requests">
+        <span class="kpi-icon">@Html.Raw(Icon(file))</span>
         <div class="label">Bài đăng đang mở</div>
         <div class="value">@Model.OpenRequests</div>
     </a>
@@ -27,36 +61,55 @@
 
 <h2 class="section-title">Tiền</h2>
 <section class="kpis" aria-label="Số liệu tiền">
-    <div class="card kpi">
+    <div class="card kpi tone-amber">
+        <span class="kpi-icon">@Html.Raw(Icon(coins))</span>
         <div class="label">GMV đơn hoàn tất</div>
         <div class="value">@AdminText.Vnd(Model.Gmv)</div>
     </div>
-    <div class="card kpi">
+    <div class="card kpi tone-green">
+        <span class="kpi-icon">@Html.Raw(Icon(percent))</span>
         <div class="label">Hoa hồng</div>
         <div class="value">@AdminText.Vnd(Model.Commission)</div>
     </div>
-    <div class="card kpi">
+    <div class="card kpi tone-red">
+        <span class="kpi-icon">@Html.Raw(Icon(wallet))</span>
         <div class="label">Nợ hoa hồng đối tác</div>
         <div class="value">@AdminText.Vnd(Model.CommissionDebt)</div>
     </div>
-    <div class="card kpi">
+    <div class="card kpi tone-blue">
+        <span class="kpi-icon">@Html.Raw(Icon(alert))</span>
         <div class="label">Phí huỷ khách chưa trả</div>
         <div class="value">@AdminText.Vnd(Model.CancellationFeesDue)</div>
     </div>
 </section>
 
-<h2 class="section-title">Người dùng và đơn hàng</h2>
+<h2 class="section-title">Người dùng</h2>
 <section class="kpis" aria-label="Người dùng">
-    <div class="card kpi"><div class="label">Khách hàng</div><div class="value">@Model.Customers</div></div>
-    <div class="card kpi"><div class="label">Đối tác đã duyệt</div><div class="value">@Model.Partners</div></div>
-    <div class="card kpi"><div class="label">Đối tác đang online</div><div class="value">@Model.PartnersOnline</div></div>
-    <div class="card kpi"><div class="label">Tỷ lệ hoàn thành</div><div class="value">@Model.CompletionRate.ToString("0")%</div></div>
+    <div class="card kpi tone-blue"><span class="kpi-icon">@Html.Raw(Icon(users))</span><div class="label">Khách hàng</div><div class="value">@Model.Customers</div></div>
+    <div class="card kpi tone-amber"><span class="kpi-icon">@Html.Raw(Icon(tool))</span><div class="label">Đối tác đã duyệt</div><div class="value">@Model.Partners</div></div>
+    <div class="card kpi tone-green"><span class="kpi-icon">@Html.Raw(Icon(signal))</span><div class="label">Đối tác đang online</div><div class="value">@Model.PartnersOnline</div></div>
+    <div class="card kpi tone-green"><span class="kpi-icon">@Html.Raw(Icon(check))</span><div class="label">Tỷ lệ hoàn thành</div><div class="value">@Model.CompletionRate.ToString("0")%</div></div>
 </section>
 
 <div class="split">
-    <section>
-        <h2 class="section-title">7 ngày gần nhất</h2>
-        <table class="table">
+    <section class="card chart-card">
+        <div class="chart-head">
+            <h2 class="section-title">7 ngày gần nhất</h2>
+            <span class="legend"><i class="dot dot-created"></i>Đơn mới <i class="dot dot-completed"></i>Hoàn tất</span>
+        </div>
+        <div class="chart" role="img" aria-label="Số đơn mới và đơn hoàn tất 7 ngày gần nhất">
+            @foreach (var d in Model.Days)
+            {
+                <div class="chart-col" title="@d.Day.ToString("dd/MM"): @d.Created đơn mới, @d.Completed hoàn tất, GMV @AdminText.Vnd(d.Gmv)">
+                    <div class="chart-bars">
+                        <span class="chart-bar created" style="height:@(d.Created * 100 / maxOrders)%"></span>
+                        <span class="chart-bar completed" style="height:@(d.Completed * 100 / maxOrders)%"></span>
+                    </div>
+                    <span class="chart-label">@d.Day.ToString("dd/MM")</span>
+                </div>
+            }
+        </div>
+        <table class="table table-compact">
             <thead><tr><th>Ngày</th><th>Đơn mới</th><th>Hoàn tất</th><th>GMV</th></tr></thead>
             <tbody>
             @foreach (var d in Model.Days)
@@ -76,7 +129,7 @@
             </tbody>
         </table>
     </section>
-    <section>
+    <section class="card">
         <h2 class="section-title">Đơn theo trạng thái</h2>
         @if (Model.OrdersByStatus.Count == 0)
         {
@@ -84,18 +137,16 @@
         }
         else
         {
-            <table class="table">
-                <thead><tr><th>Trạng thái</th><th>Số đơn</th></tr></thead>
-                <tbody>
+            <ul class="status-bars">
                 @foreach (var (status, count) in Model.OrdersByStatus)
                 {
-                    <tr>
-                        <td><a href="/admin/orders?status=@status">@AdminText.Badge(status)</a></td>
-                        <td>@count</td>
-                    </tr>
+                    <li>
+                        <a href="/admin/orders?status=@status">@AdminText.Badge(status)</a>
+                        <span class="status-track"><span style="width:@(count * 100 / maxStatus)%"></span></span>
+                        <strong>@count</strong>
+                    </li>
                 }
-                </tbody>
-            </table>
+            </ul>
         }
     </section>
 </div>

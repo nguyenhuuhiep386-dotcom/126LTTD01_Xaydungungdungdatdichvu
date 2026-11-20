@@ -13,7 +13,7 @@ public static class AdminText
 
     public static string Time(DateTimeOffset? at) => at is { } t ? t.ToOffset(Vietnam).ToString("dd/MM/yyyy HH:mm", Vi) : "—";
 
-    public static string Vnd(decimal amount) => Money.Vnd(amount);
+    public static string Vnd(decimal amount) => Money.Vnd(amount).Replace(" đ", (char)0xA0 + "đ"); // no-break space: never wrap "đ" onto its own line
 
     /// <summary>App URL of a private upload (/api/v1/files/{id}) → the audited admin viewer (/admin/files/{id}).</summary>
     public static string FileUrl(string url) =>
