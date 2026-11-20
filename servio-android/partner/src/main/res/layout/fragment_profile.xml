@@ -154,6 +154,76 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Quyền riêng tư (Luật 91/2025): the two pages of GET /legal, withdrawing the consent, deleting the account. -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xl"
+                android:accessibilityHeading="true"
+                android:text="@string/privacy_title"
+                android:textAppearance="@style/TextAppearance.Servio.SectionTitle" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/privacyRow"
+                        style="@style/Widget.Servio.MenuRow">
+
+                        <TextView
+                            style="@style/Widget.Servio.MenuRow.Label"
+                            android:text="@string/privacy_policy" />
+
+                        <TextView
+                            style="@style/Widget.Servio.MenuRow.Value" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/termsRow"
+                        style="@style/Widget.Servio.MenuRow">
+
+                        <TextView
+                            style="@style/Widget.Servio.MenuRow.Label"
+                            android:text="@string/privacy_terms" />
+
+                        <TextView
+                            style="@style/Widget.Servio.MenuRow.Value" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/withdrawRow"
+                        style="@style/Widget.Servio.MenuRow">
+
+                        <TextView
+                            style="@style/Widget.Servio.MenuRow.Label"
+                            android:text="@string/privacy_withdraw" />
+
+                        <TextView
+                            style="@style/Widget.Servio.MenuRow.Value" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/deleteAccountRow"
+                        style="@style/Widget.Servio.MenuRow">
+
+                        <TextView
+                            style="@style/Widget.Servio.MenuRow.Label"
+                            android:text="@string/privacy_delete"
+                            android:textColor="@color/servio_error" />
+
+                        <TextView
+                            style="@style/Widget.Servio.MenuRow.Value" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/logoutButton"
                 style="@style/Widget.Servio.Button.Outlined"

@@ -344,6 +344,21 @@
     <string name="profile_skills_value">%1$d/%2$d đã duyệt</string>
     <string name="profile_area_value">Bán kính %1$d km</string>
     <string name="profile_logout_title">Đăng xuất khỏi ServioPartner?</string>
+    <!-- PS-23 Quyền riêng tư (Luật 91/2025): pages of GET /legal, withdrawing TERMS_AND_PRIVACY, DELETE /users/me. -->
+    <string name="privacy_title">Quyền riêng tư</string>
+    <string name="privacy_policy">Chính sách bảo mật</string>
+    <string name="privacy_terms">Điều khoản sử dụng</string>
+    <string name="privacy_withdraw">Rút lại đồng ý</string>
+    <string name="privacy_withdraw_title">Rút lại đồng ý?</string>
+    <string name="privacy_withdraw_message">Bạn sẽ chuyển sang Offline và được đăng xuất. Lần đăng nhập sau cần đồng ý lại mới nhận việc tiếp được. Đơn đang làm không bị huỷ.</string>
+    <string name="privacy_delete">Xoá tài khoản</string>
+    <string name="privacy_delete_title">Xoá tài khoản?</string>
+    <string name="privacy_delete_message">Servio sẽ xoá ngay hồ sơ của bạn (họ tên, ảnh đại diện, giới thiệu), ảnh CCCD, ảnh chân dung, chứng chỉ tay nghề, vị trí, thiết bị đã đăng nhập và thông báo. Các đơn đã xong, thanh toán, đánh giá, tin nhắn và khiếu nại được giữ làm hồ sơ giao dịch dưới tên “Người dùng đã xoá”. Tài khoản dùng chung số điện thoại trên app Servio cũng bị xoá. Số điện thoại được giải phóng để đăng ký lại.</string>
+    <string name="privacy_delete_confirm_title">Xoá vĩnh viễn tài khoản?</string>
+    <string name="privacy_delete_confirm_message">Không thể hoàn tác. Bạn sẽ được đăng xuất ngay.</string>
+    <string name="privacy_delete_confirm">Xoá vĩnh viễn</string>
+    <string name="privacy_delete_blocked_title">Chưa xoá được tài khoản</string>
+    <string name="privacy_link_unavailable">Không mở được trang. Hãy cài một trình duyệt rồi thử lại.</string>
     <string name="review_title">Đánh giá khách hàng</string>
     <string name="review_customer_line">%1$s · Đơn #%2$s</string>
     <string name="review_hint">Đánh giá giúp đối tác khác biết khách có đúng hẹn, mô tả đúng việc không.</string>
@@ -361,7 +376,6 @@
     <string name="consent_title">Đồng ý xử lý dữ liệu cá nhân</string>
     <string name="consent_kyc">Ảnh CCCD và ảnh chân dung là dữ liệu nhạy cảm. Servio chỉ dùng để quản trị viên xác minh danh tính đối tác, lưu riêng và không hiển thị cho khách.</string>
     <string name="consent_location">Khi bật Online và khi đi tới khách, Servio dùng vị trí của bạn để gợi ý việc gần bạn và chia sẻ cho khách của đơn đang làm, chỉ trong lúc di chuyển.</string>
-    <string name="consent_terms">Bạn đồng ý với Điều khoản sử dụng và Chính sách bảo mật của Servio khi gửi hồ sơ đối tác.</string>
     <string name="consent_read_policy">Đọc Chính sách bảo mật</string>
     <string name="consent_checkbox">Tôi đã đọc và đồng ý</string>
     <string name="consent_agree">Đồng ý</string>
