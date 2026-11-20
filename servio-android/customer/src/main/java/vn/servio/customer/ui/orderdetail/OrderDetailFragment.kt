@@ -35,6 +35,8 @@ import vn.servio.customer.databinding.FragmentOrderDetailBinding
 import vn.servio.customer.databinding.ItemOrderStepBinding
 import vn.servio.customer.ui.common.RemoteImages
 import vn.servio.customer.ui.completion.ConfirmCompletionViewModel
+import vn.servio.customer.ui.dispute.CreateDisputeViewModel
+import vn.servio.customer.ui.dispute.DisputeRules
 import vn.servio.customer.ui.order.OrderFormat
 import vn.servio.customer.ui.order.OrderRoutes
 import vn.servio.customer.ui.review.SubmitReviewViewModel
@@ -75,6 +77,10 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         val images = RemoteImages(httpClient, viewLifecycleOwner.lifecycleScope, (RemoteImages.IMAGE_EDGE_DP * resources.displayMetrics.density).toInt())
 
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+        binding.toolbar.setOnMenuItemClickListener { item ->
+            if (item.itemId == R.id.action_dispute) openDispute()
+            true
+        }
         binding.notFoundBackButton.setOnClickListener { findNavController().navigateUp() }
         binding.retryButton.setOnClickListener { viewModel.load() }
         binding.swipeRefresh.setOnRefreshListener { viewModel.load() }
@@ -119,6 +125,7 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
             binding.content.isVisible = !state.notFound && detail != null
             binding.swipeRefresh.isEnabled = !state.notFound
             binding.toolbar.title = detail?.let { getString(R.string.order_detail_title, it.code) } ?: getString(R.string.order_detail_title_loading)
+            binding.toolbar.menu.findItem(R.id.action_dispute).isVisible = !state.notFound && state.canDispute
             if (detail != null && !state.notFound) {
                 bind(binding, images, state)
                 arrivalPrompt?.showIfPending()
@@ -216,6 +223,14 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         val order = state.detail ?: return
         val context = requireContext()
         val weekdays = QuoteFormat.weekdays(context)
+        val result = state.disputes
+            ?.takeIf { order.status != OrderStatus.DISPUTED }
+            ?.let(DisputeRules::closedCase)
+            ?.let(DisputeRules::resultLine)
+        binding.disputeResult.isVisible = result != null
+        binding.disputeResult.text = result?.let {
+            getString(R.string.order_detail_dispute_result, it.code, it.note ?: getString(R.string.order_detail_dispute_result_empty))
+        }
         when (val area = OrderDetailUi.statusArea(order)) {
             is StatusArea.Pending -> {
                 binding.banner.isVisible = true
@@ -237,7 +252,12 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
                 binding.bannerIcon.imageTintList = ColorStateList.valueOf(context.getColor(vn.servio.core.R.color.servio_error))
                 binding.bannerTitle.setText(R.string.order_detail_disputed)
                 binding.bannerTitle.setTextColor(context.getColor(vn.servio.core.R.color.servio_error))
-                binding.bannerText.isVisible = false
+                val line = state.disputes?.let(DisputeRules::openCase)?.let { DisputeRules.bannerLine(it, weekdays) }
+                binding.bannerText.isVisible = line != null
+                binding.bannerText.text = line?.let {
+                    if (it.due != null) getString(R.string.order_detail_dispute_line, it.code, it.due)
+                    else getString(R.string.order_detail_dispute_code, it.code)
+                }
             }
             is StatusArea.AwaitingPayment -> {
                 stopCountdown()
@@ -493,6 +513,13 @@ class OrderDetailFragment : Fragment(R.layout.fragment_order_detail) {
         val navController = findNavController()
         if (navController.currentDestination?.id != R.id.cs20) return
         navController.navigate(R.id.cs23, bundleOf(ConfirmCompletionViewModel.ARG_ORDER_ID to viewModel.orderId))
+    }
+
+    /** CS-33 Gửi khiếu nại; a sent case comes back as "Đã gửi khiếu nại" (OrderRoutes) and the order reloads as DISPUTED. */
+    private fun openDispute() {
+        val navController = findNavController()
+        if (navController.currentDestination?.id != R.id.cs20) return
+        navController.navigate(R.id.cs33, bundleOf(CreateDisputeViewModel.ARG_ORDER_ID to viewModel.orderId))
     }
 
     /** CS-26 Đánh giá đối tác; a sent review comes back as "Đã gửi đánh giá" (OrderRoutes) and the button goes. */

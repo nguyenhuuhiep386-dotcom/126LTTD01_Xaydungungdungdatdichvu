@@ -14,6 +14,7 @@ import vn.servio.customer.data.image.CameraCaptureFiles
 import vn.servio.customer.data.image.CaptureFiles
 import vn.servio.customer.data.remote.AddressApi
 import vn.servio.customer.data.remote.FileApi
+import vn.servio.customer.data.remote.DisputeApi
 import vn.servio.customer.data.remote.NotificationApi
 import vn.servio.customer.data.remote.OrderApi
 import vn.servio.customer.data.remote.PartnerApi
@@ -43,7 +44,9 @@ import vn.servio.customer.data.repository.QuoteUpdates
 import vn.servio.customer.data.repository.RemoteServiceRequestRepository
 import vn.servio.customer.data.repository.ServiceRequestRepository
 import vn.servio.customer.data.repository.CustomerSessionCleanup
+import vn.servio.customer.data.repository.DisputeRepository
 import vn.servio.customer.data.repository.NotificationRepository
+import vn.servio.customer.data.repository.RemoteDisputeRepository
 import vn.servio.customer.data.repository.RemoteNotificationRepository
 import vn.servio.customer.data.repository.RemoteWalletRepository
 import vn.servio.customer.data.repository.SessionCleanup
@@ -95,6 +98,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideServerConfigApi(retrofit: Retrofit): ServerConfigApi = retrofit.create(ServerConfigApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideDisputeApi(retrofit: Retrofit): DisputeApi = retrofit.create(DisputeApi::class.java)
 }
 
 /** Customer repositories. All of them call the real API. */
@@ -110,6 +117,9 @@ abstract class RepositoryBindings {
 
     @Binds
     abstract fun bindServerConfigRepository(impl: RemoteServerConfigRepository): ServerConfigRepository
+
+    @Binds
+    abstract fun bindDisputeRepository(impl: RemoteDisputeRepository): DisputeRepository
 
     @Binds
     abstract fun bindSessionCleanup(impl: CustomerSessionCleanup): SessionCleanup

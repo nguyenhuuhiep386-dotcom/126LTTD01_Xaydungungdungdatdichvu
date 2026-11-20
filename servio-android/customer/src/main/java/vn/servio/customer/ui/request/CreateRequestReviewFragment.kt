@@ -245,15 +245,16 @@ class CreateRequestReviewFragment : Fragment(R.layout.fragment_create_request_re
         val builder = MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Servio_AlertDialog)
             .setTitle(title)
             .setMessage(failure.message)
-            .setPositiveButton(R.string.action_close, null)
+        // The way out is the main (right) button; "Đóng" moves to the secondary one on its left.
         when (failure.kind) {
             // CS-30 "Phí huỷ và giao dịch" opens on top: the draft is kept.
-            PostFailure.DialogKind.OUTSTANDING_DEBT ->
-                builder.setNeutralButton(R.string.create_request_post_view_fee) { _, _ -> findNavController().navigate(R.id.cs30) }
-            PostFailure.DialogKind.UNPAID_ORDER -> builder.setNeutralButton(R.string.create_request_post_view_order) { _, _ ->
-                failure.orderId?.let(::openOrder) ?: openOrders()
-            }
-            else -> Unit
+            PostFailure.DialogKind.OUTSTANDING_DEBT -> builder
+                .setPositiveButton(R.string.create_request_post_view_fee) { _, _ -> findNavController().navigate(R.id.cs30) }
+                .setNegativeButton(R.string.action_close, null)
+            PostFailure.DialogKind.UNPAID_ORDER -> builder
+                .setPositiveButton(R.string.create_request_post_view_order) { _, _ -> failure.orderId?.let(::openOrder) ?: openOrders() }
+                .setNegativeButton(R.string.action_close, null)
+            else -> builder.setPositiveButton(R.string.action_close, null)
         }
         builder.show()
     }

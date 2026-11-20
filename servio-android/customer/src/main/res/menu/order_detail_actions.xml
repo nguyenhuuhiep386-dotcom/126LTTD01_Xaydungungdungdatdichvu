@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CS-20 overflow: "Khiếu nại" (CS-33), visible only while #146 accepts the order (DisputeRules.canOpen). -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_dispute"
+        android:title="@string/order_detail_menu_dispute"
+        android:visible="false"
+        app:showAsAction="never" />
+</menu>

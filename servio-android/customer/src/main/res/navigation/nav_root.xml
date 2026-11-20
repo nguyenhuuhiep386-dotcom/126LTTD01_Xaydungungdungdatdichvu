@@ -298,24 +298,13 @@
             android:label="CS-32 Cài đặt">
         </fragment>
 
+        <!-- CS-33 Gửi khiếu nại (KH-7, #146): from the CS-20 menu and from CS-23. Once sent it lands on CS-20. -->
         <fragment
             android:id="@+id/cs33"
-            android:name="vn.servio.core.ui.placeholder.PlaceholderFragment"
-            android:label="CS-33 Khiếu nại">
+            android:name="vn.servio.customer.ui.dispute.CreateDisputeFragment"
+            android:label="CS-33 Gửi khiếu nại">
             <argument
-                android:name="code"
-                android:defaultValue="CS-33"
-                app:argType="string" />
-            <argument
-                android:name="title"
-                android:defaultValue="Khiếu nại"
-                app:argType="string" />
-            <argument
-                android:name="description"
-                android:defaultValue="Tạo khiếu nại cho đơn (#146)"
-                app:argType="string" />
-            <argument
-                android:name="links"
+                android:name="orderId"
                 android:defaultValue=""
                 app:argType="string" />
         </fragment>

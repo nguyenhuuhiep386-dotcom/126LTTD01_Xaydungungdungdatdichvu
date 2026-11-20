@@ -4,6 +4,7 @@ import android.view.View
 import androidx.annotation.IdRes
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import vn.servio.customer.R
@@ -23,6 +24,11 @@ object OrderRoutes {
         val navController = fragment.findNavController()
         navController.previousBackStackEntry?.savedStateHandle?.set(KEY_MESSAGE, message)
         navController.popBackStack()
+    }
+
+    /** Leaves [message] for the screen now on top (after a pop or navigate done by the caller), e.g. CS-33 → CS-20. */
+    fun leaveForCurrent(navController: NavController, @StringRes message: Int) {
+        navController.currentBackStackEntry?.savedStateHandle?.set(KEY_MESSAGE, message)
     }
 
     /** Called by CS-19 and CS-20 ([destination]) from onViewCreated: shows a message left for them, once. */

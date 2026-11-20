@@ -2,9 +2,10 @@
 <!--
   CS-20 Chi tiết đơn hàng (Figma 18:2121 PENDING, 18:2208 ON_THE_WAY). Top: the yellow banner (PENDING, red for a
   dispute and for AWAITING_PAYMENT) or a white card with the status chip and one line. Then the partner row, "Thông tin công việc",
-  "Tiến trình" and the cancel text button. The ⋮ of Figma has no action yet, so it is not shown.
+  "Tiến trình" and the cancel text button. The ⋮ of Figma holds "Khiếu nại" only, shown when it applies.
   ETA and "Theo dõi đường đi" while ON_THE_WAY; the pending extra charges line (CS-22) while ARRIVED / IN_PROGRESS;
-  no "Gửi khiếu nại" (KH-7).
+  "Khiếu nại" in the app bar menu (opens CS-33) while #146 accepts the order; the DISPUTED banner adds the case code
+  and support deadline from #147, and a closed case shows its result under the status.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -19,6 +20,7 @@
         android:layout_height="?attr/actionBarSize"
         app:navigationContentDescription="@string/action_back"
         app:navigationIcon="@drawable/ic_back"
+        app:menu="@menu/order_detail_actions"
         app:title="@string/order_detail_title_loading"
         tools:title="Đơn #OD2611180010" />
 
@@ -200,6 +202,24 @@
                                 app:iconTint="@color/servio_text_primary" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Not DISPUTED and #147 has a closed case: "Kết quả khiếu nại DS…: <note>" (the newest one). -->
+                    <TextView
+                        android:id="@+id/disputeResult"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:background="@drawable/bg_order_banner"
+                        android:drawablePadding="@dimen/space_s"
+                        android:paddingHorizontal="@dimen/space_m"
+                        android:paddingVertical="@dimen/space_s"
+                        android:textAppearance="@style/TextAppearance.Servio.Caption"
+                        android:textColor="@color/servio_text_primary"
+                        android:visibility="gone"
+                        app:drawableStartCompat="@drawable/ic_flag"
+                        app:drawableTint="@color/servio_text_accent"
+                        tools:text="Kết quả khiếu nại DS2611200001: Đối tác sẽ quay lại sửa miễn phí"
+                        tools:visibility="visible" />
 
                     <!-- endregion -->
 
