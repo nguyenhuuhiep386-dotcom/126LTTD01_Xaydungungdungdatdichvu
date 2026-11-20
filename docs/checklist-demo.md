@@ -19,7 +19,7 @@ Tài liệu dùng trong 2 ngày 16/11 và 17/11. In ra hoặc mở trên laptop,
 | Kiểm tra backend sống | `http://<IP laptop>:5080/health/live` (mở được trên trình duyệt điện thoại là mạng đã thông) |
 | OTP | `123456` cho mọi số |
 | Số mới cho bước 1 và 2 | Đối tác `0903000001`, khách `0903000002` (dự phòng `0903000011`, `0903000012` nếu phải làm lại) |
-| Tài khoản có sẵn (seed) | Khách `0901000001`–`0901000003`, đối tác `0902000001`–`0902000003`, chi tiết ở `huong-dan-phat-trien.md` |
+| Tài khoản có sẵn (seed) | Khách `0901000001`–`0901000003`, đối tác `0902000001`–`0902000003`, chi tiết ở `huong-dan-phat-trien.md`. Seed đã ghi sẵn đồng ý (điều khoản; với đối tác thêm ảnh CCCD và vị trí) theo phiên bản chính sách hiện tại, nên vào thẳng app được; nếu đã tăng `privacy.policy_version` thì app hỏi lại một lần |
 | Địa chỉ demo | Trường ĐH Sư phạm Kỹ thuật, 1 Võ Văn Ngân (phòng học), để check-in GPS chạy được trong lớp |
 
 ---

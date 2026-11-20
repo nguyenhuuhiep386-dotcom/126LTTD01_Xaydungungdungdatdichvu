@@ -5,6 +5,7 @@
   name and the order's address, countdown to expiresAt, then "Chưa thấy" (outlined) and "Đúng, đã đến" side by side.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -25,7 +26,7 @@
             android:layout_gravity="center"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_pin"
-            android:tint="@color/servio_text_accent" />
+            app:tint="@color/servio_text_accent" />
     </FrameLayout>
 
     <TextView
@@ -57,7 +58,7 @@
             android:layout_height="16dp"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_clock"
-            android:tint="@color/servio_text_secondary" />
+            app:tint="@color/servio_text_secondary" />
 
         <TextView
             android:id="@+id/countdown"

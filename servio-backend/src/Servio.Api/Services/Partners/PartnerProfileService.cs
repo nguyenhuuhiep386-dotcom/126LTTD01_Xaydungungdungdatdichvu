@@ -28,7 +28,10 @@ public sealed class PartnerProfileService(
             .Include(p => p.User)
             .Include(p => p.PartnerDocuments)
             .Include(p => p.PartnerSkills).ThenInclude(s => s.ServiceCategory).ThenInclude(c => c.Parent)
-            .FirstOrDefaultAsync(p => p.UserId == userId, ct)
+            .AsSplitQuery() // two collections: one join would multiply documents × skills (EF warning 20504)
+            .Where(p => p.UserId == userId)
+            .OrderBy(p => p.Id) // split queries need a stable order even for one row (EF warning 10102)
+            .FirstOrDefaultAsync(ct)
             ?? throw ApiException.NotFound("Không tìm thấy hồ sơ đối tác");
 
         var timeout = await configs.GetIntAsync(SystemConfigService.PartnerOfflineTimeoutMinutes, 10, ct);
@@ -156,6 +159,27 @@ public sealed class PartnerProfileService(
         partner.UpdatedAt = now;
         await db.SaveChangesAsync(ct);
         return new OnlineStatusDto(partner.IsOnline);
+    }
+
+    /// <summary>
+    /// Job: partners whose heartbeat stopped (app closed without "Offline") are set Offline and their matching location
+    /// is erased, as when they turn Offline themselves (data minimisation, Luật 91/2025). The live trip position of
+    /// OrderAssignments is not touched.
+    /// </summary>
+    public async Task<int> DropStaleLocationsAsync(CancellationToken ct)
+    {
+        var timeout = await configs.GetIntAsync(SystemConfigService.PartnerOfflineTimeoutMinutes, 10, ct);
+        var cutoff = clock.GetUtcNow().AddMinutes(-timeout);
+        var stale = await db.PartnerProfiles
+            .Where(p => (p.IsOnline || p.CurrentLatitude != null) && (p.LastHeartbeatAt == null || p.LastHeartbeatAt < cutoff))
+            .ToListAsync(ct);
+        foreach (var p in stale)
+        {
+            p.IsOnline = false;
+            p.CurrentLatitude = p.CurrentLongitude = null;
+        }
+        await db.SaveChangesAsync(ct);
+        return stale.Count;
     }
 
     /// <summary>#26: sent every partner.heartbeat_seconds while online; refreshes the location used for matching.</summary>

@@ -153,4 +153,22 @@ public sealed class PrivacyTests : IAsyncLifetime
         Assert.Null(a.LastLocationAt);
         Assert.NotNull(a.ArrivalLatitude); // the check-in point is kept as evidence
     }
+
+    [Fact]
+    public async Task MatchingLocation_IsErased_WhenTheHeartbeatStops()
+    {
+        var active = await _f.AddPartnerAsync();
+        var gone = await _f.AddPartnerAsync();
+        _f.Ctx.Clock.Advance(TimeSpan.FromMinutes(11)); // partner.offline_timeout_minutes = 10
+        var p = await _f.Ctx.Db.PartnerProfiles.SingleAsync(x => x.UserId == active.Id);
+        p.LastHeartbeatAt = _f.Ctx.Clock.GetUtcNow(); // this one is still sending
+        await _f.Ctx.Db.SaveChangesAsync();
+
+        var dropped = await Profiles().DropStaleLocationsAsync(default);
+
+        Assert.Equal(1, dropped);
+        var stale = await _f.Ctx.Db.PartnerProfiles.AsNoTracking().SingleAsync(x => x.UserId == gone.Id);
+        Assert.Equal((false, (decimal?)null, (decimal?)null), (stale.IsOnline, stale.CurrentLatitude, stale.CurrentLongitude));
+        Assert.True((await _f.Ctx.Db.PartnerProfiles.AsNoTracking().SingleAsync(x => x.UserId == active.Id)).IsOnline);
+    }
 }
